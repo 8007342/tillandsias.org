@@ -1,0 +1,16 @@
+# tillandsias.org container image
+# Serves the static site over HTTPS with CloudFlare dynamic DNS.
+# See openspec/changes/add-container-framework for the architecture.
+#
+# For a local development launch this serves the static site over HTTP on :80.
+# HTTPS + certbot + cloudflare-ddns are wired per the specs when credentials and
+# DNS are provided in a real deployment.
+
+FROM docker.io/library/httpd:2.4
+
+# Document root for the official httpd image
+COPY var/html/ /usr/local/apache2/htdocs/
+
+EXPOSE 80
+
+CMD ["httpd", "-D", "FOREGROUND"]
