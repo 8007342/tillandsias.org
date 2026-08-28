@@ -1,27 +1,28 @@
 ## ADDED Requirements
 
-### Requirement: Canonical host and apex redirect
-The site MUST be served on HTTPS at the canonical host `www.tillandsias.org`,
-and the apex `tillandsias.org` MUST return an HTTP 301 redirect to
-`www.tillandsias.org`.
+### Requirement: Canonical host and alias redirect
+The site MUST be served at the canonical apex host `tillandsias.org` (the
+shortest URL for users), and `www.tillandsias.org` MUST return an HTTP 301
+redirect to `tillandsias.org`, preserving the scheme.
 
-#### Scenario: Request to apex over HTTP
-- **WHEN** a client requests `http://tillandsias.org`
-- **THEN** it receives a 301 redirect to `https://www.tillandsias.org`
+#### Scenario: Request to apex
+- **WHEN** a client requests `tillandsias.org`
+- **THEN** it receives the static site over HTTPS at the apex
 
 #### Scenario: Request to www over HTTPS
 - **WHEN** a client requests `https://www.tillandsias.org`
-- **THEN** it receives the static site over HTTPS
+- **THEN** it receives a 301 redirect to `https://tillandsias.org`
 
 ### Requirement: Automatic wildcard certificate
 The image MUST issue and automatically renew a Let's Encrypt certificate
-covering `*.tillandsias.org` and `tillandsias.org` using the DNS-01 challenge
-via certbot's CloudFlare plugin, without requiring inbound port 80 for issuance.
+covering `tillandsias.org` (apex) and `www.tillandsias.org` (via the wildcard)
+using the DNS-01 challenge through certbot's CloudFlare plugin, without requiring
+inbound port 80 for issuance.
 
 #### Scenario: Initial certificate issuance
 - **WHEN** the container starts without a valid certificate
-- **THEN** certbot issues a wildcard certificate using the CloudFlare DNS-01
-  challenge
+- **THEN** certbot issues a wildcard certificate covering the apex and
+  `*.tillandsias.org` using the CloudFlare DNS-01 challenge
 
 #### Scenario: Automatic renewal
 - **WHEN** the certificate approaches expiration

@@ -1,16 +1,32 @@
-# tillandsias.org container image
-# Serves the static site over HTTPS with CloudFlare dynamic DNS.
-# See openspec/changes/add-container-framework for the architecture.
+# tillandsias.org web container image
 #
-# For a local development launch this serves the static site over HTTP on :80.
-# HTTPS + certbot + cloudflare-ddns are wired per the specs when credentials and
-# DNS are provided in a real deployment.
+# Serves the static site over HTTP(S) at the apex tillandsias.org, redirecting
+# www.tillandsias.org -> tillandsias.org. On start it takes the CloudFlare API
+# token from the runtime podman secret (/run/secrets/cf-token) and keeps DNS
+# pointed at the current public IP (dynamic DNS), then starts Apache httpd.
+#
+# Credentials are NEVER baked into this image; the CloudFlare token is injected
+# as a podman secret at runtime.
+#
+# See openspec/changes/add-container-framework for the architecture.
 
 FROM docker.io/library/httpd:2.4
 
-# Document root for the official httpd image
+# Runtime tooling + entrypoint
+COPY scripts/cloudflare-ddns /usr/local/bin/cloudflare-ddns
+COPY container/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/cloudflare-ddns /usr/local/bin/entrypoint.sh
+
+# Site content (dev/latest path; production consumes a versioned zip bundle)
 COPY var/html/ /usr/local/apache2/htdocs/
 
-EXPOSE 80
+# Apache vhost: serve apex, redirect www -> apex
+COPY container/tillandsias-vhost.conf /usr/local/apache2/conf/extra/tillandsias-vhost.conf
+RUN { \
+      printf '\nServerName tillandsias.org\n'; \
+      printf 'Include conf/extra/tillandsias-vhost.conf\n'; \
+    } >> /usr/local/apache2/conf/httpd.conf
 
-CMD ["httpd", "-D", "FOREGROUND"]
+EXPOSE 80 443
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

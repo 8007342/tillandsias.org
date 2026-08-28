@@ -48,8 +48,27 @@ Never commit a token. The repo `.gitignore` ignores credential files (`.cf-token
 
 The script reads the token from `--token-file`, `--token`,
 `$CLOUDFLARE_API_TOKEN`/`$CF_API_TOKEN`, or the podman secret mount
-`/run/secrets/cf-token`. It updates A/AAAA records for `tillandsias.org`,
-`www.tillandsias.org`, and `*.tillandsias.org` only when the public IP changes.
+`/run/secrets/cf-token`. It keeps **A** (IPv4) and **AAAA** (IPv6) records for
+`tillandsias.org` and `www.tillandsias.org` pointing at the current public
+addresses, **creating** records that don't exist and refreshing them with a short
+TTL (1 hour) since we serve from dynamic IPs.
+
+To build and run the site container locally:
+
+```sh
+./scripts/dev-run.sh --mode=skip    # serve + verify, no DNS writes
+./scripts/dev-run.sh --mode=dry-run # run, show DNS changes, don't write
+./scripts/dev-run.sh --mode=live    # run and update DNS to your public IP
+```
+
+## Cloudflare Tunnel fallback
+
+When there's no reachable public IPv4/IPv6 (e.g. a mobile/shared connection
+behind NAT/CGNAT), dynamic DNS alone can't point the domain here. In that case
+we fall back to a Cloudflare Tunnel. A tunnel needs its own credential (a
+remotely-managed tunnel token or an Origin CA certificate from
+`cloudflared tunnel login`) — the `Zone:DNS:Edit` token alone is not sufficient.
+The `dev-run.sh` public-IP check reports when a tunnel would be required.
 
 ## References
 

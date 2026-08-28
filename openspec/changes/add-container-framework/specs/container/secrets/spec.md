@@ -51,3 +51,20 @@ CloudFlare: `cloudflared` (installed via Homebrew on Silverblue) plus `curl` and
 - **WHEN** a developer works on dynamic DNS locally
 - **THEN** `cloudflared`, `curl`, and `jq` are available, and the token is
   provided outside the repo
+
+### Requirement: Cloudflare Tunnel credentials
+The `Zone:DNS:Edit` API token alone MUST NOT be assumed sufficient for Cloudflare
+Tunnels. Running a tunnel requires a tunnel token (remotely-managed tunnel) or an
+Origin CA certificate from `cloudflared tunnel login`, and creating/configuring a
+tunnel via API additionally requires account-level `Cloudflare Tunnel: Edit`
+permission.
+
+#### Scenario: Tunnel requires its own credential
+- **WHEN** a Cloudflare Tunnel is used
+- **THEN** separate tunnel credentials (tunnel token or Origin CA certificate)
+  are provided, distinct from the zone DNS token
+
+#### Scenario: API-managed tunnel permissions
+- **WHEN** a tunnel is created or configured via the CloudFlare API
+- **THEN** the API token includes account-level `Cloudflare Tunnel: Edit`
+  permission (or an equivalent Cloudflare One connectors permission)

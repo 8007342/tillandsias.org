@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# cloudflare-ddns for www.tillandsias.org
+# cloudflare-ddns for tillandsias.org
 #
-# Keeps A/AAAA records pointed at the current public IP. Designed to run on the
-# dev host and inside the container at runtime.
+# Keeps A (IPv4) and AAAA (IPv6) records pointed at the current public addresses,
+# with a short TTL (1 hour) since we serve from dynamic IPs. Apex is canonical;
+# www is also managed (it redirects to the apex). Runs on the dev host and inside
+# the container at runtime.
 #
 # Credentials are NEVER baked into the image or committed to the repo. The
 # CloudFlare API token is provided at runtime via one of:
@@ -14,7 +16,8 @@
 #   --validate             check token + zone lookup, no writes (implies dry-run)
 #
 # Usage:
-#   cloudflare-ddns [--dry-run|--validate] [--token-file F] [--token V] [--zone Z] [--hostnames H1,H2]
+#   cloudflare-ddns [--dry-run|--validate] [--token-file F] [--token V] \
+#                   [--zone Z] [--hostnames H1,H2] [--types A,AAAA] [--ttl N]
 set -euo pipefail
 
 API_BASE="${CF_API_BASE:-https://api.cloudflare.com/client/v4}"
@@ -23,16 +26,25 @@ MODE="live"
 TOKEN_FILE="${CF_TOKEN_FILE:-}"
 TOKEN="${CF_TOKEN_VAL:-}"
 ZONE="${CF_ZONE:-tillandsias.org}"
-# apex, www, and wildcard all live on this zone
-HOSTNAMES="${CF_HOSTNAMES:-tillandsias.org,www.tillandsias.org,*.tillandsias.org}"
-PUBLIC_IP_PROVIDERS=(
+# apex and www are the managed hosts; apex is canonical (www redirects to it).
+# The wildcard is not DNS-updated (reserved for certbot DNS-01 TXT later).
+HOSTNAMES="${CF_HOSTNAMES:-tillandsias.org,www.tillandsias.org}"
+# Short TTL (1 hour): we serve from dynamic IPs and update these records often.
+TTL="${CF_TTL:-3600}"
+# Record types to keep current: A (IPv4) and AAAA (IPv6).
+RECORD_TYPES="${CF_RECORD_TYPES:-A,AAAA}"
+PUBLIC_IP4_PROVIDERS=(
   "https://api.ipify.org"
   "https://api4.ipify.org"
+)
+PUBLIC_IP6_PROVIDERS=(
+  "https://api6.ipify.org"
+  "https://api64.ipify.org"
 )
 
 usage() {
   # print the leading #-comment block of this file as usage text
-  sed -n '2,24p' "$0" | sed -n '/^#/{s/^# //; s/^#$//; p}' >&2
+  sed -n '2,20p' "$0" | sed -n '/^#/{s/^# //; s/^#$//; p}' >&2
 }
 
 die() { echo "error: $*" >&2; exit 1; }
@@ -63,12 +75,23 @@ resolve_token() {
 }
 
 get_public_ip4() {
-  local p
-  for p in "${PUBLIC_IP_PROVIDERS[@]}"; do
+  local p ip
+  for p in "${PUBLIC_IP4_PROVIDERS[@]}"; do
     if ip="$(curl -fsSL --max-time 10 "$p" 2>/dev/null)"; then
-      # keep first line, strip anything that isn't an IPv4-ish token
       ip="$(printf '%s' "$ip" | head -n1 | tr -d '[:space:]')"
       [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] && { echo "$ip"; return 0; }
+    fi
+  done
+  return 1
+}
+
+get_public_ip6() {
+  local p ip
+  for p in "${PUBLIC_IP6_PROVIDERS[@]}"; do
+    if ip="$(curl -fsSL --max-time 10 "$p" 2>/dev/null)"; then
+      ip="$(printf '%s' "$ip" | head -n1 | tr -d '[:space:]')"
+      # accept an IPv6 address (contains a colon)
+      [[ "$ip" =~ : ]] && { echo "$ip"; return 0; }
     fi
   done
   return 1
@@ -114,48 +137,98 @@ main() {
     return 0
   fi
 
-  if ! ip="$(get_public_ip4)"; then
-    die "could not determine public IPv4 address"
+  # Determine current public addresses for each requested record type.
+  ip4="" ip6=""
+  if [[ ",$RECORD_TYPES," == *,A,* ]]; then
+    if ip4="$(get_public_ip4)"; then
+      log "public IPv4: $ip4  (mode: $MODE)"
+    else
+      log "warning: could not determine public IPv4; skipping A records"
+    fi
   fi
-  log "public IPv4: $ip  (mode: $MODE)"
+  if [[ ",$RECORD_TYPES," == *,AAAA,* ]]; then
+    if ip6="$(get_public_ip6)"; then
+      log "public IPv6: $ip6  (mode: $MODE)"
+    else
+      log "warning: could not determine public IPv6; skipping AAAA records"
+    fi
+  fi
 
   IFS=',' read -r -a hosts <<<"$HOSTNAMES"
   local changed=0
   for host in "${hosts[@]}"; do
-    if ! api_get "/zones/$zone_id/dns_records?type=A&name=$(printf '%s' "$host" | sed 's/[*]/%2A/g')" || ! api_ok; then
-      warn "failed to list A records for $host (HTTP=$API_CODE)"
-      continue
-    fi
-    records="$API_BODY"
-    jq -e '.success == true' <<<"$records" >/dev/null 2>&1 ||
-      { warn "failed to list A records for $host"; continue; }
+    for type in A AAAA; do
+      [[ ",$RECORD_TYPES," == *,$type,* ]] || continue
+      if [ "$type" = "A" ]; then
+        ip="$ip4"; [ -n "$ip" ] || continue
+      else
+        ip="$ip6"; [ -n "$ip" ] || continue
+      fi
 
-    # handle multiple records by id
-    while read -r id cur_ip; do
-      [ -n "$id" ] || continue
-      if [ "$cur_ip" = "$ip" ]; then
-        log "A $host = $cur_ip (up to date)"
+      enc_name="$(printf '%s' "$host" | sed 's/[*]/%2A/g')"
+      if ! api_get "/zones/$zone_id/dns_records?type=$type&name=$enc_name" || ! api_ok; then
+        warn "failed to list $type records for $host (HTTP=$API_CODE)"
         continue
       fi
-      if [ "$MODE" = "dry-run" ]; then
-        log "would update A $host $cur_ip -> $ip (dry-run)"
-      else
-        set +e
-        resp="$(curl -sS --max-time 20 -X PATCH \
-          -H "Authorization: Bearer ${TOKEN}" \
-          -H "Content-Type: application/json" \
-          "$API_BASE/zones/$zone_id/dns_records/$id" \
-          -d "{\"content\":\"$ip\"}" 2>/dev/null)"
-        rc=$?
-        set -e
-        if [ "$rc" -eq 0 ] && jq -e '.success == true' <<<"$resp" >/dev/null 2>&1; then
-          log "updated A $host $cur_ip -> $ip"
-          changed=$((changed + 1))
+      records="$API_BODY"
+      jq -e '.success == true' <<<"$records" >/dev/null 2>&1 ||
+        { warn "failed to list $type records for $host"; continue; }
+
+      # current records for this host: "<id> <content>" per row
+      mapfile -t rows < <(jq -r '.result[] | "\(.id) \(.content)"' <<<"$records")
+
+      if [ "${#rows[@]}" -eq 0 ]; then
+        # No record exists yet -- create one with a short TTL.
+        if [ "$MODE" = "dry-run" ]; then
+          log "would create $type $host -> $ip (ttl=$TTL, dry-run)"
         else
-          warn "failed to update A $host: $(jq -r '.errors[0].message // "unknown"' <<<"$resp" 2>/dev/null || echo "HTTP error")"
+          set +e
+          resp="$(curl -sS --max-time 20 -X POST \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Content-Type: application/json" \
+            "$API_BASE/zones/$zone_id/dns_records" \
+            -d "{\"type\":\"$type\",\"name\":\"$host\",\"content\":\"$ip\",\"ttl\":$TTL}" 2>/dev/null)"
+          rc=$?
+          set -e
+          if [ "$rc" -eq 0 ] && jq -e '.success == true' <<<"$resp" >/dev/null 2>&1; then
+            log "created $type $host -> $ip"
+            changed=$((changed + 1))
+          else
+            warn "failed to create $type $host: $(jq -r '.errors[0].message // "unknown"' <<<"$resp" 2>/dev/null || echo "HTTP error")"
+          fi
         fi
+        continue
       fi
-    done < <(jq -r '.result[] | "\(.id) \(.content)"' <<<"$records")
+
+      # update existing records (handle multiple by id), refresh TTL
+      for row in "${rows[@]}"; do
+        id="${row%% *}"
+        cur_ip="${row#* }"
+        [ -n "$id" ] || continue
+        if [ "$cur_ip" = "$ip" ]; then
+          log "$type $host = $cur_ip (up to date)"
+          continue
+        fi
+        if [ "$MODE" = "dry-run" ]; then
+          log "would update $type $host $cur_ip -> $ip (dry-run)"
+        else
+          set +e
+          resp="$(curl -sS --max-time 20 -X PATCH \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Content-Type: application/json" \
+            "$API_BASE/zones/$zone_id/dns_records/$id" \
+            -d "{\"content\":\"$ip\",\"ttl\":$TTL}" 2>/dev/null)"
+          rc=$?
+          set -e
+          if [ "$rc" -eq 0 ] && jq -e '.success == true' <<<"$resp" >/dev/null 2>&1; then
+            log "updated $type $host $cur_ip -> $ip"
+            changed=$((changed + 1))
+          else
+            warn "failed to update $type $host: $(jq -r '.errors[0].message // "unknown"' <<<"$resp" 2>/dev/null || echo "HTTP error")"
+          fi
+        fi
+      done
+    done
   done
 
   [ "$MODE" = "live" ] && [ "$changed" -gt 0 ] && log "$changed record(s) updated."

@@ -42,10 +42,12 @@ Fedora Silverblue and Fedora Cloud.
 
 ## HTTPS
 
-- Canons: `www.tillandsias.org` serves content; apex `tillandsias.org` issues a
-  301 redirect to `www.tillandsias.org`.
-- certbot issues one wildcard cert covering `*.tillandsias.org` and
-  `tillandsias.org` using the **DNS-01** challenge via the CloudFlare plugin, so
+- Canonical host is the APEX `tillandsias.org` (shortest to type for users,
+  e.g. `https://tillandsias.org/install.sh`); it serves the site directly.
+- `www.tillandsias.org` issues a scheme-preserving 301 redirect to
+  `tillandsias.org`.
+- certbot issues a wildcard cert covering `tillandsias.org` (apex) and
+  `*.tillandsias.org` using the **DNS-01** challenge via the CloudFlare plugin, so
   no public port 80 inbound is required for issuance.
 - Apache config loads the managed cert bundle; renewal runs on a timer via the
   entrypoint, reloading httpd after renewal.
@@ -53,12 +55,27 @@ Fedora Silverblue and Fedora Cloud.
 
 ## Dynamic DNS
 
-- `scripts/cloudflare-ddns` (bash + curl + jq) polls the public IP (e.g. via a
-  resolver) and, when it changes, updates the zone's A/AAAA records for
-  `tillandsias.org`, `www.tillandsias.org`, and `*.tillandsias.org` using the
-  CloudFlare API. Its `--validate` and `--dry-run` modes are non-destructive,
-  used to exercise the flow during development.
+- `scripts/cloudflare-ddns` (bash + curl + jq) detects the current public IPv4
+  (A) and IPv6 (AAAA) addresses and keeps the zone's records for `tillandsias.org`
+  and `www.tillandsias.org` current via the CloudFlare API, **creating** records
+  that don't yet exist. Records use a short TTL (1 hour / 3600) since we serve
+  from dynamic addresses.
+- Runs on container start (reads the CF token from the podman secret) and is
+  executable on the dev host. Its `--validate` and `--dry-run` modes are
+  non-destructive for safe development, plus `--mode` control in the dev script.
 - Scope: only this zone's own records (not arbitrary zone management).
+
+## Cloudflare Tunnel
+
+- When the host has no public IPv4/IPv6 (behind NAT/CGNAT, as on a mobile/shared
+  connection), dynamic DNS alone can't point the domain here. Fallback: a
+  Cloudflare Tunnel (`cloudflared`) exposes the site through Cloudflare.
+- A tunnel needs its own credential (remotely-managed tunnel token or an Origin
+  CA certificate from `cloudflared tunnel login`); the `Zone:DNS:Edit` token is
+  not sufficient. API-created/managed tunnels additionally need account-level
+  `Cloudflare Tunnel: Edit`.
+- Deferred until needed; a public-IP check in the dev script reports when a
+  tunnel would be required.
 
 ## Secrets
 
