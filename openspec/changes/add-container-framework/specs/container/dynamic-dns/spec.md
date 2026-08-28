@@ -23,3 +23,18 @@ zone, not arbitrary zone records.
 - **WHEN** the updater runs
 - **THEN** it only reads/updates the records for tillandsias.org,
   www.tillandsias.org, and *.tillandsias.org
+
+### Requirement: Non-destructive safety modes
+The `cloudflare-ddns` script MUST provide a `--validate` mode (verifies token
+and zone resolution with no writes) and a `--dry-run` mode (prints what it would
+change without calling any write API), so it can be exercised safely during
+development.
+
+#### Scenario: Validate mode
+- **WHEN** the updater runs with `--validate`
+- **THEN** it confirms the token is valid and the zone resolves, making no
+  changes to DNS records
+
+#### Scenario: Dry-run mode
+- **WHEN** the updater runs with `--dry-run`
+- **THEN** it prints the record updates it would make without writing them

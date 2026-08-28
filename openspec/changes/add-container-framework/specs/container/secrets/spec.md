@@ -27,3 +27,27 @@ restrictive file permissions and SELinux labels.
 - **WHEN** the secret is used by certbot or cloudflare-ddns
 - **THEN** the token is read from a read-only restricted file/label and is not
   written to logs or image layers
+
+### Requirement: Development credentials kept out of the repo
+For local development the CloudFlare token MUST be stored outside the repo (in
+`~/.config/tillandsias/cf-token` on the dev host, or a Podman secret) and the
+repo MUST ignore any credential files.
+
+#### Scenario: Dev token storage
+- **WHEN** running cloudflare-ddns locally in development
+- **THEN** the token is read from `~/.config/tillandsias/cf-token`, a Podman
+  secret, or an environment variable, never from the repository
+
+#### Scenario: No credentials committed
+- **WHEN** the repository is scanned
+- **THEN** no credential files or token material are tracked by source control
+
+### Requirement: Dev tooling availability
+The project MUST document the minimal development tooling needed to work with
+CloudFlare: `cloudflared` (installed via Homebrew on Silverblue) plus `curl` and
+`jq`, which are sufficient to exercise the dynamic DNS flow.
+
+#### Scenario: Dev tools present
+- **WHEN** a developer works on dynamic DNS locally
+- **THEN** `cloudflared`, `curl`, and `jq` are available, and the token is
+  provided outside the repo

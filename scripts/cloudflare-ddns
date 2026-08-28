@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+# cloudflare-ddns for www.tillandsias.org
+#
+# Keeps A/AAAA records pointed at the current public IP. Designed to run on the
+# dev host and inside the container at runtime.
+#
+# Credentials are NEVER baked into the image or committed to the repo. The
+# CloudFlare API token is provided at runtime via one of:
+#   --token-file <path>    (default $CF_TOKEN_FILE, or podman secret mount)
+#   --token <value>        (or $CLOUDFLARE_API_TOKEN / $CF_API_TOKEN)
+#
+# Modes:
+#   --dry-run              print what would change without calling write APIs
+#   --validate             check token + zone lookup, no writes (implies dry-run)
+#
+# Usage:
+#   cloudflare-ddns [--dry-run|--validate] [--token-file F] [--token V] [--zone Z] [--hostnames H1,H2]
+set -euo pipefail
+
+API_BASE="${CF_API_BASE:-https://api.cloudflare.com/client/v4}"
+
+MODE="live"
+TOKEN_FILE="${CF_TOKEN_FILE:-}"
+TOKEN="${CF_TOKEN_VAL:-}"
+ZONE="${CF_ZONE:-tillandsias.org}"
+# apex, www, and wildcard all live on this zone
+HOSTNAMES="${CF_HOSTNAMES:-tillandsias.org,www.tillandsias.org,*.tillandsias.org}"
+PUBLIC_IP_PROVIDERS=(
+  "https://api.ipify.org"
+  "https://api4.ipify.org"
+)
+
+usage() {
+  # print the leading #-comment block of this file as usage text
+  sed -n '2,24p' "$0" | sed -n '/^#/{s/^# //; s/^#$//; p}' >&2
+}
+
+die() { echo "error: $*" >&2; exit 1; }
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run) MODE="dry-run"; shift ;;
+    --validate) MODE="validate"; shift ;;
+    --token-file) TOKEN_FILE="$2"; shift 2 ;;
+    --token) TOKEN="$2"; shift 2 ;;
+    --zone) ZONE="$2"; shift 2 ;;
+    --hostnames) HOSTNAMES="$2"; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    *) die "unknown option: $1" ;;
+  esac
+done
+
+resolve_token() {
+  [ -n "$TOKEN" ] && return
+  [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && TOKEN="$CLOUDFLARE_API_TOKEN" && return
+  [ -n "${CF_API_TOKEN:-}" ] && TOKEN="$CF_API_TOKEN" && return
+  [ -n "$TOKEN_FILE" ] && [ -f "$TOKEN_FILE" ] && {
+    TOKEN="$(tr -d '[:space:]' < "$TOKEN_FILE")"; return
+  }
+  # Common podman secret default mount
+  [ -f /run/secrets/cf-token ] && TOKEN="$(tr -d '[:space:]' < /run/secrets/cf-token)" && return
+  die "no CloudFlare token found (use --token, --token-file, \$CLOUDFLARE_API_TOKEN, or podman secret)"
+}
+
+get_public_ip4() {
+  local p
+  for p in "${PUBLIC_IP_PROVIDERS[@]}"; do
+    if ip="$(curl -fsSL --max-time 10 "$p" 2>/dev/null)"; then
+      # keep first line, strip anything that isn't an IPv4-ish token
+      ip="$(printf '%s' "$ip" | head -n1 | tr -d '[:space:]')"
+      [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] && { echo "$ip"; return 0; }
+    fi
+  done
+  return 1
+}
+
+API_BODY=""
+API_CODE=""
+api_get() { # $1: path; sets $API_BODY and $API_CODE
+  local resp code
+  # run curl under its own errstate so failures don't trip `set -e` here
+  set +e
+  resp="$(curl -sS --max-time 20 -H "Authorization: Bearer ${TOKEN}" \
+          -H "Content-Type: application/json" -w $'\n%{http_code}' "$API_BASE$1" 2>/dev/null)"
+  code=$?
+  set -e
+  [ "$code" -eq 0 ] || { API_BODY=""; API_CODE="000"; return 1; }
+  API_CODE="${resp##*$'\n'}"
+  API_BODY="${resp%$'\n'*}"
+}
+
+api_ok() { [ "$API_CODE" = "200" ]; }
+
+log() { echo "$*"; }
+warn() { echo "warning: $*" >&2; }
+
+main() {
+  resolve_token
+
+  # --- Validate token / find zone (no writes) ---
+  if ! api_get "/zones?name=$(printf '%s' "$ZONE" | sed 's/[*]/\\*/g')&status=active" || ! api_ok; then
+    [ -n "$API_BODY" ] && msg="$(jq -r '.errors[0].message // .errors[0].code // "invalid response"' <<<"$API_BODY" 2>/dev/null || echo "invalid response")" || msg="no response"
+    die "CloudFlare API call failed HTTP=$API_CODE ($msg); check token"
+  fi
+  zones="$API_BODY"
+  jq -e '.success == true' <<<"$zones" >/dev/null 2>&1 ||
+    die "CloudFlare API call failed (bad token/network?)"
+  zone_id="$(jq -r '.result[0].id // empty' <<<"$zones")"
+  [ -n "$zone_id" ] || die "zone '$ZONE' not found or not active"
+
+  log "zone: $ZONE ($zone_id)"
+  if [ "$MODE" = "validate" ]; then
+    log "ok: token valid and zone '$ZONE' resolved (validate mode, no changes)"
+    return 0
+  fi
+
+  if ! ip="$(get_public_ip4)"; then
+    die "could not determine public IPv4 address"
+  fi
+  log "public IPv4: $ip  (mode: $MODE)"
+
+  IFS=',' read -r -a hosts <<<"$HOSTNAMES"
+  local changed=0
+  for host in "${hosts[@]}"; do
+    if ! api_get "/zones/$zone_id/dns_records?type=A&name=$(printf '%s' "$host" | sed 's/[*]/%2A/g')" || ! api_ok; then
+      warn "failed to list A records for $host (HTTP=$API_CODE)"
+      continue
+    fi
+    records="$API_BODY"
+    jq -e '.success == true' <<<"$records" >/dev/null 2>&1 ||
+      { warn "failed to list A records for $host"; continue; }
+
+    # handle multiple records by id
+    while read -r id cur_ip; do
+      [ -n "$id" ] || continue
+      if [ "$cur_ip" = "$ip" ]; then
+        log "A $host = $cur_ip (up to date)"
+        continue
+      fi
+      if [ "$MODE" = "dry-run" ]; then
+        log "would update A $host $cur_ip -> $ip (dry-run)"
+      else
+        set +e
+        resp="$(curl -sS --max-time 20 -X PATCH \
+          -H "Authorization: Bearer ${TOKEN}" \
+          -H "Content-Type: application/json" \
+          "$API_BASE/zones/$zone_id/dns_records/$id" \
+          -d "{\"content\":\"$ip\"}" 2>/dev/null)"
+        rc=$?
+        set -e
+        if [ "$rc" -eq 0 ] && jq -e '.success == true' <<<"$resp" >/dev/null 2>&1; then
+          log "updated A $host $cur_ip -> $ip"
+          changed=$((changed + 1))
+        else
+          warn "failed to update A $host: $(jq -r '.errors[0].message // "unknown"' <<<"$resp" 2>/dev/null || echo "HTTP error")"
+        fi
+      fi
+    done < <(jq -r '.result[] | "\(.id) \(.content)"' <<<"$records")
+  done
+
+  [ "$MODE" = "live" ] && [ "$changed" -gt 0 ] && log "$changed record(s) updated."
+  return 0
+}
+
+main "$@"

@@ -1,0 +1,5 @@
+# Never commit CloudFlare credentials or secrets
+*.cf-token
+*cf_token*
+.env
+.env.*

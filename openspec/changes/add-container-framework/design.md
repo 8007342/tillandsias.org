@@ -53,9 +53,11 @@ Fedora Silverblue and Fedora Cloud.
 
 ## Dynamic DNS
 
-- `cloudflare-ddns` script polls the public IP (e.g. via a resolver) and, when
-  it changes, updates the zone's A/AAAA records for `tillandsias.org`,
-  `www.tillandsias.org`, and `*.tillandsias.org` using the CloudFlare API.
+- `scripts/cloudflare-ddns` (bash + curl + jq) polls the public IP (e.g. via a
+  resolver) and, when it changes, updates the zone's A/AAAA records for
+  `tillandsias.org`, `www.tillandsias.org`, and `*.tillandsias.org` using the
+  CloudFlare API. Its `--validate` and `--dry-run` modes are non-destructive,
+  used to exercise the flow during development.
 - Scope: only this zone's own records (not arbitrary zone management).
 
 ## Secrets
@@ -63,8 +65,13 @@ Fedora Silverblue and Fedora Cloud.
 - CloudFlare API token scoped to `Zone:DNS:Edit` for the zone.
 - Injected at runtime as a Podman secret (`--secret`), mounted read-only into
   the container, never baked into the image or committed to the repo.
+- For local development the token lives outside the repo in
+  `~/.config/tillandsias/cf-token` (or a Podman secret) and is read by
+  `scripts/cloudflare-ddns` / certbot-dns-cloudflare. See
+  `docs/cloudflare-dev.md`.
 - Token passed to certbot-dns-cloudflare and cloudflare-ddns via env/file with
   restrictive file permissions and SELinux labels.
+- Minimal dev tooling: `cloudflared` (via Homebrew on Silverblue), `curl`, `jq`.
 
 ## Deployment (Podman)
 
