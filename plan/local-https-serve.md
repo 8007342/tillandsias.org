@@ -408,6 +408,54 @@ rung's release contract is this repo's own **versioned-zip-of-`var/html`** spec
 (`specs/site/release`), which rides the release machinery rather than a side
 channel. **Do not invent a staging directory.**
 
+### 6.5 🔴 The www→apex 301 downgrades HTTPS to plaintext behind a TLS terminator
+
+**A production bug in shipped code, on exactly the path the Cloudflare rung
+takes.** Found 2026-09-01; **not fixed** — see below.
+
+`container/tillandsias-vhost.conf:28` redirects with `%{REQUEST_SCHEME}`:
+
+```apache
+RewriteCond %{HTTP_HOST} ^www\.tillandsias\.org$ [NC]
+RewriteRule ^(.*)$ %{REQUEST_SCHEME}://tillandsias.org$1 [R=301,L]
+```
+
+`%{REQUEST_SCHEME}` resolves to `ap_http_scheme(r)`, which — with **no mod_ssl
+and no scheme on `ServerName`** — is hard-coded to `http`. The file has a single
+`<VirtualHost *:80>` and never reads `X-Forwarded-Proto`.
+
+> **Result:** a client arriving at `https://www.tillandsias.org` through a
+> TLS-terminating proxy is 301'd to **`http://tillandsias.org/`** — downgraded
+> to plaintext for a round trip, on the canonical-host redirect, for every
+> `www` visitor.
+>
+> The comment at line 25 — *"preserving scheme (works for http dev and https
+> prod)"* — is **factually wrong**. This is precisely the topology both the
+> Cloudflare tunnel rung and the proposed Caddy termination create.
+
+The fix is to trust the forwarded scheme (`X-Forwarded-Proto`, with `mod_remoteip`
+and a trusted-proxy list) rather than `%{REQUEST_SCHEME}`, or to hard-code
+`https://` in the redirect target.
+
+**Deliberately not fixed here.** It touches the same canonical-host redirect
+that is under adjudication (§5), and the host asked that TLS not be built
+repo-side yet. The *scheme* bug is orthogonal to the redirect's *direction* —
+whichever direction wins, emitting `http://` behind a TLS terminator is wrong —
+so it should be fixed either way, but as a deliberate change, not a drive-by
+during a pending decision. Reported to the host.
+
+### 6.6 The vhost is the default for `*:80`, so it answers for any Host
+
+`<VirtualHost *:80>` is the **only** vhost in the config, which makes it the
+default for that port: every request on :80 lands in it regardless of Host, and
+`ServerName`/`ServerAlias` do not gate anything. `Host: anything.example.com`
+returns **200** with the site.
+
+Harmless for the current local preview, and it is *why*
+`www.tillandsias.org.localhost` is served at all. Worth a deliberate decision
+before the public rung: a catch-all origin behind a tunnel will answer for any
+hostname pointed at it.
+
 ---
 
 ## 7. Runtime contract (answers from the host, 2026-09-01)
@@ -598,3 +646,8 @@ Append; do not rewrite.
   even after the socket and route both landed.
 - Operator chose to **relaunch now** to deliver the socket fix; checkpointed
   everything and handed off to this document.
+- Found a **production bug in the shipped vhost** (§6.5): the www→apex 301 uses
+  `%{REQUEST_SCHEME}`, which is hard-coded to `http` without mod_ssl, so a
+  client arriving over HTTPS through a TLS terminator is **downgraded to
+  plaintext**. Exactly the Cloudflare topology. Reported, not fixed — it touches
+  the redirect under adjudication.
