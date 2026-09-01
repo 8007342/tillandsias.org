@@ -881,3 +881,8 @@ Append; do not rewrite.
   rides the one socket by design, so a socket outage costs enumeration as well
   as control; and the host committed to recording the first real socket
   connection here as a measurement.
+- Recorded two traps in `plan/README.md`, both verified live: creating
+  `plan/index.yaml` would divert `project_answer`/`plan_query` into the plan
+  lane (`project-info.sh:397`, `forge-plan.sh:293-294`), and the router's
+  *hostname* is absent from `NO_PROXY` so it resolves through Squid and resets —
+  a reset that reads as "router down" when it is nothing of the kind.

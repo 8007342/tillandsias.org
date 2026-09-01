@@ -37,3 +37,44 @@ Two kinds of reader are expected, and the documents here are written for both:
 This project has no plan *crate* (`experts: degraded(no-plan-crate)` in the
 forge startup context), so these are plain Markdown documents rather than
 ledger fragments — no `tillandsias-plan check` schema applies.
+
+## 🔴 Reserved filenames — do NOT create these here
+
+These names are **live tooling surface**, not free-form documentation. Creating
+one in this directory changes how the MCP servers answer questions about this
+project:
+
+| Never create | Why |
+|---|---|
+| `plan/index.yaml` | `project-info.sh:397` probes `$PWD/plan/index.yaml`, and `forge-plan.sh:293-294` states that "a non-Tillandsias project has no `$PWD/plan/index.yaml` and falls through". Creating it makes this repo *look like* a Tillandsias plan project and diverts `project_answer` / `plan_query` into the plan lane. |
+| `plan/index.d/` · `plan/loop_status.md` · `plan/loop_status.d/` · `plan/issues/` · `plan/mo-full-attestations.d/` | The ledger-fragment layout of the *Tillandsias meta-project*. This project has **no plan crate** (`experts: degraded(no-plan-crate)`), so these would be schema-less imitations that tooling may nonetheless try to parse. |
+
+It is inert **today** only because no `tillandsias-plan` binary ships in this
+image. A future image that ships one would start answering this project's
+questions out of a hand-written file. Use descriptive names
+(`local-https-serve.md`, `host-notes.md`) and keep this directory plain Markdown.
+
+> `.forge-startup-context.md` references `scripts/check-forge-findings-persisted.sh`
+> as a durability "GATE". **It does not exist in this repo, and should not be
+> added** — it gates the ledger directories above, which this project does not
+> have. The gate that actually applies here is simpler: `git status` clean and
+> `git log origin/main..main` empty before you exit.
+
+## ⚠️ Reaching the router from inside a forge
+
+Two traps, both of which have already cost a session:
+
+1. **`.localhost` does not resolve to the router from inside a forge** — it is
+   this container's own loopback. An in-forge `200` proves nothing about host
+   reachability.
+2. **The router's hostname is not in `NO_PROXY`.** `NO_PROXY` covers
+   `10.0.42.0/24` and the named services, but *not* `tillandsias-router`, so a
+   request to the hostname is sent to Squid at `proxy:3128`, which is not on the
+   egress allowlist and **resets the connection**. That reset looks exactly like
+   "the router is down". It is not.
+
+```sh
+curl -H 'Host: www.tillandsias.org.localhost' http://tillandsias-router:8080/… # 000, reset — WRONG
+curl -H 'Host: www.tillandsias.org.localhost' http://10.0.42.91:8080/…          # 200 — address by IP
+curl --noproxy '*' -H 'Host: …' http://tillandsias-router:8080/…                # 200 — or bypass explicitly
+```
