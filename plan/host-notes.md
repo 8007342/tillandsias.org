@@ -140,3 +140,38 @@ pulled into the packet.
    mount and a denied one, so all that is established is that the `claude-forge`
    AppRole token cannot reach one. Only a root/admin token or
    `vault secrets list` settles it. **Do not record "Vault has no PKI" as fact.**
+
+### 2026-09-01 (third) — `macuahuitl-fedora`: answers to the open questions
+
+*Recorded from a cross-session reply. This closes questions 1–3 above.*
+
+**Q1 — is the CA in the bare-metal NSS store? NO.** And it is worse than
+"not installed": the Tillandsias CA is a **self-signed 30-day root on tmpfs**
+at `/tmp/tillandsias-ca` (`subject == issuer` — the file named
+`intermediate.crt` *is* the root), born 2026-08-30, expiring 2026-09-29. It
+**dies on host reboot and regenerates**. Hand-installed browser trust would
+therefore break silently on every regeneration.
+
+> **Adjudication input recorded:** local HTTPS needs a **durable trust root**
+> first — either the enclave CA moves to a persistent location with real
+> validity and a one-time trust install, or Caddy `tls internal` with a
+> *persisted* Caddy root. Only then does leaf-minting matter.
+
+**Q2 — durability across restarts:** answered by the above. It is currently
+**not** durable, and that is now the gating item for HTTPS.
+
+**Q3 — `net.ipv4.ip_unprivileged_port_start` is `1024`** on the host, so the
+`:443`/`:80` loopback publish **fails today**. Filed as an operator-level host
+ask (a `sysctl.d` drop-in), with the no-`8443` constraint recorded alongside it.
+
+**Q4 — Vault PKI:** still unanswered; not needed while the trust-root question
+is the blocker.
+
+**Host-side pull, confirmed working** through `d74b73d`, canary chain intact.
+
+**Socket delivery:** the fix's call sits inside `create_dir_all`, which succeeds
+on existing directories, so it fires on every launch of every lane; and the
+tray-boot enumeration independently binds all existing projects. The real gap
+was that **the running tray binary predates both fixes**. Sequence: host-native
+rebuild + install → tray relaunch on the new binary → lane re-minted → socket
+bound two independent ways.

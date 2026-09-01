@@ -1,6 +1,6 @@
 # Workstream: local serve from a sibling container
 
-**Status:** 🟢 **HTTP rung LIVE and verified** · 🟡 **HTTPS rung HELD** pending adjudication · 🟡 **MCP socket** fixed on trunk, relaunch requested
+**Status:** 🟢 **HTTP rung LIVE and verified** · 🟡 **HTTPS rung HELD** — blocked on a durable trust root · 🟡 **MCP socket** fix built, relaunch in flight
 **Opened:** 2026-09-01
 **Last updated:** 2026-09-01 by forge session `tillandsias.org-forge-claude`
 
@@ -12,15 +12,19 @@
 > need to rebuild that.
 >
 > **If you are a relaunched session:** the operator accepted a tray relaunch on
-> 2026-09-01 to deliver the MCP socket fix (§3). **First thing to check** —
-> does `/run/host/tillandsias-mcp/mcp.sock` now exist, and does the
-> `host-browser` MCP server connect? If yes, the socket rung is done: verify
-> with `publish_local {"category":"WEB"}` and record it in §10. If no, the
-> relaunch did not deliver and the host needs to know.
+> 2026-09-01 to deliver the MCP socket fix, on a tray binary rebuilt to carry it
+> (§3). **The socket is expected to work — check it first.** Does
+> `/run/host/tillandsias-mcp/mcp.sock` exist, and does `host-browser` connect?
+> If yes, the socket rung is DONE: verify with `publish_local {"category":"WEB"}`
+> and record it in §10. If no, that is a genuine surprise the host needs told —
+> the fix fires on every launch by two independent paths, so a miss means
+> something new.
 >
 > **The three remaining threads:** (1) the MCP socket, above; (2) HTTPS —
-> **do not build this repo-side**, it is under adjudication (§5); (3) the
-> docroot convention so `/` works (§6.1) — host-side, this repo declares
+> **do not build this repo-side**, it is under adjudication, and it is now
+> blocked on something concrete: the enclave CA is a 30-day root on tmpfs that
+> the browser does not trust, so a **durable trust root** must come first (§5.1);
+> (3) the docroot convention so `/` works (§6.1) — host-side, this repo declares
 > nothing.
 >
 > **Do not** re-derive the environment from scratch: §4 has it, with evidence.
@@ -46,9 +50,9 @@ public, so **the origin config does not change when the tunnel rung lands**.
 | Rung | State |
 |---|---|
 | HTTP sibling serve via host `publish_local` | ✅ **live** (host-proxied, §2) |
-| Forge drives `publish_local` itself over MCP | 🟡 fixed on trunk, needs relaunch (§3) |
+| Forge drives `publish_local` itself over MCP | 🟡 fix built; tray relaunch in flight (§3) |
 | Docroot convention (`/` works, `/.git/` doesn't) | 🟡 filed host-side (§6.1) |
-| Local HTTPS | 🟡 **held — do not build repo-side** (§5) |
+| Local HTTPS | 🟡 **held** — needs a durable trust root first (§5.1) |
 | Public `https://www.tillandsias.org` via Cloudflare Tunnel | ⚪ later |
 
 ---
@@ -123,6 +127,22 @@ bug; the host reports two other partial fixes of the same class this week.
 
 **Fix is on trunk: `19057a9e3`.**
 
+### The real delivery gap — the running tray binary predates the fix
+
+A plausible worry was that the fix might only fire at lane *creation*, leaving
+an already-created lane socket-less forever. **The host checked: it does not.**
+The call sits inside `create_dir_all`, which succeeds on existing directories,
+so it fires on **every launch of every lane** — and the tray-boot enumeration
+*independently* binds all existing projects at startup. Two paths, either
+sufficient.
+
+> **The actual gap was one neither side had named: the running tray binary
+> predates both fixes.** Shipping the code was never going to be enough.
+
+Sequence in flight (2026-09-01): host-native rebuild + install → tray relaunch
+on the new binary → this lane re-minted → socket bound two independent ways.
+This container goes down at the relaunch step.
+
 ### 🔴 Host ask #5 — rootless low-port bind (added 2026-09-01)
 
 **This would block the HTTPS serve even after the socket and the route both
@@ -137,12 +157,14 @@ sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80
 echo 'net.ipv4.ip_unprivileged_port_start=80' | sudo tee /etc/sysctl.d/99-rootless-lowports.conf
 ```
 
+**✅ CONFIRMED BLOCKING (host, 2026-09-01):** the host really is at
+`net.ipv4.ip_unprivileged_port_start=1024`, so the `:443`/`:80` loopback publish
+**fails today**. Filed as an operator-level host ask (a `sysctl.d` drop-in) on
+the adjudication.
+
 > **Do not work around this with `https_port 8443`.** That reintroduces a port
-> into the URL and defeats the whole point of the exercise.
->
-> The `1024` observed inside this forge's network namespace is *not* the value
-> that governs the rootlesskit/pasta host-side bind — the host's own value is
-> the one that matters, and is unknown from here.
+> into the URL and defeats the whole point of the exercise. Recorded with the
+> ask.
 
 ### Delivery costs a relaunch — ✅ DECIDED: relaunch now (2026-09-01)
 
@@ -243,6 +265,30 @@ a pending decision. Await the adjudication.
 
 Investigated from inside the forge and requested by the host for the packet.
 
+#### 🔴 The CA is a 30-day root on tmpfs, and the browser does not trust it
+
+**Answered by the host 2026-09-01, and it reshapes this whole section.**
+
+- **Self-signed 30-day root**, born 2026-08-30, expires **2026-09-29**.
+  `subject == issuer` — the file named `intermediate.crt` **is the root**.
+- It lives at **`/tmp/tillandsias-ca`**, i.e. **on tmpfs**. It **dies on host
+  reboot and regenerates**.
+- It is **NOT in the bare-metal NSS store**.
+
+> **So the worst case is the actual case.** Hand-installed browser trust would
+> break silently on every regeneration — a reboot, and the padlock is gone with
+> no error that points at the cause.
+>
+> **Consequence for the adjudication: local HTTPS needs a DURABLE TRUST ROOT
+> before any leaf-minting question matters.** Either the enclave CA moves to a
+> persistent location with real validity and a one-time trust install, or Caddy
+> uses `tls internal` with a *persisted* Caddy root. Choosing a minting strategy
+> on top of an ephemeral root would be building on sand.
+
+The unconstrained-CA finding below **stands**, and is precisely what makes the
+durable-root option viable: the CA *can* sign these names, so the only thing
+missing is somewhere permanent to keep it.
+
 #### The enclave CA can legitimately sign a `.localhost` leaf — this is the key finding
 
 `/run/tillandsias/ca-chain.crt` is a **self-signed RSA-2048 root**:
@@ -263,7 +309,7 @@ cert is `CN=vault, O=Tillandsias`, issued by `CN=Tillandsias CA`, with
 localhost SAN**. So the operator directive's enclave-CA basis is technically
 sound for `.localhost`; nothing about the special-use TLD obstructs it.
 
-#### 🔴 The CA expires 2026-09-29 and looks per-tray-session
+#### Corroborating detail: the per-batch mint
 
 30-day total lifetime, `notAfter 2026-09-29T23:34:31Z` — **28 days out**. The CA
 and Vault's leaf share an identical `notBefore` (`2026-08-30T23:34:31Z`), so the
@@ -271,12 +317,8 @@ enclave PKI is minted in one batch at tray start. It predates this container, so
 it is **per-tray-session, not per-container**: it survives forge relaunches but
 **not a tray restart**.
 
-> **Consequence for the adjudication.** Any leaf minted from it must clamp
-> `notAfter` to the CA's own. More importantly, if the host must install this CA
-> into the browser/NSS trust store by hand, a per-tray-rotating CA makes that a
-> **recurring chore and a silent padlock break**. Worth deciding whether the CA
-> can be made durable across tray restarts — recorded as a question in
-> [`host-notes.md`](host-notes.md).
+> Any leaf minted from it must clamp `notAfter` to the CA's own. The durability
+> problem is stated in full above — it is now answered, not open.
 
 #### Vault cannot issue this today (from a forge token)
 
@@ -321,12 +363,13 @@ root (`/data/caddy/pki/authorities/local/root.crt`) — a *second* CA to install
 not the Tillandsias one; and the router **must** have a persistent `/data`
 volume or that root regenerates on restart and browser trust silently breaks.
 
-#### The load-bearing unknown
+#### ✅ The load-bearing unknown — answered, and the answer is "no"
 
 **Is the Tillandsias CA already in the bare-metal browser/NSS trust store?**
-Unverifiable from inside a container. If it is already installed for
-Chrome/Firefox, the whole problem collapses to minting one leaf. Asked in
-[`host-notes.md`](host-notes.md); still unanswered.
+**No.** Answered by the host 2026-09-01. Combined with the tmpfs/30-day facts
+above, this is what turns "mint a leaf" into "establish a durable trust root
+first" — see the top of §5.1. It is the reason local HTTPS is a real piece of
+work rather than a one-command fix.
 
 ### 5.2 Design notes retained as input
 
@@ -408,10 +451,10 @@ rung's release contract is this repo's own **versioned-zip-of-`var/html`** spec
 (`specs/site/release`), which rides the release machinery rather than a side
 channel. **Do not invent a staging directory.**
 
-### 6.5 🔴 The www→apex 301 downgrades HTTPS to plaintext behind a TLS terminator
+### 6.5 ✅ RESOLVED — the www→apex 301 downgraded HTTPS to plaintext
 
 **A production bug in shipped code, on exactly the path the Cloudflare rung
-takes.** Found 2026-09-01; **not fixed** — see below.
+takes.** Found and fixed 2026-09-01 (`73f015a`).
 
 `container/tillandsias-vhost.conf:28` redirects with `%{REQUEST_SCHEME}`:
 
@@ -437,12 +480,19 @@ The fix is to trust the forwarded scheme (`X-Forwarded-Proto`, with `mod_remotei
 and a trusted-proxy list) rather than `%{REQUEST_SCHEME}`, or to hard-code
 `https://` in the redirect target.
 
-**Deliberately not fixed here.** It touches the same canonical-host redirect
-that is under adjudication (§5), and the host asked that TLS not be built
-repo-side yet. The *scheme* bug is orthogonal to the redirect's *direction* —
-whichever direction wins, emitting `http://` behind a TLS terminator is wrong —
-so it should be fixed either way, but as a deliberate change, not a drive-by
-during a pending decision. Reported to the host.
+**Fixed 2026-09-01 in `73f015a`:** the target scheme is now hard-coded to
+`https`, with the `mod_remoteip` + `X-Forwarded-Proto` alternative recorded in
+the conf as the upgrade path (and a note that its trusted-proxy list is not
+optional, since a forwarded header is client-controlled otherwise).
+
+> The rule matches only `Host: www.tillandsias.org` — a public hostname always
+> reached through a terminator — so hard-coding is correct here and local dev,
+> which never presents that Host, is unaffected.
+>
+> **The restraint protocol worked as intended.** It was reported rather than
+> patched on discovery, precisely because it touched a redirect under
+> adjudication; the host then gave an explicit go, and the owner independently
+> confirmed apex-canonical. A deliberate go, not a drive-by.
 
 ### 6.6 The vhost is the default for `*:80`, so it answers for any Host
 
@@ -451,10 +501,10 @@ default for that port: every request on :80 lands in it regardless of Host, and
 `ServerName`/`ServerAlias` do not gate anything. `Host: anything.example.com`
 returns **200** with the site.
 
-Harmless for the current local preview, and it is *why*
-`www.tillandsias.org.localhost` is served at all. Worth a deliberate decision
-before the public rung: a catch-all origin behind a tunnel will answer for any
-hostname pointed at it.
+**Host ruling 2026-09-01: accepted as a deliberate-decision item, filed to the
+packet — do NOT change it yet.** Behind Cloudflare the tunnel config constrains
+hostnames anyway, and the local serve currently **relies** on this behaviour:
+it is *why* `www.tillandsias.org.localhost` is served at all.
 
 ---
 
@@ -540,7 +590,7 @@ requirement in this project exists only as an unarchived delta under
 > (none has one, so archiving now would leave six main specs carrying
 > `TBD … Update Purpose after archive`), *then* sync, *then* write the new change.
 
-### 9.2 🔴 Pre-existing defect: the repo contradicts itself on canonical host
+### 9.2 ✅ RESOLVED — the repo contradicted itself on canonical host
 
 **This is independent of the local-serve work and predates it.**
 
@@ -550,15 +600,23 @@ requirement in this project exists only as an unarchived delta under
 | `tasks.md:18-19` ("apex :80 301 redirect to www") | `specs/container/https/spec.md:3-14` |
 | | `container/tillandsias-vhost.conf:26-28` (shipped code) |
 
-The shipped code and the normative delta agree on **apex-canonical**; the
-proposal and the task list say the opposite. A future implementer following
-`tasks.md` will build the redirect backwards. Worth fixing as an
-`/opsx:update` on `add-container-framework` (planning artifacts only — that
-workflow must not touch code).
+The shipped code and the normative delta agreed on **apex-canonical**; the
+proposal and task list said the opposite. Nothing was broken at runtime, but
+`tasks.md:18-19` would have had an implementer build the redirect **backwards**.
 
-*Not fixed unilaterally: it is outside the scope this session was given, and
-reversing the wrong way would invalidate the CONTAINERFILE, the vhost,
-`dev-run.sh` and `design.md`.*
+**Ruling: the project owner confirmed APEX IS CANONICAL** (2026-09-01), which is
+also what three of the five sources and the running config already said.
+
+**Aligned in `069fdea`:** `proposal.md` Why and What Changes rewritten, `tasks.md`
+3.1/3.2 flipped, and the same drift fixed in the `container/image` delta (it
+described the image as serving "the www.tillandsias.org static site"). `tasks.md`
+3.1 now also carries *why* the redirect scheme is hard-coded, so the §6.5 bug
+cannot be reintroduced by someone implementing the task from its description.
+The six missing `## Purpose` sections were added in the same pass.
+
+> **Deliberately NOT synced.** The local-serve delta does not exist yet, and
+> syncing now would mean scoping the canonical-host rule twice instead of once.
+> `openspec validate --changes` passes.
 
 ### 9.3 What the local serve collides with
 
@@ -651,3 +709,29 @@ Append; do not rewrite.
   client arriving over HTTPS through a TLS terminator is **downgraded to
   plaintext**. Exactly the Cloudflare topology. Reported, not fixed — it touches
   the redirect under adjudication.
+
+### 2026-09-01 (later) — same session, after the host's rulings
+
+- **Owner ruled: apex is canonical.** Aligned the planning artifacts in
+  `069fdea` — `proposal.md`, `tasks.md` 3.1/3.2, and the `container/image`
+  drift — and added the six missing `## Purpose` sections. Not synced, by the
+  host's instruction, so the canonical-host rule gets scoped once rather than
+  twice. `openspec validate --changes` passes (§9.2).
+- **Host gave the go on §6.5**; fixed in `73f015a`. The scheme is hard-coded to
+  `https` in the www→apex redirect, with the `mod_remoteip` upgrade path
+  recorded in the conf.
+- **§6.6 accepted as a deliberate-decision item** and filed to the packet — not
+  changed, because the local serve currently relies on it.
+- **Socket hypothesis checked and closed:** the fix fires on every launch by two
+  independent paths, so my "only at lane creation" worry was wrong. The real
+  gap was the **running tray binary predating both fixes** — neither side had
+  named it. Rebuild + relaunch in flight (§3).
+- **CA answers landed and reshaped §5.1.** The enclave CA is a self-signed
+  30-day root **on tmpfs** (`/tmp/tillandsias-ca`) that **dies on host reboot**,
+  and it is **not in the bare-metal NSS store**. The worst case was the actual
+  case. Local HTTPS now blocks on establishing a **durable trust root**, before
+  any leaf-minting question matters. The unconstrained-CA finding stands and is
+  what makes that option viable.
+- **Host ask #5 confirmed blocking**: the host is at
+  `net.ipv4.ip_unprivileged_port_start=1024`, so the `:443` loopback publish
+  fails today. Filed as an operator-level ask.
