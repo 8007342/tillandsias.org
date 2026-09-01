@@ -68,6 +68,51 @@ future implementer can classify a new artifact type without asking.
 
 ---
 
+## 2.2 Blast radius — the free hand is narrower than it looks
+
+The operator (2026-09-01): **tillandsias.org is the only Tillandsias project in
+the world**, so customer-project migration is a non-issue (n=1, this repo), and
+forges can be initialized however the design needs.
+
+**But the detection probe targets three paths, not one** (`project-info.sh:397-399`):
+
+```
+$PWD/plan/index.yaml
+$HOME/src/tillandsias/plan/index.yaml
+$HOME/tillandsias/plan/index.yaml
+```
+
+So the **runtime repo's own `plan/`** is detection surface too — and that is the
+live ledger (packets, orders, attestations). It is *not* a break-freely target.
+
+> **The real constraint is the runtime ledger, not the customer projects.**
+> That gives a fork, owned by the runtime side:
+>
+> - **(a) One convention, both sides.** The runtime ledger migrates too. Clean
+>   end state; real migration cost on a large live ledger.
+> - **(b) Two shapes.** Runtime keeps `plan/`; customers get the new layout.
+>   Cheaper now — but detection carries two cases forever and "where does state
+>   live" gets no single answer. That is the same dual-source-of-truth shape
+>   that produced the MCP socket bug and two other partial fixes the same week.
+>
+> Preference is **(a)** for that reason; if migration is not sane mid-flight,
+> **(b) with a written expiry** beats pretending. Asked of the host 2026-09-01.
+
+### 2.3 Moving detection requires an IMAGE REBUILD
+
+`project-info.sh` lives in `~/.config-overlay/mcp/` and the answer engine is
+**image-baked** — "unlike the launch-built plan engine no relaunch rebuilds it".
+It is writable inside a forge, but such an edit dies with the container and
+reaches nothing.
+
+> So a namespace change is **not a repo change**. It is an image rebuild plus a
+> coordinated cutover, with a window where a project could carry the new layout
+> while the baked engine still probes the old path. **Proposed de-risk: make the
+> probe accept BOTH paths during the transition**, so the image and the repo can
+> land independently. Cheap now, expensive to retrofit.
+
+---
+
 ## 3. Candidates under consideration
 
 `plan/` (status quo) · `.tillandsias/` · `.config/tillandsias/` ·
@@ -137,3 +182,18 @@ the bootstrap design) and an adversarial critique — including a steelman of
 - **Tillandsias.org is the first customer**: it is itself a non-Tillandsias-shaped
   project, so whatever is decided gets migrated here first (§7 of the eventual
   decision doc).
+
+### 2026-09-01 (later) — operator granted a free hand; scope clarified
+- Operator: tillandsias.org is the **only** Tillandsias project, so break freely
+  and coordinate forge init as needed.
+- **Tested that premise rather than taking it:** the probe also targets
+  `~/src/tillandsias/plan/index.yaml`, the runtime's own live ledger. The free
+  hand is real for customer projects (n=1) but the ledger is the binding
+  constraint (§2.2).
+- Established that moving detection needs an **image rebuild**, not a repo edit
+  (§2.3), and proposed a both-paths transition so image and repo can land
+  independently.
+- Asked the host: ledger migration feasibility, rebuild cadence, whether
+  `tillandsias init` should be automatic at launch or explicit opt-in, and
+  whether an existing `/var` or `/opt` mount is the intended home for
+  per-project runtime state.
