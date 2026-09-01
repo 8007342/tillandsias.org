@@ -8,7 +8,7 @@
 # Usage:
 #   ./scripts/dev-run.sh --mode=live    # build + run; update DNS to public IP (default)
 #   ./scripts/dev-run.sh --mode=dry-run # run; check DNS changes but do not write
-#   ./scripts/dev-run.sh --mode=skip    # run; do NOT touch DNS (verify serving only)
+#   ./scripts/dev-run.sh --mode=skip    # run; do NOT touch DNS (verify serving only, no token needed)
 #   ./scripts/dev-run.sh --dry-run      # one-shot cloudflare-ddns dry-run, no serve
 #   ./scripts/dev-run.sh --logs         # follow logs of the running container
 #   ./scripts/dev-run.sh --stop         # stop and remove the dev container
@@ -72,32 +72,46 @@ case "$DDNS_MODE" in
   *) echo "error: --mode must be live|dry-run|skip (got $DDNS_MODE)" >&2; exit 1 ;;
 esac
 
-if [ ! -f "$CF_TOKEN_FILE" ]; then
+# Only the DNS-touching modes need a CloudFlare token. --mode=skip exists to
+# verify serving alone, so it must run on a machine that has no token at all.
+needs_token=yes
+if [ "$DDNS_MODE" = "skip" ] && [ "$action" != "--dry-run" ]; then
+  needs_token=no
+fi
+
+if [ "$needs_token" = yes ] && [ ! -f "$CF_TOKEN_FILE" ]; then
   echo "error: CloudFlare token not found at $CF_TOKEN_FILE" >&2
   echo "       create it in the CF dashboard and store it there (chmod 600)." >&2
+  echo "       (to serve without touching DNS, use --mode=skip — no token needed)" >&2
   exit 1
 fi
 
-echo "==> Public IP check"
-ip4="$(public_ip4 2>/dev/null || true)"
-ip6="$(public_ip6 2>/dev/null || true)"
-[ -n "$ip4" ] && echo "    public IPv4: $ip4"
-[ -n "$ip6" ] && echo "    public IPv6: $ip6"
-if [ -z "$ip4" ] && [ -z "$ip6" ]; then
-  echo "WARNING: no reachable public IP detected (you're likely behind NAT/CGNAT)." >&2
-  echo "         Dynamic DNS cannot point the domain here from this host." >&2
-  echo "         Without a public IP, use a Cloudflare Tunnel (requires extra" >&2
-  echo "         account-level token permissions). Continuing anyway." >&2
-else
-  echo "    (cloudflare-ddns will keep tillandsias.org + www pointed here, TTL=1h)"
-fi
+if [ "$needs_token" = yes ]; then
+  echo "==> Public IP check"
+  ip4="$(public_ip4 2>/dev/null || true)"
+  ip6="$(public_ip6 2>/dev/null || true)"
+  [ -n "$ip4" ] && echo "    public IPv4: $ip4"
+  [ -n "$ip6" ] && echo "    public IPv6: $ip6"
+  if [ -z "$ip4" ] && [ -z "$ip6" ]; then
+    echo "WARNING: no reachable public IP detected (you're likely behind NAT/CGNAT)." >&2
+    echo "         Dynamic DNS cannot point the domain here from this host." >&2
+    echo "         Without a public IP, use a Cloudflare Tunnel (requires extra" >&2
+    echo "         account-level token permissions). Continuing anyway." >&2
+  else
+    echo "    (cloudflare-ddns will keep tillandsias.org + www pointed here, TTL=1h)"
+  fi
 
-echo "==> Ensuring podman secret '$SECRET_NAME'"
-if ! podman secret exists "$SECRET_NAME" 2>/dev/null; then
-  podman secret create "$SECRET_NAME" "$CF_TOKEN_FILE" >/dev/null
-  echo "    created podman secret from $CF_TOKEN_FILE"
+  echo "==> Ensuring podman secret '$SECRET_NAME'"
+  if ! podman secret exists "$SECRET_NAME" 2>/dev/null; then
+    podman secret create "$SECRET_NAME" "$CF_TOKEN_FILE" >/dev/null
+    echo "    created podman secret from $CF_TOKEN_FILE"
+  else
+    echo "    podman secret '$SECRET_NAME' already exists"
+  fi
+  secret_args=(--secret "$SECRET_NAME,type=mount,target=$SECRET_TARGET")
 else
-  echo "    podman secret '$SECRET_NAME' already exists"
+  echo "==> mode=skip: no DNS work, so no CloudFlare token or podman secret needed"
+  secret_args=()
 fi
 
 echo "==> Building image"
@@ -109,7 +123,7 @@ if [ "$action" = "--dry-run" ]; then
   echo "==> Running cloudflare-ddns in dry-run (no DNS writes)"
   podman run --rm --name "$NAME" \
     -e CF_DDNS_MODE=dry-run \
-    --secret "$SECRET_NAME,type=mount,target=$SECRET_TARGET" \
+    "${secret_args[@]}" \
     "$IMAGE" /usr/local/bin/cloudflare-ddns --dry-run --token-file "$SECRET_TARGET"
   exit 0
 fi
@@ -118,7 +132,7 @@ echo "==> Starting container (serving http://tillandsias.org), ddns mode=$DDNS_M
 podman run -d --name "$NAME" \
   -p 80:80 \
   -e "CF_DDNS_MODE=$DDNS_MODE" \
-  --secret "$SECRET_NAME,type=mount,target=$SECRET_TARGET" \
+  "${secret_args[@]}" \
   "$IMAGE" >/dev/null
 echo "    started $NAME"
 sleep 2
