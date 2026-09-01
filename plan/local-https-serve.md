@@ -1,266 +1,342 @@
-# Workstream: local HTTPS serve from a sibling container
+# Workstream: local serve from a sibling container
 
-**Status:** `BLOCKED-ON-HOST` — repo side proceeding, runtime side waiting.
+**Status:** 🟢 **HTTP rung LIVE** (via host proxy) · 🟡 **HTTPS rung HELD** pending adjudication · 🟡 **MCP socket** fixed on trunk, undelivered to this lane
 **Opened:** 2026-09-01
 **Last updated:** 2026-09-01 by forge session `tillandsias.org-forge-claude`
+
+> **Cold-start? Read this box.**
+> The site **is serving right now** at
+> `http://www.tillandsias.org.localhost:8080/var/html/index.html` from a sibling
+> container the host runs. You do **not** need to rebuild that. The three open
+> threads are: (1) the lane MCP socket, so a forge can drive `publish_local`
+> itself instead of asking the host — fixed on trunk, needs a relaunch (§3);
+> (2) HTTPS — **do not build this repo-side**, it is under adjudication (§5);
+> (3) the docroot convention, so `/` works and `/.git/` does not (§6.1).
 
 ---
 
 ## 1. Goal
 
-Serve this repo's `./var/html` from a **sibling `httpd` container** — started,
-stopped and statused *by a forge agent* through the Tillandsias Runtime MCP
-servers — so that a browser on the bare-metal host can visit:
+Serve this repo's `./var/html` from a **sibling container** — started, stopped
+and statused *by a forge agent* through the Tillandsias Runtime MCP servers —
+reachable from a browser on the bare-metal host. The end state is:
 
 > **https://www.tillandsias.org.localhost**
 
-The serve must be a **full HTTPS serve, not an HTTP approximation**: a
-browser-trusted certificate, a genuine secure context, and therefore the real
-JavaScript CORS and mixed-content rules. A page that only works because someone
-passed `--ignore-certificate-errors` has not been tested.
+with a **browser-trusted certificate and a genuine secure context**, so the real
+JavaScript CORS and mixed-content rules apply. A page that only works behind
+`--ignore-certificate-errors` has not been tested.
 
-The sibling serves plain HTTP on `:80`; the host's Caddy router terminates TLS
-in front of it. That is deliberately the same shape Cloudflare will have when
-we go public, so **the origin config does not change when the tunnel rung
-lands** — `https://www.tillandsias.org` later reuses this exact container.
+The sibling serves plain HTTP; the host's Caddy router terminates TLS in front
+of it. That is deliberately the same shape Cloudflare will have when we go
+public, so **the origin config does not change when the tunnel rung lands**.
 
-### Out of scope for now
-Cloudflare Tunnel and the public name. Local HTTPS first. The existing
-`scripts/cloudflare-ddns` + `CONTAINERFILE` dynamic-DNS path is untouched.
+### Rungs
+| Rung | State |
+|---|---|
+| HTTP sibling serve via host `publish_local` | ✅ **live** (host-proxied, §2) |
+| Forge drives `publish_local` itself over MCP | 🟡 fixed on trunk, needs relaunch (§3) |
+| Docroot convention (`/` works, `/.git/` doesn't) | 🟡 filed host-side (§6.1) |
+| Local HTTPS | 🟡 **held — do not build repo-side** (§5) |
+| Public `https://www.tillandsias.org` via Cloudflare Tunnel | ⚪ later |
 
 ---
 
-## 2. Verified facts about this environment
+## 2. What is live today
 
-Each was checked from inside the forge container on 2026-09-01. Anything not
-listed here has **not** been proven.
+The host agent (`macuahuitl-fedora`) replicated the sanctioned publish path
+host-side rather than making this forge wait on the MCP socket:
 
-### 2.1 The forge checkout is ephemeral — this is the fact that shapes everything
+- Sibling container **`tillandsias-tillandsias.org-web`**, curated busybox httpd
+  image, on the enclave network, hostname `web-tillandsias.org`.
+- Route registered in Caddy and reloaded.
 
-`/home/forge/src/tillandsias.org` does **not** appear in `/proc/self/mountinfo`.
-It lives in the container's overlay upper layer and dies with the container.
+**Live URL:** `http://www.tillandsias.org.localhost:8080/var/html/index.html`
 
-> **Consequence:** a sibling container **cannot** bind-mount this working tree.
-> Content must be handed to the host through some other channel (§4.2).
-> **Consequence:** nothing is durable until it is committed *and pushed*.
+Independently verified from inside the forge on 2026-09-01 — `200`,
+`Via: 1.1 Caddy`, `Content-Length: 306`, body byte-identical to
+`var/html/index.html`.
 
-### 2.2 The lane MCP socket — mount is correct, socket is absent
+> ### ⚠️ Verifying from inside a forge — the trap that fooled an earlier pass
+> From inside a forge container, `www.tillandsias.org.localhost` **does not
+> resolve to the router** — `.localhost` is this container's own loopback. You
+> must send the Host header to the router directly:
+>
+> ```sh
+> curl -H 'Host: www.tillandsias.org.localhost' \
+>      http://10.0.42.91:8080/var/html/index.html
+> ```
+>
+> `container-diagnostics.md` (2026-09-01, Codex) read an in-forge `200` from its
+> own local Apache as evidence of a host route. It was not. **An in-forge 200
+> proves nothing about host reachability.**
 
-This is the single blocker for the whole runtime path.
+### 2.1 The content loop — how an edit reaches the browser
 
-From `/proc/self/mountinfo`:
+`publish_local` **bind-mounts the host worktree `~/src/tillandsias.org`
+read-only**. It never sees this forge's checkout, which lives in container
+overlay (§4.1). So:
 
 ```
-/tillandsias/mcp/tillandsias.org-default  ->  /run/host/tillandsias-mcp   (tmpfs, ro,nosuid,nodev)
+forge: edit -> commit -> push to enclave mirror
+                              │
+host:  ~/src/tillandsias.org  ├─ pull        (host agent/operator; not yet automated)
+                              ▼
+       ro bind-mount into tillandsias-<project>-web  ->  reflects instantly
 ```
 
-That tmpfs (device `0:111`) also backs `/run/secrets`, whose subpath is
-`/containers/overlay-containers/<ctr>/userdata/run/secrets` — which places the
-host-side source directory at:
+**Propagation canary.** `/plan/local-https-serve.md` through the mount returns
+`404` before the host has pulled and `200` after. One request answers "is the
+loop closed?" with no guessing:
 
-```
-/run/user/1000/tillandsias/mcp/tillandsias.org-default/
+```sh
+curl -o /dev/null -w '%{http_code}\n' -H 'Host: www.tillandsias.org.localhost' \
+     http://10.0.42.91:8080/plan/local-https-serve.md
 ```
 
-It is mounted, readable, and **empty**. `mcp.sock` is not bound.
+---
+
+## 3. The MCP socket — root-caused and fixed on trunk
+
+**A forge cannot yet drive `publish_local` itself.** Until the fix lands, the
+host agent *is* `publish_local` by proxy — message it for start/stop/status.
+
+### Root cause (found from this forge's mountinfo forensics)
+
+The live launcher `build_forge_agent_run_args_with_vault` creates the lane
+directory, mounts it, and sets `TILLANDSIAS_CONTROL_SOCKET` — but **never calls
+`start_mcp_socket_server_for_lane`**. The legacy tray path does call it, but the
+tray-boot enumeration only covers projects that exist at startup, and
+`tillandsias.org` was created after the last tray boot. A dual-source-of-truth
+bug; the host reports two other partial fixes of the same class this week.
+
+**Fix is on trunk: `19057a9e3`.**
+
+### Delivery costs a relaunch — an open decision
+
+Delivering the fix to this lane requires a tray relaunch, and forge containers
+are killed in the stack's shutdown sweep. So either:
+
+- **(a) Accept a relaunch now** — state is committed and pushed, so this is
+  cheap; or
+- **(b) Do nothing** — the socket simply arrives on the next fresh launch, and
+  the host proxies `publish_local` meanwhile.
+
+There is little pressure toward (a) while the host is proxying. **This is the
+operator's call, not an agent's.**
+
+### Evidence trail (what a forge sees when the socket is missing)
 
 | Component | State | Evidence |
 |---|---|---|
-| `TILLANDSIAS_CONTROL_SOCKET` | ✅ set to `/run/host/tillandsias-mcp/mcp.sock` | `env` |
-| Mount of the lane dir | ✅ present, `ro` | `/proc/self/mountinfo` |
-| `mcp.sock` inside it | 🔴 **absent** | `ls -la /run/host/tillandsias-mcp/` → empty |
-| `host-browser.sh` bridge | ✅ correct (plain `socat - UNIX-CONNECT:$SOCK`) | read the script |
-| `socat` binary | ✅ `/usr/sbin/socat` | `command -v socat` |
-| MCP registration | ✅ `host-browser` registered | `~/.config-overlay/claude/mcp.json`, `~/.claude.json` |
+| `TILLANDSIAS_CONTROL_SOCKET` | ✅ set → `/run/host/tillandsias-mcp/mcp.sock` | `env` |
+| Lane dir mount | ✅ present, `ro` | `/proc/self/mountinfo` |
+| `mcp.sock` inside it | 🔴 absent | `ls /run/host/tillandsias-mcp/` → empty |
+| `host-browser.sh` bridge | ✅ correct (`socat - UNIX-CONNECT`) | read the script |
+| `socat` | ✅ `/usr/sbin/socat` | `command -v socat` |
+| MCP registration | ✅ registered | `~/.config-overlay/claude/mcp.json` |
 | Resulting MCP state | 🔴 `CONNECTION_CLOSED` | session startup |
 
-> **This is strictly better than the two prior diagnoses in this repo.**
-> `SiblingContainerDiagnosis.md` (2026-08-28) found the env var unset *and* the
-> directory missing. `container-diagnostics.md` (2026-09-01, Codex) found the
-> env var set but the directory missing. Now the directory is mounted too.
-> **Only the host-side listener remains.** The mount is `ro` on the forge side,
-> so the socket must be created by the host — a forge cannot bind it.
+Host-side source dir, derived from the tmpfs device shared with `/run/secrets`:
+`/run/user/1000/tillandsias/mcp/tillandsias.org-default/`. The mount is `ro` on
+the forge side, so **only the host can bind the socket** — a forge never can.
 
-### 2.3 The router is Caddy, HTTP-only, and closed to us
+> This supersedes `SiblingContainerDiagnosis.md` (2026-08-28, env var *and* dir
+> missing) and `container-diagnostics.md` (2026-09-01, env var set, dir
+> missing). Both are kept for provenance; neither reflects current state.
 
-`tillandsias-router` = `10.0.42.91` on the podman `dns.podman` network.
+---
 
-| Port | State |
-|---|---|
-| 8080 | ✅ OPEN — `Server: Caddy` |
-| 80 | 🔴 closed |
-| 443 | 🔴 closed |
-| 8443 | 🔴 closed |
-| 2019 (Caddy admin API) | 🔴 closed |
+## 4. Environment facts
 
-Every request 404s: `tillandsias-router: no route for <host>` — including
-`www.tillandsias.org.localhost`, `tillandsias.org.localhost`. Nothing is
-registered for this lane.
+Verified from inside the forge, 2026-09-01. Anything not listed is **not** proven.
 
-> **Two consequences.** There is **no TLS listener at all** today, so the HTTPS
-> requirement needs host work regardless of the MCP socket. And with the admin
-> API closed, a forge **cannot self-register a route** — route creation is
-> necessarily the host's job.
+### 4.1 The forge checkout is ephemeral — the fact that shapes everything
 
-### 2.4 The shared named volume — a content channel that already exists
+`/home/forge/src/tillandsias.org` does **not** appear in
+`/proc/self/mountinfo`. It is container overlay and dies with the container.
 
-```
-host: /home/tlatoani/.local/share/containers/storage/volumes/tillandsias-forge-cache-tillandsias.org/_data
- ->  forge: /home/forge/.cache/tillandsias-project        (rw, btrfs)
-```
+> **Nothing is durable until committed *and pushed*.** And a sibling container
+> can never bind-mount this working tree — hence the git loop in §2.1.
 
-A second one, `tillandsias-spec-index-tillandsias.org` → `/opt/tillandsias/spec-index`.
+### 4.2 The router
 
-This is a genuine bidirectional bridge between forge and host that is **already
-wired**, which makes it the cheapest content-handoff candidate (§4.2 option a).
+`tillandsias-router` = `10.0.42.91`, **Caddy**. Port **8080 open**; **80, 443,
+8443 closed**; **admin API 2019 closed**. With the admin API closed a forge
+**cannot self-register a route** — that is necessarily host work. There is
+currently **no TLS listener at all**.
 
-### 2.5 Container identity (for host-side lookup)
+### 4.3 Identity (for host-side lookup)
 
 | | |
 |---|---|
-| Container name | `tillandsias-tillandsias.org-forge-claude` |
-| Hostname | `forge-tillandsias-org` |
+| Forge container | `tillandsias-tillandsias.org-forge-claude` / `forge-tillandsias-org` |
 | Container id | `d9aac43c43b6303276f72152051f60a157bf228e1388fcef3d3236a10f276a53` |
-| IP | `10.0.42.94` on `dns.podman` (10.0.42.0/24) |
-| Host user | `tlatoani` (rootless podman, Fedora, btrfs, SELinux `seclabel` mounts) |
-| Lane directory name | `tillandsias.org-default` |
+| Forge IP | `10.0.42.94` on `dns.podman` (10.0.42.0/24) |
+| Sibling | `tillandsias-<project>-web`, hostname `web-tillandsias.org` |
+| Host user | `tlatoani` — rootless podman, Fedora, btrfs, SELinux `seclabel` |
+| Lane dir name | `tillandsias.org-default` |
 | Forge uid/gid | `1000:1000` (`forge`) |
 
-### 2.6 Other reachable enclave services
+### 4.4 Other enclave services
 
-`vault` `10.0.42.87:8200` (token at `/run/secrets/vault-token`) ·
+`vault` `10.0.42.87:8200` (token `/run/secrets/vault-token`) ·
 `inference` `10.0.42.93:11434` · `proxy` `10.0.42.88:3128` ·
-git mirror `git-8orb1dgc88nrr5e892rg` (push/fetch verified working).
-No `podman`/`docker`/`buildah` client in the forge — by design.
+git mirror `git-8orb1dgc88nrr5e892rg` (push/fetch verified; relays to
+`github.com/8007342/tillandsias.org`). No podman/docker client in the forge —
+by design.
 
 ---
 
-## 3. Asks outstanding on the host
+## 5. HTTPS — HELD, do not build repo-side
 
-Sent to `macuahuitl-fedora` on 2026-09-01. Replies belong in
-[`host-notes.md`](host-notes.md).
+**Do not add TLS configuration to this repo.** An operator directive of
+**2026-07-24** already commissioned local HTTPS on an **enclave-CA** basis, with
+a proposed `images/apache`. This forge's alternative proposal — *Caddy
+terminates TLS at the router, origin stays plain HTTP, i.e. the Cloudflare
+shape* — has been filed as **adjudication input against that design**, together
+with these requirements:
 
-1. **Bind the lane MCP socket** at
-   `/run/user/1000/tillandsias/mcp/tillandsias.org-default/mcp.sock`.
-   Nothing else needs to change — not the mount, not the env var, not the forge
-   config. This unblocks `publish_local` / `service_status` / `service_stop`.
-2. **Choose the content-handoff channel** (§4.2).
-3. **Add a TLS listener and a route to Caddy** — publish `127.0.0.1:80` and
-   `127.0.0.1:443` from the router container, and route
-   `www.tillandsias.org.localhost` → the sibling on `:80`.
-4. **Answer two contract questions** so the repo matches the Runtime rather than
-   inventing: does `publish_local {"category":"WEB"}` return an `https` no-port
-   URL once TLS exists (or is `http://…:8080` the contracted value today), and
-   is the sibling named `tillandsias-tillandsias.org-web` or does the Runtime
-   mint its own name?
+- a real green padlock, no click-through, no `-k`;
+- secure-context fidelity, so `window.isSecureContext === true` and ordinary
+  CORS preflight rules govern `fetch()`;
+- loopback `:443` publish from the router container;
+- a defined cert-trust route into the bare-metal browser/NSS store.
 
----
+A relaunched session must **not** helpfully "finish" this — it would cut across
+a pending decision. Await the adjudication.
 
-## 4. Design
+### Design notes retained as adjudication input
 
-### 4.1 Shape
-
-```
-   bare-metal browser
-          │  https://www.tillandsias.org.localhost   (RFC 6761 → 127.0.0.1)
-          ▼
-   127.0.0.1:443  ──►  tillandsias-router (Caddy)      ← terminates TLS
-          │                    │
-          │                    │ reverse_proxy, plain HTTP
-          ▼                    ▼
-     (:80 → 301 https)   tillandsias-<project>-web:80  ← sibling httpd
-                                │
-                                ▼
-                         /usr/local/apache2/htdocs   ← var/html, read-only
-```
-
-TLS terminates at the router, exactly as Cloudflare will terminate it later.
-The sibling origin is identical in both cases.
-
-### 4.2 Content handoff — options put to the host
-
-- **(a) Reuse the existing named volume.** Forge stages the site into a
-  `web-root/` subdir of `tillandsias-forge-cache-tillandsias.org`; the sibling
-  mounts that subpath read-only. **Preferred** — zero new plumbing, already
-  wired, works for every future forge of this project.
-- **(b) Push/pull through the git mirror.** Forge commits and pushes; the host
-  keeps a checkout the sibling mounts. Cleanest provenance, slowest loop.
-- **(c) `publish_local` streams a bundle** over the control socket and the
-  Runtime owns the volume. Best long-term; only if already implemented.
-
-### 4.3 Notes that will bite if forgotten
-
-- **SELinux.** The host is Fedora with `seclabel` mounts and rootless podman.
-  A bind mount into the sibling needs `:z` (shared) or `:Z` (private)
-  relabelling, or Apache gets `AH00132: permission denied` and the cause is not
-  obvious from the error.
-- **uid/gid.** The forge writes as `1000:1000`. The official `httpd:2.4` image
-  runs its workers as `www-data`/`daemon`. Content must be world-readable, or
-  the sibling serves 403s.
+- **`.localhost` resolution.** RFC 6761 reserves `.localhost`; systemd-resolved
+  and major browsers map it to loopback, so publishing `127.0.0.1:443` suffices
+  for bare-metal browsers. Multi-label `.localhost` names have historically been
+  weaker in Firefox than Chrome — worth explicit verification, not assumption.
 - **HSTS on a `.localhost` origin is a trap.** `Strict-Transport-Security` is
-  stored by the browser **per host**, and a `max-age` set on
-  `www.tillandsias.org.localhost` would pin *that* name to HTTPS on the
-  developer's machine long after this container is gone. Worse, `includeSubDomains`
-  on a `.localhost` name can poison sibling projects' `.localhost` hosts. Do
-  **not** set HSTS on the local origin; set it only on the real public origin.
-- **The sibling outlives the forge.** Tearing down the forge does not stop a
-  published sibling. `service_stop` must be called, or the next `publish_local`
-  collides with a running container and a stale document root.
+  stored **per host** and would pin `www.tillandsias.org.localhost` to HTTPS on
+  the developer's machine long after the container is gone;
+  `includeSubDomains` can poison *other* projects' `.localhost` hosts. Set HSTS
+  only on the real public origin, never the local one.
+- **SELinux.** Fedora + rootless podman + `seclabel` mounts: bind mounts into a
+  sibling need `:z`/`:Z` relabelling or the server 403s with a cause that is not
+  obvious from the error.
+- **uid/gid.** The forge writes as `1000:1000`; container images commonly run
+  workers as `www-data`/`daemon`. Content must be world-readable.
 
 ---
 
-## 5. Acceptance criteria
+## 6. Open findings
 
-The chain is done when **all** of these pass, run from the bare-metal host:
+### 6.1 The document root is the repo root — `/.git/` is served 🔴
+
+Through the mount, `/.git/config` returns **200**. So do `/README.md`,
+`/CONTAINERFILE`, `/plan/`. The curated busybox image serves the **project
+root** at `/var/www`, which is why `/` 404s — but the same cause exposes the
+whole repository, including `.git/` (full history reconstruction; `config`
+carries remote URLs).
+
+Local-only today → **low severity, high blast radius later**: this is the same
+container shape the Cloudflare tunnel rung makes publicly reachable, and a
+served `.git/` on a public origin is a standard, actively-scanned finding.
+
+The host has filed the **docroot-convention rung** (serve `var/html/` when
+present), which fixes both symptoms without this repo changing shape. Reported
+to the host with a suggestion that a Caddy-layer dotfile deny would cap the
+exposure cheaply if the rung queues.
+
+> **Deliberately not done:** a root `index.html` redirect stub. It would be
+> exactly the repo-shape change the rung exists to avoid, and cruft afterwards.
+
+### 6.2 Only `www.` is routed; the apex `.localhost` is not
+
+```
+Host: www.tillandsias.org.localhost  -> 200
+Host: tillandsias.org.localhost      -> 404  (Caddy: "no route for ...")
+```
+
+That 404 is **Caddy's**, so the apex host genuinely has no route. The production
+vhost 301s `www.tillandsias.org` → apex, so once HTTPS lands, anything
+exercising that redirect locally lands on an unrouted host. Reported.
+
+### 6.3 The production CONTAINERFILE cannot ride `publish_local` — by design
+
+`publish_local` uses a **curated catalog with a frozen busybox image**. This
+repo's `CONTAINERFILE` (Apache, vhosts, cf-token secret) is the **public rung's**
+container. Local preview rides the catalog; the two are separate paths and are
+not expected to converge.
+
+---
+
+## 7. Runtime contract (answers from the host, 2026-09-01)
+
+| Question | Answer |
+|---|---|
+| `publish_local` return shape | `http://www.<project>.localhost:<router_host_port>` — **HTTP, port-ful** today. The `https` no-port shape arrives with the TLS work. Match the current contract. |
+| Sibling container name | The **Runtime mints** it: `tillandsias-<project>-web`. |
+| Content channel | **Bind-mounts the host worktree** `~/src/tillandsias.org` read-only. Not the forge checkout, not a named volume. |
+| Streaming a bundle over the socket | **Unimplemented.** |
+| Lifecycle tools | `publish_local {"category":"WEB"}` · `service_status {}` · `service_stop {"category":"WEB"}` |
+
+---
+
+## 8. Acceptance criteria
+
+### HTTP rung — ✅ met (2026-09-01)
 
 ```sh
-# 1. The socket exists and speaks JSON-RPC (run from the forge)
-socat - UNIX-CONNECT:"$TILLANDSIAS_CONTROL_SOCKET"
-
-# 2. The forge can start the sibling over MCP
-#    publish_local {"category":"WEB"}  -> returns a URL
-
-# 3. The page is served over real TLS, with a trusted chain (NO -k / --insecure)
-curl -sS -D- https://www.tillandsias.org.localhost/ -o /dev/null
-
-# 4. Plain HTTP redirects to HTTPS rather than serving
-curl -sS -D- http://www.tillandsias.org.localhost/ -o /dev/null   # expect 301/308 -> https://
-
-# 5. The bytes are ours
-curl -sS https://www.tillandsias.org.localhost/ | diff - var/html/index.html
-
-# 6. Lifecycle round-trips
-#    service_status {}            -> sibling reported running
-#    service_stop {"category":"WEB"} -> sibling gone; the URL stops answering
+# from inside the forge (Host header to the router; see the §2 trap)
+curl -i -H 'Host: www.tillandsias.org.localhost' \
+     http://10.0.42.91:8080/var/html/index.html          # -> 200, body == var/html/index.html
 ```
 
-Plus, in a **real browser** on bare metal (the part `curl` cannot prove):
+### HTTPS rung — pending adjudication (§5)
 
-- The padlock is closed with no interstitial and no click-through.
-- `window.isSecureContext === true` in the console.
-- A `fetch()` to a cross-origin endpoint is governed by ordinary CORS
-  preflight rules — i.e. this is a genuine secure origin, not a
-  `localhost`-exemption artefact.
+All of these, run **from the bare-metal host**:
 
-> Criterion 3 is the one that separates a real result from a fake one. If it
-> needs `-k`, the certificate is not trusted and the browser's secure-context
-> and CORS behaviour will not match production — which was the entire point.
+```sh
+curl -sS -D- https://www.tillandsias.org.localhost/ -o /dev/null   # 200, NO -k / --insecure
+curl -sS -D- http://www.tillandsias.org.localhost/  -o /dev/null   # 301/308 -> https://
+curl -sS     https://www.tillandsias.org.localhost/ | diff - var/html/index.html
+```
+
+Plus, in a **real browser** — the part `curl` cannot prove:
+
+- padlock closed, no interstitial, no click-through;
+- `window.isSecureContext === true`;
+- a cross-origin `fetch()` governed by ordinary CORS preflight — i.e. a genuine
+  secure origin, not a `localhost`-exemption artefact.
+
+> The no-`-k` criterion is what separates a real result from a fake one. If it
+> needs `-k`, the browser's secure-context and CORS behaviour will not match
+> production — which was the entire point.
+
+### Lifecycle round-trip — pending the MCP socket (§3)
+
+`publish_local` → URL · `service_status` → running · `service_stop` → gone and
+the URL stops answering. Today: ask the host agent, which proxies these.
 
 ---
 
-## 6. Session log
+## 9. Session log
 
 Append; do not rewrite.
 
 ### 2026-09-01 — `tillandsias.org-forge-claude` (Claude Code, Opus 5)
-- Established §2 facts from inside the container.
-- **Advanced the known state of the blocker**: the lane directory mount is now
-  present (both prior diagnoses found it missing). Narrowed the remaining
-  failure to a single missing host-side socket bind, and derived the exact host
-  path `/run/user/1000/tillandsias/mcp/tillandsias.org-default/mcp.sock` from
-  the mountinfo device shared with `/run/secrets`.
-- Newly established (neither prior diagnosis had these): the router is **Caddy
-  on :8080 only, with the admin API closed** — so HTTPS needs host work
-  independent of the MCP socket, and a forge can never self-register a route.
-- Messaged `macuahuitl-fedora` with the four asks in §3.
-- Created this `plan/` directory.
+
+- Established the §4 environment facts.
+- **Narrowed the socket blocker to one missing host-side bind** and derived the
+  exact host path from the tmpfs device shared with `/run/secrets`. The host
+  used this to root-cause a **real launcher bug** (`build_forge_agent_run_args_with_vault`
+  never calls `start_mcp_socket_server_for_lane`); **fixed on trunk `19057a9e3`**.
+- First to record that the router is **Caddy on :8080 only with the admin API
+  closed** — so HTTPS needs host work independent of the socket, and a forge can
+  never self-register a route.
+- Host stood up the sibling + route by proxy; **verified the serve independently**
+  (200, `Via: 1.1 Caddy`, byte-identical body).
+- Found **`/.git/` is served** (§6.1) and the **apex `.localhost` is unrouted**
+  (§6.2); reported both.
+- Corrected this plan's content-handoff design — the earlier named-volume idea
+  was wrong; the real mechanism is the git loop in §2.1.
+- Recorded the runtime contract (§7) and the HTTPS hold (§5).
+- Fixed `scripts/dev-run.sh` so `--mode=skip` needs no CloudFlare token
+  (`ee96f9d`), from the host's report.
