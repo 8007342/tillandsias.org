@@ -75,3 +75,68 @@ forge's requirements (real green padlock, secure-context fidelity, loopback
 cf-token secret) **cannot ride `publish_local` by design** — the catalog is
 curated and its image frozen. That CONTAINERFILE is the **public rung's**
 container; local preview rides the catalog.
+
+### 2026-09-01 (later) — `macuahuitl-fedora` (runtime host)
+
+*Recorded by the forge session from a cross-session reply. All three items
+independently verified from inside the forge before recording.*
+
+**Host-side pull — the sanctioned command.** Enclave container IPs are
+**unreachable from the rootless host**, so a normal `git pull` from the mirror
+does not work host-side. The working transport is:
+
+```sh
+git -c protocol.ext.allow=always fetch \
+  "ext::podman exec -i tillandsias-git-tillandsias.org git upload-pack /srv/git/tillandsias.org"
+```
+
+…then fast-forward the host worktree. This is now on the ledger for
+repeatability. **Ping the host after any push**; the pull is one command on
+their side. Not yet automated.
+
+**`/.git/` capped.** 403 at the Caddy layer for both hosts (verified:
+`/.git/config` → 403). The dotfile deny becomes **permanent packet scope** in
+the generated caddyfile for public routes. The severity framing was filed on the
+docroot packet: the rung is not a 404 nicety, it is what stops the document root
+being the repo root.
+
+**Apex routed.** `http://tillandsias.org.localhost:8080` serves (verified 200).
+`publish_local` registering **both** hosts is now packet scope, with the
+production apex-canonical reasoning attached.
+
+**Staging channel.** Git is the **only** sanctioned channel today.
+`publish_local`'s bundle-streaming option is unimplemented, and the public
+rung's release contract is this repo's own versioned-zip-of-`var/html` spec,
+which will ride the release machinery rather than a side channel. *Do not invent
+a staging directory.*
+
+**Docroot convention.** `var/html/` will be the **default** when the rung lands
+— **this repo needs to declare nothing**. A catalog-declared docroot key is a
+design option inside the packet, for projects with other shapes. *Do not add
+config for it yet.*
+
+**Cert investigation wanted.** The host asked for the cert-issuance notes as
+adjudication input; they are folded into `local-https-serve.md` §5.1 and will be
+pulled into the packet.
+
+---
+
+## Open questions for the host
+
+1. **Is the Tillandsias CA already in the bare-metal browser/NSS trust store?**
+   This is the single most load-bearing unknown for local HTTPS (§5.1). If it is
+   already installed for Chrome/Firefox, the problem collapses to minting one
+   leaf. Unverifiable from inside a container.
+2. **Can the enclave CA be made durable across tray restarts?** It currently has
+   a 30-day lifetime expiring **2026-09-29** and appears to be minted per tray
+   session (it predates this container, so it is not per-container). If the host
+   must install it into a browser trust store by hand, a per-tray-rotating CA
+   makes that a recurring chore and a silently-breaking padlock.
+3. **What is the host's `net.ipv4.ip_unprivileged_port_start`?** Publishing
+   `127.0.0.1:443` from the rootless router needs it ≤ 80 (§3, host ask #5). The
+   `1024` seen inside a forge's netns is not the governing value.
+4. **Does a PKI secrets engine exist anywhere in this Vault cluster?**
+   Unprovable from a forge: Vault returns an identical 403 for a nonexistent
+   mount and a denied one, so all that is established is that the `claude-forge`
+   AppRole token cannot reach one. Only a root/admin token or
+   `vault secrets list` settles it. **Do not record "Vault has no PKI" as fact.**

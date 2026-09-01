@@ -1,18 +1,29 @@
 # Workstream: local serve from a sibling container
 
-**Status:** 🟢 **HTTP rung LIVE** (via host proxy) · 🟡 **HTTPS rung HELD** pending adjudication · 🟡 **MCP socket** fixed on trunk, undelivered to this lane
+**Status:** 🟢 **HTTP rung LIVE and verified** · 🟡 **HTTPS rung HELD** pending adjudication · 🟡 **MCP socket** fixed on trunk, relaunch requested
 **Opened:** 2026-09-01
 **Last updated:** 2026-09-01 by forge session `tillandsias.org-forge-claude`
 
 > **Cold-start? Read this box.**
-> The site **is serving right now** at
-> `http://www.tillandsias.org.localhost:8080/var/html/index.html` from a sibling
-> container the host runs. You do **not** need to rebuild that. The three open
-> threads are: (1) the lane MCP socket, so a forge can drive `publish_local`
-> itself instead of asking the host — fixed on trunk, needs a relaunch (§3);
-> (2) HTTPS — **do not build this repo-side**, it is under adjudication (§5);
-> (3) the docroot convention, so `/` works and `/.git/` does not (§6.1).
-
+>
+> The site **is serving right now**, on **both** hosts:
+> `http://www.tillandsias.org.localhost:8080/var/html/index.html` and
+> `http://tillandsias.org.localhost:8080/var/html/index.html`. You do **not**
+> need to rebuild that.
+>
+> **If you are a relaunched session:** the operator accepted a tray relaunch on
+> 2026-09-01 to deliver the MCP socket fix (§3). **First thing to check** —
+> does `/run/host/tillandsias-mcp/mcp.sock` now exist, and does the
+> `host-browser` MCP server connect? If yes, the socket rung is done: verify
+> with `publish_local {"category":"WEB"}` and record it in §10. If no, the
+> relaunch did not deliver and the host needs to know.
+>
+> **The three remaining threads:** (1) the MCP socket, above; (2) HTTPS —
+> **do not build this repo-side**, it is under adjudication (§5); (3) the
+> docroot convention so `/` works (§6.1) — host-side, this repo declares
+> nothing.
+>
+> **Do not** re-derive the environment from scratch: §4 has it, with evidence.
 ---
 
 ## 1. Goal
@@ -112,18 +123,41 @@ bug; the host reports two other partial fixes of the same class this week.
 
 **Fix is on trunk: `19057a9e3`.**
 
-### Delivery costs a relaunch — an open decision
+### 🔴 Host ask #5 — rootless low-port bind (added 2026-09-01)
+
+**This would block the HTTPS serve even after the socket and the route both
+land, and it was missing from the original four asks.**
+
+A port-less `https://www.tillandsias.org.localhost` requires the router to
+publish `127.0.0.1:443` (and `:80`). Under rootless podman that host-side bind
+**fails by default**. Fix on the host:
+
+```sh
+sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80
+echo 'net.ipv4.ip_unprivileged_port_start=80' | sudo tee /etc/sysctl.d/99-rootless-lowports.conf
+```
+
+> **Do not work around this with `https_port 8443`.** That reintroduces a port
+> into the URL and defeats the whole point of the exercise.
+>
+> The `1024` observed inside this forge's network namespace is *not* the value
+> that governs the rootlesskit/pasta host-side bind — the host's own value is
+> the one that matters, and is unknown from here.
+
+### Delivery costs a relaunch — ✅ DECIDED: relaunch now (2026-09-01)
 
 Delivering the fix to this lane requires a tray relaunch, and forge containers
-are killed in the stack's shutdown sweep. So either:
+are killed in the stack's shutdown sweep. The alternative was to do nothing and
+let the socket arrive on the next fresh launch, with the host proxying
+`publish_local` meanwhile.
 
-- **(a) Accept a relaunch now** — state is committed and pushed, so this is
-  cheap; or
-- **(b) Do nothing** — the socket simply arrives on the next fresh launch, and
-  the host proxies `publish_local` meanwhile.
+**The operator chose to relaunch now.** All state was committed and pushed
+first, which is what made the choice cheap — this document *is* the handoff.
 
-There is little pressure toward (a) while the host is proxying. **This is the
-operator's call, not an agent's.**
+> **To the session reading this after the relaunch:** verify the socket landed
+> (see the cold-start box at the top). Until you have confirmed
+> `host-browser` connects, assume it did **not** and keep using the host agent
+> as `publish_local` proxy.
 
 ### Evidence trail (what a forge sees when the socket is missing)
 
@@ -198,65 +232,166 @@ shape* — has been filed as **adjudication input against that design**, togethe
 with these requirements:
 
 - a real green padlock, no click-through, no `-k`;
-- secure-context fidelity, so `window.isSecureContext === true` and ordinary
-  CORS preflight rules govern `fetch()`;
+- secure-context fidelity, so ordinary CORS preflight rules govern `fetch()`;
 - loopback `:443` publish from the router container;
 - a defined cert-trust route into the bare-metal browser/NSS store.
 
 A relaunched session must **not** helpfully "finish" this — it would cut across
 a pending decision. Await the adjudication.
 
-### Design notes retained as adjudication input
+### 5.1 Cert-issuance investigation (adjudication input, 2026-09-01)
+
+Investigated from inside the forge and requested by the host for the packet.
+
+#### The enclave CA can legitimately sign a `.localhost` leaf — this is the key finding
+
+`/run/tillandsias/ca-chain.crt` is a **self-signed RSA-2048 root**:
+`CN=Tillandsias CA, O=Tillandsias, L=Local, ST=Privacy, C=US`,
+`sha256WithRSAEncryption`, serial `0x3a793bb9…f0806`.
+
+It carries **exactly three extensions**: `subjectKeyIdentifier`,
+`authorityKeyIdentifier`, and `basicConstraints CA=TRUE` (critical, **no
+pathlen**). There is **no `nameConstraints`, no `keyUsage`, no
+`extendedKeyUsage`**.
+
+> **It is therefore unconstrained**: it can sign a leaf for any DNS name —
+> multi-label `.localhost` names included — and can also sign an intermediate.
+
+And this is the **established pattern, not a novel one**: Vault's own serving
+cert is `CN=vault, O=Tillandsias`, issued by `CN=Tillandsias CA`, with
+`SAN: DNS:vault, DNS:localhost, IP:127.0.0.1` — it **already contains a
+localhost SAN**. So the operator directive's enclave-CA basis is technically
+sound for `.localhost`; nothing about the special-use TLD obstructs it.
+
+#### 🔴 The CA expires 2026-09-29 and looks per-tray-session
+
+30-day total lifetime, `notAfter 2026-09-29T23:34:31Z` — **28 days out**. The CA
+and Vault's leaf share an identical `notBefore` (`2026-08-30T23:34:31Z`), so the
+enclave PKI is minted in one batch at tray start. It predates this container, so
+it is **per-tray-session, not per-container**: it survives forge relaunches but
+**not a tray restart**.
+
+> **Consequence for the adjudication.** Any leaf minted from it must clamp
+> `notAfter` to the CA's own. More importantly, if the host must install this CA
+> into the browser/NSS trust store by hand, a per-tray-rotating CA makes that a
+> **recurring chore and a silent padlock break**. Worth deciding whether the CA
+> can be made durable across tray restarts — recorded as a question in
+> [`host-notes.md`](host-notes.md).
+
+#### Vault cannot issue this today (from a forge token)
+
+Vault is **HTTPS on 8200, not HTTP** — probes using `http://vault:8200` fail
+misleadingly with a 400 rather than an auth error. It is live, initialized,
+unsealed, v1.18.5, and its TLS chains cleanly to the Tillandsias CA with no `-k`.
+
+The injected token is an **AppRole service token**, `role_name=claude-forge`,
+policies `['claude-forge-policy','default']`, TTL 3600, renewable. It **cannot
+reach a PKI mount**.
+
+> **Unprovable from here:** whether a PKI engine exists *at all*. Vault returns
+> an identical `403 permission denied` for a nonexistent mount and a denied one
+> — a deliberately bogus control mount name returned the same 403 as `pki`. Only
+> a root/admin token or the operator running `vault secrets list` settles it.
+> **Do not record "Vault has no PKI" as a fact.**
+
+#### Three wiring options, in preference order
+
+**Option A — Caddy `pki` with the Tillandsias CA as root.** Caddy mints its own
+intermediate under that root (valid: the CA has no pathlen constraint), giving
+`Tillandsias CA → Caddy intermediate → leaf`, auto-renewed. The HTTP→HTTPS 308
+is inserted automatically; no redirect block needed. Requires mounting the CA
+**key** into the router — a real trust decision for the operator, and the main
+argument against A.
+
+**Option B — host mints a static leaf; Caddy just serves it.** `tls <crt> <key>`,
+where the `.crt` is leaf + Tillandsias CA (full chain). SAN should cover
+`www.tillandsias.org.localhost`, `tillandsias.org.localhost`, `127.0.0.1`, `::1`
+with `serverAuth` EKU, and `notAfter` **clamped to the CA's**. Simplest to reason
+about; someone must re-mint on every CA rotation.
+
+> ⚠️ **A working minting script was produced during this investigation but is
+> deliberately NOT committed** — it is Python, and `methodology.yaml`
+> (`tlatoani_hard_no_python`) forbids Python for committed automation. Its
+> presence on PATH is not permission. If option B is chosen, the minting step
+> belongs to the host's own tooling, not to this repo.
+
+**Option C — `tls internal` (fallback).** Only if the Tillandsias CA key cannot
+be mounted. Two caveats that will bite: the browser must trust **Caddy's own**
+root (`/data/caddy/pki/authorities/local/root.crt`) — a *second* CA to install,
+not the Tillandsias one; and the router **must** have a persistent `/data`
+volume or that root regenerates on restart and browser trust silently breaks.
+
+#### The load-bearing unknown
+
+**Is the Tillandsias CA already in the bare-metal browser/NSS trust store?**
+Unverifiable from inside a container. If it is already installed for
+Chrome/Firefox, the whole problem collapses to minting one leaf. Asked in
+[`host-notes.md`](host-notes.md); still unanswered.
+
+### 5.2 Design notes retained as input
 
 - **`.localhost` resolution.** RFC 6761 reserves `.localhost`; systemd-resolved
-  and major browsers map it to loopback, so publishing `127.0.0.1:443` suffices
-  for bare-metal browsers. Multi-label `.localhost` names have historically been
-  weaker in Firefox than Chrome — worth explicit verification, not assumption.
+  and major browsers map it to loopback, so publishing `127.0.0.1:443` suffices.
+  Multi-label `.localhost` names have historically been weaker in Firefox than
+  Chrome — verify, do not assume. **Note this forge does *not* resolve
+  multi-label `.localhost` at all**, which is why §8's HTTPS checks must run
+  host-side.
 - **HSTS on a `.localhost` origin is a trap.** `Strict-Transport-Security` is
   stored **per host** and would pin `www.tillandsias.org.localhost` to HTTPS on
-  the developer's machine long after the container is gone;
-  `includeSubDomains` can poison *other* projects' `.localhost` hosts. Set HSTS
-  only on the real public origin, never the local one.
+  the developer's machine long after the container is gone; `includeSubDomains`
+  can poison *other* projects' `.localhost` hosts. Set HSTS only on the real
+  public origin. Caddy adds none on its own — but if a production header block is
+  ever copy-pasted down, guard it mechanically with
+  `header /* { -Strict-Transport-Security }` in the local site block.
+- **Rootless low ports.** See host ask #5 in §3 — this blocks the serve even
+  after the socket and route land.
 - **SELinux.** Fedora + rootless podman + `seclabel` mounts: bind mounts into a
-  sibling need `:z`/`:Z` relabelling or the server 403s with a cause that is not
-  obvious from the error.
-- **uid/gid.** The forge writes as `1000:1000`; container images commonly run
-  workers as `www-data`/`daemon`. Content must be world-readable.
+  sibling need `:z`/`:Z` relabelling or the server 403s with a non-obvious cause.
+- **uid/gid.** The forge writes as `1000:1000`; images commonly run workers as
+  `www-data`/`daemon`. Content must be world-readable.
+- **Keep the canonical-host anchor.** `container/tillandsias-vhost.conf`'s
+  `RewriteCond ^www\.tillandsias\.org$` is anchored, so the local name escapes
+  the 301 — but that safety is *accidental*. It **must not** be relaxed to cover
+  `.localhost` suffixes: doing so would 301 a local browser to the public apex.
 
----
+## 6. Findings
 
-## 6. Open findings
+### 6.1 ✅ RESOLVED — the document root is the repo root, so `/.git/` was served
 
-### 6.1 The document root is the repo root — `/.git/` is served 🔴
+**Was:** `/.git/config` returned **200** through the mount, as did `/README.md`,
+`/CONTAINERFILE`, `/plan/`. The curated busybox image serves the **project root**
+at `/var/www` — the same cause as the `/` 404, but it exposed the whole
+repository, including `.git/` (full history reconstruction; `config` carries
+remote URLs).
 
-Through the mount, `/.git/config` returns **200**. So do `/README.md`,
-`/CONTAINERFILE`, `/plan/`. The curated busybox image serves the **project
-root** at `/var/www`, which is why `/` 404s — but the same cause exposes the
-whole repository, including `.git/` (full history reconstruction; `config`
-carries remote URLs).
-
-Local-only today → **low severity, high blast radius later**: this is the same
-container shape the Cloudflare tunnel rung makes publicly reachable, and a
+Local-only, so low severity *today* — but **high blast radius**: this is the
+same container shape the Cloudflare tunnel rung makes publicly reachable, and a
 served `.git/` on a public origin is a standard, actively-scanned finding.
 
-The host has filed the **docroot-convention rung** (serve `var/html/` when
-present), which fixes both symptoms without this repo changing shape. Reported
-to the host with a suggestion that a Caddy-layer dotfile deny would cap the
-exposure cheaply if the rung queues.
+**Now:** the host capped it at the Caddy layer — `/.git/config` → **403** on
+both hosts, verified from the forge 2026-09-01. The dotfile deny is **permanent
+packet scope** for generated public routes, and the severity framing is filed on
+the docroot packet: that rung is not a 404 nicety, it is *what stops the
+document root being the repo root*.
+
+**Still open:** `/` returns 404 until the docroot rung lands. `var/html/` will be
+the **default** convention — **this repo declares nothing** and must not add
+config for it yet.
 
 > **Deliberately not done:** a root `index.html` redirect stub. It would be
 > exactly the repo-shape change the rung exists to avoid, and cruft afterwards.
+> The host confirmed this restraint was right.
 
-### 6.2 Only `www.` is routed; the apex `.localhost` is not
+### 6.2 ✅ RESOLVED — the apex `.localhost` was unrouted
 
-```
-Host: www.tillandsias.org.localhost  -> 200
-Host: tillandsias.org.localhost      -> 404  (Caddy: "no route for ...")
-```
+**Was:** `tillandsias.org.localhost` → 404 (**Caddy's** "no route for…"), while
+only `www.` was registered. The production vhost 301s `www.tillandsias.org` →
+apex, so once HTTPS lands, anything exercising that redirect locally would land
+on an unrouted host.
 
-That 404 is **Caddy's**, so the apex host genuinely has no route. The production
-vhost 301s `www.tillandsias.org` → apex, so once HTTPS lands, anything
-exercising that redirect locally lands on an unrouted host. Reported.
+**Now:** both hosts serve — verified from the forge 2026-09-01. `publish_local`
+registering **both** hosts is now packet scope, with the production
+apex-canonical reasoning attached.
 
 ### 6.3 The production CONTAINERFILE cannot ride `publish_local` — by design
 
@@ -264,6 +399,14 @@ exercising that redirect locally lands on an unrouted host. Reported.
 repo's `CONTAINERFILE` (Apache, vhosts, cf-token secret) is the **public rung's**
 container. Local preview rides the catalog; the two are separate paths and are
 not expected to converge.
+
+### 6.4 Git is the only sanctioned content channel
+
+There is no host-side staging path for a forge to write build output into.
+`publish_local`'s bundle-streaming option is unimplemented, and the public
+rung's release contract is this repo's own **versioned-zip-of-`var/html`** spec
+(`specs/site/release`), which rides the release machinery rather than a side
+channel. **Do not invent a staging directory.**
 
 ---
 
@@ -299,16 +442,27 @@ curl -sS -D- http://www.tillandsias.org.localhost/  -o /dev/null   # 301/308 -> 
 curl -sS     https://www.tillandsias.org.localhost/ | diff - var/html/index.html
 ```
 
+> These **cannot be run from a forge** — this container does not resolve
+> multi-label `.localhost` names at all. Host-side only.
+
 Plus, in a **real browser** — the part `curl` cannot prove:
 
 - padlock closed, no interstitial, no click-through;
-- `window.isSecureContext === true`;
-- a cross-origin `fetch()` governed by ordinary CORS preflight — i.e. a genuine
-  secure origin, not a `localhost`-exemption artefact.
+- `location.protocol === 'https:'`;
+- DevTools → Security shows the connection **encrypted**, issuer
+  **`Tillandsias CA`** (or whichever CA the adjudication picks);
+- a cross-origin `fetch()` governed by ordinary CORS preflight.
 
-> The no-`-k` criterion is what separates a real result from a fake one. If it
-> needs `-k`, the browser's secure-context and CORS behaviour will not match
-> production — which was the entire point.
+> ### ⚠️ `window.isSecureContext` is NOT a valid check here — corrected 2026-09-01
+> An earlier draft of this plan listed `window.isSecureContext === true`. **That
+> criterion is worthless for this task.** Both Chrome and Firefox treat *every*
+> `.localhost` origin as a secure context **over plain HTTP**, so it returns
+> `true` whether or not TLS is working. It cannot distinguish a real HTTPS serve
+> from the HTTP one we already have.
+>
+> The no-`-k` curl and the DevTools issuer check are the criteria that actually
+> discriminate. If `curl` needs `-k`, the certificate is untrusted and the
+> browser's CORS behaviour will not match production — which was the entire point.
 
 ### Lifecycle round-trip — pending the MCP socket (§3)
 
@@ -425,3 +579,22 @@ Append; do not rewrite.
   `container-diagnostics.md`; both asserted the path was blocked, which is no
   longer true, and the Codex one recorded an in-forge 200 as evidence of a host
   route. Content kept for provenance.
+- Host capped `/.git/` (403) and routed the apex; **verified both from the
+  forge**, plus the propagation canary green (`/plan/local-https-serve.md` →
+  200 carrying the OpenSpec section). The content loop is **proven closed**.
+- Folded the cert-issuance investigation into §5.1 as adjudication input, at the
+  host's request: **the enclave CA is unconstrained and can legitimately sign a
+  `.localhost` leaf** — and already signs one (Vault's cert carries a
+  `localhost` SAN). Also recorded its **2026-09-29 expiry / per-tray rotation**
+  risk, that Vault is **HTTPS not HTTP**, and that a PKI mount is *unprovable*
+  from a forge rather than absent.
+- **Corrected a defect in this plan's own acceptance criteria** (§8):
+  `window.isSecureContext === true` is worthless here — it is `true` over plain
+  HTTP on any `.localhost` origin in both Chrome and Firefox, so it cannot tell
+  a real TLS serve from the HTTP one already running. Replaced with
+  `location.protocol` + the DevTools issuer check.
+- **Added host ask #5** (§3): the rootless low-port bind for `127.0.0.1:443`.
+  It was missing from the original four and would have blocked the HTTPS serve
+  even after the socket and route both landed.
+- Operator chose to **relaunch now** to deliver the socket fix; checkpointed
+  everything and handed off to this document.
