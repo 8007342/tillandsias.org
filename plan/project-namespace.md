@@ -63,12 +63,14 @@ Not everything goes in the repo. The intended division:
   expert binaries, caches. These are Tillandsias-wide, not project-specific, and
   have no business in a customer's git history.
 
-**The research must produce a *rule* for this split**, not just a list, so a
-future implementer can classify a new artifact type without asking.
+> **Superseded — the split is THREE tiers, not two. See §4.4**, which adds the
+> per-project named volume and states the rule: *the repo keeps only what
+> genuinely needs history; anything that merely needs to survive a container
+> goes to the project cache volume.*
 
 ---
 
-## 2.2 Blast radius — the free hand is narrower than it looks
+### 2.2 Blast radius — the free hand is narrower than it looks
 
 The operator (2026-09-01): **tillandsias.org is the only Tillandsias project in
 the world**, so customer-project migration is a non-issue (n=1, this repo), and
@@ -136,7 +138,131 @@ neither dot nor non-dot is foreclosed here.
 
 ---
 
-## 4. Research in flight
+## 4. Runtime-side rulings (host, 2026-09-01)
+
+### 4.1 The fork: **(b)**, reframed — and the reframe is the point
+
+**Ledger migration is not feasible now.** The runtime `plan/` is a 31k-line
+folded index plus hundreds of append-only fragments, loop-status dirs and
+attestation ledgers — and the real cost is that the **entire tooling surface
+pins those paths**: the `tillandsias-plan` binary, the fold, `build.sh` gates,
+litmus fixtures, the plan-only push lane, mo-full attestation checks. It is a
+tooling migration mid-flight on the thing that coordinates the fleet. *"Not this
+week, honestly not this month."*
+
+**And (b) is not the dual-source-of-truth trap.** This is the correction worth
+keeping — the objection recorded in §2.2 was wrong, and here is why:
+
+> The trap is **two copies of ONE policy** (seven `pids` sites; two launchers).
+> This is **two policies for two different KINDS of thing**: the runtime's own
+> native ledger (**self-state**) versus Tillandsias state inside repos it does
+> not own (**customer-state**).
+>
+> A detection reading *"runtime repo → native `plan/`; everything else →
+> namespaced layout"* carries **one honest distinction**, not two drifting
+> copies.
+
+**Revisit trigger (the expiry clause, reframed):** if a **second in-repo
+consumer of the native layout** ever appears, the distinction is dead and (a)
+becomes due. Write the rule as the distinction, not as an exception.
+
+### 4.2 Dual-path probe: yes, emphatically
+
+Image rebuild costs ~15–20 min host-native, at effectively every install — so
+cutover cadence is not the bottleneck. **Build both-paths acceptance in from the
+start.** A customer repo carrying the new layout against an old baked engine is
+exactly the delivery-gap class that appeared three times this week.
+
+### 4.3 `init` is EXPLICIT — and it is precedent, not taste
+
+Launch-time writes into a checkout are **already filed as a defect** on the
+runtime ledger (`955-fgh7`, the opsx re-materialization arm: 22 files silently
+rewritten 11s after clone — *"no guest runs pristine stable"*). Auto-bootstrap
+on a stranger's repo is the same class with worse optics.
+
+> **Launch detects, reports `not initialized` with the one command that fixes
+> it, and mutates nothing.** If a specific flow ever wants auto, that is an
+> opt-in flag **on the launch**, never a default.
+
+### 4.4 The split is THREE tiers, not two
+
+The missing mount already exists: **`~/.cache/tillandsias-project`**, the
+per-project named volume `tillandsias-forge-cache-<project>` — mounted in every
+forge, surviving container recycles, host-reachable.
+
+| Tier | Where | Committed? | What |
+|---|---|---|---|
+| **Tillandsias-wide** | `/opt`, `/var` mounts | no | methodology, shared tooling, expert binaries, cheatsheets |
+| **Per-project runtime** | `~/.cache/tillandsias-project` (named volume) | **no** | caches, staging, last-good artifacts (npm prefix and cargo target already live here) |
+| **Per-project durable** | **the repo** | **yes** | plan, state, coordination notes |
+
+> **The rule this yields:** the repo keeps only what genuinely needs *history*.
+> Anything that merely needs to *survive a container* goes to the project cache
+> volume. That is the test to apply to a new artifact type.
+
+---
+
+## 5. The "don't touch their repo" steelman — priced, and REJECTED on evidence
+
+The alternative to committing into a customer repo is to keep state outside the
+working tree: `git notes`, an orphan branch, or a custom ref namespace like
+`refs/tillandsias/*`. **Tested empirically 2026-09-01 rather than argued.**
+
+### 5.1 What the mirror actually does
+
+| Test | Result |
+|---|---|
+| Push `refs/notes/*` to the mirror | ✅ **accepted**, and relayed upstream to GitHub |
+| `git ls-remote` shows it | ✅ present on the mirror |
+| **Fresh `git clone` receives it** | 🔴 **NO** — refs absent, `git notes show` errors |
+| Clone's default fetch refspec | `+refs/heads/*:refs/remotes/origin/*` — **heads only** |
+| Explicit `fetch 'refs/notes/*:refs/notes/*'` | ✅ works |
+
+### 5.2 Why this kills the steelman
+
+The mirror is not the problem — **the clone is**, and that is worse.
+
+> Every forge starts from a **fresh clone**. A notes/custom-ref convention would
+> therefore give every forge **no state and no error** — indistinguishable from
+> "this project has no state". Silent, and wrong in the safe-looking direction.
+
+It *is* fixable by configuring the forge's clone with an extra refspec. But then
+**the durability of customer state depends on launcher configuration rather than
+on the repo's own contents** — precisely the failure class this fleet hit three
+times in one week (env var set but socket absent; mount present but socket
+absent; code fixed but binary stale). A convention that is correct only when the
+launcher is configured correctly is the wrong shape for a durability mechanism.
+
+### 5.3 Two further nails
+
+- **`refs/tillandsias/*` is already taken.** The mirror carries a live
+  `refs/tillandsias/upstream-auth/authorized/*` namespace. Putting plan state
+  there would collide with an existing runtime convention.
+- **🔴 Ref deletion is disabled on the mirror.** Verified:
+  `[pre-receive] REJECT: ref deletion is disabled: refs/notes/commits` /
+  *"transaction or receive hardening policy failed before upstream relay"*.
+  **Any ref namespace you create is permanent.** A ref-based convention cannot
+  be cleaned up, renamed, or backed out — which is disqualifying for something
+  meant to be initialized into strangers' repos, where getting it wrong once is
+  forever.
+
+> **Verdict: reject.** Committed files in the working tree survive a plain
+> clone with no configuration, can be inspected by a human who has never heard
+> of Tillandsias, and can be deleted. None of those is true of refs here.
+>
+> *Cost of the rejection, stated honestly:* customer repos carry files they did
+> not ask for. That is a real cost, and it is what §3's naming question is for —
+> it is a design problem, not a reason to choose a mechanism that fails silently.
+
+### 5.4 Residue from the test
+
+The probe left `refs/notes/commits` on the mirror (and relayed to GitHub) and it
+**cannot be deleted** — deletion is disabled. Content is self-describing
+(`tillandsias mirror-refspec probe b908ce1`) and nothing fetches it by default.
+Reported to the host, who has container-level access to the git service if they
+want it pruned.
+
+## 6. Research in flight
 
 Launched 2026-09-01 from this forge. Six parallel sweeps:
 
@@ -166,13 +292,13 @@ the bootstrap design) and an adversarial critique — including a steelman of
 
 ---
 
-## 5. Findings and decision
+## 7. Findings and decision
 
 *(empty — research had not landed when this was written)*
 
 ---
 
-## 6. Log
+## 8. Log
 
 ### 2026-09-01 — `tillandsias.org-forge-claude`
 - Operator raised the question after this session's `plan/index.yaml` warning;
@@ -197,3 +323,22 @@ the bootstrap design) and an adversarial critique — including a steelman of
   `tillandsias init` should be automatic at launch or explicit opt-in, and
   whether an existing `/var` or `/opt` mount is the intended home for
   per-project runtime state.
+
+### 2026-09-01 (third) — runtime rulings landed; steelman tested and rejected
+- Host ruled on all four open questions (§4). **Conceded the fork argument**:
+  my dual-source-of-truth objection was wrong — (b) is two policies for two
+  *kinds* of thing (self-state vs customer-state), not two copies of one policy.
+  Recorded with the revisit trigger.
+- **Learned the split is three-tier, not two** (§4.4) — the per-project named
+  volume `~/.cache/tillandsias-project` already exists and is the intended home
+  for uncommitted per-project runtime state. The repo now keeps only what needs
+  *history*, which materially narrows what a customer repo has to carry.
+- **Tested the steelman instead of arguing it** (§5). The mirror accepts and
+  relays `refs/notes/*`, but a **fresh clone does not fetch them** — so a
+  ref-based convention gives every forge no state and no error. Rejected on
+  evidence, with the cost of rejecting stated.
+- Two findings from that test that stand on their own: `refs/tillandsias/*` is
+  **already a live namespace** (upstream-auth), and **ref deletion is disabled**
+  on the mirror, so any ref namespace created is permanent.
+- The test left an undeletable `refs/notes/commits` probe on the mirror (§5.4);
+  reported to the host.
