@@ -22,6 +22,10 @@ Two kinds of reader are expected, and the documents here are written for both:
 - **[`host-notes.md`](host-notes.md)** — **the host agent writes here.** A
   forge session cannot see the host's filesystem or podman; this file is the
   only durable channel back. Append, commit, push.
+- **[`project-namespace.md`](project-namespace.md)** — open question: where
+  Tillandsias state should live inside a repo it does not own, and how to
+  bootstrap it into a project that has none of this structure. Research in
+  flight; **no decision yet, do not implement**.
 
 ## Conventions
 
@@ -39,6 +43,13 @@ forge startup context), so these are plain Markdown documents rather than
 ledger fragments — no `tillandsias-plan check` schema applies.
 
 ## 🔴 Reserved filenames — do NOT create these here
+
+> **This is not an argument against having a plan directory.** Projects opened
+> in Tillandsias are *meant* to carry one. The point is narrower: the specific
+> name `plan/index.yaml` is load-bearing detection surface, so it cannot double
+> as free-form documentation. **Where this state should live is under active
+> redesign** — see [`project-namespace.md`](project-namespace.md). Treat the
+> layout below as current practice, not as a settled convention.
 
 These names are **live tooling surface**, not free-form documentation. Creating
 one in this directory changes how the MCP servers answer questions about this
