@@ -15,10 +15,11 @@
 > 2026-09-01 to deliver the MCP socket fix, on a tray binary rebuilt to carry it
 > (§3). **The socket is expected to work — check it first.** Does
 > `/run/host/tillandsias-mcp/mcp.sock` exist, and does `host-browser` connect?
-> If yes, the socket rung is DONE: verify with `publish_local {"category":"WEB"}`
-> and record it in §10. If no, that is a genuine surprise the host needs told —
-> the fix fires on every launch by two independent paths, so a miss means
-> something new.
+> If yes, this is the **first-ever successful observation** — run
+> `service_status {}` to see what earlier lanes left running, and record it in
+> §11. If no, **escalate immediately while a host agent is still reachable**: a
+> forge cannot repair this itself, and a sibling outlives the forge that
+> published it, so a missing socket means an unstoppable container. See §10.
 >
 > **The three remaining threads:** (1) the MCP socket, above; (2) HTTPS —
 > **do not build this repo-side**, it is under adjudication, and it is now
@@ -654,7 +655,64 @@ refinement of `add-container-framework`, so it belongs in its own change.
 > in §5. Writing it now would commit the repo to a design the operator has not
 > settled. Do this once the adjudication lands.
 
-## 10. Session log
+## 10. Is the lifecycle capability durable? — honest status
+
+The question that matters for an unattended forge: **can a forge start, stop and
+status its own sibling, with no bare-metal host agent available to fix things?**
+
+### Status as of 2026-09-01, verified not assumed
+
+| | |
+|---|---|
+| **This session** | 🔴 **NO.** Verified at the end of the session: `/run/host/tillandsias-mcp/mcp.sock` still absent, and `host-browser.sh` returns `{"code":-32000,"message":"TILLANDSIAS_CONTROL_SOCKET does not exist"}`. **This forge cannot stop the sibling it caused to exist.** |
+| **Future launches** | 🟡 **Should work, but never yet observed.** |
+
+### Why "should", and why that is not "does"
+
+The fix (`19057a9e3`) binds the socket by **two independent paths**: the
+launcher's call sits inside `create_dir_all`, which succeeds on existing
+directories and therefore fires on *every* launch of *every* lane; and the
+tray-boot enumeration separately binds all existing projects at startup. Either
+alone is sufficient. That is a genuinely robust design.
+
+> **But no forge has ever been observed with a bound socket.** The count of
+> successful observations is **zero**. Everything above is an inference from
+> reading the fix, not a measurement — and this workstream has already produced
+> two failure modes that only appeared *after* the reasoning looked complete
+> (the env-var-and-mount-present-but-socket-absent state, and the running tray
+> binary predating its own fix).
+>
+> **Do not record this rung as done until a forge has actually connected.**
+
+### 🔴 The standing risk: a sibling outlives its forge
+
+The sibling container keeps running after the forge that published it is swept
+— it is running right now and will survive this container's teardown. Combined
+with the above:
+
+> **If the socket does not land, a future forge inherits a running sibling it
+> has no way to stop.** There is no fallback: no `podman` client in a forge (by
+> design), the Caddy admin API on `:2019` is closed, and cross-session chat
+> reaches a host agent only if one happens to be running.
+
+That is a single point of failure with no in-forge recovery path, which is
+precisely why the check below is the first thing a new session should do.
+
+### What a new session must do, in order
+
+1. **Check the socket before anything else** — `ls /run/host/tillandsias-mcp/`
+   and whether `host-browser` connects. The cold-start box at the top says this
+   too.
+2. **If it connects:** run `service_status {}` to see what is already running
+   from previous lanes, and record the first-ever successful observation in §10.
+   That is the measurement this rung is waiting on.
+3. **If it does not connect:** escalate **immediately, while a host agent is
+   still reachable**, rather than working around it. A forge cannot repair this
+   itself, and the window in which someone can is not guaranteed to stay open.
+   Include the `host-browser.sh` error text verbatim — it distinguishes
+   "socket absent" from "socket present but refusing".
+
+## 11. Session log
 
 Append; do not rewrite.
 
@@ -760,3 +818,7 @@ Append; do not rewrite.
 > like the checkout. Agent-local memory does not survive here. **This directory
 > is the only memory this project has**, which is why findings are written down
 > rather than remembered.
+- **Verified at end of session that the socket is still absent** and recorded an
+  honest durability assessment (§10): the capability is **not yet demonstrated
+  even once**, a sibling outlives its forge, and there is no in-forge recovery
+  path if the socket fails to land.
