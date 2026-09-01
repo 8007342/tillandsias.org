@@ -735,3 +735,28 @@ Append; do not rewrite.
 - **Host ask #5 confirmed blocking**: the host is at
   `net.ipv4.ip_unprivileged_port_start=1024`, so the `:443` loopback publish
   fails today. Filed as an operator-level ask.
+
+### 2026-09-01 (final) — handoff state at the sweep
+
+- **Host worktree is current through `37e83e1`** and serving. Everything in this
+  document is on the host side, not just in the mirror.
+- Both scope stretches in `069fdea` approved as made: fixing the third drift
+  instance in the `container/image` delta (a partial alignment is worse than
+  none), and putting the *why* of the hard-coded scheme into `tasks.md` 3.1 as
+  defense against a helpful regression.
+- **The owner's direct "apex is canonical" statement is the authority the
+  alignment rests on** — recorded as such, superseding the source-count
+  argument that preceded it.
+- The adjudication packet is confirmed **clean of the `isSecureContext`
+  criterion**; it had only ever been filed generically as "green padlock" and
+  "secure-context fidelity". The packet will cite the discriminating checks
+  instead (`location.protocol` + DevTools issuer).
+- **Expected next sequence:** sweep → fresh lane on the rebuilt tray binary →
+  bound socket. The cold-start box at the top of this file is written for that
+  session.
+
+> **A note for whoever reads this next.** A forge's `~/.claude/` is *not* a bind
+> mount — it lives in the container overlay and dies with the sweep, exactly
+> like the checkout. Agent-local memory does not survive here. **This directory
+> is the only memory this project has**, which is why findings are written down
+> rather than remembered.
