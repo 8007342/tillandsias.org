@@ -1,3 +1,9 @@
+## Purpose
+
+Defines how the image is deployed and supervised in production: the container
+runtime and its privilege model, the unit that manages it, the ports it
+publishes, and which host platforms are supported.
+
 ## ADDED Requirements
 
 ### Requirement: Rootless Podman deployment

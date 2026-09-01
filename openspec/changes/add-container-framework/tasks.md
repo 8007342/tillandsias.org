@@ -15,8 +15,10 @@
 
 ## 3. HTTP/HTTPS configuration
 
-- [ ] 3.1 Apache config: apex :80 301 redirect to www
-- [ ] 3.2 Apache config: www :443 virtual host with managed cert
+- [ ] 3.1 Apache config: `www.tillandsias.org` 301 redirect to the apex, with
+      the target scheme hard-coded to https (never %{REQUEST_SCHEME}, which
+      resolves to http behind a TLS terminator and downgrades the visitor)
+- [ ] 3.2 Apache config: apex :443 virtual host with managed cert
 - [ ] 3.3 certbot DNS-01 wildcard issuance + renewal timer + httpd reload
 
 ## 4. Secrets

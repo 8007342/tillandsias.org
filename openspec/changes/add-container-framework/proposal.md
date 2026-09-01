@@ -1,10 +1,11 @@
 ## Why
 
-tillandsias.org hosts a mostly-static HTML website (www.tillandsias.org as the
-canonical host; the apex `tillandsias.org` redirects to it) on infrastructure
-that may live anywhere in the world, on a host whose public IP can change. The
-site must be served over HTTPS with automatic certificate issuance and renewal,
-and the DNS must stay pointed at the current public IP even when it changes.
+tillandsias.org hosts a mostly-static HTML website (the apex `tillandsias.org`
+is the canonical host — the shortest URL for users — and `www.tillandsias.org`
+redirects to it) on infrastructure that may live anywhere in the world, on a
+host whose public IP can change. The site must be served over HTTPS with
+automatic certificate issuance and renewal, and the DNS must stay pointed at
+the current public IP even when it changes.
 
 We need a reproducible, immutable CONTAINERFILE image (Podman, rootless) that:
 
@@ -22,10 +23,11 @@ requirements as OpenSpec specs.
 
 - A multi-stage `CONTAINERFILE` producing an immutable, sealed image built on
   the official `httpd:2.4` image.
-- Image includes: Apache httpd config (HTTP→HTTPS for the apex, HTTPS virtual
-  host for `www.tillandsias.org`), certbot with the CloudFlare DNS-01 plugin for
-  wildcard `*.tillandsias.org` + apex certificates, a `cloudflare-ddns` dynamic
-  DNS updater, and tooling to install a versioned zip site bundle.
+- Image includes: Apache httpd config (HTTPS virtual host at the apex
+  `tillandsias.org`, with `www.tillandsias.org` issuing a 301 to the apex),
+  certbot with the CloudFlare DNS-01 plugin for wildcard `*.tillandsias.org` +
+  apex certificates, a `cloudflare-ddns` dynamic DNS updater, and tooling to
+  install a versioned zip site bundle.
 - Site content is released as a durable zip artifact (`var/html/*` bundled with
   version `v<Major>.<Minor>.<YYMMDD>.<DailyBuild>`); development mounts
   `./var/html` directly.

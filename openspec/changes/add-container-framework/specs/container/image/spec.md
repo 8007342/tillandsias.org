@@ -1,10 +1,16 @@
+## Purpose
+
+Defines the immutable, sealed Podman image that serves the tillandsias.org
+static site: what it is built from, what is baked in versus writable at
+runtime, which architectures it targets, and the privilege it runs with.
+
 ## ADDED Requirements
 
 ### Requirement: Immutable Podman image
 The project MUST provide an immutable container image built from the official
 `httpd:2.4` base, produced by a multi-stage CONTAINERFILE, that serves the
-www.tillandsias.org static site. The image is sealed: code and configuration
-are baked in and immutable; only ephemeral runtime state (certificates, Let's
+tillandsias.org static site at its canonical apex host. The image is sealed:
+code and configuration are baked in and immutable; only ephemeral runtime state (certificates, Let's
 Encrypt account, extracted site bundle) is writable.
 
 #### Scenario: Build the image

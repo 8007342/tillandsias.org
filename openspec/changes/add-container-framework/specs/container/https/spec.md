@@ -1,3 +1,10 @@
+## Purpose
+
+Defines how the site is served over HTTPS: which host is canonical and how the
+alias redirects to it, how the certificate covering those names is issued and
+renewed without inbound port 80, and what the server treats as its document
+root.
+
 ## ADDED Requirements
 
 ### Requirement: Canonical host and alias redirect

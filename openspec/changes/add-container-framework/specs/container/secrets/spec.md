@@ -1,3 +1,9 @@
+## Purpose
+
+Defines how CloudFlare API credentials reach the running container without ever
+being baked into the image or committed to source control, how narrowly they
+are scoped, and where a developer keeps their own token.
+
 ## ADDED Requirements
 
 ### Requirement: Credentials not baked into image

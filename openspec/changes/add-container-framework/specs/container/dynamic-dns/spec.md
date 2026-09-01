@@ -1,3 +1,10 @@
+## Purpose
+
+Defines how the deployment keeps its own CloudFlare DNS records pointed at the
+current public IP as that IP changes: which records are in scope, how short
+their TTL is, how missing records are created, the safety modes that prevent
+accidental writes, and the fallback when no public IP exists at all.
+
 ## ADDED Requirements
 
 ### Requirement: Keep DNS current as IP changes

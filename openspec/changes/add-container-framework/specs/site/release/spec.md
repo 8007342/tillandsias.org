@@ -1,3 +1,9 @@
+## Purpose
+
+Defines how site content becomes a durable, versioned artifact the image
+consumes rather than ad-hoc files: the bundle format, the version scheme, and
+the development path that mounts the working tree directly instead.
+
 ## ADDED Requirements
 
 ### Requirement: Versioned durable release artifact
