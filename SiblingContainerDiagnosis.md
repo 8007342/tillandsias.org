@@ -1,3 +1,19 @@
+> [!IMPORTANT]
+> **SUPERSEDED — 2026-09-01. Its central conclusion is no longer true.**
+>
+> This document reports the sibling-container publish path as BLOCKED. **It is
+> not.** The site now serves at
+> `http://www.tillandsias.org.localhost:8080/var/html/index.html`.
+>
+> The control-socket root cause was later found (the live launcher never calls
+> `start_mcp_socket_server_for_lane`) and **fixed on trunk `19057a9e3`**. The
+> suggested host-side fix below — bind-mount the socket and export
+> `TILLANDSIAS_CONTROL_SOCKET` — was diagnosed from the symptom and is not the
+> actual fix; both were already in place while the socket was still absent.
+>
+> **For current state, read [`plan/local-https-serve.md`](plan/local-https-serve.md).**
+> This file is kept for provenance only.
+
 # Sibling Container Launch — Smoke Test Diagnosis
 
 **Project**: tillandsias.org (static Apache-hosted site)

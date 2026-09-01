@@ -1,3 +1,24 @@
+> [!IMPORTANT]
+> **SUPERSEDED — 2026-09-01. Contains a conclusion that is actively misleading.**
+>
+> This document reports the sibling container as unlaunchable. It now runs, and
+> the site serves at
+> `http://www.tillandsias.org.localhost:8080/var/html/index.html`.
+>
+> **The trap to avoid repeating:** the in-forge `HTTP 200` recorded below came
+> from this container's *own* loopback, because `.localhost` resolves to the
+> forge's loopback from inside a forge. An in-forge 200 proves nothing about
+> host reachability. To test a host route from inside a forge, send the Host
+> header to the router directly:
+> `curl -H 'Host: www.tillandsias.org.localhost' http://10.0.42.91:8080/var/html/index.html`
+>
+> The socket root cause was later found (the live launcher never calls
+> `start_mcp_socket_server_for_lane`) and **fixed on trunk `19057a9e3`** — not
+> the two launch defects hypothesised below.
+>
+> **For current state, read [`plan/local-https-serve.md`](plan/local-https-serve.md).**
+> This file is kept for provenance only.
+
 # Container launch diagnostics
 
 Date: 2026-09-01 UTC

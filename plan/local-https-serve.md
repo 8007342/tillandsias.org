@@ -317,7 +317,84 @@ the URL stops answering. Today: ask the host agent, which proxies these.
 
 ---
 
-## 9. Session log
+## 9. OpenSpec state — read before writing any spec
+
+This repo is `schema: spec-driven`. A survey on 2026-09-01 found the following,
+which changes how the local-serve capability must be recorded.
+
+### 9.1 There are no main specs yet
+
+`openspec/specs/` is **empty**, and so is `openspec/changes/archive/`. Every
+requirement in this project exists only as an unarchived delta under
+`openspec/changes/add-container-framework/specs/`.
+
+> **Consequence:** a `## MODIFIED Requirements` delta **cannot** be written
+> today. The MODIFIED workflow requires copying the requirement block out of
+> `openspec/specs/container/https/spec.md`, which does not exist until
+> `add-container-framework` is synced or archived. Any attempt produces a
+> partial-content MODIFIED — the exact pitfall that loses detail at archive time.
+>
+> **Sequence:** add a `## Purpose` section to each of the six delta specs
+> (none has one, so archiving now would leave six main specs carrying
+> `TBD … Update Purpose after archive`), *then* sync, *then* write the new change.
+
+### 9.2 🔴 Pre-existing defect: the repo contradicts itself on canonical host
+
+**This is independent of the local-serve work and predates it.**
+
+| Says **www** is canonical | Says **apex** is canonical |
+|---|---|
+| `proposal.md:3-4`, `:25-26` | `design.md` |
+| `tasks.md:18-19` ("apex :80 301 redirect to www") | `specs/container/https/spec.md:3-14` |
+| | `container/tillandsias-vhost.conf:26-28` (shipped code) |
+
+The shipped code and the normative delta agree on **apex-canonical**; the
+proposal and the task list say the opposite. A future implementer following
+`tasks.md` will build the redirect backwards. Worth fixing as an
+`/opsx:update` on `add-container-framework` (planning artifacts only — that
+workflow must not touch code).
+
+*Not fixed unilaterally: it is outside the scope this session was given, and
+reversing the wrong way would invalidate the CONTAINERFILE, the vhost,
+`dev-run.sh` and `design.md`.*
+
+### 9.3 What the local serve collides with
+
+- **Canonical host** (`specs/container/https/spec.md:3-14`) mandates a
+  scheme-preserving 301 from `www.tillandsias.org` → apex. The shipped regex
+  `^www\.tillandsias\.org$` is anchored, so `www.tillandsias.org.localhost`
+  **escapes it** and is served — correct behaviour, but *accidental*. The right
+  delta **scopes** the rule (public zone hosts redirect; `.localhost` hosts
+  serve directly) rather than reversing it.
+- **Automatic wildcard certificate** (`:16-25`) specifies Let's Encrypt DNS-01
+  for the zone. `.localhost` is special-use, outside the zone, uncovered by
+  `*.tillandsias.org`, and **not issuable by Let's Encrypt**. This requirement
+  cannot stretch — local TLS needs a *new* requirement, not a MODIFIED one.
+  (Blocked behind the §5 adjudication regardless.)
+- **Rootless Podman deployment** (`specs/container/deploy/spec.md:3-14`) is an
+  unconditional MUST for Quadlet + host ports 80/443. As written, a
+  host-launched sibling on 8080 is **non-conforming**. Needs scoping to
+  production.
+- **Development mount** (`specs/site/release/spec.md:29-35`) already mandates
+  that `./var/html` be mountable directly as the document root with no bundle.
+  **This is the one existing requirement the local serve extends rather than
+  fights** — build on it.
+- Nothing in any OpenSpec artifact mentions `.localhost`, a sibling container, a
+  router, or port 8080.
+
+### 9.4 Convention: never hand-scaffold a change
+
+`openspec new change "<name>"` creates required metadata (`.openspec.yaml`)
+before any artifact is written. Creating the directory by hand is explicitly
+forbidden by the repo's own skills. This work is **new intent**, not a
+refinement of `add-container-framework`, so it belongs in its own change.
+
+> **Held.** The new change is *not* created yet: its central content is the
+> canonical-host and TLS deltas, which are exactly what is under adjudication
+> in §5. Writing it now would commit the repo to a design the operator has not
+> settled. Do this once the adjudication lands.
+
+## 10. Session log
 
 Append; do not rewrite.
 
@@ -340,3 +417,11 @@ Append; do not rewrite.
 - Recorded the runtime contract (§7) and the HTTPS hold (§5).
 - Fixed `scripts/dev-run.sh` so `--mode=skip` needs no CloudFlare token
   (`ee96f9d`), from the host's report.
+- Surveyed the OpenSpec state (§9). Found a **pre-existing contradiction**
+  between `proposal.md`/`tasks.md` (www-canonical) and
+  `design.md`/`specs/container/https`/the shipped vhost (apex-canonical) —
+  reported, not fixed unilaterally.
+- Added supersession banners to `SiblingContainerDiagnosis.md` and
+  `container-diagnostics.md`; both asserted the path was blocked, which is no
+  longer true, and the Codex one recorded an in-forge 200 as evidence of a host
+  route. Content kept for provenance.
