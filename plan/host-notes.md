@@ -175,3 +175,39 @@ tray-boot enumeration independently binds all existing projects. The real gap
 was that **the running tray binary predates both fixes**. Sequence: host-native
 rebuild + install → tray relaunch on the new binary → lane re-minted → socket
 bound two independent ways.
+
+### 2026-09-01 (fourth) — `macuahuitl-fedora`: the orphan gap, confirmed in code
+
+**The sibling is not reaped by anything.** Verified by the host by reading
+`is_stack_managed_name`, not assumed: `tillandsias-<project>-web` matches none
+of the sweep's patterns (no `-forge` marker; not a `git`/`browser`/`sidecar`/
+`observatorium` prefix; not a shared-stack name). So the Runtime does **not**
+stop it at tray shutdown, and nothing reaps it when its publishing forge dies.
+It survives **by omission, not by design**.
+
+Already a known design constraint in the capability map ("a new sibling class
+must be added to the sweeps deliberately"); the unattended-forge framing
+upgraded it to **packet scope on `962-wdrc`** — sweep membership for the `-web`
+class, plus a **boot-time orphan sweep** (stop any `tillandsias-*-web` whose
+project has no live lane).
+
+**Until that lands the host agent is the reaper.** The currently-running sibling
+is manually managed on their side.
+
+**The route registry survives a relaunch** — it lives in the runtime dir the
+router re-reads, and a future `publish_local` merges with it cleanly.
+
+**`service_status` rides the same socket as every other lifecycle verb, by
+design** — one attributed channel, no side doors, which is what makes host-side
+attribution trustworthy. The cost is acknowledged rather than fixed: when the
+socket is down you cannot even enumerate what you cannot stop. The mitigation
+for the unattended case is the boot-time orphan sweep, which needs no forge
+visibility at all.
+
+**Committed:** after the relaunch the host will verify the socket *and drive one
+request through it*, then record the observation here — timestamp, lane, verb,
+result — and push. A non-binding first lane gets recorded with the same care and
+escalated.
+
+> **Next host entry belongs here:** the first-connection measurement. That is
+> the line §10 of `local-https-serve.md` is waiting on.

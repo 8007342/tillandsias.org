@@ -684,7 +684,7 @@ alone is sufficient. That is a genuinely robust design.
 >
 > **Do not record this rung as done until a forge has actually connected.**
 
-### 🔴 The standing risk: a sibling outlives its forge
+### 🔴 The standing risk: a sibling outlives its forge — CONFIRMED
 
 The sibling container keeps running after the forge that published it is swept
 — it is running right now and will survive this container's teardown. Combined
@@ -697,6 +697,57 @@ with the above:
 
 That is a single point of failure with no in-forge recovery path, which is
 precisely why the check below is the first thing a new session should do.
+
+### 🔴 CONFIRMED: nothing reaps the sibling — verified in the sweep code
+
+**Host verified this by reading `is_stack_managed_name`, 2026-09-01. It is a
+measured fact, not an inference.**
+
+`tillandsias-<project>-web` matches **none** of the sweep's patterns: it has no
+`-forge` marker, it is not a `git`/`browser`/`sidecar`/`observatorium` prefix,
+and it is not a shared-stack name. Therefore:
+
+> **The Runtime does NOT stop a published sibling at tray shutdown, and nothing
+> reaps it when the forge that published it dies.** The sibling survives —
+> **by omission, not by design.**
+
+This was already noted in the capability map as a design constraint ("a new
+sibling class must be added to the sweeps deliberately"). The unattended-forge
+framing upgraded it to **packet scope on `962-wdrc`**, covering two things:
+sweep membership for the `-web` class, and a **boot-time orphan sweep** (stop
+any `tillandsias-*-web` whose project has no live lane).
+
+**Until that lands, the host agent is the reaper** — the currently-running
+sibling is manually managed on their side.
+
+> **Why the boot-time orphan sweep is the right mitigation for the unattended
+> case:** it needs no forge visibility and no forge cooperation at all. A forge
+> that cannot see or reach anything still gets its orphans cleaned up.
+
+**The route registry survives a relaunch** — it lives in the runtime directory
+the router re-reads, and a future `publish_local` merges with it cleanly. So a
+new lane does not start from a blank routing table.
+
+### `service_status` rides the same socket — by design, with a named cost
+
+Every lifecycle verb goes through the one control socket. That is deliberate: a
+single attributed channel with no side doors, which is what makes host-side
+attribution trustworthy.
+
+> **The cost, stated plainly:** the moment you most need visibility into what is
+> running is exactly the moment you have none. If the socket is down, a forge
+> cannot even *enumerate* the siblings it cannot stop.
+
+Recorded as adjudication context rather than treated as a bug — the mitigation
+for the unattended case is the boot-time orphan sweep above, not a side channel.
+
+### First-connection measurement — committed by the host
+
+After the relaunch the host will verify the socket exists **and drive one
+request through it**, then write the observation — timestamp, lane, verb,
+result — into [`host-notes.md`](host-notes.md) and push it. If the first fresh
+lane does **not** bind, that outcome gets recorded with the same care and
+escalated. Either way §10's "zero observations" becomes a measurement.
 
 ### What a new session must do, in order
 
@@ -822,3 +873,11 @@ Append; do not rewrite.
   honest durability assessment (§10): the capability is **not yet demonstrated
   even once**, a sibling outlives its forge, and there is no in-forge recovery
   path if the socket fails to land.
+- **Orphan gap confirmed in code by the host** (§10): `tillandsias-<project>-web`
+  matches none of `is_stack_managed_name`'s patterns, so nothing reaps a sibling
+  when its forge dies — it survives *by omission, not design*. Now packet scope
+  on `962-wdrc` (sweep membership for the `-web` class + a boot-time orphan
+  sweep). The host is the interim reaper. Also recorded: every lifecycle verb
+  rides the one socket by design, so a socket outage costs enumeration as well
+  as control; and the host committed to recording the first real socket
+  connection here as a measurement.
