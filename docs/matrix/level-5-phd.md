@@ -135,13 +135,13 @@ under `methodology/`; the live statement is `methodology/philosophy.yaml`'s
 `methodology/math-foundations.yaml` is where you should aim your scepticism, and
 where you will be partly disarmed. The model:
 
-- An **obligation** is a named auditable requirement with a stable ID. Its state
-  ranges over the finite chain `absent < declared < traced < positively_tested
+- An **obligation** is a named auditable requirement with a stable ID, its state
+  ranging over the finite chain `absent < declared < traced < positively_tested
   < negatively_tested < runtime_observed < evidence_bundled`.
-- `spec_state` is the **product lattice** of its obligations' states;
-  `project_state` the product over active specs, ordered componentwise after
-  aligning stable IDs and tombstones.
-- `centicolon_function` maps `spec_state → ℕ`, bounded, "monotone **only** for
+- `spec_state` is the **product lattice** of those states; `project_state` the
+  product over active specs, ordered componentwise after aligning stable IDs and
+  tombstones.
+- `centicolon_function: spec_state → ℕ` is bounded and "monotone **only** for
   evidence transitions that preserve obligation IDs and do not introduce
   penalties, ambiguity, or denominator scope changes."
 
@@ -198,24 +198,22 @@ earning it, and the repo distinguishes them itself.
    lateral, and permits descent only on an explicit `incoming_falsified` flag —
    a lexicographic join with a deliberate non-monotone escape hatch, which is
    the spec system's bounded-uncertainty exception expressed in code.
-2. **Version metadata — a genuine join-semilattice.**
-   `methodology/versioning.yaml` argues correctly that SemVer has no natural
-   total order (patch resets; `LUB(1.0.1,1.0.1)` loses causality) and a bare
-   counter collides across nodes; a calendar anchor plus a build counter joins
-   componentwise by max — commutative, associative, idempotent.
+2. **Version metadata — a genuine join-semilattice.** `versioning.yaml` argues
+   correctly that SemVer has no natural total order (patch resets;
+   `LUB(1.0.1,1.0.1)` loses causality) and a bare counter collides across nodes;
+   a calendar anchor plus a build counter joins componentwise by max.
    `scripts/verify-version-monotonic.sh` enforces `VERSION ≥ latest tag`.
 3. **Specs and cheatsheets — deliberately *not* claimed.**
-   `methodology/spec-system.yaml:crdt_properties` is typed
-   `semantic_merge_with_crdt_preconditions`, and
-   `methodology/cheatsheets.yaml:crdt_model` lists preconditions including
+   `spec-system.yaml:crdt_properties` is typed
+   `semantic_merge_with_crdt_preconditions`; `cheatsheets.yaml:crdt_model` lists
+   preconditions including
    `property_tests_for_commutativity_associativity_idempotence`, with the
-   anti-pattern spelled out: calling a lossy semantic cache a CRDT "creates
-   false convergence claims". `methodology/provenance.yaml:methodology.crdt.
-   preconditions@v1` files this as `claim_strength: external_analogy` and keeps
-   the weaker label "CRDT-like" until those property tests exist. **They do not
-   exist** — no `proptest` or `quickcheck` dependency appears anywhere in the
-   workspace; the fragment tests are example-based. The repo is honest about
-   this. It is still an open obligation, and I am obliged to say so.
+   anti-pattern spelled out — calling a lossy semantic cache a CRDT "creates
+   false convergence claims". `provenance.yaml:methodology.crdt.preconditions@v1`
+   files it as `claim_strength: external_analogy` and keeps the weaker label
+   "CRDT-like" until those property tests exist. **They do not exist**: no
+   `proptest` or `quickcheck` anywhere in the workspace, and the fragment tests
+   are example-based. Honest, and still an open obligation.
 
 The best evidence that the honesty is load-bearing rather than decorative sits
 in a Lua file. `crates/tillandsias-plan/lua/collect.lua` opens: *"This is a
@@ -235,47 +233,51 @@ consequences** — dispatch, endpoints, retrieval, envelope construction, and
 citation validation (`answer::verify` in `pipeline::run_grounded`). The dead
 `validate.lua` was deleted, not demoted. The module doc is titled "SECURITY
 SURFACE, exactly as implemented — a PARTIAL stdlib restriction, **not a
-sandbox**": it enumerates what `new()` nils (`os.execute/exit/getenv`,
-`io.open/popen/close/output/input`, `debug`, `loadfile`, `dofile`, `require`),
-states that `os.remove` and `os.rename` **remain reachable**, and instructs the
-reader to treat `lua/` as trusted code — then adds *"Do not re-promise a
-stronger sandbox here without implementing one — that phantom claim is what the
-920-pxg6 audit removed."*
-`LatencyTier` budgets (Immediate 500ms, Quick 3s, Fine 12s, NonUsable >15s) tie
-this to `philosophy.yaml:convergence_via_velocity`: a single prompt is one finite
-sample converging with skew (weak LLN), so you bound per-prompt skew and let
-iteration supply strong-LLN almost-sure convergence. Whether that maps onto LLM
-sampling is an analogy — but it is the *correctly stated* one, with the hazard
-named: unbounded terminal skew defeats infinite iteration.
+sandbox**": it enumerates what `new()` nils (`os.execute/exit/getenv`, the `io`
+open/popen/close family, `debug`, `loadfile`, `dofile`, `require`), states that
+`os.remove` and `os.rename` **remain reachable**, tells the reader to treat
+`lua/` as trusted code, and adds *"Do not re-promise a stronger sandbox here
+without implementing one — that phantom claim is what the 920-pxg6 audit
+removed."*
+`LatencyTier` (Immediate 500ms → NonUsable >15s) ties this to
+`philosophy.yaml:convergence_via_velocity`: bound each prompt's skew (weak LLN)
+and let iteration supply strong-LLN convergence — an analogy, but the correctly
+stated one, with the hazard named (unbounded terminal skew defeats infinite
+iteration). Its corpus-side counterpart,
+`not-enough-information.yaml` + `declined-alternatives.yaml`, exists because
+cosine top-k always returns k: refusal had to be written in as retrievable text.
+One entry was then *corrected* for declaring systemd unused when
+`packaging/systemd/user/tillandsias.service` exists — the harness had measured
+that the record converted questions, never that it was true.
 
 ### Specs, litmus, and the centicolon wiring
 
 Specs live at `openspec/specs/<capability>/spec.md` with RFC-2119 modality,
-`ambiguity.score` with `allowed: 0`, and mandatory tri-binding: `@trace`, litmus
-tests, cheatsheets. Verification is two orthogonal ladders — **S0–S3** for the
-spec (draft → syntactically valid → litmus-bound → runtime-validated) and
-**L0–L3** for an annotation's evidence (spec only → +cheatsheet → +API docs →
+`ambiguity.score` with `allowed: 0`, and mandatory tri-binding to `@trace`,
+litmus and cheatsheets. Verification is two orthogonal ladders: **S0–S3** for
+the spec (draft → syntactically valid → litmus-bound → runtime-validated) and
+**L0–L3** for an annotation's evidence (spec → +cheatsheet → +API docs →
 +passing litmus), under `declared_level_is_claim` /
-`ci_validates_against_observed_level`. Ambiguity is defined operationally: run
+`ci_validates_against_observed_level`. Ambiguity is operational: run
 behaviourally distinct candidates against the same litmus; if contract-relevant
 outcomes differ while all pass, the spec is ambiguous and activation blocked.
 
-Litmus tests are 411 YAML files (34,606 lines), each with `spec:`, `phase:`,
-a `size:` tier with wall-clock budgets, and a `critical_path:` of shell steps.
+Litmus tests are 411 YAML files (34,606 lines) with `spec:`, `phase:`, a
+`size:` tier carrying wall-clock budgets, and a `critical_path:` of shell steps.
 Read `litmus-added-fragment-parse-gate-shape.yaml` before dismissing the genre:
-it carries **negative controls in hermetic throwaway git repos** — a bare
-`ts: 2026-08-12T15:31:54Z` must be *refused*, the quoted form *accepted*
-(without which the negative control is satisfied by a gate that refuses
-everything), plus a fixture asserting three *distinct* verdicts. It exists
-because a script claimed `# Pinned by litmus:...` for weeks against a test
-nobody had written — now gated by `scripts/check-litmus-pin-claims.sh`.
+**negative controls in hermetic throwaway git repos** — a bare
+`ts: 2026-08-12T15:31:54Z` must be *refused* and the quoted form *accepted*,
+without which the negative control is satisfied by a gate that refuses
+everything. It exists because a script claimed `# Pinned by litmus:…` for weeks
+against a test nobody had written — now gated by
+`scripts/check-litmus-pin-claims.sh`.
 `scripts/litmus-stdlib.sh` supplies `mf_stage`/`mf_holds*` because
-`producer | grep -q` yields one status for two stages and SIGPIPEs its producer.
-`set -o pipefail` was *measured*: 4 of 249 tests moved to FAIL, **all four false
-positives, zero masked producer failures** — so the fix is a consumer reading a
-complete buffer, not the flag. Also measured: `mf_holds` shipped as ERE while
-321 of 460 corpus sites used BRE `grep -q`, and `fail:...:state={state}` *errors*
-under ERE. One variant per grep flag. Correct.
+`producer | grep -q` yields one status for two stages and SIGPIPEs its producer;
+`set -o pipefail` was *measured* to move 4 of 249 tests to FAIL, **all four
+false positives**, so the fix is a consumer reading a complete buffer, not the
+flag. Also measured: `mf_holds` shipped as ERE while 321 of 460 sites used BRE
+`grep -q`, where `fail:…:state={state}` does not mismatch but *errors*. One
+variant per grep flag.
 
 ### Where the claims outrun the evidence
 
@@ -291,15 +293,14 @@ Now the part you came for.
   The authority delegated to is a `.rs.example`.
 - **The CentiColon obligation model is unimplemented.** `proximity.yaml`
   specifies weights (`must_requirement: 100`, `invariant: 120`,
-  `negative_litmus_signal: 100`), multipliers, six `cap_rules`, and sixteen
-  penalties (`ghost_trace: -50` … `metric_gaming_suspected: -120`). Grep the
-  tree: not one of those identifiers appears outside `methodology/` and the
-  `.example`. What actually computes the score is `scripts/local-ci.sh`'s
-  `check_weight()` — a hardcoded table over **13 CI checks** whose pre-build
-  subset sums to exactly the `total_cc: 990` in the committed dashboard. The
-  "89.9% closed" is `890/990` over thirteen shell checks. It is a CI pass-rate
-  wearing a lattice's clothes. No caps, no penalties, no per-spec rollup, no
-  denominator-scope-change event.
+  `negative_litmus_signal: 100`), multipliers, six `cap_rules` and sixteen
+  penalties (`ghost_trace: -50` … `metric_gaming_suspected: -120`). Not one of
+  those identifiers appears outside `methodology/` and the `.example`. What
+  computes the score is `scripts/local-ci.sh`'s `check_weight()` — a hardcoded
+  table over **13 CI checks** whose pre-build subset sums to exactly the
+  `total_cc: 990` in the committed dashboard. "89.9% closed" is `890/990` over
+  thirteen shell checks: a CI pass-rate in a lattice's clothes. No caps, no
+  penalties, no per-spec rollup, no scope-change event.
 - **The atomic unit of that model is missing from 92% of specs.** Earning
   requires `requirement_has_stable_id`. Of 177 spec files, **15** carry a
   `**ID**:` field, against 2141 occurrences of `MUST`.
@@ -314,10 +315,11 @@ Now the part you came for.
   doctrine.
 - **Controlled vocabularies leak because nothing validates them.**
   `spec-system.yaml` closes spec status to `{draft, active, deprecated,
-  obsolete}`; `forge-as-only-runtime/spec.md` declares `Status: current`.
-  `proximity.yaml` line 397 reads `remove_or perturb_runtime_trace_emission_and_
-  measure_trace_gap` — a space where an underscore belongs. The constraint says
-  `all_spec_elements_must_be_machine_parsable`; no machine reads either alphabet.
+  obsolete}`; `forge-as-only-runtime/spec.md` says `Status: current`.
+  `proximity.yaml:397` reads `remove_or perturb_runtime_trace_emission…` — a
+  space where an underscore belongs. The constraint is
+  `all_spec_elements_must_be_machine_parsable`; no machine reads either
+  alphabet.
 - **The complexity constraint is breached by its own metric.**
   `convergence.yaml:methodology_complexity_constraint` requires
   `methodology_complexity / codebase_complexity < 0.15` and red-flags "CI
@@ -329,21 +331,18 @@ Now the part you came for.
 
 What survives is the interesting result. `scripts/trace-coverage.sh` reports
 `specs=202 traced=184 ghost=18 annotations=4963 files=1585` live, and the ghost
-gate is a **ratchet** against `openspec/ghost-trace-baseline.txt` that fails in
-*both* directions — new ghosts fail, and a baseline gone stale fails too,
-forcing the prune. Its header explains why it deleted 171 generated `TRACES.md`
-files: they *looked* like they discharged the required `trace_coverage_summary`
-evidence field and did not — a spec→file:line index is not a coverage summary —
-so a declared obligation sat open its whole life behind ~4000 lines of per-cycle
-churn. Deleting the rendering and computing the summary on demand closed it in
-one change.
+gate is a **ratchet** against `openspec/ghost-trace-baseline.txt` failing in
+*both* directions — new ghosts fail, a stale baseline fails too. Its header
+explains why it deleted 171 generated `TRACES.md` files: they *looked* like they
+discharged the required `trace_coverage_summary` field and did not — a
+spec→file:line index is not a coverage summary — so a declared obligation sat
+open its whole life behind ~4000 lines of per-cycle churn.
 
-That is the actual methodology, and it is better than its own scoring system:
-an event-intake directory (`methodology/event/`, 33 numbered records) for
-observations the model did not predict, a bounded-uncertainty exception so
-monotonicity cannot force retention of false certainty, and a demonstrated
-willingness to delete the artefact that was pretending to be evidence. The
-formal apparatus is sound and modest. The instrumentation meant to make it
-*binding* is, at this revision, a thirteen-row weight table and a dashboard
-three weeks stale. Judge the thinking on the former; judge the claim on the
+That is the real methodology, and it is better than its own scoring system: an
+event-intake directory (`methodology/event/`, 33 records) for observations the
+model did not predict, a bounded-uncertainty exception so monotonicity cannot
+force retention of false certainty, and a demonstrated willingness to delete the
+artefact that was pretending to be evidence. The formal apparatus is sound and
+modest; the instrumentation meant to make it *binding* is a thirteen-row weight
+table and a stale dashboard. Judge the thinking on the former, the claim on the
 latter.
