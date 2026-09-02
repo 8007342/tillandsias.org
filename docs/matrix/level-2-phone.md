@@ -1,29 +1,74 @@
 # Tillandsias, explained simply
 
-## WHAT IT IS
+## A rented kitchen that appears inside your own computer
 
-Think about what happens when you rent a kitchen for an afternoon. You bring your own ingredients, you cook, you clean up, and you leave. The kitchen is not yours, you did not have to build it, and nothing you did in it follows you home. Tillandsias is that kitchen, except it appears inside the computer you already own, on demand, and it disappears when you are done.
+Imagine renting a kitchen for an afternoon. You bring your ingredients, you cook, you leave, and nothing you did there follows you home. Tillandsias is that kitchen, except it appears *inside the computer you already own*, and it disappears when you are done.
 
-Big companies rent out computing space "in the cloud" — someone else's machines, in someone else's building, holding your work. Tillandsias gives you the same kind of clean, ready-made workspace, but it builds it on your own laptop or desktop instead. It quietly sets up a small, sealed-off pretend computer inside your real one, puts the tools in it, and hands it to you ready to use. When you close it, that pretend computer is thrown away, not repaired or reused. Next time, you get a brand-new one that is exactly the same. Sameness every time is the whole point — like a photocopier that gives you an identical copy no matter how many times you press the button.
+Its job is to give software helpers — including AI assistants that write and run code — a sealed room. Rather than letting them loose on your machine, Tillandsias builds a small pretend computer inside your real one, puts the tools in it, and hands them only the project folder you deliberately opened.
 
-Is your stuff private? Yes, and unusually so. The people who make Tillandsias run no servers that your copy talks to. There is no account, no sign-up, no usage tracking, no crash reports. Your files stay on your machine because there is nowhere else for them to go. The workspace only ever sees the one folder you deliberately opened — it does not go looking through your drive or read your documents. Any password or login you give it is kept in your own computer's built-in secure storage.
+When you are finished, that pretend computer is **thrown away rather than repaired**. Next time you get a brand-new one that is identical, like a photocopier that gives the same copy however often you press the button.
 
-Does it cost money? No. It is free software, released under a licence that lets anyone read, use and share it. You are not renting anything, and there is no monthly bill, because the hardware is the one you already paid for.
+@fig:ephemeral
 
-Do you need the internet? Only for the ordinary reasons: downloading the program, fetching updates and software ingredients, or signing in to a service you chose. The workspaces themselves are walled off from the internet by default — one single carefully watched doorway handles anything that must go out. It can even run its artificial-intelligence helpers entirely on your own machine, so nothing has to leave it at all, unless you personally decide to use an outside provider.
+That "throw it away" habit is the safety design. Something always rebuilt from the same instructions cannot slowly rot into a state nobody understands. Even the internal passwords the parts use to talk to each other are reissued at every start, so a messy shutdown yesterday cannot poison today.[^1]
 
-And if you turn it off? Nothing breaks. Everything temporary is meant to vanish; the things you saved deliberately are kept. If some part of it ever gets confused, the fix is to throw that part away and let a fresh one appear — which is exactly how it was designed to behave.
+## The worries people actually have
 
-## HOW IT WAS BUILT
+**Is my stuff private?** Unusually so. The people who make Tillandsias run no servers your copy talks to. No account, no sign-up, no usage tracking, no crash reports.[^2] Your files stay put because there is nowhere else for them to go. Logins you provide are kept in your own machine's secure storage.[^3]
 
-The people who built Tillandsias hold themselves to one rule, and everything else follows from it: every step must make the project a little less uncertain than it was before, and that reduction has to be provable, not merely felt. They call it "monotonic reduction of uncertainty under verifiable constraints", which is a mouthful for something quite homely — never let the fog get thicker, and never take your own word for it that it got thinner.
+**Does it cost money?** No. It is free software under a licence that lets anyone read, use and share it.[^4] You already paid for the hardware.
 
-In practice this works like a very disciplined recipe collection. First someone writes down, in plain and unambiguous words, what a piece of the system must do — the recipe. Then someone writes a test that would visibly fail if the real thing stopped matching the recipe — the taste check. Rules that cannot be tested are not allowed, because a promise nobody can check is just a hope. The written recipe, not the machinery, is treated as the truth; if the machinery disagrees, the machinery is wrong.
+**Do I need the internet?** Only for ordinary reasons — downloading the program, updates, or signing in to a service you chose. The workspaces are walled off, with one watched doorway for anything that must go out. It can run its AI helpers on your own machine, so nothing need leave it.
 
-They are honest about how far this proves anything. Their own notes say plainly that evidence is not proof, and that passing tests can never guarantee perfection — only that a named list of obligations has been met. The recipes themselves keep improving, so the target keeps moving; what they claim is that the gap keeps shrinking release after release, not that it ever reaches zero.
+**What if I turn it off, or something goes wrong?** Nothing breaks. Temporary things are meant to vanish; what you saved is kept. The repair procedure is to throw the confused part away and let a fresh one appear — which is simply the machine behaving as designed. You can wipe the whole thing and rebuild it freely.[^5]
 
-The work is done by many small workers rather than one large one — many quick, cheap attempts that converge on a good answer faster than a single long, careful one would. It is closer to a kitchen of line cooks than a single chef.
+> GREEN: The privacy promise is structural, not a pinky-swear — there is no server to send anything to, so there is nothing to leak or sell.
+> GREEN: Each workspace sees only the folder you opened, never your whole drive.
+> GREEN: Free and open source, so the claims above can be checked by anyone, not just believed.
+> GREEN: The design treats "start over" as normal, which is why a bad day rarely leaves lasting damage.
 
-Because those workers run on different machines, in different sessions, and sometimes just stop mid-task, the shared to-do list is built on a trick borrowed from distributed systems. Nobody erases or overwrites anyone else's entry. Everyone only ever adds a note to the end of the list, each task carries a name derived from the task itself so two people describing the same job produce the same name, and the true state of things is worked out by reading all the notes together. That way two people writing at once produce two notes rather than a collision, and no coordinator or supervisor is needed. This same merge-don't-clobber idea shows up at every layer of the system.
+## How they keep themselves honest
 
-Finally, everything is dated and traceable. Version numbers are built from the calendar so they always move forward, each released copy points back to the exact recipes and evidence behind it, and every rule in the method has to name where it came from and what would prove it wrong. A rule without that paperwork is treated as an assumption, not a fact.
+The team holds to one rule: every step must leave the project *less uncertain* than before, and the reduction must be checkable by a machine — never just felt.[^6]
+
+In practice it works like a strict recipe collection. Someone writes down in plain words what a part must do. Someone else writes a test that would visibly fail if reality stopped matching. Rules that cannot be tested are not allowed, because a promise nobody can check is only a hope. The written recipe is the truth; if the machinery disagrees, the machinery is wrong.
+
+They are refreshingly blunt about the limits. Their own notes say passing tests are *evidence, not proof*.[^7] And because the recipes keep improving, the target keeps moving — "finished" is not a place you arrive at.
+
+@fig:staircase
+
+What they promise instead is that the gap never slides backwards: each release must be no further from the recipes than the last, and a machine checks that at every release. That means it settles toward some floor, not that the floor is zero. They explicitly refuse to claim the stronger mathematical result that would guarantee zero.[^8]
+
+## Where it falls short today
+
+> RED: On Macs, the app has not yet been through Apple's inspection service, so a copy downloaded with a web browser gets blocked on first launch; the recommended install avoids this only by not going through the browser.[^9]
+> PATH: The full fix is written up and costed — an Apple Developer identity plus notarization — and the plumbing is pre-wired, but enrollment is still pending.[^10]
+
+> RED: One Windows installer file in a past release was shipped without its signature and was simply impossible to install — no workaround for the user.[^11]
+> PATH: The release process now refuses to publish that file unsigned, and the signing route is chosen but not yet in place.[^12]
+
+> RED: A local AI "expert" feature confidently produced answers with invented sources — it announced a careful research pipeline that was never actually run.[^13]
+> PATH: It was switched off and rewritten so that answers either come with real, used citations or are refused outright; that replacement is recorded as a change in progress.[^14]
+
+> RED: On some Linux desktops, clicking the little tray icon could freeze the whole screen session.[^15]
+> PATH: The faulty replies were audited and corrected, but a further freeze was found after the last release and fixed only on a development branch, so the issue is deliberately left open.[^15]
+
+None of these break the privacy story. They are install-and-launch problems plus one over-promising feature — caught because somebody is checking, which is the whole point of the method.
+
+## Footnotes
+
+[^1]: Internal secrets are wiped and reissued on every start | openspec/specs/ephemeral-secret-refresh/spec.md#L1-L20
+[^2]: "Tillandsias collects nothing" — no telemetry, no analytics, no server | PRIVACY.md#L5-L17
+[^3]: Only folders you open; credentials in a local secret store | PRIVACY.md#L30-L44
+[^4]: GNU General Public License, version 3 | LICENSE#L1-L2
+[^5]: "Designed to be wiped and rebuilt freely" | PRIVACY.md#L45-L48
+[^6]: The convergence objective: shrink the distance between spec, code, and reality | methodology/convergence.yaml#L1-L20
+[^7]: Evidence boundaries — traceability and passing tests are evidence, not proof | methodology/philosophy.yaml#L228-L232
+[^8]: The stronger contraction result is explicitly not claimed | methodology/math-foundations.yaml#L107-L120
+[^9]: Install instructions warning that browser downloads hit a Gatekeeper block | README.md#L27-L45
+[^10]: Recorded options and costs for Apple signing and notarization | plan/issues/macos-gatekeeper-signing-options-2026-08-29.md
+[^11]: Unsigned Windows package is uninstallable, with no user-side workaround | plan/issues/store-msix-submission-blockers-2026-08-31.md#L26-L40
+[^12]: Chosen signing route for the Windows release channel | plan/issues/windows-signing-research-2026-08-16.md#L1-L25
+[^13]: Audit of the shipped "local expert" facade: stamped answers valid with no retrieval and no citations | openspec/changes/expert-serve-grounded-pipeline/proposal.md#L1-L25
+[^14]: The grounded replacement pipeline, still an in-progress change | openspec/changes/expert-serve-grounded-pipeline/tasks.md
+[^15]: Tray menu replies did not match the desktop specification, freezing the session | plan/loop_status.d/20260830t004603z-3b425083-linux.md

@@ -1,348 +1,286 @@
 # Level 5 — For the PhD / MathWiz / Hacker
 
-You asked for it at your level. Fine. Read slowly; the interesting parts are the
-places where the repository is *more* honest than you were expecting, and the
-places where it is not.
+You asked to be addressed at your level, so I will skip the tour: below is this
+system's formal content and an audit of which claims are discharged. The punchline
+first — the *theory* is unusually well-behaved, finite, modest and candid about the
+theorems it has not earned; the *instrumentation* meant to make it binding is a
+thirteen-row shell table. Judge the thinking on the former, and do not confuse the
+latter with a measure.
 
-## WHAT IT IS
+## The object of study
 
-Tillandsias is a tray binary that folds a disposable cloud region through your
-hypervisor. Strip the marketing and the architecture is a four-tier containment
-funnel — host tray → guest VM → podman enclave → forge container — with exactly
-one declared execution surface and an argv-level policy checker standing in
-front of it.
+Tillandsias is a tray application that folds a disposable, four-tier-contained
+Linux enclave through your hypervisor so that coding agents execute in exactly one
+place and touch nothing above it. That is the product, and it is not why you are
+reading at this level. The interesting artefact is the accompanying methodology: an attempt to state
+software convergence as an order-theoretic problem rather than a vibe. The thesis
+is one line — *monotonic reduction of uncertainty under verifiable constraints*[^1]
+— and, unusually, it has a file whose entire purpose is to separate what that
+sentence can defend from the analogies it must not overclaim[^2].
 
-**The funnel.** The host runs one Tillandsias-owned process: a GTK/SNI tray on
-Linux (`crates/tillandsias-headless`, whose `main.rs` is a 25k-line
-orchestrator), a Win32 `NotifyIcon` tray, or an AppKit `NSStatusItem` — the
-latter two sharing `crates/tillandsias-host-shell`, so their platform-specific
-code is menu plumbing and nothing else. On macOS and Windows that process first
-materialises a Fedora guest (Virtualization.framework VM, or a WSL2 distro)
-through `crates/tillandsias-vm-layer`, whose `VmRuntime` trait is deliberately
-the twin of the `ContainerRuntime` surface in `crates/tillandsias-podman`. The
-guest is not a bespoke rootfs: `images/vm/manifest.toml` pins
-`registry.fedoraproject.org/fedora:44` **by digest, per architecture**, names
-Fedora's own artifact URLs and an `expected_rootfs_sha`, and exposes its
-`recipe_sha` as `vm.recipe@<sha>` in the `Hello.capabilities` handshake so a
-stale recipe is detectable rather than merely wrong. Inside the guest, rootless
-Podman brings up a stack on an `--internal` network `tillandsias-enclave`
-assembled from `images/{git,proxy,web,vault,router,inference,chromium,builder,
-default}`. Agents run in the deepest container — the *forge* — and nowhere else.
+## The formal skeleton
 
-That last clause is not aspiration.
-`openspec/specs/forge-as-only-runtime/spec.md` forbids `Command::new("opencode")`
-and its siblings anywhere in `crates/tillandsias-headless/src/` or
-`crates/tillandsias-podman/src/`, requires the tray to *refuse* rather than fall
-back when the forge image is missing, and declares the mount categories
-**exhaustive**: exactly four legal sources — the canonical project workspace at
-`/home/forge/src/<project>`, the ephemeral CA-cert dir from
-`ensure_enclave_for_project` mounted read-only, `--tmpfs`, and a per-launch
-`mktemp -d`. `$HOME`, `~/.config`, `~/.cache` are unreachable by construction,
-pinned by the regression test the spec names in its own prose,
-`launch_forge_agent_does_not_mount_user_home`. An exhaustive-categories
-requirement is a *closed* predicate over one argv vector. That is the right
-shape: falsifiable by inspecting a `Vec<String>`, not by arguing about least
-privilege.
+Begin with the atom. An **obligation** is a named, auditable requirement,
+invariant, litmus signal, trace signal, provenance binding, or environment
+assumption carrying a stable identifier[^3]. Its state ranges over a finite
+**total order** — a chain, seven long, from no evidence to bundled evidence:
 
-**The hardening envelope is a pure function.**
-`crates/tillandsias-podman/src/policy.rs` declares
-`MANDATORY_HARDENING_FLAGS: [&str; 4] = ["--userns=keep-id", "--cap-drop=ALL",
-"--security-opt=no-new-privileges", "--security-opt=label=disable"]` and returns
-typed `LaunchArgvError::{MissingRunSubcommand, MissingImage,
-MissingMandatoryHardening, WeakensMandatoryHardening}`. Note the fourth variant:
-it catches argv that *re-weakens* a flag already present
-(`no-new-privileges=false`), which is the failure a naïve `contains()` check
-misses. The module "deliberately does not execute Podman" — it is an auditable
-checker, so the property is decidable before any OS process exists. `--rm` is
-excluded on purpose; container ephemerality is a per-profile choice, the four
-flags are not. And the consequence is real: `images/router/` strips
-`cap_net_bind_service` from `/usr/bin/caddy`, because the kernel refuses to exec
-a file-capability binary under `--cap-drop=ALL` +
-`--security-opt=no-new-privileges`. The envelope binds hard enough to break
-things, which is how you know it is on.
+$$\mathcal{O} = \{\,\texttt{absent} < \texttt{declared} < \texttt{traced} < \texttt{pos\_tested} < \texttt{neg\_tested} < \texttt{runtime\_obs} < \texttt{evidence\_bundled}\,\}$$
 
-**Ephemerality is a stated invariant, not an emergent property.**
-`methodology/philosophy.yaml` lists `runtime_substrate_is_ephemeral_recreate_
-never_repair` among `global_invariants`, with a recreate ladder (podman/stack →
-guest → host tray → release) and an `error_message_policy` that pushes the word
-"recreate" into user-facing text. Repair is not a degraded mode here; it is a
-category error. Idempotence follows: if the substrate is always recreated from a
-same-revision image, re-running the launch is the identity on observable state.
-Where idempotence is *claimed* it is tested — `ensure_containers_conf_dns_
-servers` carries an explicit idempotency test; `populate_hot_paths()` must be
-idempotent by spec; `cache-isolation` states outright that cache deletion is
-never data loss because "the next launch MUST rebuild missing cache artifacts."
-Forge staleness is keyed on `.last-build-forge.sha256` over **source hash only**,
-so a `VERSION` bump refreshes human aliases and rebuilds nothing;
-`containerfile-staleness` forbids comparing file mtimes and requires the runtime
-image source digest. The four HOT tmpfs roots (`/opt/cheatsheets` 8MB,
-`/home/forge/src` computed, `/tmp` 256MB/01777, `/run/user/1000` 64MB/0700) are
-capped by `--tmpfs=<path>:size=<N>m,mode=<oct>` — kernel ENOSPC, not advisory —
-and the spec says of a fifth: *"'Maybe a hot path' is a HARD NO."*
+A **spec state** is the product of its obligations' states; a **project state**
+the product over active specs, ordered componentwise after aligning stable IDs and
+tombstones[^3]:
 
-**The transport boundary is cryptographic, and version-bound by derivation
-rather than comparison.** `crates/tillandsias-secure-channel` secures both hops
-of the transparent exec chain (host tray ⇄ guest headless over vsock, guest ⇄
-container) with
-`PSK = HKDF-SHA256(ikm=release_root_secret, salt="tillandsias-control-channel",
-info="v=<build_version>;wire=<wire_version>;hop=<hop_id>")`. Mismatched
-releases do not *reject* each other; they cannot derive the same key, which is
-strictly stronger than a version check an attacker can lie about — and it is why
-`methodology/convergence.yaml` can list `"dual plaintext+secure acceptance in
-the same boot"` as a **forbidden shortcut**. `crates/tillandsias-control-wire`
-carries `[4-byte BE length][postcard ControlEnvelope]` with a `#[non_exhaustive]`
-message enum whose variants are tombstoned, never reordered.
-`crates/tillandsias-headless/src/exec_allowlist.rs` is a pure function (kept out
-of `pty_handler` precisely because that module sits behind a feature combination
-nobody lints): the verbatim-argv arm requires `argv[0]` to start with
-`/usr/local/bin/`, `/usr/bin/` or `/bin/`, contain no `/..`, and have a basename
-that is not any of `bash|sh|dash|zsh|ksh|fish|env` — after which arguments reach
-`execve` untouched, so `a$(id)b` arrives as one data element. It is advertised
-as capability `ExecArgvVector` in `HelloAck.server_caps` because hosts must
-feature-detect, never version-compare. Secrets live in an in-enclave Vault
-(`https://vault:8200`, AppRole tokens on 1h TTLs, no host port map in VM
-launches) and the GitHub token never crosses into a forge at all — pushes go
-through a `git push --atomic` pre-receive relay in `images/git/`.
+$$S_{\text{spec}} = \prod_{i \in \mathrm{Obl}} \mathcal{O}_i, \qquad S_{\text{proj}} = \prod_{s \in \mathrm{Specs}} S_{\text{spec}}(s), \qquad x \le y \iff \forall i,\; x_i \le_{\mathcal{O}} y_i$$
 
-**And the receipts, including the unflattering ones.** Push CI was removed
-2026-08-03; the whole gate is `./build.sh --ci-full` on your own metal. What
-stops an unstamped push is `scripts/gate-stamp.sh`, the best-engineered thing
-here: a hook that runs the gate gets `--no-verify`'d on its second use, so the
-gate instead *stamps* a digest over `HEAD` plus the full working-tree diff
-**including untracked files**, and the hook verifies currency for the cost of
-one hash. Since order 765-dt8h the stamp carries a `scope`, because `--check`,
-`--ci` and `--ci-full` validate materially different things and previously wrote
-byte-identical stamps; the class vocabulary is closed and **total**, with
-unrecognised paths mapping to `other`, which only `scope full` covers. v1 stamps
-are refused loudly rather than having a scope inferred — a correct refinement of
-a partial function into a total one. Against that, the README's own release
-table records `755-qcxh`: *"the enclave's TLS-interception CA private key is
-0644 in /tmp — any local uid can mint certificates the enclave trusts; squid
-only reads it because everyone can."* The Vault leaf key goes through a podman
-secret. The MITM CA key did not. Both facts are in the repository, which is more
-than most projects manage; only one of them is in the marketing.
+Each $\mathcal{O}_i$ is a finite chain, hence a complete lattice; finite products of
+complete lattices are complete lattices with $\vee$ and $\wedge$ componentwise. So
+$S_{\text{proj}}$ is a finite complete lattice of height $6\cdot|\mathrm{Obl}|$, and
+the apparatus lands squarely inside Tarski[^4] and standard finite-order
+machinery[^5]. What it buys, and does not, the repository states itself — *"this
+proves monotonicity of the model, not truth of the modeled requirement or adequacy
+of the chosen obligation set"*[^6]. Rarer in the wild than it should be.
 
-## HOW IT WAS BUILT
+@fig:lattice
 
-The thesis is one sentence, and it is the title of a file:
-**monotonic reduction of uncertainty under verifiable constraints**. The
-eponymous root YAML is now a tombstone pointing at the nine-component split
-under `methodology/`; the live statement is `methodology/philosophy.yaml`'s
-`core_principle`.
+## Why "done" is decidable at all
 
-### The formalisation, and its refreshingly narrow claims
+Let $\mathrm{refine}: S \to S$ be the composite of validation and semantic
+distillation at a *fixed* bar. The closure claim is idempotence[^7]:
 
-`methodology/math-foundations.yaml` is where you should aim your scepticism, and
-where you will be partly disarmed. The model:
+$$\mathrm{refine}(\mathrm{refine}(x)) = \mathrm{refine}(x)$$
 
-- An **obligation** is a named auditable requirement with a stable ID, its state
-  ranging over the finite chain `absent < declared < traced < positively_tested
-  < negatively_tested < runtime_observed < evidence_bundled`.
-- `spec_state` is the **product lattice** of those states; `project_state` the
-  product over active specs, ordered componentwise after aligning stable IDs and
-  tombstones.
-- `centicolon_function: spec_state → ℕ` is bounded and "monotone **only** for
-  evidence transitions that preserve obligation IDs and do not introduce
-  penalties, ambiguity, or denominator scope changes."
+That is the whole decidability argument, and it is a good one. $\mathrm{refine}$
+is inflationary and monotone on a finite lattice, so by Kleene iteration[^8] the
+ascending chain $x \le \mathrm{refine}(x) \le \mathrm{refine}^2(x) \le \cdots$
+stabilises in at most $6\cdot|\mathrm{Obl}|$ steps; the stabilised point is the
+least fixed point above $x$. "Done" is then not a mood but a computable predicate:
+$x$ is closed iff $\mathrm{refine}(x) = x$.
 
-Five claims carry backing refs and — the part that matters — explicit
-`limits`. `math.order.lattice-model@v1` (Tarski 1955; Davey & Priestley) proves
-monotonicity *of the model, not truth of the modelled requirement*.
-`math.fixpoint.convergence-target@v1` (Kleene) defines closure as
-`refine(refine(state)) == refine(state)` — idempotence under *known* validators,
-not completeness against unknown requirements.
-`math.abstract-interpretation.evidence-abstraction@v1` (Cousot & Cousot)
-concedes that **no Galois connection is defined**: "an abstraction discipline,
-not a formal abstract interpreter." `math.metric.contraction-not-claimed@v1`
-cites Banach 1922 *in order to disclaim it*, specifying the debt a future claim
-would owe — a metric `d`, an operator `F`, a constant `0 ≤ c < 1` with
-`d(F(x),F(y)) ≤ c·d(x,y)`. And `math.evidence.uncertainty-not-probability@v1`
-(Shafer, Walley) forbids reading CentiColons as probabilities.
+The governance layer makes this non-vacuous. The bar $B_v$ — the declared depth at
+which a signal counts as a finding — is **fixed within a release** and rises only
+by explicit operator decision; the automation is forbidden from self-escalating
+it[^9]. That is precisely the hypothesis the fixed-point argument needs: a
+continuously rising bar makes $\mathrm{refine}$ a moving operator and destroys
+stabilisation, while discrete, externally gated raises preserve it.
 
-So no, you cannot dismiss this as lattice cosplay: a finite product order, a
-bounded ranking function in the Floyd/Lyapunov sense, a fixed point under
-declared validators, with contraction and Galois connections named *absent*.
-`philosophy.yaml:multi_version_convergence` closes it: with `d_v = d(I_v, T_v)`
-and `T` a moving target, release-over-release non-increase of `d_v` gives a
-floor `d_* ≥ 0` and explicitly *not* `d_* = 0` — that needs a progress premise
-excluding positive residual fixed points. `bar_raise_governance` supplies
-decidability: the bar is fixed *within* a release and steps only at operator-cut
-boundaries, so every intra-release convergence point is well defined. Discrete
-operator-gated steps, not a continuously rising goalpost. The reasoning holds.
+The honest caveat is stated too: a fixed point means *stable under known
+validators*, not complete relative to unknown future requirements[^7]. Kleene
+gives you least, not right.
 
-### Which CRDT discipline appears where — precisely
+## The moving target, and the theorem that is not proved
 
-The word "CRDT" appears in three distinct places with three different degrees of
-earning it, and the repo distinguishes them itself.
+Now the part most would fudge, and this repository does not.
 
-1. **The plan ledger — a real, tested CRDT.**
-   `crates/tillandsias-plan/src/fragments.rs` (4799 lines) implements
-   `base ⊕ fold(fragments)` over `plan/index.yaml` plus immutable
-   `plan/index.d/<utc>-<suffix>-<host>.yaml`. Per-field discipline:
-   `packets:` is a **G-Set** keyed by `packet_id` (union: commutative,
-   associative, idempotent); `events:` is a **G-Set** keyed by
-   `(packet_id, event identity)`; `fields:` (alias `status:`, order 642-fedr) is
-   an **LWW-Register** keyed on `{packet_id}\u{1}{field}`, resolved by
-   `(ts, host)`. Deletion is by **tombstone** — a G-Set has no remove, and a
-   naïve delete is re-added by any replica that missed it. Determinism comes
-   from folding in `(ts, filename)` order with UTC-first names, never directory
-   order ("the filesystem promises none"). Convergence is pinned by
-   `the_fold_is_commutative_the_defining_crdt_property`,
-   `the_fold_is_idempotent_so_a_half_finished_compaction_is_safe` and
-   `the_fold_is_order_independent`, among 78 tests in that file. Compaction
-   deletes exactly the fragments it folded **by name, never a glob** — the
-   GC-versus-writer race, named as such. And the wrinkle you would have found:
-   `status_entry_wins` is not a plain LWW-Register. It composes a monotone rank
-   join over `closure_rank: implemented(0) < completed(1) < verified(2) <
-   done(3)` with LWW as tiebreak at equal rank, treats `obsoleted`/`failed` as
-   lateral, and permits descent only on an explicit `incoming_falsified` flag —
-   a lexicographic join with a deliberate non-monotone escape hatch, which is
-   the spec system's bounded-uncertainty exception expressed in code.
-2. **Version metadata — a genuine join-semilattice.** `versioning.yaml` argues
-   correctly that SemVer has no natural total order (patch resets;
-   `LUB(1.0.1,1.0.1)` loses causality) and a bare counter collides across nodes;
-   a calendar anchor plus a build counter joins componentwise by max.
-   `scripts/verify-version-monotonic.sh` enforces `VERSION ≥ latest tag`.
-3. **Specs and cheatsheets — deliberately *not* claimed.**
-   `spec-system.yaml:crdt_properties` is typed
-   `semantic_merge_with_crdt_preconditions`; `cheatsheets.yaml:crdt_model` lists
-   preconditions including
-   `property_tests_for_commutativity_associativity_idempotence`, with the
-   anti-pattern spelled out — calling a lossy semantic cache a CRDT "creates
-   false convergence claims". `provenance.yaml:methodology.crdt.preconditions@v1`
-   files it as `claim_strength: external_analogy` and keeps the weaker label
-   "CRDT-like" until those property tests exist. **They do not exist**: no
-   `proptest` or `quickcheck` anywhere in the workspace, and the fragment tests
-   are example-based. Honest, and still an open obligation.
+Write $T_v$ for the target — the specs at version $v$ — $I_v$ for the
+implementation, and $d_v = d(I_v, T_v) \ge 0$ for residual distance. Because the
+specs themselves evolve, $T$ moves, and no final target state exists[^10]. The
+mechanically checkable release-boundary rule is therefore non-increase:
 
-The best evidence that the honesty is load-bearing rather than decorative sits
-in a Lua file. `crates/tillandsias-plan/lua/collect.lua` opens: *"This is a
-SEEN-SET DEDUP, not a CRDT — the earlier header's CRDT claim (commutativity in
-particular) was false: first-wins keeps whichever duplicate arrives first, so
-order matters."* A retracted convergence claim, with the property that failed
-named. Most repositories would have kept the word.
+$$d_{v+1} \le d_v \quad \text{for all } v \implies \exists\, d_* \ge 0 : \lim_{v\to\infty} d_v = d_*$$
 
-### The LUA layers
+by monotone convergence of a bounded-below decreasing sequence. And the sentence
+that earns the file its credibility: this **does not prove $d_* = 0$**. A zero-floor
+claim additionally requires a validated progress premise excluding positive
+residual fixed points — or a proven contraction, explicitly not claimed[^10].
 
-`crates/tillandsias-plan/src/lua_runtime.rs` embeds mlua and hot-reloads four
-scripts (302 lines: `tier.lua`, `decompose.lua`, `collect.lua`, and `init.lua`
-loaded last so it may reference the others). The division of labour after order
-920-pxg6 is strict: **Lua owns tier classification, variant trimming and
-collection dedup — deterministic data-in/data-out; Rust owns everything with
-consequences** — dispatch, endpoints, retrieval, envelope construction, and
-citation validation (`answer::verify` in `pipeline::run_grounded`). The dead
-`validate.lua` was deleted, not demoted. The module doc is titled "SECURITY
-SURFACE, exactly as implemented — a PARTIAL stdlib restriction, **not a
-sandbox**": it enumerates what `new()` nils (`os.execute/exit/getenv`, the `io`
-open/popen/close family, `debug`, `loadfile`, `dofile`, `require`), states that
-`os.remove` and `os.rename` **remain reachable**, tells the reader to treat
-`lua/` as trusted code, and adds *"Do not re-promise a stronger sandbox here
-without implementing one — that phantom claim is what the 920-pxg6 audit
-removed."*
-`LatencyTier` (Immediate 500ms → NonUsable >15s) ties this to
-`philosophy.yaml:convergence_via_velocity`: bound each prompt's skew (weak LLN)
-and let iteration supply strong-LLN convergence — an analogy, but the correctly
-stated one, with the hazard named (unbounded terminal skew defeats infinite
-iteration). Its corpus-side counterpart,
-`not-enough-information.yaml` + `declined-alternatives.yaml`, exists because
-cosine top-k always returns k: refusal had to be written in as retrievable text.
-One entry was then *corrected* for declaring systemd unused when
-`packaging/systemd/user/tillandsias.service` exists — the harness had measured
-that the record converted questions, never that it was true.
+@fig:staircase
 
-### Specs, litmus, and the centicolon wiring
+The debt is itemised. A future Banach-style claim[^11] would owe a complete metric space $(X,d)$ of project states, an operator
+$F: X \to X$, and a constant $0 \le c < 1$ with
 
-Specs live at `openspec/specs/<capability>/spec.md` with RFC-2119 modality,
-`ambiguity.score` with `allowed: 0`, and mandatory tri-binding to `@trace`,
-litmus and cheatsheets. Verification is two orthogonal ladders: **S0–S3** for
-the spec (draft → syntactically valid → litmus-bound → runtime-validated) and
-**L0–L3** for an annotation's evidence (spec → +cheatsheet → +API docs →
-+passing litmus), under `declared_level_is_claim` /
-`ci_validates_against_observed_level`. Ambiguity is operational: run
-behaviourally distinct candidates against the same litmus; if contract-relevant
-outcomes differ while all pass, the spec is ambiguous and activation blocked.
+$$d(F(x), F(y)) \le c\,d(x,y) \quad \forall x,y \in X$$
 
-Litmus tests are 411 YAML files (34,606 lines) with `spec:`, `phase:`, a
-`size:` tier carrying wall-clock budgets, and a `critical_path:` of shell steps.
-Read `litmus-added-fragment-parse-gate-shape.yaml` before dismissing the genre:
-**negative controls in hermetic throwaway git repos** — a bare
-`ts: 2026-08-12T15:31:54Z` must be *refused* and the quoted form *accepted*,
-without which the negative control is satisfied by a gate that refuses
-everything. It exists because a script claimed `# Pinned by litmus:…` for weeks
-against a test nobody had written — now gated by
-`scripts/check-litmus-pin-claims.sh`.
-`scripts/litmus-stdlib.sh` supplies `mf_stage`/`mf_holds*` because
-`producer | grep -q` yields one status for two stages and SIGPIPEs its producer;
-`set -o pipefail` was *measured* to move 4 of 249 tests to FAIL, **all four
-false positives**, so the fix is a consumer reading a complete buffer, not the
-flag. Also measured: `mf_holds` shipped as ERE while 321 of 460 sites used BRE
-`grep -q`, where `fail:…:state={state}` does not mismatch but *errors*. One
-variant per grep flag.
+whence a unique fixed point $x^*$ with $d(F^n(x), x^*) \le \frac{c^n}{1-c}d(x,F(x))$
+— geometric convergence to zero residual[^12]. Note exactly what is missing:
+not the operator (that is $\mathrm{refine}$), but (i) a metric at all — the
+project state is an order, and no metric compatible with it has been defined;
+(ii) completeness of that space; and (iii) any empirical or structural bound $c$.
+Absent (i), the other two are not even well-posed. Until then, "monotonic
+convergence" means ordered non-regression plus finite residual descent, and the
+file says so in those words[^12]. That is the difference between a methodology and
+a pitch deck.
 
-### Where the claims outrun the evidence
+> GREEN: The load-bearing negative results — no contraction, no Galois connection, no probabilities — are written down as first-class claims with their discharge conditions, not buried as caveats.
 
-Now the part you came for.
+## The law of large numbers, correctly split
 
-- **`crates/tillandsias-litmus` does not exist as code.** It has a `README.md`
-  and `src/mock/podman.rs.example` — no `lib.rs`, no `Cargo.toml`, **not a
-  workspace member**. Yet `methodology/litmus-framework.yaml` specifies four
-  layers with named files (`src/signal/registry.rs`, `src/test/graph.rs`,
-  `src/convergence/centicolon.rs`) and `litmus-centicolon-wiring.yaml` tells
-  agents the arithmetic "is managed by the tillandsias-litmus CLI" and that they
-  "MUST NOT attempt to calculate CentiColon budgets and residuals manually."
-  The authority delegated to is a `.rs.example`.
-- **The CentiColon obligation model is unimplemented.** `proximity.yaml`
-  specifies weights (`must_requirement: 100`, `invariant: 120`,
-  `negative_litmus_signal: 100`), multipliers, six `cap_rules` and sixteen
-  penalties (`ghost_trace: -50` … `metric_gaming_suspected: -120`). Not one of
-  those identifiers appears outside `methodology/` and the `.example`. What
-  computes the score is `scripts/local-ci.sh`'s `check_weight()` — a hardcoded
-  table over **13 CI checks** whose pre-build subset sums to exactly the
-  `total_cc: 990` in the committed dashboard. "89.9% closed" is `890/990` over
-  thirteen shell checks: a CI pass-rate in a lattice's clothes. No caps, no
-  penalties, no per-spec rollup, no scope-change event.
-- **The atomic unit of that model is missing from 92% of specs.** Earning
-  requires `requirement_has_stable_id`. Of 177 spec files, **15** carry a
-  `**ID**:` field, against 2141 occurrences of `MUST`.
-- **`versioning.yaml` documents a scheme the project retired.** It defines
-  `v<Major>.<Minor>.<YYMMDD>.<Build>` with `Major` = contract version, `Minor` =
-  feature phase. The live format, per the 2026-08-31 operator ruling pinned in
-  `litmus-versioning-shape.yaml`, is `<years_since_epoch>.<month>.<day>.<build>`
-  — hence `56.9.2.1`. The join-semilattice argument survives; the documented
-  *semantics* of two components are false. The repo caught this once — the
-  release ledger records "the versioning-shape litmus still pinned the retired
-  scheme (the drift-protection had drifted)" — and fixed the litmus, not the
-  doctrine.
-- **Controlled vocabularies leak because nothing validates them.**
-  `spec-system.yaml` closes spec status to `{draft, active, deprecated,
-  obsolete}`; `forge-as-only-runtime/spec.md` says `Status: current`.
-  `proximity.yaml:397` reads `remove_or perturb_runtime_trace_emission…` — a
-  space where an underscore belongs. The constraint is
-  `all_spec_elements_must_be_machine_parsable`; no machine reads either
-  alphabet.
-- **The complexity constraint is breached by its own metric.**
-  `convergence.yaml:methodology_complexity_constraint` requires
-  `methodology_complexity / codebase_complexity < 0.15` and red-flags "CI
-  validators exceed 5000 lines". Methodology YAML is ~9,991 lines against
-  ~192,634 of Rust — 0.052, comfortably inside — but that denominator omits
-  34,606 lines of litmus YAML and ~16,225 lines of `scripts/check-*.sh`
-  validators, which alone exceed the stated red flag by more than 3×. The
-  constraint is real; it is not instrumented, so it has never fired.
+The operating doctrine for agent iteration is a genuine weak/strong LLN
+distinction, and it is the intellectual core of the whole design[^13].
 
-What survives is the interesting result. `scripts/trace-coverage.sh` reports
-`specs=202 traced=184 ghost=18 annotations=4963 files=1585` live, and the ghost
-gate is a **ratchet** against `openspec/ghost-trace-baseline.txt` failing in
-*both* directions — new ghosts fail, a stale baseline fails too. Its header
-explains why it deleted 171 generated `TRACES.md` files: they *looked* like they
-discharged the required `trace_coverage_summary` field and did not — a
-spec→file:line index is not a coverage summary — so a declared obligation sat
-open its whole life behind ~4000 lines of per-cycle churn.
+Model one prompt as a single sample $X_k$ of a quality functional with
+$\mathbb{E}[X_k] = \mu + b_k$, where $b_k$ is the per-iteration **skew** (bias).
+For the empirical mean $\bar{X}_N = \frac{1}{N}\sum_{k\le N} X_k$:
 
-That is the real methodology, and it is better than its own scoring system: an
-event-intake directory (`methodology/event/`, 33 records) for observations the
-model did not predict, a bounded-uncertainty exception so monotonicity cannot
-force retention of false certainty, and a demonstrated willingness to delete the
-artefact that was pretending to be evidence. The formal apparatus is sound and
-modest; the instrumentation meant to make it *binding* is a thirteen-row weight
-table and a stale dashboard. Judge the thinking on the former, the claim on the
-latter.
+$$\text{Weak LLN:}\quad \bar{X}_N - \frac{1}{N}\sum b_k \;\xrightarrow{\;\mathbb{P}\;}\; \mu \qquad\text{(convergence in probability, biased at finite } N)$$
+
+$$\text{Strong LLN:}\quad \bar{X}_N \;\xrightarrow{\;\text{a.s.}\;}\; \mu + \bar{b}, \qquad \bar{b} = \lim_N \tfrac{1}{N}\textstyle\sum_{k\le N} b_k$$
+
+The doctrine follows immediately. Fighting to maximise a single prompt's accuracy
+is fighting its own finite-$N$ skew: you are trying to make one sample be the mean.
+Instead make each iteration **small and fast with bounded skew**, then iterate, and
+let the stream supply almost-sure convergence[^13].
+
+The load-bearing hypothesis is the bound, and here is where the folklore gets
+misread. If $|b_k| \le \beta$ with $\beta \to 0$ under the discipline, then
+$|\bar b| \le \beta$ and the iteration stream converges hard to within $\beta$ of
+truth. If instead skew is unbounded — or bounded away from zero at the *end* of
+every prompt — then $\bar b \not\to 0$ and $\bar{X}_N$ converges almost surely to
+the *wrong number*. Infinitely many iterations do not save you. The repository
+states exactly this hazard: *"if a prompt's skew is not bounded, infinite
+iterations do NOT converge hard"*[^13]. Bounding per-sample bias is therefore a
+hypothesis of the theorem, not a performance optimisation — which is why the
+architecture prefers many small composable retrieval experts over one large slow
+model, and why answers are pinned to a source commit acting as a Lamport clock
+over the cached corpus[^14].
+
+@fig:lln
+
+> GREEN: The weak/strong split is stated in its correct form — the bias term, not the variance, is identified as what defeats iteration. This is the version most engineering essays get backwards.
+
+## Order-theoretic honesty: what the scores are not
+
+Three renunciations, each with teeth.
+
+**Abstract interpretation is claimed only as a discipline.** Specs and scores are
+described as abstractions that deliberately forget irrelevant detail — the Cousot
+framing[^15] — but the file concedes that **no Galois connection $(\alpha,\gamma)$
+is defined** between program semantics and spec obligations[^16]. What that
+forecloses is precise: with no $\alpha\circ\gamma \sqsubseteq \mathrm{id}$ /
+$\mathrm{id} \sqsubseteq \gamma\circ\alpha$ adjunction there is no soundness theorem
+transporting an abstract fixed point back to a guarantee about concrete
+executions. Closure in the obligation lattice implies nothing about the program.
+It is bookkeeping over evidence, and is labelled as such.
+
+**Scores are a ranking function, not a measure.** The CentiColon map
+$c: S_{\text{spec}} \to \mathbb{N}$ is bounded, with a separately reported
+denominator and residual, and monotone *only* for transitions that preserve
+obligation IDs and introduce no penalties, ambiguity, or denominator scope
+change[^3]. That is a Floyd-style ranking function[^17] — a well-founded descent
+witness, exactly as in termination arguments — not an additive set function.
+Consequently it is not a measure: it is not countably additive, obligations
+overlap, and the denominator is policy. And it is explicitly **not a
+probability**[^18]: reports must label residuals as obligation closure and keep
+any belief values in separately named fields, with Shafer[^19] and Walley[^20]
+cited as the layer a future confidence model would have to occupy separately. What
+this forecloses: you may not combine two scores by Bayes, and 89% closed is not an
+89% chance of correctness — finite coverage is not proof of absence[^18].
+
+> RED: The ranking function's own validation program calls for property-testing score monotonicity over generated obligation states. No property-testing harness exists anywhere in the workspace — no `proptest`, no `quickcheck` — so the monotonicity checks are enumerated but never run.
+> PATH: The checks are written down as a staged validation program[^27]; the phase that would discharge them is specified and unimplemented.
+
+> RED: The obligation model's atom is a stable requirement ID. Fifteen of one hundred seventy-seven spec files carry an ID field, against thousands of RFC-2119 keywords. The lattice is therefore defined over a coordinate set that mostly does not exist.
+> PATH: `requirement_has_stable_id` is already an evidence-credit term in the scoring rules[^28], so the gap is priced — but nothing gates on it, and no migration is scheduled.
+
+> RED: What actually computes the score is a hardcoded weight table over thirteen CI checks in a shell script[^29]; the committed dashboard's 890/990 is that pass-rate[^30]. None of the specified base weights, multipliers, cap rules, or sixteen penalties are computed anywhere outside the methodology YAML.
+> PATH: The framework specification names the crate and modules that would own the arithmetic; that crate contains a README and one `.rs.example` and is not a workspace member[^36].
+
+> RED: The methodology's own complexity constraint — methodology over codebase below 0.15, with a red flag at 5000 lines of CI validators — is not instrumented, so it has never fired despite the validator corpus exceeding its own red-flag threshold several times over[^31].
+> PATH: The rule states its two measurement procedures; neither is implemented as a check.
+
+## CRDT semantics, as algebra
+
+The plan ledger is a real convergent replicated data type, and the repository
+distinguishes it from the places where the word would be decoration.
+
+The state is $\text{base} \oplus \mathrm{fold}(\text{fragments})$: one compacted
+base document plus append-only, immutable per-host fragments. Two join-semilattices
+carry it[^21]:
+
+- **Grow-only sets.** Packets keyed by identifier, and events keyed by
+  $(\text{packet id}, \text{event identity})$. Join is union:
+  $x \sqcup y = x \cup y$, which is commutative, associative and idempotent —
+  the three properties that make replica state a join-semilattice and make the
+  merge order-independent. Deletion is by **tombstone**, because a G-Set has no
+  remove and a naive delete is resurrected by any replica that missed it.
+- **Last-writer-wins registers**, one per $(\text{packet id}, \text{field})$ key,
+  with the winner chosen deterministically by $(\text{timestamp}, \text{host})$ —
+  a total order on writes, hence a join.
+
+$$\text{state} = \Big(\bigcup_i P_i,\; \bigcup_i E_i,\; \textstyle\bigsqcup_i R_i\Big), \qquad \bigsqcup \text{ componentwise}$$
+
+Applying LWW to a *list* would silently discard the loser's entries — which is why
+events are a set and not a register, a distinction the file calls "the whole
+correctness argument"[^21]. Determinism is pinned by folding in
+$(\text{timestamp}, \text{filename})$ order rather than directory order, since two
+hosts folding differently present as corruption, not as a sorting bug[^22]. The
+three properties are tested by name[^23].
+
+@fig:crdt
+
+The subtlety worth your attention: the status field is *not* a plain LWW register.
+It composes a monotone join over a closure rank with LWW as tiebreak at equal rank,
+treats terminal-but-lateral values as non-ladder moves, and permits descent only
+under an explicit falsification flag[^24] — a lexicographic join with a deliberate
+non-monotone escape hatch, so monotonicity cannot force retention of a certainty
+later shown false.
+
+The best evidence that the honesty is structural sits in a Lua file whose header
+*retracts* a prior CRDT claim and names the property that failed: *"This is a SEEN-SET DEDUP, not a CRDT — the earlier header's CRDT
+claim (commutativity in particular) was false: first-wins keeps whichever
+duplicate arrives first, so order matters"*[^25]. Most repositories would have
+kept the word.
+
+> GREEN: Spec and cheatsheet merges are explicitly typed as "semantic merge with CRDT preconditions", with the anti-pattern spelled out: calling a lossy semantic cache a CRDT creates false convergence claims[^32].
+
+> GREEN: The version scheme is argued correctly as a join-semilattice — SemVer has no natural total order under merge because patch counters reset and collide, so causality is lost, whereas a calendar anchor joined componentwise by max does have least upper bounds[^33].
+
+> RED: That same versioning document defines its two leading components as a contract version and a feature phase. The live format is years-since-epoch, month, day, build — the algebra survives, the documented semantics of two components are false[^34].
+> PATH: The drift was caught once at a release boundary and the shape test was corrected; the doctrine file was not.
+
+> RED: The claim registry files the CRDT lineage at claim strength "external analogy"[^35] and holds the weaker label until commutativity/associativity/idempotence property tests exist for the semantic-merge cases. For the ledger the tests exist but are example-based, not generative; for cheatsheets and specs they do not exist at all.
+> PATH: The precondition list is written and the missing item is named explicitly in it — an open obligation, correctly labelled rather than quietly closed.
+
+## Verdict
+
+The formal core is a finite product lattice, a Kleene fixed point under declared
+validators at an operator-gated bar, a Floyd-style ranking function, and a
+correctly stated moving-target result whose zero-floor corollary is declined for
+want of a metric. Contraction, Galois connections and probabilistic reading are
+named *absent* rather than assumed. A defensible thesis position[^26], and I did
+not expect to write that sentence.
+
+The gap is instrumentation, not epistemology. A lattice whose coordinates are
+mostly undeclared, scored by a shell case-statement, is not measuring the object
+the theory describes. The theory knows this: its escape hatch is an unknown-event
+intake meant to stop the model confusing current completeness with truth[^26]. Use
+the maths. Discount the dashboard.
+
+## Footnotes
+
+[^1]: Core principle, one line | methodology/philosophy.yaml#L5-L6
+[^2]: Stated purpose — separating defensible maths from analogy | methodology/math-foundations.yaml#L4-L11
+[^3]: Formal objects: obligation, obligation state chain, product lattices, ranking function | methodology/math-foundations.yaml#L13-L43
+[^4]: Tarski, *A lattice-theoretical fixpoint theorem and its applications*, Pacific J. Math. 5 (1955) | https://doi.org/10.2140/pjm.1955.5.285
+[^5]: Davey & Priestley, *Introduction to Lattices and Order*, 2nd ed. | https://doi.org/10.1017/CBO9780511809088
+[^6]: The lattice-model claim and its stated limit | methodology/math-foundations.yaml#L46-L59
+[^7]: The fixed-point claim: idempotence of refine, and its limit | methodology/math-foundations.yaml#L61-L74
+[^8]: Kleene, *Introduction to Metamathematics* (1952), cited for iterative least-fixed-point construction | https://archive.org/details/introductiontome00klee
+[^9]: Bar-raise governance: the bar is fixed, rises only by operator decision, automation must not self-escalate | methodology/convergence.yaml#L410-L432
+[^10]: Multi-version convergence: moving target, residual floor, refusal of the zero-floor claim | methodology/philosophy.yaml#L103-L121
+[^11]: Banach, *Sur les opérations dans les ensembles abstraits*, Fund. Math. 3 (1922) | https://doi.org/10.4064/fm-3-1-133-181
+[^12]: Contraction explicitly not claimed, with the metric/operator/constant debt itemised | methodology/math-foundations.yaml#L108-L120
+[^13]: Weak versus strong LLN, bounded per-prompt skew, and the unbounded-skew hazard | methodology/philosophy.yaml#L8-L31
+[^14]: Retrieval as cache; commits as the Lamport clock versioning it | methodology/philosophy.yaml#L32-L39
+[^15]: Cousot & Cousot, *Abstract Interpretation*, POPL 1977 | https://doi.org/10.1145/512950.512973
+[^16]: The concession: no Galois connection is defined — "an abstraction discipline, not a formal abstract interpreter" | methodology/math-foundations.yaml#L76-L89
+[^17]: Floyd, *Assigning Meanings to Programs* (1967), cited for ranking-style progress reasoning | https://doi.org/10.1090/psapm/019/0235771
+[^18]: Scores are not probabilities; finite coverage is not proof of absence | methodology/math-foundations.yaml#L122-L135
+[^19]: Shafer, *A Mathematical Theory of Evidence* (1976), cited as a possible separate confidence layer | https://press.princeton.edu/books/paperback/9780691100425/a-mathematical-theory-of-evidence
+[^20]: Walley, *Statistical Reasoning with Imprecise Probabilities* (1991) | https://doi.org/10.1007/978-1-4899-3472-7
+[^21]: The three CRDT primitives and why each field uses the one it does | crates/tillandsias-plan/src/fragments.rs#L28-L39
+[^22]: Determinism rules: fold order and idempotence | crates/tillandsias-plan/src/fragments.rs#L41-L49
+[^23]: Commutativity and idempotence of the fold pinned as named tests (order-independence at L4099) | crates/tillandsias-plan/src/fragments.rs#L2648-L2668
+[^24]: Rank-aware status join with a falsification escape hatch | crates/tillandsias-plan/src/fragments.rs#L307-L320
+[^25]: A retracted CRDT claim, with the failed property named | crates/tillandsias-plan/lua/collect.lua#L7-L11
+[^26]: Thesis defence position: finite ordered convergence under declared validators, with unknown-event intake as the escape hatch | methodology/math-foundations.yaml#L200-L206
+[^27]: Validation program — the property tests that would discharge monotonicity | methodology/math-foundations.yaml#L175-L198
+[^28]: Evidence-credit terms, including `requirement_has_stable_id` | methodology/proximity.yaml#L47-L57
+[^29]: What actually computes the score: a hardcoded weight table over CI checks | scripts/local-ci.sh#L384-L400
+[^30]: The committed dashboard's earned/total figures | docs/convergence/centicolon-dashboard.json#L75-L76
+[^31]: The uninstrumented complexity constraint and its 5000-line red flag | methodology/convergence.yaml#L329-L342
+[^32]: Cheatsheet merge typed as a semantic cache with CRDT preconditions, plus the anti-pattern | methodology/cheatsheets.yaml#L88-L114
+[^33]: The join-semilattice argument for the version scheme, and the SemVer critique | methodology/versioning.yaml#L104-L124
+[^34]: The documented Major/Minor semantics the project retired | methodology/versioning.yaml#L9-L20
+[^35]: CRDT preconditions filed at claim strength "external analogy" | methodology/provenance.yaml#L179-L192
+[^36]: The framework spec delegating CentiColon arithmetic to a crate that is a README and one example file | methodology/litmus-framework.yaml#L88-L96

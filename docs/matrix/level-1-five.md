@@ -1,29 +1,61 @@
 # Tillandsias, explained like you are five
 
-## WHAT IT IS
+## A tiny cloud on your own table
 
-You know how a big company keeps its computers in a giant building far away, and your games and websites live there? That giant building is called a **cloud**. Tillandsias makes a tiny one of those, right inside your own computer, so you never have to send your things to a stranger's building.
+When you open a website, you borrow a computer in a huge building far away — **the cloud**. Tillandsias builds a tiny cloud **inside your own computer**, so your things never go to a stranger's building.
 
-It works like a doll house. Your real computer is the table. Tillandsias puts a small clean pretend-computer on the table (on Windows and Mac it makes a little Fedora Linux machine for you; on Linux it just uses one your computer already knows how to make, called Podman). Inside that pretend-computer it puts small rooms called **apps**. Tillandsias tries hard to only ever say "app" to you, never scary words like "container" — that is actually written down as a rule it has to follow.
+It is a doll house. Your computer is the table. Tillandsias puts a clean pretend-computer on it, and inside that, little rooms, one program each.
 
-The rooms are built with no doors to the outside. They are all on one private hallway, and only **one** room, the doorman, is allowed to go out and fetch things from the internet. Your passwords and keys live in a locked safe room, and the other rooms only ever get a tiny key that works for a little while, for one thing, and then stops working.
+It should never say rooms or boxes to you — only ever **app**. That is a written promise.[^1] The message you see while it wakes up really is guarded: a machine reads every one of those lines and fails if a wrong word sneaks in.[^6]
 
-Robot helpers that write code for you are only allowed to play **inside** the doll house, never out on your table. So if a helper knocks something over, it knocks over pretend furniture.
+> GREEN: This part works great — on the waking-up message the promise is machine-checked, not just hoped for.
 
-And here is the nicest part: everything in the doll house is meant to be thrown away. If a room gets broken, nobody tries to glue it. You sweep it into the bin and Tillandsias builds a brand-new one that comes out exactly the same every time. The things you actually care about — your real work — live outside, safe, and never get swept.
+## Nobody goes outside except the doorman
 
-It is free for anyone to have, use, read, and change.
+The rooms have no doors outside. They share one private hallway, and exactly **one** room — the doorman — may step out to the internet. Everyone else asks it.[^2]
 
-## HOW IT WAS BUILT
+The honest bit: they once kept a *list* of who lived in the hallway, and six residents moved in without it being updated. So they binned the list and wrote a machine that reads the real building instead.[^2]
 
-Imagine building a huge Lego castle with lots of friends, in different houses, on different days.
+Robot helpers may only play **inside** the doll house. If one knocks something over, the furniture is pretend.
 
-The first rule was: **write down what you want before you build it.** Those written-down promises are called specs, and each promise has to be so clear that two people could not argue about whether it came true. If a promise says "must," somebody has to build a little machine that presses the promise and shows a green light or a red light. No red-light-machine, no promise.
+> GREEN: This part works great — one way out, kept honest by a machine.
 
-The second rule was the big one, and it has a long name: **you are only ever allowed to get less confused, never more.** Every single change has to make one fuzzy thing clearer. If you learn something that makes an old promise wrong, you do not quietly erase it — you write down that you got confused, why, and how you will get unconfused again. Getting less confused always, never more, is what the long name means.
+## Broken things get thrown away, not glued
 
-They also learned that green lights are not the same as being right. A green light is a **clue**, not a proof, and every claim has to say how strong its clues are.
+@fig:ephemeral
 
-Then, because everybody builds at once: nobody is allowed to erase anybody else's writing. Instead each friend writes on their own brand-new sticky note and drops it in the jar. Nobody rubs anything out, nobody has to wait their turn, and when you want to know what is true, you read every note in the jar in order. Because notes only get added and never changed, everybody reading the jar gets the very same answer, no matter what order the notes arrived in. That trick is used everywhere in Tillandsias.
+If a room breaks, nobody glues it. You sweep it into the bin and Tillandsias builds a new one, identical every time. Gluing is banned: each time they glued, something *underneath* broke next.[^3]
 
-And they did it in lots of tiny quick tries instead of one long careful think, because many small tries land on the right answer much faster.
+Your real work lives outside the doll house and never gets swept.
+
+## How the grown-ups keep getting better at it
+
+Before building anything, they write down what it should do — so clearly nobody could argue about whether it came true. Then someone builds a machine that presses the promise and shows a green light or a red one.
+
+The part worth remembering:
+
+**Every time they fix something, they check that nothing else got worse — and they write down what they checked.**
+
+They are honest about a hard thing: getting less broken every time does **not** mean ending up perfect. It means creeping toward *some* resting place, which might not be zero. They wrote that down rather than pretend.[^4]
+
+They work in many tiny fast tries rather than one long careful think — small tries find the answer sooner, so long as each is only allowed to be a *little* bit wrong.[^5] Anyone may have it, read it and change it, free.
+
+## Things that are still broken
+
+> RED: This part is still broken — the doorman's secret key for opening sealed letters sits in the computer's shared scratch drawer. It is no longer unlocked (anyone could read it once; now only you can), but it is still in the shared drawer, when it was meant to travel in a proper safe.[^7]
+> PATH: Three fixes are written down, best one first: hand the key over in the safe the doorman already knows how to open. Nobody has done it.[^7]
+
+> RED: This part is still broken — the little status badge in the corner of your screen says things like "Ready (podman starting…)" and "VM failed": exactly the machine words the promise forbids.[^9]
+> PATH: A written plan would give the badges one shared word list. It waits on a person, not a robot, to pick the winning wording — changing what you see needs a human's yes.[^8]
+
+## Footnotes
+
+[^1]: The rule that the user must always hear "app", never the machine words | openspec/specs/app-lifecycle/spec.md#L12-L22
+[^2]: One way out, and why the hand-written resident list was replaced by a checking machine | openspec/specs/enclave-network/spec.md#L10-L12
+[^3]: Throw away and rebuild, never hand-patch — with the real story of gluing making it worse | methodology/philosophy.yaml#L63-L78
+[^4]: The grown-ups writing down what they have *not* proven, including that "getting better every time" is not the same as "ends up perfect" | methodology/math-foundations.yaml#L108-L120
+[^5]: Many small fast tries beat one big slow one — but only if each try's wrongness stays small | methodology/philosophy.yaml#L7-L25
+[^6]: The banned-word list for the waking-up message, and the test that proves none of them can appear | crates/tillandsias-headless/src/bringup_progress.rs#L119-L175
+[^7]: The write-up of the doorman's key problem, with the three recorded fixes (still open) | plan/issues/proxy-ca-private-key-world-readable-2026-08-15.md#L38-L46
+[^8]: The open plan to give both badges one shared word list, and why a person must sign it off | plan/issues/tray-string-parity-and-i18n-layer-2026-08-09.md#L104-L130
+[^9]: The badge text that breaks the rule | crates/tillandsias-macos-tray/src/action_host.rs#L255-L266

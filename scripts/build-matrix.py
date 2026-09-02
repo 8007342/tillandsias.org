@@ -1,132 +1,303 @@
 #!/usr/bin/env python3
 """Assemble var/html/index.html from docs/matrix/level-*.md.
 
-Each source file has two H2 sections: `## WHAT IT IS` and `## HOW IT WAS BUILT`.
-Content is minimal markdown: paragraphs, bullets, `code`, **bold**, _em_.
+The sources are written in a small markdown dialect (see docs/matrix/README.md):
+headings, bullets, GREEN/RED/PATH/NOTE callouts, $math$, @fig:NAME figures, and
+[^n] footnotes whose targets are repo-relative paths resolved against a pinned
+release tag so a reader lands on the exact line.
 """
 import html
 import pathlib
 import re
+import subprocess
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import figures  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "docs" / "matrix"
 OUT = ROOT / "var" / "html" / "index.html"
 
+REPO = "https://github.com/8007342/tillandsias"
+# Links are pinned to the release the copy was written against, not to main:
+# a reader clicking a line number must land on the line we actually quoted.
+REF = "v56.9.2.1"
+# Set TILLANDSIAS_CLONE to a checkout at REF to validate every footnote target.
+CLONE = pathlib.Path(
+    __import__("os").environ.get("TILLANDSIAS_CLONE", "")) if True else None
+
 LEVELS = [
-    ("level-1-five",     "Like I'm 5",        "the simplest, stupidest way of explaining it correctly"),
-    ("level-2-phone",    "I barely understand my phone", "no jargon, everyday analogies, the questions you actually have"),
-    ("level-3-power",    "I'm a power user",  "you've run Docker and self-hosted things; here are the real parts"),
-    ("level-4-security", "I'm a Cyber Security expert", "trust boundaries, blast radius, provenance — answered before you ask"),
-    ("level-5-phd",      "I'm a PhD / MathWiz / Hacker", "and I'd like you to be condescending about it"),
+    ("level-1-five",     "Like I'm 5",
+     "The simplest way of putting it that is still true."),
+    ("level-2-phone",    "I barely understand my phone",
+     "No jargon. Everyday comparisons, and straight answers to what you are actually wondering."),
+    ("level-3-power",    "I'm a power user",
+     "You have run containers and self-hosted things. Here is what it is made of and what it costs you."),
+    ("level-4-security", "I'm a Cyber Security expert",
+     "Trust boundaries, egress, secrets, supply chain — with the weaknesses stated, not buried."),
+    ("level-5-phd",      "I'm a PhD / MathWiz / Hacker",
+     "And you would like me to be condescending about it. Very well."),
 ]
 
-INLINE = [
-    (re.compile(r"`([^`]+)`"), r"<code>\1</code>"),
-    (re.compile(r"\*\*([^*]+)\*\*"), r"<strong>\1</strong>"),
-    (re.compile(r"(?<![\w*])\*([^*\n]+)\*(?![\w*])"), r"<em>\1</em>"),
-]
+FLAGS = {
+    "GREEN": ("flag-green", "\U0001F7E2", "works"),
+    "RED":   ("flag-red",   "\U0001F534", "shortcoming"),
+    "PATH":  ("flag-path",  "→",     "path to green"),
+    "NOTE":  ("flag-note",  "•",     "note"),
+}
+
+INLINE_CODE = re.compile(r"`([^`]+)`")
+BOLD = re.compile(r"\*\*([^*]+)\*\*")
+EM = re.compile(r"(?<![\w*])\*([^*\n]+)\*(?![\w*])")
+FN_REF = re.compile(r"\[\^(\d+)\]")
+MATH_INLINE = re.compile(r"(?<!\$)\$([^$\n]+)\$(?!\$)")
+FN_DEF = re.compile(r"^\[\^(\d+)\]:\s*(.+?)\s*\|\s*(\S+)\s*$")
+
+broken_links = []
 
 
-def inline(text):
-    """Escape, then apply inline markup — code spans are shielded from bold/em."""
+def footnote_url(target, level):
+    """Repo-relative path (with optional #L anchors) or external URL -> href."""
+    if target.startswith(("http://", "https://")):
+        return target, True
+    path, _, anchor = target.partition("#")
+    if CLONE and CLONE.name:
+        if not (CLONE / path).exists():
+            broken_links.append((level, target, "path does not exist at %s" % REF))
+        elif anchor:
+            m = re.match(r"^L(\d+)(?:-L(\d+))?$", anchor)
+            if not m:
+                broken_links.append((level, target, "malformed line anchor"))
+            else:
+                lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
+                try:
+                    n = len((CLONE / path).read_text(errors="replace").splitlines())
+                    if lo < 1 or hi > n or lo > hi:
+                        broken_links.append(
+                            (level, target, "line range outside file (%d lines)" % n))
+                except OSError as exc:
+                    broken_links.append((level, target, str(exc)))
+    url = "%s/blob/%s/%s" % (REPO, REF, path)
+    return url + ("#" + anchor if anchor else ""), False
+
+
+def inline(text, level, fns):
+    """Escape, then apply inline markup. Code and math are shielded from emphasis."""
     out = html.escape(text.strip())
-    spans = []
+    shield = []
 
-    def stash(m):
-        spans.append("<code>%s</code>" % m.group(1))
-        return "\x00%d\x00" % (len(spans) - 1)
+    def stash(markup):
+        shield.append(markup)
+        return "\x00%d\x00" % (len(shield) - 1)
 
-    out = INLINE[0][0].sub(stash, out)
-    for pat, rep in INLINE[1:]:
-        out = pat.sub(rep, out)
-    return re.sub(r"\x00(\d+)\x00", lambda m: spans[int(m.group(1))], out)
+    out = INLINE_CODE.sub(lambda m: stash("<code>%s</code>" % m.group(1)), out)
+    # KaTeX reads textContent, so entities land as real characters. \( \) are
+    # the inline delimiters configured on the page.
+    out = MATH_INLINE.sub(lambda m: stash('<span class="math">\\(%s\\)</span>' % m.group(1)), out)
+    out = BOLD.sub(r"<strong>\1</strong>", out)
+    out = EM.sub(r"<em>\1</em>", out)
+
+    def ref(m):
+        n = m.group(1)
+        fns.add(n)
+        return ('<sup class="fnref" id="r%s-%s"><a href="#f%s-%s">%s</a></sup>'
+                % (level, n, level, n, n))
+
+    out = FN_REF.sub(ref, out)
+    return re.sub(r"\x00(\d+)\x00", lambda m: shield[int(m.group(1))], out)
 
 
-def render(block_lines):
-    """Turn a run of markdown lines into HTML."""
-    out, buf, bullets = [], [], []
-    ordered = [False]
+def render(lines, level, fns):
+    out, para, items, ordered = [], [], [], [False]
+    math_buf, in_math = [], [False]
+    callout = []  # [css class, icon, label, [paragraphs]] while one is open
 
     def flush_para():
-        if buf:
-            out.append("<p>%s</p>" % inline(" ".join(buf)))
-            buf.clear()
+        if para:
+            out.append("<p>%s</p>" % inline(" ".join(para), level, fns))
+            para.clear()
 
-    def flush_list():
-        if bullets:
-            items = "".join("<li>%s</li>" % inline(b) for b in bullets)
-            out.append("<%(t)s>%(i)s</%(t)s>" % {"t": "ol" if ordered[0] else "ul", "i": items})
-            bullets.clear()
+    def flush_items():
+        if items:
+            tag = "ol" if ordered[0] else "ul"
+            out.append("<%s>%s</%s>" % (tag, "".join(
+                "<li>%s</li>" % inline(i, level, fns) for i in items), tag))
+            items.clear()
             ordered[0] = False
 
-    for line in block_lines:
-        stripped = line.strip()
-        if not stripped:
-            flush_para(); flush_list()
-        elif stripped.startswith("### "):
-            flush_para(); flush_list()
-            out.append("<h3>%s</h3>" % inline(stripped[4:]))
-        elif re.match(r"^[-*+]\s+", stripped) or re.match(r"^\d+[.)]\s+", stripped):
-            is_ord = bool(re.match(r"^\d+[.)]\s+", stripped))
-            if bullets and is_ord != ordered[0]:
-                flush_list()
+    def flush_callout():
+        if callout:
+            cls, icon, label, paras = callout[0]
+            body = "".join("<p>%s</p>" % inline(x, level, fns) for x in paras if x.strip())
+            out.append(
+                '<div class="callout %s"><span class="callout-icon" aria-hidden="true">%s</span>'
+                '<span class="sr">%s: </span><div>%s</div></div>' % (cls, icon, label, body))
+            callout.clear()
+
+    def flush():
+        flush_para()
+        flush_items()
+        flush_callout()
+
+    for raw in lines:
+        line = raw.strip()
+
+        if in_math[0]:
+            if line.endswith("$$"):
+                math_buf.append(line[:-2])
+                in_math[0] = False
+                body = html.escape(" ".join(x for x in math_buf if x).strip())
+                out.append('<div class="math-block">\\[%s\\]</div>' % body)
+                math_buf.clear()
+            else:
+                math_buf.append(line)
+            continue
+
+        if line.startswith("$$"):
+            flush()
+            rest = line[2:]
+            if rest.endswith("$$") and rest[:-2].strip():
+                body = html.escape(rest[:-2].strip())
+                out.append('<div class="math-block">\\[%s\\]</div>' % body)
+            else:
+                in_math[0] = True
+                if rest.strip():
+                    math_buf.append(rest)
+            continue
+
+        if not line:
+            if callout:
+                flush_para()
+                flush_items()
+            else:
+                flush()
+        elif line.startswith("@fig:"):
+            flush()
+            name = line[5:].strip()
+            if name in figures.FIGURES:
+                out.append(figures.FIGURES[name])
+            else:
+                print("  ! unknown figure @fig:%s in %s" % (name, level))
+        elif line.startswith("### "):
+            flush()
+            out.append("<h4>%s</h4>" % inline(line[4:], level, fns))
+        elif line.startswith("## "):
+            flush()
+            out.append("<h3>%s</h3>" % inline(line[3:], level, fns))
+        elif line.startswith(">"):
+            rest = line.lstrip(">").strip()
+            kind, _, body = rest.partition(":")
+            if kind.strip().upper() in FLAGS:
+                # A new flag closes whichever callout was open before it.
+                flush()
+                cls, icon, label = FLAGS[kind.strip().upper()]
+                callout.append([cls, icon, label, [body.strip()]])
+            elif callout:
+                # A bare ">" separates paragraphs inside the open callout;
+                # anything else continues it.
+                if rest:
+                    callout[0][3].append(rest)
+                elif callout[0][3][-1]:
+                    callout[0][3].append("")
+            elif rest:
+                para.append(rest)
+        elif re.match(r"^[-*+]\s+", line) or re.match(r"^\d+[.)]\s+", line):
+            is_ord = bool(re.match(r"^\d+[.)]\s+", line))
+            if items and is_ord != ordered[0]:
+                flush_items()
             flush_para()
             ordered[0] = is_ord
-            bullets.append(re.sub(r"^(?:[-*+]|\d+[.)])\s+", "", stripped))
-        elif bullets:
-            bullets[-1] += " " + stripped
+            items.append(re.sub(r"^(?:[-*+]|\d+[.)])\s+", "", line))
+        elif items:
+            items[-1] += " " + line
         else:
-            buf.append(stripped)
-    flush_para(); flush_list()
+            para.append(line)
+
+    flush()
     return "\n".join(out)
 
 
-def split_sections(text):
-    sections, key, lines = {}, None, []
-    for line in text.splitlines():
-        m = re.match(r"^##\s+(.*)", line)
-        if m:
-            if key:
-                sections[key] = lines
-            key, lines = m.group(1).strip().upper(), []
-        elif key:
-            lines.append(line)
-    if key:
-        sections[key] = lines
-    return sections
+def parse(path, level):
+    """Split a source file into body lines and footnote definitions."""
+    body, notes, in_notes = [], {}, False
+    for line in path.read_text().splitlines():
+        if re.match(r"^##\s+Footnotes\s*$", line, re.I):
+            in_notes = True
+            continue
+        if in_notes:
+            m = FN_DEF.match(line.strip())
+            if m:
+                notes[m.group(1)] = (m.group(2), m.group(3))
+            elif line.strip():
+                print("  ! unparsed footnote line in %s: %s" % (level, line[:70]))
+        else:
+            body.append(line)
+    return body, notes
 
 
-def main():
+def build():
     panels, tabs = [], []
     for idx, (slug, title, blurb) in enumerate(LEVELS):
-        path = SRC / f"{slug}.md"
-        secs = split_sections(path.read_text()) if path.exists() else {}
-        what = render(secs.get("WHAT IT IS", ["_Not written yet._"]))
-        how = render(secs.get("HOW IT WAS BUILT", ["_Not written yet._"]))
+        path = SRC / ("%s.md" % slug)
+        fns = set()
+        if path.exists():
+            body, notes = parse(path, slug)
+            content = render(body, slug, fns)
+        else:
+            content, notes = "<p>Not written yet.</p>", {}
+
+        missing = sorted(fns - set(notes), key=int)
+        if missing:
+            print("  ! %s references undefined footnotes: %s" % (slug, ", ".join(missing)))
+        unused = sorted(set(notes) - fns, key=int)
+        if unused:
+            print("  ! %s defines unreferenced footnotes: %s" % (slug, ", ".join(unused)))
+
+        fn_html = ""
+        if notes:
+            rows = []
+            for n in sorted(notes, key=int):
+                label, target = notes[n]
+                url, external = footnote_url(target, slug)
+                shown = target if not external else re.sub(r"^https?://", "", target)
+                rows.append(
+                    '<li id="f%s-%s"><a class="fn-back" href="#r%s-%s" aria-label="back to text">%s</a>'
+                    '<span class="fn-body">%s <a class="fn-link" href="%s" target="_blank" '
+                    'rel="noopener">%s<span class="ext" aria-hidden="true">&#8599;</span></a></span></li>'
+                    % (slug, n, slug, n, n, html.escape(label), url, html.escape(shown)))
+            fn_html = ('<section class="footnotes"><h3>Footnotes</h3>'
+                       '<p class="fn-note">Every link points at release <code>%s</code> of the '
+                       'source repository, so line numbers match the text above.</p>'
+                       '<ol class="fn-list">%s</ol></section>' % (REF, "".join(rows)))
+
         active = " is-active" if idx == 0 else ""
         tabs.append(
-            f'<button class="tab{active}" role="tab" aria-selected="{"true" if not idx else "false"}" '
-            f'aria-controls="panel-{slug}" id="tab-{slug}" data-target="{slug}">'
-            f'<span class="tab-n">{idx + 1}</span><span class="tab-t">{html.escape(title)}</span></button>'
-        )
-        panels.append(f"""<section class="panel{active}" id="panel-{slug}" role="tabpanel" aria-labelledby="tab-{slug}">
-  <p class="blurb">{html.escape(blurb)}</p>
-  <div class="grid">
-    <article class="cell what">
-      <h2><span class="marker">01</span> What it is</h2>
-      {what}
-    </article>
-    <article class="cell how">
-      <h2><span class="marker">02</span> How it was built</h2>
-      {how}
-    </article>
-  </div>
-</section>""")
+            '<button class="tab%s" role="tab" aria-selected="%s" aria-controls="panel-%s" '
+            'id="tab-%s" data-target="%s"><span class="tab-n">%d</span>'
+            '<span class="tab-t">%s</span></button>'
+            % (active, "true" if not idx else "false", slug, slug, slug, idx + 1,
+               html.escape(title)))
+        panels.append(
+            '<section class="panel%s" id="panel-%s" role="tabpanel" aria-labelledby="tab-%s">'
+            '<p class="blurb">%s</p><div class="prose">%s</div>%s</section>'
+            % (active, slug, slug, html.escape(blurb), content, fn_html))
 
-    doc = TEMPLATE.replace("__TABS__", "\n".join(tabs)).replace("__PANELS__", "\n".join(panels))
+    doc = (TEMPLATE.replace("__DEFS__", figures.DEFS)
+           .replace("__TABS__", "\n".join(tabs))
+           .replace("__PANELS__", "\n".join(panels))
+           .replace("__REF__", REF))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(doc)
-    print(f"wrote {OUT} ({len(doc)} bytes)")
+
+    if broken_links:
+        print("\n  %d BROKEN footnote target(s):" % len(broken_links))
+        for lvl, tgt, why in broken_links:
+            print("    %-18s %-52s %s" % (lvl, tgt, why))
+    elif CLONE and CLONE.name:
+        print("  all footnote targets resolve at %s" % REF)
+    print("wrote %s (%d bytes)" % (OUT, len(doc)))
+    return 1 if broken_links else 0
 
 
 TEMPLATE = """<!doctype html>
@@ -135,36 +306,39 @@ TEMPLATE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tillandsias — an ephemeral cloud region, folded through your hypervisor</title>
-<meta name="description" content="What Tillandsias is, and how it was built — explained at five levels, from five-year-old to condescended-to PhD.">
+<meta name="description" content="What Tillandsias is and how it works, explained at five levels — with its strengths and its unfinished edges both marked, and every claim linked to source.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css"
+      integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g=="
+      crossorigin="anonymous" referrerpolicy="no-referrer">
 <style>
 :root{
-  --bg:#07090c; --bg-2:#0c1015; --panel:#0f141b; --line:#1c2531;
-  --ink:#dfe7ef; --ink-dim:#8d9bab; --ink-faint:#5d6a79;
-  --leaf:#5fd6a4; --leaf-dim:#2e7f61; --violet:#a48bf0; --amber:#e6b45e;
+  --bg:#07090c; --bg-2:#0c1015; --panel:#0f141b; --line:#1c2531; --line-2:#243044;
+  --ink:#dfe7ef; --ink-dim:#93a1b1; --ink-faint:#616e7d;
+  --leaf:#5fd6a4; --leaf-dim:#2e7f61; --violet:#a48bf0; --amber:#e6b45e; --rose:#f0798a;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --sans:ui-sans-serif,-apple-system,"Segoe UI",Inter,Roboto,sans-serif;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{
-  margin:0; background:var(--bg); color:var(--ink);
-  font:400 16px/1.65 var(--sans); -webkit-font-smoothing:antialiased;
-  background-image:
-    radial-gradient(60rem 40rem at 15% -10%, rgba(95,214,164,.07), transparent 60%),
-    radial-gradient(50rem 36rem at 92% 4%, rgba(164,139,240,.06), transparent 62%);
-  background-attachment:fixed;
-}
-.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
-header.hero{padding:72px 0 40px;border-bottom:1px solid var(--line)}
-.eyebrow{font:600 12px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--leaf);margin:0 0 20px}
-h1{margin:0;font-size:clamp(34px,5.2vw,60px);line-height:1.06;letter-spacing:-.025em;font-weight:650}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.68 var(--sans);
+  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(60rem 40rem at 12% -12%, rgba(95,214,164,.07), transparent 60%),
+    radial-gradient(52rem 36rem at 94% 2%, rgba(164,139,240,.06), transparent 62%);
+  background-attachment:fixed}
+.wrap{max-width:980px;margin:0 auto;padding:0 24px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+header.hero{padding:76px 0 40px;border-bottom:1px solid var(--line)}
+.eyebrow{font:600 12px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;
+  color:var(--leaf);margin:0 0 20px}
+h1{margin:0;font-size:clamp(32px,5vw,56px);line-height:1.07;letter-spacing:-.026em;font-weight:650}
 h1 .dim{color:var(--ink-faint);font-weight:400}
-.lede{max-width:62ch;margin:22px 0 0;font-size:19px;color:var(--ink-dim)}
+.lede{max-width:64ch;margin:22px 0 0;font-size:19px;color:var(--ink-dim)}
 .lede strong{color:var(--ink);font-weight:600}
-.pills{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 0;padding:0;list-style:none}
-.pills li{font:500 12px/1 var(--mono);letter-spacing:.06em;color:var(--ink-dim);
-  border:1px solid var(--line);border-radius:999px;padding:8px 13px;background:var(--bg-2)}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding:22px 0 0;margin:0 0 -1px;scrollbar-width:thin}
+.legend{display:flex;flex-wrap:wrap;gap:18px;margin:28px 0 0;padding:16px 18px;
+  border:1px solid var(--line);border-radius:11px;background:var(--bg-2);
+  font-size:13.5px;color:var(--ink-dim)}
+.legend b{color:var(--ink);font-weight:600}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:20px 0 0;margin:0 0 -1px}
 .tab{appearance:none;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;gap:9px;
   background:transparent;border:1px solid transparent;border-bottom:none;color:var(--ink-faint);
   font:500 13.5px/1 var(--sans);padding:12px 15px;border-radius:9px 9px 0 0;transition:.15s}
@@ -173,66 +347,121 @@ h1 .dim{color:var(--ink-faint);font-weight:400}
 .tab-n{font:600 11px/1 var(--mono);color:var(--leaf-dim);border:1px solid var(--line);
   border-radius:5px;padding:4px 6px}
 .tab.is-active .tab-n{color:var(--bg);background:var(--leaf);border-color:var(--leaf)}
-.sticky{position:sticky;top:0;z-index:10;background:rgba(7,9,12,.86);backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--line)}
+.sticky{position:sticky;top:0;z-index:10;background:rgba(7,9,12,.88);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 main{padding:0 0 96px}
 .panel{display:none;animation:fade .28s ease both}
 .panel.is-active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.blurb{margin:34px 0 26px;font:400 15px/1.6 var(--sans);color:var(--ink-faint);
+.blurb{margin:34px 0 8px;font:400 15px/1.6 var(--sans);color:var(--ink-faint);
   border-left:2px solid var(--leaf-dim);padding-left:14px;max-width:70ch}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
-.cell{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:30px 32px;
-  position:relative;overflow:hidden}
-.cell::before{content:"";position:absolute;inset:0 0 auto 0;height:2px}
-.cell.what::before{background:linear-gradient(90deg,var(--leaf),transparent)}
-.cell.how::before{background:linear-gradient(90deg,var(--violet),transparent)}
-.cell h2{margin:0 0 20px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;
-  font-family:var(--mono);font-weight:600;color:var(--ink-dim);display:flex;align-items:center;gap:10px}
-.cell.what h2{color:var(--leaf)}
-.cell.how h2{color:var(--violet)}
-.marker{font-size:11px;opacity:.5}
-.cell h3{margin:26px 0 10px;font-size:15px;font-weight:650;letter-spacing:-.01em;color:var(--ink)}
-.cell p{margin:0 0 15px;color:#c6d1dd}
-.cell ul{margin:0 0 16px;padding-left:0;list-style:none}
-.cell ol{margin:0 0 18px;padding-left:0;list-style:none;counter-reset:n}
-.cell ol>li{counter-increment:n;padding-left:34px}
-.cell ol>li::before{content:counter(n,decimal-leading-zero);left:0;top:0;width:auto;height:auto;
-  background:none;border-radius:0;font:600 11px/1.7 var(--mono);color:var(--leaf-dim);letter-spacing:.06em}
-.cell.how ol>li::before{color:#7a68b8}
-.cell li{position:relative;padding-left:18px;margin:0 0 9px;color:#c6d1dd}
-.cell li::before{content:"";position:absolute;left:3px;top:.68em;width:5px;height:5px;
+.prose{padding-top:14px}
+.prose h3{margin:44px 0 14px;font-size:23px;letter-spacing:-.02em;font-weight:640;
+  padding-top:18px;border-top:1px solid var(--line)}
+.prose h3:first-child{border-top:none;margin-top:16px;padding-top:0}
+.prose h4{margin:30px 0 10px;font-size:16.5px;font-weight:640;color:var(--ink)}
+.prose p{margin:0 0 16px;color:#c9d4e0;max-width:74ch}
+.prose ul,.prose ol{margin:0 0 20px;padding-left:0;list-style:none;max-width:74ch}
+.prose li{position:relative;padding-left:20px;margin:0 0 10px;color:#c9d4e0}
+.prose ul>li::before{content:"";position:absolute;left:4px;top:.72em;width:5px;height:5px;
   border-radius:50%;background:var(--leaf-dim)}
-.cell.how li::before{background:#5a4a8e}
-code{font:500 .875em/1.4 var(--mono);background:#161d26;border:1px solid #212b38;
-  border-radius:5px;padding:.12em .38em;color:var(--amber);word-break:break-word}
+.prose ol{counter-reset:n}
+.prose ol>li{counter-increment:n;padding-left:34px}
+.prose ol>li::before{content:counter(n,decimal-leading-zero);position:absolute;left:0;top:0;
+  font:600 11px/1.75 var(--mono);color:var(--leaf-dim);letter-spacing:.06em}
+code{font:500 .875em/1.4 var(--mono);background:#161d26;border:1px solid #212b38;border-radius:5px;
+  padding:.12em .38em;color:var(--amber);word-break:break-word}
 strong{color:#eef3f8;font-weight:640}
+em{color:#dbe4ee}
+.callout{display:flex;gap:12px;align-items:flex-start;margin:0 0 12px;padding:14px 16px;
+  border:1px solid var(--line-2);border-radius:10px;background:var(--bg-2);max-width:74ch}
+.callout div{color:#cdd8e4}
+.callout-icon{flex:0 0 auto;font-size:14px;line-height:1.5;filter:saturate(1.1)}
+.flag-green{border-left:3px solid var(--leaf)}
+.flag-red{border-left:3px solid var(--rose)}
+.flag-path{border-left:3px solid var(--amber);margin-top:-6px;margin-left:26px;
+  background:transparent;border-top:none;border-right:none;border-bottom:none;
+  border-radius:0;padding:4px 0 10px 14px;font-size:14.5px}
+.flag-path .callout-icon{color:var(--amber);font-weight:700}
+.flag-path div{color:var(--ink-dim)}
+.flag-note{border-left:3px solid var(--line-2)}
+.fig{margin:26px 0 28px;padding:18px 18px 12px;border:1px solid var(--line);border-radius:12px;
+  background:linear-gradient(180deg,#0d1219,#0a0e14);color:var(--ink-dim)}
+.fig svg{display:block;width:100%;height:auto;overflow:visible}
+.fig figcaption{margin-top:12px;font-size:13.5px;line-height:1.55;color:var(--ink-faint);
+  border-top:1px solid var(--line);padding-top:10px;max-width:70ch}
+.s-line{fill:none;stroke:var(--line-2);stroke-width:1.2}
+.s-fill1{fill:rgba(255,255,255,.016)}
+.s-fill2{fill:rgba(95,214,164,.045);stroke:var(--leaf-dim)}
+.s-box rect{fill:#131a23;stroke:var(--line-2);stroke-width:1.2}
+.s-gate{fill:rgba(230,180,94,.08);stroke:var(--amber)}
+.s-txt{fill:var(--ink);font:500 13px var(--sans);text-anchor:middle}
+.s-txt.s-sm,.s-sm text{font-size:11.5px}
+.s-lbl{fill:var(--ink-faint);font:500 11.5px var(--mono);letter-spacing:.02em}
+.s-accent{fill:var(--leaf)}
+.s-amber{fill:var(--amber)}
+.s-red{fill:var(--rose)}
+.s-axis{stroke:var(--line-2);stroke-width:1.2}
+.s-arrow{stroke:var(--ink-faint);stroke-width:1.3;color:var(--ink-faint)}
+.s-step{stroke:var(--leaf);stroke-width:2;stroke-linejoin:round}
+.s-dot circle{fill:var(--leaf)}
+.s-dot2 circle{fill:var(--leaf-dim)}
+.s-floor{stroke:var(--amber);stroke-width:1.4;stroke-dasharray:5 5}
+.s-target{stroke:var(--amber);stroke-width:1.2;stroke-dasharray:4 4}
+.s-miss{fill:none;stroke:var(--rose);stroke-width:2}
+.s-miss-g circle{fill:none;stroke:var(--rose);stroke-width:1.8}
+.s-skew{stroke:var(--rose);stroke-width:1.4;stroke-dasharray:3 3}
+.s-mean{stroke:var(--leaf);stroke-width:2}
+.s-forbid{stroke:var(--rose);stroke-width:1.4;stroke-dasharray:4 4}
+.s-boundary{stroke:var(--leaf);stroke-width:2;stroke-dasharray:6 4}
+.math-block{margin:22px 0;padding:16px 18px;border:1px solid var(--line);border-radius:10px;
+  background:var(--bg-2);overflow-x:auto}
+.math,.math-block{color:#e6eef7}
+.katex{font-size:1.04em}
+.fnref{font:600 10.5px var(--mono);vertical-align:super;line-height:0}
+.fnref a{color:var(--leaf);text-decoration:none;padding:0 1px}
+.fnref a:hover{text-decoration:underline}
+.footnotes{margin:56px 0 0;padding:26px 0 0;border-top:1px solid var(--line)}
+.footnotes h3{margin:0 0 6px;font:600 12px/1 var(--mono);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink-dim)}
+.fn-note{margin:0 0 18px;font-size:13.5px;color:var(--ink-faint)}
+.fn-list{list-style:none;margin:0;padding:0;counter-reset:none}
+.fn-list li{display:flex;gap:12px;margin:0 0 9px;font-size:14px;line-height:1.55}
+.fn-back{flex:0 0 22px;text-align:right;font:600 11px var(--mono);color:var(--leaf-dim);
+  text-decoration:none;padding-top:3px}
+.fn-back:hover{color:var(--leaf)}
+.fn-body{color:var(--ink-dim)}
+.fn-link{display:inline;color:var(--ink-faint);font:500 12.5px var(--mono);
+  text-decoration:none;border-bottom:1px dotted var(--line-2);word-break:break-all}
+.fn-link:hover{color:var(--leaf);border-bottom-color:var(--leaf-dim)}
+.ext{padding-left:3px;opacity:.7}
 footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--ink-faint);font-size:14px}
 footer a{color:var(--ink-dim)}
 footer a:hover{color:var(--leaf)}
-@media (max-width:900px){
-  .grid{grid-template-columns:1fr}
-  .cell{padding:24px 22px}
+@media (max-width:760px){
   header.hero{padding:48px 0 28px}
   .tab-t{display:none}
   .tab{padding:12px}
+  .callout{padding:12px 13px}
+  .flag-path{margin-left:12px}
 }
 </style>
 </head>
 <body>
+__DEFS__
 
 <header class="hero">
   <div class="wrap">
     <p class="eyebrow">tillandsias.org</p>
     <h1>An idempotent, ephemeral cloud region,<br><span class="dim">folded through your hypervisor.</span></h1>
     <p class="lede">Local hardware. Free software. Nothing rented, nothing metered, nothing left
-      behind. Below: <strong>what it is</strong> and <strong>how it was built</strong>, told five times
-      over — pick the version that fits the person reading.</p>
-    <ul class="pills">
-      <li>local hardware</li><li>free software</li><li>ephemeral by default</li>
-      <li>idempotent</li><li>CRDT at every layer</li>
-      <li>monotonic reduction of uncertainty</li>
-    </ul>
+      behind. Below is <strong>what it is and how it works</strong>, told five times over — pick
+      the version that fits the person reading.</p>
+    <div class="legend">
+      <span>&#x1F7E2; <b>Green flag</b> — verified and working.</span>
+      <span>&#x1F534; <b>Red flag</b> — incomplete, pending, or overclaimed.</span>
+      <span>&#8594; <b>Path to green</b> — what the plan records as the fix, or that it records none.</span>
+    </div>
   </div>
 </header>
 
@@ -252,11 +481,19 @@ __PANELS__
 
 <footer>
   <div class="wrap">
-    <p>Source: <a href="https://github.com/8007342/tillandsias/">github.com/8007342/tillandsias</a>
-    — content drawn from the Tillandsias Spec and the Tillandsias Methodology.</p>
+    <p>Source: <a href="https://github.com/8007342/tillandsias/">github.com/8007342/tillandsias</a>.
+    Every footnote on this page links into release <code>__REF__</code>, so the line numbers
+    stay true even as the project moves on.</p>
   </div>
 </footer>
 
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"
+  integrity="sha512-LQNxIMR5rXv7o+b1l8+N1EZMfhG7iFZ9HhnbJkTp4zjNr5Wvst75AqUeFDxeRUa7l5vEDyUiAip//r+EFLLCyA=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  integrity="sha512-iWiuBS5nt6r60fCz26Nd0Zqe0nbk1ZTIQbl3Kv7kYsX+yKMUFHzjaH2+AnM6vp2Xs+gNmaBAVWJjSmuPw76Efg=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'\\\\[',right:'\\\\]',display:true},{left:'\\\\(',right:'\\\\)',display:false}],throwOnError:false});"></script>
 <script>
 (function(){
   var tabs = [].slice.call(document.querySelectorAll('.tab'));
@@ -277,6 +514,11 @@ __PANELS__
       var t = tabs[+e.key - 1]; if (t) show(t.dataset.target);
     }
   });
+  // A footnote link from another level must switch to that level before jumping.
+  window.addEventListener('hashchange', function(){
+    var m = /^#(?:[rf])(level-[a-z0-9-]+)-\\d+$/.exec(location.hash);
+    if (m) show(m[1]);
+  });
   var h = location.hash.slice(1);
   if (h && document.getElementById('panel-' + h)) show(h);
 })();
@@ -286,4 +528,4 @@ __PANELS__
 """
 
 if __name__ == "__main__":
-    main()
+    sys.exit(build())
