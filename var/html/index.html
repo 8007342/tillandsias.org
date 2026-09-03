@@ -36,7 +36,10 @@ h1 .dim{color:var(--ink-faint);font-weight:400}
   border:1px solid var(--line);border-radius:11px;background:var(--bg-2);
   font-size:13.5px;color:var(--ink-dim)}
 .legend b{color:var(--ink);font-weight:600}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding:20px 0 0;margin:0 0 -1px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:20px 0 0;margin:0 0 -1px;
+  /* The rail still scrolls on narrow screens; only the bar itself is hidden. */
+  scrollbar-width:none;-ms-overflow-style:none}
+.tabs::-webkit-scrollbar{display:none}
 .tab{appearance:none;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;gap:9px;
   background:transparent;border:1px solid transparent;border-bottom:none;color:var(--ink-faint);
   font:500 13.5px/1 var(--sans);padding:12px 15px;border-radius:9px 9px 0 0;transition:.15s}
