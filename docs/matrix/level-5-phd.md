@@ -84,10 +84,10 @@ that each is order-preserving for every affected obligation[^9] — which is exa
 the right shape of obligation, and exactly what is not run.
 
 > RED: The fixed-point argument's load-bearing hypothesis is monotonicity of the refinement operator, and monotonicity is assumed, not proved. The repository's own discharge procedure is generative property testing over reachable obligation states; the workspace contains no property-testing dependency at all — no `proptest`, no `quickcheck`, in any crate manifest. What would be needed is modest and specific: an enumeration of the permitted transition relation, plus a proof or a generative test that every transition is order-preserving in each affected coordinate, with tombstones and scope changes excluded as declared non-monotone.
-> PATH: The checks are specified as phase one of a staged validation program[^9]; that phase is unimplemented.
+> PATH: The checks are specified as phase one of a staged validation program[^9]. That phase was unimplemented at this release; implementing the model and its generative property tests was filed as scheduled work on 2026-09-03. The prerequisite is the sharper half: there is nothing to property-test until the obligation model exists as code rather than as prose.
 
 > RED: The lattice's coordinates are mostly not instantiated. The obligation model is indexed by stable requirement identifiers, but no specification file in the tree carries a requirement identifier field — requirements are named by prose headings, against several thousand RFC-2119 keywords. The credit term that prices this, `requirement_has_stable_id`, occurs exactly once in the entire repository: in the weight table that defines it[^10]. Nothing reads it. A product order over coordinates that do not exist is a well-formed object over an empty index.
-> PATH: The gap is priced in the scoring rules but not gated on, and no migration to identified requirements is scheduled.
+> PATH: Priced in the scoring rules but not gated on, and unscheduled at this release. A migration to stable random identifiers was filed on 2026-09-03, carrying the rule that a refinement preserving the original intent keeps its identifier while a change of meaning becomes a tombstone plus a new one — a boundary that is author judgement and cannot be enforced by a validator, so the documentation must say so rather than imply a guard covers it.
 
 > GREEN: The negative results — no contraction, no Galois connection, no probabilities — are first-class claims carrying their own discharge conditions, not caveats appended to positive ones. Each names the object a future claim would have to construct.
 
@@ -223,6 +223,9 @@ independence hypothesis, so the almost-sure conclusion is unearned rather than f
 The repair is cheap in words and real in work — name the dependence structure, then
 cite the theorem that covers it.
 
+> RED: The methodology invokes the strong law of large numbers to license almost-sure convergence of the iteration stream, four lines above the passage describing the retrieval cache that makes consecutive iterations dependent by design. The theorem is applied outside its hypotheses, in the same block that documents why the hypotheses fail.
+> PATH: Filed as a documentation correction on 2026-09-03, after the release this page cites. The fix names the dependence structure and either drops the almost-sure claim or invokes a law that tolerates dependence — Birkhoff given stationarity and ergodicity, or a martingale law given the conditional-mean condition. Nothing about the iteration design changes.
+
 > GREEN: The weak/strong distinction is stated in the correct direction with the bias term, not the variance, identified as what defeats iteration — the version most treatments get backwards.
 
 ## What the repository renounces, and what that costs
@@ -266,7 +269,7 @@ would have to occupy separately — correctly, since a belief function would at 
 supply the monotone-capacity structure that $c$ lacks.
 
 > RED: What computes the score is not the specified arithmetic. A sixteen-arm hardcoded weight table over CI check names in a shell script produces it[^27], and the committed dashboard's 890/990 is that pass-rate[^28]. None of the base weights, multipliers, cap rules or sixteen penalties in the methodology are computed anywhere in the tree.
-> PATH: The framework specification delegates the arithmetic to a named crate and modules[^29]; that crate is a README and one `.rs.example` file, and is not a workspace member.
+> PATH: The framework specification delegates the arithmetic to a named crate and modules[^29]; that crate is a README and one `.rs.example` file, and is not a workspace member. Ruled on 2026-09-03: the two are to be the same object, the shell scorer is to call the model rather than reimplement it, completed work is to be backfilled retroactively, and the requirement is to be hard-enforced going forward rather than requested.
 
 > RED: The methodology's own complexity constraint — methodology-to-codebase ratio below 0.15, with a red flag at 5000 lines of CI validators[^30] — is uninstrumented and has never fired, while the script that computes the score is itself 1,739 lines and the shell corpus it dispatches into exceeds 78,000.
 > PATH: The rule names two measurement procedures; neither is implemented as a check.
