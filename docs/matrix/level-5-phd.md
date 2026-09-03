@@ -21,6 +21,10 @@ $$\mathcal{O} = \{\,\texttt{absent} < \texttt{declared} < \texttt{traced} < \tex
 
 $$S_{\text{spec}} = \prod_{i \in \mathrm{Obl}} \mathcal{O}_i, \qquad S_{\text{proj}} = \prod_{s} S_{\text{spec}}(s), \qquad x \le y \iff \forall i,\; x_i \le_{\mathcal{O}} y_i$$
 
+Fix the convention, since authors differ: the **height** of a finite poset is the
+maximum number of *strict order steps* in a chain — so a chain of $n$ elements has
+height $n-1$, and the one-element poset has height $0$.
+
 **Proposition 1.** *$S_{\text{proj}}$ is a finite complete lattice of height
 $6|\mathrm{Obl}|$.* Each $\mathcal{O}_i$ is a finite chain, hence a complete lattice;
 a finite product of complete lattices is complete with $\vee,\wedge$ computed
@@ -49,7 +53,7 @@ $$\mathrm{refine}(\mathrm{refine}(x)) = \mathrm{refine}(x)$$
 lattice of fixed points, in particular a least one*[^6]. Applied here it gives
 existence, non-constructively, and says nothing about how to reach it.
 
-**Theorem 3 (Kleene iteration, finite case).** *If $f: L \to L$ is monotone and
+**Theorem 3 (finite monotone inflationary iteration).** *If $f: L \to L$ is monotone and
 inflationary ($x \le f(x)$) on a finite lattice of height $h$, then for every $x$
 the chain $x \le f(x) \le f^2(x) \le \cdots$ stabilises after at most $h$ strict
 increases, and its limit is the least fixed point $\ge x$.* The bound is immediate:
@@ -137,6 +141,15 @@ score residual zero. Absent
 (i), items (ii) and (iii) are not merely unproven — they are not well-posed. Until
 a metric exists, "monotonic convergence" means ordered non-regression plus finite
 residual descent, which is what the file claims and no more[^14].
+
+Be careful about the scope of that verdict, because it is easy to overstate and I
+will not. Everything above concerns the $d$ the repository actually documents. It is
+**not** an argument that no suitable metric exists on project states, and nothing
+here forecloses one: a genuine metric — with a completion, and a contraction constant
+— may well be constructible, and if it were, the Banach route would reopen exactly as
+written. The claim is the narrow one. The contraction argument cannot be discharged
+*by the object currently on offer*, and the work of building a better one is open
+rather than blocked.
 
 There is a further objection the repository has not addressed. If $d_v$ were the
 CentiColon residual, it is integer-valued, and a non-increasing integer sequence
@@ -256,7 +269,7 @@ or denominator scope change[^1]. That is a Floyd-style ranking function[^23]: a
 well-founded descent witness into a finite ordinal, of the kind that proves
 termination.
 
-It is not a measure and cannot be made into one. There is no $\sigma$-algebra on
+It is not a measure. There is no $\sigma$-algebra on
 $S_{\text{spec}}$; $c$ is not additive, because obligations overlap and sixteen
 penalties plus six cap rules make the rollup non-linear in its parts[^15]; and the
 normaliser is policy rather than a fixed total mass. A bounded ranking function into
@@ -267,6 +280,14 @@ and no calibration statement is available, because there is no event space on wh
 to calibrate. Shafer[^25] and Walley[^26] are cited as the layer a confidence model
 would have to occupy separately — correctly, since a belief function would at least
 supply the monotone-capacity structure that $c$ lacks.
+
+That is a statement about $c$ as defined, and about nothing more. It does not show
+that no transformation, extension or added structure could turn part of this model
+into a measure or another probabilistic object — the citation of belief functions is
+precisely an admission that such a layer is available to be built. What is claimed is
+that $c$ does not *already* carry that structure, so probabilistic language applied
+to today's scores is unlicensed. Building the layer that would license it is open
+work, and the repository files it as such.
 
 > RED: What computes the score is not the specified arithmetic. A sixteen-arm hardcoded weight table over CI check names in a shell script produces it[^27], and the committed dashboard's 890/990 is that pass-rate[^28]. None of the base weights, multipliers, cap rules or sixteen penalties in the methodology are computed anywhere in the tree.
 > PATH: The framework specification delegates the arithmetic to a named crate and modules[^29]; that crate is a README and one `.rs.example` file, and is not a workspace member. Ruled on 2026-09-03: the two are to be the same object, the shell scorer is to call the model rather than reimplement it, completed work is to be backfilled retroactively, and the requirement is to be hard-enforced going forward rather than requested.
@@ -321,7 +342,7 @@ monotonicity cannot force retention of a certainty later shown false.
 
 ## Verdict
 
-The formal core is a finite product lattice, a Kleene stabilisation under declared
+The formal core is a finite product lattice, a finite monotone-inflationary stabilisation under declared
 validators at an operator-gated bar, a Floyd-style ranking function, and a correctly
 stated moving-target result whose zero-floor corollary is declined for want of a
 metric. Contraction, Galois connections and probabilistic readings are named *absent*
