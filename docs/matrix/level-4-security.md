@@ -13,6 +13,8 @@ Inside, every launch is meant to carry four flags — userns mapped to your uid,
 > RED: The requirement that the hardening flags are immutable has no production enforcement. Each flag is emitted only if its boolean field is true, and the one place that checks the assembled command line is a debug assertion — compiled out of every release build.[^6] In a shipped binary, a caller that turns a flag off or adds back a capability is not stopped, or even logged. The test covering it is worse than absent: five of its eight steps echo their own success token on the failure branch, printing `CAP_DROP_ALL_SET` whether the inspection found the flag or not — structurally incapable of going red. And the container it inspects is one the test itself launched with the flags typed on the command line, so even the steps that can fail are testing Podman, not Tillandsias.[^7]
 > PATH: Partial, and it does not reach this file. A scanner for litmus steps that pass while failing exists, but it is explicitly advisory with nothing gating on it, skips over half the corpus as not provably read-only, and keys on a non-zero exit — which `|| echo` suppresses, leaving it blind to this exact variant.[^8] A separately approved bar-raise on litmus quality is diff-scoped and, in the project's own words, structurally incapable of flagging the existing corpus.
 
+> NOTE: The defect is contained, not systemic. Sweeping all 415 litmus files for the same-token-on-both-branches pattern returns five occurrences, and all five are in this one file — so the remedy is one file plus a scanner rule, not a corpus-wide audit.
+
 > RED: SELinux confinement is disabled with no compensating control, so on a Fedora or RHEL host you are *less* confined than a default container would be.
 > PATH: MCS labelling is recorded as a planned later phase — intent, with no implementation and no litmus behind it.[^5] For the missing hypervisor on Linux nothing is recorded at all: a design choice, mitigated by defence in depth rather than a stronger boundary.
 
@@ -91,7 +93,7 @@ The convergence argument you already have is not a security argument, and the pr
 [^13]: What the code actually generates: one self-signed RSA-2048 30-day CA in a temp directory | scripts/orchestrate-enclave.sh#L95-L120
 [^14]: Anonymous receive-pack listener; network placement is not authentication | openspec/specs/git-mirror-service/spec.md#L53-L68
 [^15]: Noise PSK derived from the binary's own hash | crates/tillandsias-secure-channel/src/lib.rs#L64-L101
-[^16]: The secure control wire is gated on an env var whose absent and empty values both resolve to Off | crates/tillandsias-headless/src/vsock_server.rs#L83-L106
+[^16]: The secure control wire is gated on an env var whose absent and empty values both resolve to Off. Six files under `crates/` read, document or log this variable; none of them, and nothing in packaging or the installers, sets it | crates/tillandsias-headless/src/vsock_server.rs#L83-L106
 [^17]: The maturity ladder from default-OFF to secure-by-default to removing the plaintext path — status active | plan/issues/secure-channel-maturity-ladder-2026-07-04.md#L1-L12
 [^18]: Per-boot key hardening — approved, deferred, unimplemented | plan/issues/encrypted-channel-perboot-key-hardening-2026-07-01.md#L1-L22
 [^19]: Keyless signing, and the verification identity regexp that pins the repo name only | .github/workflows/release.yml#L325-L326
