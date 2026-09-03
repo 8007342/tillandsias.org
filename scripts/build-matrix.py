@@ -29,16 +29,22 @@ CLONE = pathlib.Path(
 
 LEVELS = [
     ("level-1-five",     "Like I'm 5",
-     "The simplest way of putting it that is still true."),
+     "The simplest way of putting it that is still true.", ""),
     ("level-2-phone",    "I barely understand my phone",
-     "No jargon. Everyday comparisons, and straight answers to what you are actually wondering."),
+     "Straight answers to what you are actually wondering: privacy, cost, and what breaks.",
+     "Picks up where \u201clike I\u2019m 5\u201d left off."),
     ("level-3-power",    "I'm a power user",
-     "You have run containers and self-hosted things. Here is what it is made of and what it costs you."),
+     "The anatomy: what runs where, what survives a teardown, and where the sharp edges are.",
+     "Assumes the two levels before it."),
     ("level-4-security", "I'm a Cyber Security expert",
-     "Trust boundaries, egress, secrets, supply chain — with the weaknesses stated, not buried."),
+     "The architecture interrogated rather than described \u2014 boundaries, egress, provenance, "
+     "and what the tests do not actually test.",
+     "Assumes the three levels before it."),
     ("level-5-phd",      "I'm a PhD / MathWiz / Hacker",
-     "And you would like me to be condescending about it. Very well."),
+     "And you would like me to be condescending about it. Very well.",
+     "Assumes everything before it. Mathematics from here down."),
 ]
+
 
 FLAGS = {
     "GREEN": ("flag-green", "\U0001F7E2", "works"),
@@ -82,7 +88,7 @@ def footnote_url(target, level):
     return url + ("#" + anchor if anchor else ""), False
 
 
-def inline(text, level, fns):
+def inline(text, level, fns, notes=None):
     """Escape, then apply inline markup. Code and math are shielded from emphasis."""
     out = html.escape(text.strip())
     shield = []
@@ -101,35 +107,41 @@ def inline(text, level, fns):
     def ref(m):
         n = m.group(1)
         fns.add(n)
-        return ('<sup class="fnref" id="r%s-%s"><a href="#f%s-%s">%s</a></sup>'
-                % (level, n, level, n, n))
+        # The tooltip carries the footnote's own label and target, so a reader
+        # can judge a citation without losing their place in the sentence.
+        tip = ""
+        if notes and n in notes:
+            label, target = notes[n]
+            tip = ' data-tip="%s"' % html.escape("%s  \u00b7  %s" % (label, target), quote=True)
+        return ('<sup class="fnref" id="r%s-%s"><a href="#f%s-%s"%s>%s</a></sup>'
+                % (level, n, level, n, tip, n))
 
     out = FN_REF.sub(ref, out)
     return re.sub(r"\x00(\d+)\x00", lambda m: shield[int(m.group(1))], out)
 
 
-def render(lines, level, fns):
+def render(lines, level, fns, notes=None):
     out, para, items, ordered = [], [], [], [False]
     math_buf, in_math = [], [False]
     callout = []  # [css class, icon, label, [paragraphs]] while one is open
 
     def flush_para():
         if para:
-            out.append("<p>%s</p>" % inline(" ".join(para), level, fns))
+            out.append("<p>%s</p>" % inline(" ".join(para), level, fns, notes))
             para.clear()
 
     def flush_items():
         if items:
             tag = "ol" if ordered[0] else "ul"
             out.append("<%s>%s</%s>" % (tag, "".join(
-                "<li>%s</li>" % inline(i, level, fns) for i in items), tag))
+                "<li>%s</li>" % inline(i, level, fns, notes) for i in items), tag))
             items.clear()
             ordered[0] = False
 
     def flush_callout():
         if callout:
             cls, icon, label, paras = callout[0]
-            body = "".join("<p>%s</p>" % inline(x, level, fns) for x in paras if x.strip())
+            body = "".join("<p>%s</p>" % inline(x, level, fns, notes) for x in paras if x.strip())
             out.append(
                 '<div class="callout %s"><span class="callout-icon" aria-hidden="true">%s</span>'
                 '<span class="sr">%s: </span><div>%s</div></div>' % (cls, icon, label, body))
@@ -181,10 +193,10 @@ def render(lines, level, fns):
                 print("  ! unknown figure @fig:%s in %s" % (name, level))
         elif line.startswith("### "):
             flush()
-            out.append("<h4>%s</h4>" % inline(line[4:], level, fns))
+            out.append("<h4>%s</h4>" % inline(line[4:], level, fns, notes))
         elif line.startswith("## "):
             flush()
-            out.append("<h3>%s</h3>" % inline(line[3:], level, fns))
+            out.append("<h3>%s</h3>" % inline(line[3:], level, fns, notes))
         elif line.startswith(">"):
             rest = line.lstrip(">").strip()
             kind, _, body = rest.partition(":")
@@ -238,12 +250,12 @@ def parse(path, level):
 
 def build():
     panels, tabs = [], []
-    for idx, (slug, title, blurb) in enumerate(LEVELS):
+    for idx, (slug, title, blurb, cont) in enumerate(LEVELS):
         path = SRC / ("%s.md" % slug)
         fns = set()
         if path.exists():
             body, notes = parse(path, slug)
-            content = render(body, slug, fns)
+            content = render(body, slug, fns, notes)
         else:
             content, notes = "<p>Not written yet.</p>", {}
 
@@ -280,8 +292,10 @@ def build():
                html.escape(title)))
         panels.append(
             '<section class="panel%s" id="panel-%s" role="tabpanel" aria-labelledby="tab-%s">'
-            '<p class="blurb">%s</p><div class="prose">%s</div>%s</section>'
-            % (active, slug, slug, html.escape(blurb), content, fn_html))
+            '<p class="blurb">%s%s</p><div class="prose">%s</div>%s</section>'
+            % (active, slug, slug, html.escape(blurb),
+               ('<span class="cont">%s</span>' % html.escape(cont)) if cont else "",
+               content, fn_html))
 
     doc = (TEMPLATE.replace("__DEFS__", figures.DEFS)
            .replace("__TABS__", "\n".join(tabs))
@@ -355,6 +369,8 @@ main{padding:0 0 96px}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .blurb{margin:34px 0 8px;font:400 15px/1.6 var(--sans);color:var(--ink-faint);
   border-left:2px solid var(--leaf-dim);padding-left:14px;max-width:70ch}
+.blurb .cont{display:block;margin-top:6px;font:500 12px var(--mono);color:var(--leaf-dim);
+  letter-spacing:.03em}
 .prose{padding-top:14px}
 .prose h3{margin:44px 0 14px;font-size:23px;letter-spacing:-.02em;font-weight:640;
   padding-top:18px;border-top:1px solid var(--line)}
@@ -421,6 +437,15 @@ em{color:#dbe4ee}
 .fnref{font:600 10.5px var(--mono);vertical-align:super;line-height:0}
 .fnref a{color:var(--leaf);text-decoration:none;padding:0 1px}
 .fnref a:hover{text-decoration:underline}
+.fnref a{position:relative}
+#tip{position:fixed;z-index:60;max-width:min(30rem,calc(100vw - 24px));padding:9px 12px;
+  border:1px solid var(--line-2);border-radius:8px;background:#141b24;color:var(--ink-dim);
+  font:400 13px/1.5 var(--sans);box-shadow:0 10px 30px rgba(0,0,0,.5);pointer-events:none;
+  opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s}
+#tip.on{opacity:1;transform:none}
+#tip b{color:var(--ink);font-weight:600}
+#tip span{display:block;margin-top:4px;font:500 11.5px var(--mono);color:var(--ink-faint);
+  word-break:break-all}
 .footnotes{margin:56px 0 0;padding:26px 0 0;border-top:1px solid var(--line)}
 .footnotes h3{margin:0 0 6px;font:600 12px/1 var(--mono);letter-spacing:.2em;
   text-transform:uppercase;color:var(--ink-dim)}
@@ -495,6 +520,41 @@ __PANELS__
   crossorigin="anonymous" referrerpolicy="no-referrer"
   onload="renderMathInElement(document.body,{delimiters:[{left:'\\\\[',right:'\\\\]',display:true},{left:'\\\\(',right:'\\\\)',display:false}],throwOnError:false});"></script>
 <script>
+// Footnote tooltips: shown on hover and on keyboard focus, positioned inside
+// the viewport so a citation near the right edge is not clipped.
+(function(){
+  var tip = document.createElement('div');
+  tip.id = 'tip'; tip.setAttribute('role', 'tooltip');
+  document.body.appendChild(tip);
+  var hideTimer;
+  function show(a){
+    var raw = a.getAttribute('data-tip'); if (!raw) return;
+    clearTimeout(hideTimer);
+    var parts = raw.split('  \u00b7  ');
+    tip.innerHTML = '';
+    var b = document.createElement('b'); b.textContent = parts[0]; tip.appendChild(b);
+    if (parts[1]) { var s = document.createElement('span'); s.textContent = parts[1]; tip.appendChild(s); }
+    tip.classList.add('on');
+    var r = a.getBoundingClientRect(), t = tip.getBoundingClientRect();
+    var left = Math.min(Math.max(8, r.left + r.width / 2 - t.width / 2), window.innerWidth - t.width - 8);
+    var top = r.top - t.height - 8;
+    if (top < 8) top = r.bottom + 8;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+  function hide(){ hideTimer = setTimeout(function(){ tip.classList.remove('on'); }, 80); }
+  document.addEventListener('mouseover', function(e){
+    var a = e.target.closest('.fnref a[data-tip]'); if (a) show(a);
+  });
+  document.addEventListener('mouseout', function(e){
+    if (e.target.closest('.fnref a[data-tip]')) hide();
+  });
+  document.addEventListener('focusin', function(e){
+    var a = e.target.closest('.fnref a[data-tip]'); if (a) show(a);
+  });
+  document.addEventListener('focusout', hide);
+  window.addEventListener('scroll', function(){ tip.classList.remove('on'); }, {passive:true});
+})();
 (function(){
   var tabs = [].slice.call(document.querySelectorAll('.tab'));
   function show(slug){

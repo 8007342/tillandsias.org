@@ -1,74 +1,66 @@
 # Tillandsias, explained simply
 
-## A rented kitchen that appears inside your own computer
+## What it is for, in one paragraph
 
-Imagine renting a kitchen for an afternoon. You bring your ingredients, you cook, you leave, and nothing you did there follows you home. Tillandsias is that kitchen, except it appears *inside the computer you already own*, and it disappears when you are done.
+The reason a grown-up wants one is narrower than "the cloud, but at home". Software you did not write — increasingly, AI assistants that write and run code for you — has to work somewhere. The choice is between your actual machine and a sealed room containing only the project folder you deliberately opened.[^1] Tillandsias is that room, plus the plumbing to open it in a second and forget about it.
 
-Its job is to give software helpers — including AI assistants that write and run code — a sealed room. Rather than letting them loose on your machine, Tillandsias builds a small pretend computer inside your real one, puts the tools in it, and hands them only the project folder you deliberately opened.
+@fig:gate
 
-When you are finished, that pretend computer is **thrown away rather than repaired**. Next time you get a brand-new one that is identical, like a photocopier that gives the same copy however often you press the button.
+## Is my stuff private, and who could see it?
 
-@fig:ephemeral
+Nobody, because there is nowhere for it to go. The people who make Tillandsias operate no servers your copy talks to: no account, no sign-up, no usage tracking, no crash reporting, no identifier attached to you or your machine.[^2] Your logs stay on your own disk where you can read them, and leave only if you send them somewhere yourself; any login you hand over goes into your operating system's own password store, not a file of the project's devising.[^3]
 
-That "throw it away" habit is the safety design. Something always rebuilt from the same instructions cannot slowly rot into a state nobody understands. Even the internal passwords the parts use to talk to each other are reissued at every start, so a messy shutdown yesterday cannot poison today.[^1]
+> GREEN: The privacy claim does not rest on anyone's intentions. There is no server of theirs to send anything to, so there is no decision to trust and none to reverse.[^2] It covers their side only — a service you sign into yourself still sees what you tell it.
 
-## The worries people actually have
+## Does it cost money? Does it need the internet?
 
-**Is my stuff private?** Unusually so. The people who make Tillandsias run no servers your copy talks to. No account, no sign-up, no usage tracking, no crash reports.[^2] Your files stay put because there is nowhere else for them to go. Logins you provide are kept in your own machine's secure storage.[^3]
+It costs nothing: free software under a licence that lets anyone read, run, modify and pass it on.[^4] You have already paid for the only hardware involved.
 
-**Does it cost money?** No. It is free software under a licence that lets anyone read, use and share it.[^4] You already paid for the hardware.
+The internet is needed only for ordinary, visible reasons: fetching the program, fetching updates, reaching a service you chose. The work itself does not require it, and the AI assistants can run on your own machine — which is why the privacy claim survives them.
 
-**Do I need the internet?** Only for ordinary reasons — downloading the program, updates, or signing in to a service you chose. The workspaces are walled off, with one watched doorway for anything that must go out. It can run its AI helpers on your own machine, so nothing need leave it.
+## What happens when I turn it off? Can it break my computer?
 
-**What if I turn it off, or something goes wrong?** Nothing breaks. Temporary things are meant to vanish; what you saved is kept. The repair procedure is to throw the confused part away and let a fresh one appear — which is simply the machine behaving as designed. You can wipe the whole thing and rebuild it freely.[^5]
+Turning it off is the expected motion, not an interruption. Anything you saved is a real file on your real disk, untouched by the rebuild. Even the internal passwords the pieces use to talk to each other are reissued at every start, so yesterday's messy shutdown cannot jam today's start.[^5]
 
-> GREEN: The privacy promise is structural, not a pinky-swear — there is no server to send anything to, so there is nothing to leak or sell.
-> GREEN: Each workspace sees only the folder you opened, never your whole drive.
-> GREEN: Free and open source, so the claims above can be checked by anyone, not just believed.
-> GREEN: The design treats "start over" as normal, which is why a bad day rarely leaves lasting damage.
+> GREEN: Those internal passwords are replaced at every launch rather than left lying about, so one that leaked is stale by the next start — written down as a required behaviour with named cases, not left to habit.[^5]
 
-## How they keep themselves honest
+As for damage: a misbehaving tool inside the sealed room sees only the folder you gave it.[^1] Wiping the installation and rebuilding is documented and supported, not a last resort.[^6] The cost you do pay is ordinary and reversible — it is a real virtual machine, so it holds real memory and disk while running and gives them back when it stops.
 
-The team holds to one rule: every step must leave the project *less uncertain* than before, and the reduction must be checkable by a machine — never just felt.[^6]
-
-In practice it works like a strict recipe collection. Someone writes down in plain words what a part must do. Someone else writes a test that would visibly fail if reality stopped matching. Rules that cannot be tested are not allowed, because a promise nobody can check is only a hope. The written recipe is the truth; if the machinery disagrees, the machinery is wrong.
-
-They are refreshingly blunt about the limits. Their own notes say passing tests are *evidence, not proof*.[^7] And because the recipes keep improving, the target keeps moving — "finished" is not a place you arrive at.
+## Sharpening one thing you were told
 
 @fig:staircase
 
-What they promise instead is that the gap never slides backwards: each release must be no further from the recipes than the last, and a machine checks that at every release. That means it settles toward some floor, not that the floor is zero. They explicitly refuse to claim the stronger mathematical result that would guarantee zero.[^8]
+You were told they check that nothing got worse. Precisely: each release must sit no further from its own written specifications than the last, and that distance is measured by a machine, not judged by a person.[^7]
+
+Two honest limits follow, in the project's own words. Passing tests are *evidence, not proof* — they show no contradiction was found, not that none exists.[^8] And "never worse" means settling toward some floor, not that the floor is zero; the stronger mathematical result that would guarantee zero is explicitly not claimed.[^9]
 
 ## Where it falls short today
 
-> RED: On Macs, the app has not yet been through Apple's inspection service, so a copy downloaded with a web browser gets blocked on first launch; the recommended install avoids this only by not going through the browser.[^9]
-> PATH: The full fix is written up and costed — an Apple Developer identity plus notarization — and the plumbing is pre-wired, but enrollment is still pending.[^10]
+> RED: On Macs, the application has not yet passed Apple's inspection service, so a copy downloaded with a web browser is blocked on first launch; the recommended one-line install sidesteps that only by not going through a browser.[^10]
+> PATH: The fix — an Apple Developer identity and notarization — is written up and costed, and the release machinery is pre-wired for it. Enrolment is still pending.[^11]
 
-> RED: One Windows installer file in a past release was shipped without its signature and was simply impossible to install — no workaround for the user.[^11]
-> PATH: The release process now refuses to publish that file unsigned, and the signing route is chosen but not yet in place.[^12]
+> RED: One Windows package in a past release went out without its signature, which makes it not merely warned-about but impossible to install, with no user-side workaround.[^12]
+> PATH: The release process now refuses to publish that file unsigned, and the signing route has been chosen but not yet put in place.[^13]
 
-> RED: A local AI "expert" feature confidently produced answers with invented sources — it announced a careful research pipeline that was never actually run.[^13]
-> PATH: It was switched off and rewritten so that answers either come with real, used citations or are refused outright; that replacement is recorded as a change in progress.[^14]
+> RED: A built-in "expert" feature gave confident answers with invented sources: it described a careful research procedure, did not run it, and marked its own output verified anyway.[^14]
+> PATH: It has been switched off and is being rebuilt so that an answer either carries real citations it actually used or is refused. That replacement is in progress, not finished.[^15]
 
-> RED: On some Linux desktops, clicking the little tray icon could freeze the whole screen session.[^15]
-> PATH: The faulty replies were audited and corrected, but a further freeze was found after the last release and fixed only on a development branch, so the issue is deliberately left open.[^15]
-
-None of these break the privacy story. They are install-and-launch problems plus one over-promising feature — caught because somebody is checking, which is the whole point of the method.
+Two install problems and one feature promising more than it delivered. None touch the privacy story, and all three are here because the project's own checking found them.
 
 ## Footnotes
 
-[^1]: Internal secrets are wiped and reissued on every start | openspec/specs/ephemeral-secret-refresh/spec.md#L1-L20
-[^2]: "Tillandsias collects nothing" — no telemetry, no analytics, no server | PRIVACY.md#L5-L17
-[^3]: Only folders you open; credentials in a local secret store | PRIVACY.md#L30-L44
+[^1]: What a workspace can reach, and why that isolation exists to protect you from the tools | PRIVACY.md#L30-L41
+[^2]: "Tillandsias collects nothing" — no account, no telemetry, no analytics, no server | PRIVACY.md#L5-L17
+[^3]: Credentials in the local secret store; logs kept on your own disk | PRIVACY.md#L42-L46
 [^4]: GNU General Public License, version 3 | LICENSE#L1-L2
-[^5]: "Designed to be wiped and rebuilt freely" | PRIVACY.md#L45-L48
-[^6]: The convergence objective: shrink the distance between spec, code, and reality | methodology/convergence.yaml#L1-L20
-[^7]: Evidence boundaries — traceability and passing tests are evidence, not proof | methodology/philosophy.yaml#L228-L232
-[^8]: The stronger contraction result is explicitly not claimed | methodology/math-foundations.yaml#L107-L120
-[^9]: Install instructions warning that browser downloads hit a Gatekeeper block | README.md#L27-L45
-[^10]: Recorded options and costs for Apple signing and notarization | plan/issues/macos-gatekeeper-signing-options-2026-08-29.md
-[^11]: Unsigned Windows package is uninstallable, with no user-side workaround | plan/issues/store-msix-submission-blockers-2026-08-31.md#L26-L40
-[^12]: Chosen signing route for the Windows release channel | plan/issues/windows-signing-research-2026-08-16.md#L1-L25
-[^13]: Audit of the shipped "local expert" facade: stamped answers valid with no retrieval and no citations | openspec/changes/expert-serve-grounded-pipeline/proposal.md#L1-L25
-[^14]: The grounded replacement pipeline, still an in-progress change | openspec/changes/expert-serve-grounded-pipeline/tasks.md
-[^15]: Tray menu replies did not match the desktop specification, freezing the session | plan/loop_status.d/20260830t004603z-3b425083-linux.md
+[^5]: Internal secrets are removed and reissued at every start, so an unclean shutdown leaves nothing stale | openspec/specs/ephemeral-secret-refresh/spec.md#L1-L20
+[^6]: "Designed to be wiped and rebuilt freely" | PRIVACY.md#L47-L48
+[^7]: The convergence objective: the measured distance between specification, code and reality must not grow | methodology/convergence.yaml#L1-L20
+[^8]: Evidence boundaries — traceability and passing tests are evidence, not proof of correctness | methodology/philosophy.yaml#L228-L232
+[^9]: The stronger contraction result is explicitly not claimed | methodology/math-foundations.yaml#L107-L120
+[^10]: Install instructions warning that a browser download hits a Gatekeeper block on first launch | README.md#L27-L45
+[^11]: Recorded options and costs for Apple signing and notarization | plan/issues/macos-gatekeeper-signing-options-2026-08-29.md
+[^12]: The unsigned Windows package is uninstallable, with no user-side workaround | plan/issues/store-msix-submission-blockers-2026-08-31.md#L26-L40
+[^13]: The chosen signing route for the Windows release channel | plan/issues/windows-signing-research-2026-08-16.md#L1-L25
+[^14]: Audit of the shipped "local expert" facade: answers stamped valid with no retrieval and no citations | openspec/changes/expert-serve-grounded-pipeline/proposal.md#L1-L25
+[^15]: The grounded replacement pipeline, still an in-progress change | openspec/changes/expert-serve-grounded-pipeline/tasks.md

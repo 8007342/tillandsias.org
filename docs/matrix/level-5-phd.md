@@ -1,286 +1,376 @@
 # Level 5 — For the PhD / MathWiz / Hacker
 
-You asked to be addressed at your level, so I will skip the tour: below is this
-system's formal content and an audit of which claims are discharged. The punchline
-first — the *theory* is unusually well-behaved, finite, modest and candid about the
-theorems it has not earned; the *instrumentation* meant to make it binding is a
-thirteen-row shell table. Judge the thinking on the former, and do not confuse the
-latter with a measure.
+The lower levels gave you the object and its defects. What is left is the only part
+that can be attacked with a pencil: the formal content, stated as claims with
+hypotheses, sorted into (a) standard theorems being invoked, (b) what the repository
+actually asserts, (c) what follows, and (d) what does not. The security findings of
+level 4 are not repeated; they enter here only where a mathematical hypothesis
+depends on them.
 
-## The object of study
+The short verdict: the theory is small, finite, and unusually candid about the
+theorems it declines to claim. Two of its load-bearing hypotheses are assumed rather
+than discharged, and the instrumentation that would test them does not exist.
 
-Tillandsias is a tray application that folds a disposable, four-tier-contained
-Linux enclave through your hypervisor so that coding agents execute in exactly one
-place and touch nothing above it. That is the product, and it is not why you are
-reading at this level. The interesting artefact is the accompanying methodology: an attempt to state
-software convergence as an order-theoretic problem rather than a vibe. The thesis
-is one line — *monotonic reduction of uncertainty under verifiable constraints*[^1]
-— and, unusually, it has a file whose entire purpose is to separate what that
-sentence can defend from the analogies it must not overclaim[^2].
+## The lattice, and the one step worth checking
 
-## The formal skeleton
-
-Begin with the atom. An **obligation** is a named, auditable requirement,
-invariant, litmus signal, trace signal, provenance binding, or environment
-assumption carrying a stable identifier[^3]. Its state ranges over a finite
-**total order** — a chain, seven long, from no evidence to bundled evidence:
+An **obligation** is a named, auditable requirement, invariant, litmus signal, trace
+signal, provenance binding, or environment assumption carrying a stable
+identifier[^1]. Its state ranges over a finite chain, seven long[^2]:
 
 $$\mathcal{O} = \{\,\texttt{absent} < \texttt{declared} < \texttt{traced} < \texttt{pos\_tested} < \texttt{neg\_tested} < \texttt{runtime\_obs} < \texttt{evidence\_bundled}\,\}$$
 
-A **spec state** is the product of its obligations' states; a **project state**
-the product over active specs, ordered componentwise after aligning stable IDs and
-tombstones[^3]:
+$$S_{\text{spec}} = \prod_{i \in \mathrm{Obl}} \mathcal{O}_i, \qquad S_{\text{proj}} = \prod_{s} S_{\text{spec}}(s), \qquad x \le y \iff \forall i,\; x_i \le_{\mathcal{O}} y_i$$
 
-$$S_{\text{spec}} = \prod_{i \in \mathrm{Obl}} \mathcal{O}_i, \qquad S_{\text{proj}} = \prod_{s \in \mathrm{Specs}} S_{\text{spec}}(s), \qquad x \le y \iff \forall i,\; x_i \le_{\mathcal{O}} y_i$$
+**Proposition 1.** *$S_{\text{proj}}$ is a finite complete lattice of height
+$6|\mathrm{Obl}|$.* Each $\mathcal{O}_i$ is a finite chain, hence a complete lattice;
+a finite product of complete lattices is complete with $\vee,\wedge$ computed
+componentwise; a chain of seven elements has height six and heights add over
+products[^3]. Nothing here is in dispute — it is the least interesting true thing
+in the file, and the repository correctly declines to inflate it: *"this proves
+monotonicity of the model, not truth of the modeled requirement or adequacy of the
+chosen obligation set"*[^4].
 
-Each $\mathcal{O}_i$ is a finite chain, hence a complete lattice; finite products of
-complete lattices are complete lattices with $\vee$ and $\wedge$ componentwise. So
-$S_{\text{proj}}$ is a finite complete lattice of height $6\cdot|\mathrm{Obl}|$, and
-the apparatus lands squarely inside Tarski[^4] and standard finite-order
-machinery[^5]. What it buys, and does not, the repository states itself — *"this
-proves monotonicity of the model, not truth of the modeled requirement or adequacy
-of the chosen obligation set"*[^6]. Rarer in the wild than it should be.
+Two hypotheses do quiet work. The order is componentwise **after aligning stable IDs
+and tombstones**[^1], so a renamed coordinate yields a different lattice, not a lower
+point in the same one; and $|\mathrm{Obl}|$ must be finite and known, which is what
+makes the height bound a bound rather than an ordinal.
 
 @fig:lattice
+@fig:hasse
 
-## Why "done" is decidable at all
+## The fixed point, in full
 
-Let $\mathrm{refine}: S \to S$ be the composite of validation and semantic
-distillation at a *fixed* bar. The closure claim is idempotence[^7]:
+Let $\mathrm{refine}: S \to S$ be validation followed by semantic distillation at a
+fixed bar $B$. The repository's stated claim is idempotence[^5]:
 
 $$\mathrm{refine}(\mathrm{refine}(x)) = \mathrm{refine}(x)$$
 
-That is the whole decidability argument, and it is a good one. $\mathrm{refine}$
-is inflationary and monotone on a finite lattice, so by Kleene iteration[^8] the
-ascending chain $x \le \mathrm{refine}(x) \le \mathrm{refine}^2(x) \le \cdots$
-stabilises in at most $6\cdot|\mathrm{Obl}|$ steps; the stabilised point is the
-least fixed point above $x$. "Done" is then not a mood but a computable predicate:
-$x$ is closed iff $\mathrm{refine}(x) = x$.
+**Theorem 2 (Knaster–Tarski).** *A monotone map on a complete lattice has a complete
+lattice of fixed points, in particular a least one*[^6]. Applied here it gives
+existence, non-constructively, and says nothing about how to reach it.
 
-The governance layer makes this non-vacuous. The bar $B_v$ — the declared depth at
-which a signal counts as a finding — is **fixed within a release** and rises only
-by explicit operator decision; the automation is forbidden from self-escalating
-it[^9]. That is precisely the hypothesis the fixed-point argument needs: a
-continuously rising bar makes $\mathrm{refine}$ a moving operator and destroys
-stabilisation, while discrete, externally gated raises preserve it.
+**Theorem 3 (Kleene iteration, finite case).** *If $f: L \to L$ is monotone and
+inflationary ($x \le f(x)$) on a finite lattice of height $h$, then for every $x$
+the chain $x \le f(x) \le f^2(x) \le \cdots$ stabilises after at most $h$ strict
+increases, and its limit is the least fixed point $\ge x$.* The bound is immediate:
+each strict step rises at least one level in a poset of height $h$. Leastness is a
+two-line argument worth doing, because it is the step people skip: if $y = f(y)$ and
+$y \ge x$, then monotonicity gives $f^n(x) \le f^n(y) = y$ for every $n$, so the
+limit is $\le y$.
 
-The honest caveat is stated too: a fixed point means *stable under known
-validators*, not complete relative to unknown future requirements[^7]. Kleene
-gives you least, not right.
+Note where Kleene's theorem proper — least fixed point as $\bigsqcup_n f^n(\bot)$ for
+a Scott-continuous $f$ on a CPO[^7] — would otherwise be invoked outside its
+hypotheses. Continuity is not assumed, it is *free*: in a finite poset every directed
+subset is finite and contains its own supremum, so every monotone map is
+Scott-continuous. That is the first place a referee probes, and it survives.
 
-## The moving target, and the theorem that is not proved
+@fig:fixpoint
 
-Now the part most would fudge, and this repository does not.
+So "done" is a computable predicate — $x$ is closed iff $\mathrm{refine}(x) = x$ —
+and governance supplies the hypothesis that makes it non-vacuous: the bar $B_v$ is
+**fixed within a release**, rising only by explicit operator decision, with the
+automation forbidden from self-escalating it[^8]. A continuously rising bar makes
+$\mathrm{refine}$ a moving operator and destroys stabilisation; discrete,
+externally gated raises preserve it. That is the standing hypothesis of Theorem 3,
+not decoration.
 
-Write $T_v$ for the target — the specs at version $v$ — $I_v$ for the
-implementation, and $d_v = d(I_v, T_v) \ge 0$ for residual distance. Because the
-specs themselves evolve, $T$ moves, and no final target state exists[^10]. The
-mechanically checkable release-boundary rule is therefore non-increase:
+And now the gap. Theorem 3 needs **monotone and inflationary**; the repository
+asserts **idempotent**. These are the three axioms of a closure operator, and the
+repository states one of them. Idempotence does not imply monotonicity: a map that
+sends $a \mapsto \top$, $b \mapsto b$ with $a < b$ is idempotent and not monotone.
+Nor does it imply inflationarity. The validation program that would discharge the
+missing two is written down — enumerate the allowed transitions and property-test
+that each is order-preserving for every affected obligation[^9] — which is exactly
+the right shape of obligation, and exactly what is not run.
 
-$$d_{v+1} \le d_v \quad \text{for all } v \implies \exists\, d_* \ge 0 : \lim_{v\to\infty} d_v = d_*$$
+> RED: The fixed-point argument's load-bearing hypothesis is monotonicity of the refinement operator, and monotonicity is assumed, not proved. The repository's own discharge procedure is generative property testing over reachable obligation states; the workspace contains no property-testing dependency at all — no `proptest`, no `quickcheck`, in any crate manifest. What would be needed is modest and specific: an enumeration of the permitted transition relation, plus a proof or a generative test that every transition is order-preserving in each affected coordinate, with tombstones and scope changes excluded as declared non-monotone.
+> PATH: The checks are specified as phase one of a staged validation program[^9]; that phase is unimplemented.
 
-by monotone convergence of a bounded-below decreasing sequence. And the sentence
-that earns the file its credibility: this **does not prove $d_* = 0$**. A zero-floor
-claim additionally requires a validated progress premise excluding positive
-residual fixed points — or a proven contraction, explicitly not claimed[^10].
+> RED: The lattice's coordinates are mostly not instantiated. The obligation model is indexed by stable requirement identifiers, but no specification file in the tree carries a requirement identifier field — requirements are named by prose headings, against several thousand RFC-2119 keywords. The credit term that prices this, `requirement_has_stable_id`, occurs exactly once in the entire repository: in the weight table that defines it[^10]. Nothing reads it. A product order over coordinates that do not exist is a well-formed object over an empty index.
+> PATH: The gap is priced in the scoring rules but not gated on, and no migration to identified requirements is scheduled.
+
+> GREEN: The negative results — no contraction, no Galois connection, no probabilities — are first-class claims carrying their own discharge conditions, not caveats appended to positive ones. Each names the object a future claim would have to construct.
+
+## The moving target, and what would force the floor to zero
+
+Write $T_v$ for the specifications at version $v$, $I_v$ for the implementation,
+$d_v = d(I_v, T_v) \ge 0$. Because the specifications evolve, $T$ moves and no final
+target exists[^11]. The mechanically checkable release rule is non-increase.
+
+**Proposition 4 (monotone convergence).** *A non-increasing real sequence bounded
+below converges to its infimum*[^12]. Here:
+
+$$d_{v+1} \le d_v \;\text{ for all } v, \quad d_v \ge 0 \qquad\Longrightarrow\qquad d_v \;\longrightarrow\; d_* \;=\; \inf_{v} d_v \;\ge\; 0$$
+
+That is the whole result, and it is correct.
+
+What does **not** follow is $d_* = 0$, and the repository says so in those words[^11].
+The exact extra hypothesis is a uniform progress premise, in either of two forms:
+
+$$\exists\,\varepsilon > 0 : \; d_v > 0 \implies d_{v+1} \le d_v - \varepsilon \qquad\text{or}\qquad \exists\,\theta < 1 : \; d_{v+1} \le \theta\, d_v$$
+
+Either excludes positive residual fixed points and forces $d_* = 0$ — the additive
+form in finitely many steps, the multiplicative one geometrically. The repository's
+phrase — "a validated progress premise that excludes positive residual fixed
+points"[^11] — is precisely this, asserted as a requirement on a future claim rather
+than as a fact.
 
 @fig:staircase
 
-The debt is itemised. A future Banach-style claim[^11] would owe a complete metric space $(X,d)$ of project states, an operator
-$F: X \to X$, and a constant $0 \le c < 1$ with
+**The Banach alternative, itemised.** A contraction claim[^13] would owe a complete
+metric space $(X,d)$, an operator $F: X \to X$, and a constant $0 \le c < 1$ with
 
-$$d(F(x), F(y)) \le c\,d(x,y) \quad \forall x,y \in X$$
+$$d\big(F(x),F(y)\big) \le c\,d(x,y) \quad \forall x,y \in X \qquad\Longrightarrow\qquad \exists!\,x^* = F(x^*), \quad d\big(F^n(x),x^*\big) \le \frac{c^n}{1-c}\,d\big(x,F(x)\big)$$
 
-whence a unique fixed point $x^*$ with $d(F^n(x), x^*) \le \frac{c^n}{1-c}d(x,F(x))$
-— geometric convergence to zero residual[^12]. Note exactly what is missing:
-not the operator (that is $\mathrm{refine}$), but (i) a metric at all — the
-project state is an order, and no metric compatible with it has been defined;
-(ii) completeness of that space; and (iii) any empirical or structural bound $c$.
-Absent (i), the other two are not even well-posed. Until then, "monotonic
-convergence" means ordered non-regression plus finite residual descent, and the
-file says so in those words[^12]. That is the difference between a methodology and
-a pitch deck.
+Missing: (i) a metric, (ii) completeness, (iii) any bound on $c$. The repository
+lists all three[^14]. The binding one is (i), and it is worse than "unproven".
+$d$ as used is not a function on $X \times X$ at all — it is only ever evaluated at
+the single pair $(I_v, T_v)$, giving a sequence of numbers indexed by release, not a
+binary function on a set. Ask which axiom fails and the honest answers are:
 
-> GREEN: The load-bearing negative results — no contraction, no Galois connection, no probabilities — are written down as first-class claims with their discharge conditions, not buried as caveats.
+$$\underbrace{d(x,y) = d(y,x)}_{\text{undefined}}, \quad \underbrace{d(x,z) \le d(x,y) + d(y,z)}_{\text{undefined}}, \quad \underbrace{d(x,y) = 0 \implies x = y}_{\text{false on the natural candidate}}$$
 
-## The law of large numbers, correctly split
+The first two are *undefined* rather than false, because $d(x,y)$ for two arbitrary
+project states is never given a value; identity of indiscernibles fails outright,
+since two materially different implementations can close the same obligation set and
+score residual zero. Absent
+(i), items (ii) and (iii) are not merely unproven — they are not well-posed. Until
+a metric exists, "monotonic convergence" means ordered non-regression plus finite
+residual descent, which is what the file claims and no more[^14].
 
-The operating doctrine for agent iteration is a genuine weak/strong LLN
-distinction, and it is the intellectual core of the whole design[^13].
+There is a further objection the repository has not addressed. If $d_v$ were the
+CentiColon residual, it is integer-valued, and a non-increasing integer sequence
+bounded below is eventually constant — stronger than Proposition 4, and it would
+make $d_* = 0$ decidable in finitely many steps under any strict-progress premise.
+But the residual is computed against a denominator that is policy and may change per
+release[^15]. Then $d_{v+1} \le d_v$ compares two integers drawn from different
+scales, and the inequality is not scale-invariant: a release can lower its residual
+by enlarging its denominator.
 
-Model one prompt as a single sample $X_k$ of a quality functional with
-$\mathbb{E}[X_k] = \mu + b_k$, where $b_k$ is the per-iteration **skew** (bias).
-For the empirical mean $\bar{X}_N = \frac{1}{N}\sum_{k\le N} X_k$:
+> RED: The release-boundary inequality is stated over a quantity whose codomain is allowed to change between the two terms being compared. Nothing normalises residuals across a denominator change, so non-increase is a comparison between two differently-scaled integers. A ratio $d_v/N_v$ would be comparable and is not what is checked.
+> PATH: A phase-two check requiring denominator changes to emit an explicit scope-change signal is specified[^9]; it is unimplemented, and no normalisation rule is recorded even in specification.
 
-$$\text{Weak LLN:}\quad \bar{X}_N - \frac{1}{N}\sum b_k \;\xrightarrow{\;\mathbb{P}\;}\; \mu \qquad\text{(convergence in probability, biased at finite } N)$$
+## Iteration: the law of large numbers at full strength
 
-$$\text{Strong LLN:}\quad \bar{X}_N \;\xrightarrow{\;\text{a.s.}\;}\; \mu + \bar{b}, \qquad \bar{b} = \lim_N \tfrac{1}{N}\textstyle\sum_{k\le N} b_k$$
+This is the intellectual core[^16]. Set it up properly. Let $(X_k)_{k\ge1}$ be
+random elements on a probability space, $X_k$ the value of a real quality functional
+on iteration $k$, with $\mathbb{E}|X_k| < \infty$ and
+$\mathbb{E}[X_k] = \mu + b_k$, where $b_k$ is the per-iteration skew. Write
+$\bar{X}_N = N^{-1}\sum_{k \le N} X_k$ and $\bar b = \lim_N N^{-1}\sum_{k\le N} b_k$
+when that limit exists.
 
-The doctrine follows immediately. Fighting to maximise a single prompt's accuracy
-is fighting its own finite-$N$ skew: you are trying to make one sample be the mean.
-Instead make each iteration **small and fast with bounded skew**, then iterate, and
-let the stream supply almost-sure convergence[^13].
+**Theorem 5 (Kolmogorov's SLLN).** *Under independence, identical distribution, and
+integrability*[^17]:
 
-The load-bearing hypothesis is the bound, and here is where the folklore gets
-misread. If $|b_k| \le \beta$ with $\beta \to 0$ under the discipline, then
-$|\bar b| \le \beta$ and the iteration stream converges hard to within $\beta$ of
-truth. If instead skew is unbounded — or bounded away from zero at the *end* of
-every prompt — then $\bar b \not\to 0$ and $\bar{X}_N$ converges almost surely to
-the *wrong number*. Infinitely many iterations do not save you. The repository
-states exactly this hazard: *"if a prompt's skew is not bounded, infinite
-iterations do NOT converge hard"*[^13]. Bounding per-sample bias is therefore a
-hypothesis of the theorem, not a performance optimisation — which is why the
-architecture prefers many small composable retrieval experts over one large slow
-model, and why answers are pinned to a source commit acting as a Lamport clock
-over the cached corpus[^14].
+$$X_k \text{ i.i.d.}, \;\; \mathbb{E}|X_1| < \infty \qquad\Longrightarrow\qquad \bar X_N \;\xrightarrow{\;\text{a.s.}\;}\; \mathbb{E}X_1$$
+
+The iterations here are not identically distributed, so the version the doctrine
+actually needs is Kolmogorov's variance criterion, which drops identical
+distribution and keeps independence[^18]:
+
+$$X_k \text{ independent}, \;\; \sum_{k\ge1} \frac{\mathrm{Var}(X_k)}{k^2} < \infty \qquad\Longrightarrow\qquad \bar X_N - \frac{1}{N}\sum_{k \le N} \mathbb{E}X_k \;\xrightarrow{\;\text{a.s.}\;}\; 0$$
+
+$$\text{hence} \qquad \bar X_N \;\xrightarrow{\;\text{a.s.}\;}\; \mu + \bar b, \qquad \bar b = \lim_{N} \frac{1}{N}\sum_{k \le N} b_k$$
+
+Same family as the three-series theorem; independence and the summable-variance
+condition are the whole price of admission.
+
+Weak versus strong is convergence in probability versus almost-sure convergence, and
+the implication runs one way: a.s. $\implies$ in probability, never the converse.
+The repository states the split in its correct form and, more importantly, correctly
+identifies the term that defeats iteration: not the variance, which averages away
+under the criterion above, but the bias. If $|b_k| \le \beta$ then $|\bar b| \le \beta$
+and the stream converges to within $\beta$ of truth; if skew is unbounded, or bounded
+away from zero at the end of every prompt, $\bar X_N$ converges almost surely to the
+*wrong number* and more iterations do not help. The file says exactly this — *"if a
+prompt's skew is not bounded, infinite iterations do NOT converge hard"*[^16]. That
+is a hypothesis of the theorem being named as one, which is more than most
+engineering essays manage.
 
 @fig:lln
 
-> GREEN: The weak/strong split is stated in its correct form — the bias term, not the variance, is identified as what defeats iteration. This is the version most engineering essays get backwards.
+Now the objection the methodology does not address, and it is the load-bearing one.
+Every form of Theorem 5 quoted above requires **independence**. Iterations of an
+agent that reads its own prior output are not independent: $X_{k+1}$ is a measurable
+function of $X_k$ and the accumulated context. The architecture makes the dependence
+explicit and deliberate — retrieval is a cache of converged knowledge, updated on
+commits, with commits acting as a Lamport clock ordering the corpus against the
+code[^19]. That is a feedback loop by construction, and it invalidates every
+independence hypothesis in the section above.
 
-## Order-theoretic honesty: what the scores are not
+Two substitutes would serve, neither argued. Either the sequence is stationary and
+ergodic and one invokes Birkhoff's pointwise ergodic theorem[^20] — but stationarity
+is implausible for a process whose corpus grows monotonically, and ergodicity is
+exactly what fails if the chain can be absorbed. Or the increments form a martingale
+difference sequence with respect to the natural filtration $\mathcal{F}_k = \sigma(X_1,\dots,X_k)$,
+giving an $L^2$ or Azuma-type law — but that requires
 
-Three renunciations, each with teeth.
+$$\mathbb{E}\big[X_{k+1} \mid \mathcal{F}_k\big] = \mu \quad \text{a.s. for all } k$$
 
-**Abstract interpretation is claimed only as a discipline.** Specs and scores are
-described as abstractions that deliberately forget irrelevant detail — the Cousot
-framing[^15] — but the file concedes that **no Galois connection $(\alpha,\gamma)$
-is defined** between program semantics and spec obligations[^16]. What that
-forecloses is precise: with no $\alpha\circ\gamma \sqsubseteq \mathrm{id}$ /
-$\mathrm{id} \sqsubseteq \gamma\circ\alpha$ adjunction there is no soundness theorem
-transporting an abstract fixed point back to a guarantee about concrete
-executions. Closure in the obligation lattice implies nothing about the program.
-It is bookkeeping over evidence, and is labelled as such.
+which is precisely the assertion that yesterday's output does not bias today's, and
+the cache design says it does. Under positive feedback an absorbing state is
+available: the stream converges almost surely to whatever the loop locked onto, and
+$\bar X_N$ converges beautifully to a number with no relation to $\mu$. Bounding
+per-prompt skew does not repair this; it is a hypothesis about marginals, and the
+failure is in the joint.
 
-**Scores are a ranking function, not a measure.** The CentiColon map
-$c: S_{\text{spec}} \to \mathbb{N}$ is bounded, with a separately reported
-denominator and residual, and monotone *only* for transitions that preserve
-obligation IDs and introduce no penalties, ambiguity, or denominator scope
-change[^3]. That is a Floyd-style ranking function[^17] — a well-founded descent
-witness, exactly as in termination arguments — not an additive set function.
-Consequently it is not a measure: it is not countably additive, obligations
-overlap, and the denominator is policy. And it is explicitly **not a
-probability**[^18]: reports must label residuals as obligation closure and keep
-any belief values in separately named fields, with Shafer[^19] and Walley[^20]
-cited as the layer a future confidence model would have to occupy separately. What
-this forecloses: you may not combine two scores by Bayes, and 89% closed is not an
-89% chance of correctness — finite coverage is not proof of absence[^18].
+Be precise about what this objection kills. It does **not** show the iteration
+scheme is wrong, and it does not show the stream fails to converge — small fast
+iterations may well be the right engineering, and dependent sequences converge under
+plenty of other hypotheses. What it kills is the *invocation of the strong law as
+stated*: the theorem named is being applied to a sequence that does not satisfy its
+independence hypothesis, so the almost-sure conclusion is unearned rather than false.
+The repair is cheap in words and real in work — name the dependence structure, then
+cite the theorem that covers it.
 
-> RED: The ranking function's own validation program calls for property-testing score monotonicity over generated obligation states. No property-testing harness exists anywhere in the workspace — no `proptest`, no `quickcheck` — so the monotonicity checks are enumerated but never run.
-> PATH: The checks are written down as a staged validation program[^27]; the phase that would discharge them is specified and unimplemented.
+> GREEN: The weak/strong distinction is stated in the correct direction with the bias term, not the variance, identified as what defeats iteration — the version most treatments get backwards.
 
-> RED: The obligation model's atom is a stable requirement ID. Fifteen of one hundred seventy-seven spec files carry an ID field, against thousands of RFC-2119 keywords. The lattice is therefore defined over a coordinate set that mostly does not exist.
-> PATH: `requirement_has_stable_id` is already an evidence-credit term in the scoring rules[^28], so the gap is priced — but nothing gates on it, and no migration is scheduled.
+## What the repository renounces, and what that costs
 
-> RED: What actually computes the score is a hardcoded weight table over thirteen CI checks in a shell script[^29]; the committed dashboard's 890/990 is that pass-rate[^30]. None of the specified base weights, multipliers, cap rules, or sixteen penalties are computed anywhere outside the methodology YAML.
-> PATH: The framework specification names the crate and modules that would own the arithmetic; that crate contains a README and one `.rs.example` and is not a workspace member[^36].
+**No Galois connection.** Specs and scores are described as abstractions that
+deliberately forget detail — the Cousot framing[^21] — and the file concedes that no
+adjunction is defined between program semantics and spec obligations[^22]. State the
+missing object precisely. With $C$ the lattice of sets of concrete executions and
+$A$ the obligation lattice, a Galois connection $\alpha \dashv \gamma$ requires
+monotone $\alpha: C \to A$, $\gamma: A \to C$ with
 
-> RED: The methodology's own complexity constraint — methodology over codebase below 0.15, with a red flag at 5000 lines of CI validators — is not instrumented, so it has never fired despite the validator corpus exceeding its own red-flag threshold several times over[^31].
-> PATH: The rule states its two measurement procedures; neither is implemented as a check.
+$$\alpha(c) \sqsubseteq a \iff c \sqsubseteq \gamma(a) \qquad\text{equivalently}\qquad c \sqsubseteq \gamma(\alpha(c)) \;\text{ and }\; \alpha(\gamma(a)) \sqsubseteq a$$
 
-## CRDT semantics, as algebra
+@fig:galois
 
-The plan ledger is a real convergent replicated data type, and the repository
-distinguishes it from the places where the word would be decoration.
+What is forfeited is the transport theorem, and only that — but that is everything.
+Given the adjunction and a sound abstract operator ($\alpha \circ F \sqsubseteq F^\# \circ \alpha$),
+one gets $\alpha(\mathrm{lfp}\,F) \sqsubseteq \mathrm{lfp}\,F^\#$: a fixed point
+computed in the abstract over-approximates the concrete, so a property proved
+upstairs holds of every concrete execution downstairs. Without it, closure in the
+obligation lattice implies precisely nothing about the program. It is bookkeeping
+over evidence, and is labelled as such.
 
-The state is $\text{base} \oplus \mathrm{fold}(\text{fragments})$: one compacted
-base document plus append-only, immutable per-host fragments. Two join-semilattices
-carry it[^21]:
+**A ranking function, not a measure.** The CentiColon map $c: S_{\text{spec}} \to \mathbb{N}$
+is bounded, with separately reported denominator and residual, and monotone *only*
+for transitions preserving obligation IDs and introducing no penalties, ambiguity,
+or denominator scope change[^1]. That is a Floyd-style ranking function[^23]: a
+well-founded descent witness into a finite ordinal, of the kind that proves
+termination.
 
-- **Grow-only sets.** Packets keyed by identifier, and events keyed by
-  $(\text{packet id}, \text{event identity})$. Join is union:
-  $x \sqcup y = x \cup y$, which is commutative, associative and idempotent —
-  the three properties that make replica state a join-semilattice and make the
-  merge order-independent. Deletion is by **tombstone**, because a G-Set has no
-  remove and a naive delete is resurrected by any replica that missed it.
-- **Last-writer-wins registers**, one per $(\text{packet id}, \text{field})$ key,
-  with the winner chosen deterministically by $(\text{timestamp}, \text{host})$ —
-  a total order on writes, hence a join.
+It is not a measure and cannot be made into one. There is no $\sigma$-algebra on
+$S_{\text{spec}}$; $c$ is not additive, because obligations overlap and sixteen
+penalties plus six cap rules make the rollup non-linear in its parts[^15]; and the
+normaliser is policy rather than a fixed total mass. A bounded ranking function into
+a finite ordinal therefore induces no probability, and the repository says so
+outright[^24]. What that forecloses is concrete: two scores may not be combined by
+Bayes; there is no complement rule, so 89% closed is not an 11% chance of a defect;
+and no calibration statement is available, because there is no event space on which
+to calibrate. Shafer[^25] and Walley[^26] are cited as the layer a confidence model
+would have to occupy separately — correctly, since a belief function would at least
+supply the monotone-capacity structure that $c$ lacks.
+
+> RED: What computes the score is not the specified arithmetic. A sixteen-arm hardcoded weight table over CI check names in a shell script produces it[^27], and the committed dashboard's 890/990 is that pass-rate[^28]. None of the base weights, multipliers, cap rules or sixteen penalties in the methodology are computed anywhere in the tree.
+> PATH: The framework specification delegates the arithmetic to a named crate and modules[^29]; that crate is a README and one `.rs.example` file, and is not a workspace member.
+
+> RED: The methodology's own complexity constraint — methodology-to-codebase ratio below 0.15, with a red flag at 5000 lines of CI validators[^30] — is uninstrumented and has never fired, while the script that computes the score is itself 1,739 lines and the shell corpus it dispatches into exceeds 78,000.
+> PATH: The rule names two measurement procedures; neither is implemented as a check.
+
+## CRDTs as algebra
+
+The plan ledger is a genuine convergent replicated data type. State is
+$\text{base} \oplus \mathrm{fold}(\text{fragments})$; the carriers are two
+join-semilattices[^31]: grow-only sets of packets and of events keyed by
+$(\text{packet id}, \text{event identity})$, with $x \sqcup y = x \cup y$; and
+last-writer-wins registers per $(\text{packet id}, \text{field})$, the winner chosen
+by the total order $(\text{timestamp}, \text{host})$.
 
 $$\text{state} = \Big(\bigcup_i P_i,\; \bigcup_i E_i,\; \textstyle\bigsqcup_i R_i\Big), \qquad \bigsqcup \text{ componentwise}$$
 
-Applying LWW to a *list* would silently discard the loser's entries — which is why
-events are a set and not a register, a distinction the file calls "the whole
-correctness argument"[^21]. Determinism is pinned by folding in
-$(\text{timestamp}, \text{filename})$ order rather than directory order, since two
-hosts folding differently present as corruption, not as a sorting bug[^22]. The
-three properties are tested by name[^23].
+The algebra: a commutative, associative, idempotent $\sqcup$ induces a partial order
+$x \le y \iff x \sqcup y = y$ under which $x \sqcup y = \sup\{x,y\}$ — the join *is* the
+least upper bound, which is why the three properties are a definition rather than a
+checklist. Convergence follows because the fold is then a function of the *set* of
+delivered updates, not their sequence: idempotence kills duplicates, commutativity
+and associativity kill order.
 
 @fig:crdt
 
-The subtlety worth your attention: the status field is *not* a plain LWW register.
-It composes a monotone join over a closure rank with LWW as tiebreak at equal rank,
-treats terminal-but-lateral values as non-ladder moves, and permits descent only
-under an explicit falsification flag[^24] — a lexicographic join with a deliberate
-non-monotone escape hatch, so monotonicity cannot force retention of a certainty
-later shown false.
+State exactly what that buys, because it is strictly less than the folklore
+suggests[^32]. It gives: replicas having delivered the same update set hold equal
+state. It does **not** give delivery — liveness is someone else's problem; it does
+not give correctness of the converged value; and it does not preserve concurrent
+intent, which is where LWW does its damage. Applying LWW to a *list* silently
+discards the loser's entries, which is why events are a set and not a register — a
+distinction the file calls the whole correctness argument[^31]. Determinism is pinned
+by folding in $(\text{timestamp}, \text{filename})$ order rather than directory
+order[^33], and the three properties are tested by name[^34].
 
-The best evidence that the honesty is structural sits in a Lua file whose header
-*retracts* a prior CRDT claim and names the property that failed: *"This is a SEEN-SET DEDUP, not a CRDT — the earlier header's CRDT
-claim (commutativity in particular) was false: first-wins keeps whichever
-duplicate arrives first, so order matters"*[^25]. Most repositories would have
-kept the word.
+The status field is not a plain register: it composes a monotone join over a closure
+rank with LWW as tiebreak at equal rank, treats terminal-but-lateral values as
+non-ladder moves, and permits descent only under an explicit falsification flag[^35]
+— a lexicographic join with a deliberate non-monotone escape hatch, so that
+monotonicity cannot force retention of a certainty later shown false.
 
-> GREEN: Spec and cheatsheet merges are explicitly typed as "semantic merge with CRDT preconditions", with the anti-pattern spelled out: calling a lossy semantic cache a CRDT creates false convergence claims[^32].
+> GREEN: The repository retracts its own CRDT claim where it fails, and names the property that failed: a deduplication routine's header states plainly that it is a seen-set dedup, not a CRDT, because first-wins keeps whichever duplicate arrives first, so commutativity is false[^36]. Most projects keep the word.
 
-> GREEN: The version scheme is argued correctly as a join-semilattice — SemVer has no natural total order under merge because patch counters reset and collide, so causality is lost, whereas a calendar anchor joined componentwise by max does have least upper bounds[^33].
+> GREEN: The version scheme is argued correctly as a join-semilattice — SemVer has no natural total order under merge because patch counters reset and collide, destroying causality, whereas a temporal anchor joined componentwise by max does have least upper bounds[^37].
 
-> RED: That same versioning document defines its two leading components as a contract version and a feature phase. The live format is years-since-epoch, month, day, build — the algebra survives, the documented semantics of two components are false[^34].
-> PATH: The drift was caught once at a release boundary and the shape test was corrected; the doctrine file was not.
+> GREEN: Semantic merges are typed honestly as "semantic cache with CRDT preconditions" rather than as CRDTs, with the anti-pattern named: calling a lossy cache a CRDT manufactures false convergence claims[^32]. The claim registry holds the lineage at strength "external analogy" until generative property tests exist[^38].
 
-> RED: The claim registry files the CRDT lineage at claim strength "external analogy"[^35] and holds the weaker label until commutativity/associativity/idempotence property tests exist for the semantic-merge cases. For the ledger the tests exist but are example-based, not generative; for cheatsheets and specs they do not exist at all.
-> PATH: The precondition list is written and the missing item is named explicitly in it — an open obligation, correctly labelled rather than quietly closed.
+> RED: That same versioning document defines its two leading components as a contract version and a feature phase[^39]. The live scheme is a temporal anchor throughout — years since epoch, month, day, build. The join algebra survives untouched, since componentwise max does not care what the coordinates mean; the documented semantics of two of four components are false.
+> PATH: The drift was caught once at a release boundary and the shape test corrected; the doctrine file was not.
 
 ## Verdict
 
-The formal core is a finite product lattice, a Kleene fixed point under declared
-validators at an operator-gated bar, a Floyd-style ranking function, and a
-correctly stated moving-target result whose zero-floor corollary is declined for
-want of a metric. Contraction, Galois connections and probabilistic reading are
-named *absent* rather than assumed. A defensible thesis position[^26], and I did
-not expect to write that sentence.
+The formal core is a finite product lattice, a Kleene stabilisation under declared
+validators at an operator-gated bar, a Floyd-style ranking function, and a correctly
+stated moving-target result whose zero-floor corollary is declined for want of a
+metric. Contraction, Galois connections and probabilistic readings are named *absent*
+rather than assumed[^40]. As a thesis position that is defensible, and I did not
+expect to write that sentence.
 
-The gap is instrumentation, not epistemology. A lattice whose coordinates are
-mostly undeclared, scored by a shell case-statement, is not measuring the object
-the theory describes. The theory knows this: its escape hatch is an unknown-event
-intake meant to stop the model confusing current completeness with truth[^26]. Use
-the maths. Discount the dashboard.
+Two things stop it being finished mathematics. The fixed-point argument runs on a
+monotonicity hypothesis that is asserted rather than proved, over a coordinate set
+that is largely uninstantiated. And the iteration doctrine, the most ambitious part,
+invokes laws that require independence for a process the same document designs to be
+self-referential. Neither is fatal; both are the sort of thing a referee returns for
+revision rather than rejection. Use the mathematics. Discount the dashboard.
 
 ## Footnotes
 
-[^1]: Core principle, one line | methodology/philosophy.yaml#L5-L6
-[^2]: Stated purpose — separating defensible maths from analogy | methodology/math-foundations.yaml#L4-L11
-[^3]: Formal objects: obligation, obligation state chain, product lattices, ranking function | methodology/math-foundations.yaml#L13-L43
-[^4]: Tarski, *A lattice-theoretical fixpoint theorem and its applications*, Pacific J. Math. 5 (1955) | https://doi.org/10.2140/pjm.1955.5.285
-[^5]: Davey & Priestley, *Introduction to Lattices and Order*, 2nd ed. | https://doi.org/10.1017/CBO9780511809088
-[^6]: The lattice-model claim and its stated limit | methodology/math-foundations.yaml#L46-L59
-[^7]: The fixed-point claim: idempotence of refine, and its limit | methodology/math-foundations.yaml#L61-L74
-[^8]: Kleene, *Introduction to Metamathematics* (1952), cited for iterative least-fixed-point construction | https://archive.org/details/introductiontome00klee
-[^9]: Bar-raise governance: the bar is fixed, rises only by operator decision, automation must not self-escalate | methodology/convergence.yaml#L410-L432
-[^10]: Multi-version convergence: moving target, residual floor, refusal of the zero-floor claim | methodology/philosophy.yaml#L103-L121
-[^11]: Banach, *Sur les opérations dans les ensembles abstraits*, Fund. Math. 3 (1922) | https://doi.org/10.4064/fm-3-1-133-181
-[^12]: Contraction explicitly not claimed, with the metric/operator/constant debt itemised | methodology/math-foundations.yaml#L108-L120
-[^13]: Weak versus strong LLN, bounded per-prompt skew, and the unbounded-skew hazard | methodology/philosophy.yaml#L8-L31
-[^14]: Retrieval as cache; commits as the Lamport clock versioning it | methodology/philosophy.yaml#L32-L39
-[^15]: Cousot & Cousot, *Abstract Interpretation*, POPL 1977 | https://doi.org/10.1145/512950.512973
-[^16]: The concession: no Galois connection is defined — "an abstraction discipline, not a formal abstract interpreter" | methodology/math-foundations.yaml#L76-L89
-[^17]: Floyd, *Assigning Meanings to Programs* (1967), cited for ranking-style progress reasoning | https://doi.org/10.1090/psapm/019/0235771
-[^18]: Scores are not probabilities; finite coverage is not proof of absence | methodology/math-foundations.yaml#L122-L135
-[^19]: Shafer, *A Mathematical Theory of Evidence* (1976), cited as a possible separate confidence layer | https://press.princeton.edu/books/paperback/9780691100425/a-mathematical-theory-of-evidence
-[^20]: Walley, *Statistical Reasoning with Imprecise Probabilities* (1991) | https://doi.org/10.1007/978-1-4899-3472-7
-[^21]: The three CRDT primitives and why each field uses the one it does | crates/tillandsias-plan/src/fragments.rs#L28-L39
-[^22]: Determinism rules: fold order and idempotence | crates/tillandsias-plan/src/fragments.rs#L41-L49
-[^23]: Commutativity and idempotence of the fold pinned as named tests (order-independence at L4099) | crates/tillandsias-plan/src/fragments.rs#L2648-L2668
-[^24]: Rank-aware status join with a falsification escape hatch | crates/tillandsias-plan/src/fragments.rs#L307-L320
-[^25]: A retracted CRDT claim, with the failed property named | crates/tillandsias-plan/lua/collect.lua#L7-L11
-[^26]: Thesis defence position: finite ordered convergence under declared validators, with unknown-event intake as the escape hatch | methodology/math-foundations.yaml#L200-L206
-[^27]: Validation program — the property tests that would discharge monotonicity | methodology/math-foundations.yaml#L175-L198
-[^28]: Evidence-credit terms, including `requirement_has_stable_id` | methodology/proximity.yaml#L47-L57
-[^29]: What actually computes the score: a hardcoded weight table over CI checks | scripts/local-ci.sh#L384-L400
-[^30]: The committed dashboard's earned/total figures | docs/convergence/centicolon-dashboard.json#L75-L76
-[^31]: The uninstrumented complexity constraint and its 5000-line red flag | methodology/convergence.yaml#L329-L342
-[^32]: Cheatsheet merge typed as a semantic cache with CRDT preconditions, plus the anti-pattern | methodology/cheatsheets.yaml#L88-L114
-[^33]: The join-semilattice argument for the version scheme, and the SemVer critique | methodology/versioning.yaml#L104-L124
-[^34]: The documented Major/Minor semantics the project retired | methodology/versioning.yaml#L9-L20
-[^35]: CRDT preconditions filed at claim strength "external analogy" | methodology/provenance.yaml#L179-L192
-[^36]: The framework spec delegating CentiColon arithmetic to a crate that is a README and one example file | methodology/litmus-framework.yaml#L88-L96
+[^1]: Formal objects — obligation, the state chain, product lattices, and the ranking function's monotonicity conditions | methodology/math-foundations.yaml#L13-L43
+[^2]: Stated purpose — separating defensible mathematics from analogy | methodology/math-foundations.yaml#L4-L11
+[^3]: Davey & Priestley, *Introduction to Lattices and Order*, 2nd ed. — product orders, heights, completeness | https://doi.org/10.1017/CBO9780511809088
+[^4]: The lattice-model claim and its stated limit | methodology/math-foundations.yaml#L46-L59
+[^5]: The fixed-point claim: idempotence of refine, and its limit | methodology/math-foundations.yaml#L61-L74
+[^6]: Tarski, *A lattice-theoretical fixpoint theorem and its applications*, Pacific J. Math. 5 (1955) — the Knaster–Tarski theorem, generalising Knaster's 1928 powerset case | https://doi.org/10.2140/pjm.1955.5.285
+[^7]: Kleene, *Introduction to Metamathematics* (1952), cited for the iterative least-fixed-point construction | https://archive.org/details/introductiontome00klee
+[^8]: Bar-raise governance — the bar is fixed within a release, rises only by operator decision, and the automation must not self-escalate | methodology/convergence.yaml#L410-L432
+[^9]: The staged validation program: the monotonicity property tests and the denominator scope-change check | methodology/math-foundations.yaml#L175-L198
+[^10]: The evidence-credit table containing `requirement_has_stable_id` | methodology/proximity.yaml#L47-L57
+[^11]: Multi-version convergence: the moving target, the residual floor, and the refusal of the zero-floor claim | methodology/philosophy.yaml#L103-L121
+[^12]: Rudin, *Principles of Mathematical Analysis*, 3rd ed., Thm. 3.14 — monotone bounded sequences converge | https://archive.org/details/principlesofmath0000rudi
+[^13]: Banach, *Sur les opérations dans les ensembles abstraits*, Fund. Math. 3 (1922) | https://doi.org/10.4064/fm-3-1-133-181
+[^14]: Contraction explicitly not claimed, with the metric/operator/constant debt itemised | methodology/math-foundations.yaml#L108-L120
+[^15]: The cap rules, the sixteen penalties, and the rollup that makes the score non-additive in its parts | methodology/proximity.yaml#L60-L97
+[^16]: Weak versus strong LLN, bounded per-prompt skew, and the unbounded-skew hazard | methodology/philosophy.yaml#L8-L31
+[^17]: Kolmogorov, *Grundbegriffe der Wahrscheinlichkeitsrechnung* (1933) — the strong law and its variance criterion | https://doi.org/10.1007/978-3-642-49888-6
+[^18]: Durrett, *Probability: Theory and Examples*, 5th ed. — SLLN, Kolmogorov's three-series theorem, and the ergodic and martingale substitutes | https://doi.org/10.1017/9781108591034
+[^19]: Retrieval as a cache; commits as the Lamport clock versioning it — the mechanism that makes iterations dependent | methodology/philosophy.yaml#L32-L39
+[^20]: Birkhoff, *Proof of the ergodic theorem*, PNAS 17 (1931) | https://doi.org/10.1073/pnas.17.2.656
+[^21]: Cousot & Cousot, *Abstract Interpretation*, POPL 1977 | https://doi.org/10.1145/512950.512973
+[^22]: The concession: no Galois connection is defined — "an abstraction discipline, not a formal abstract interpreter" | methodology/math-foundations.yaml#L76-L89
+[^23]: Floyd, *Assigning Meanings to Programs* (1967), cited for ranking-style progress reasoning | https://doi.org/10.1090/psapm/019/0235771
+[^24]: Scores are not probabilities; finite coverage is not proof of absence | methodology/math-foundations.yaml#L122-L135
+[^25]: Shafer, *A Mathematical Theory of Evidence* (1976), cited as a possible separate confidence layer | https://press.princeton.edu/books/paperback/9780691100425/a-mathematical-theory-of-evidence
+[^26]: Walley, *Statistical Reasoning with Imprecise Probabilities* (1991) | https://doi.org/10.1007/978-1-4899-3472-7
+[^27]: What actually computes the score: a sixteen-arm hardcoded weight table over CI check names | scripts/local-ci.sh#L384-L403
+[^28]: The committed dashboard's earned and total figures | docs/convergence/centicolon-dashboard.json#L75-L76
+[^29]: The framework specification delegating CentiColon arithmetic to a crate that is a README and one example file | methodology/litmus-framework.yaml#L88-L96
+[^30]: The uninstrumented complexity constraint and its 5000-line red flag | methodology/convergence.yaml#L329-L342
+[^31]: The three CRDT primitives, and why each field uses the one it does | crates/tillandsias-plan/src/fragments.rs#L28-L39
+[^32]: Semantic merge typed as a cache with CRDT preconditions, plus the anti-pattern | methodology/cheatsheets.yaml#L88-L114
+[^33]: Determinism rules: fold order and idempotence | crates/tillandsias-plan/src/fragments.rs#L41-L49
+[^34]: Commutativity and idempotence of the fold pinned as named tests | crates/tillandsias-plan/src/fragments.rs#L2648-L2668
+[^35]: Rank-aware status join with a falsification escape hatch | crates/tillandsias-plan/src/fragments.rs#L307-L320
+[^36]: A retracted CRDT claim, with the failed property named | crates/tillandsias-plan/lua/collect.lua#L7-L11
+[^37]: The join-semilattice argument for the version scheme, and the SemVer critique | methodology/versioning.yaml#L104-L124
+[^38]: CRDT preconditions filed at claim strength "external analogy" | methodology/provenance.yaml#L179-L192
+[^39]: The documented component semantics the project retired | methodology/versioning.yaml#L9-L20
+[^40]: Thesis defence position: finite ordered convergence under declared validators, with unknown-event intake as the escape hatch | methodology/math-foundations.yaml#L200-L206

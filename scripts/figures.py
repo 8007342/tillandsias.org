@@ -239,9 +239,75 @@ EPHEMERAL = _wrap(
     <text x="450" y="176" class="s-lbl s-accent" text-anchor="middle">identical every time, on every machine</text>
     """)
 
+
+FIXPOINT = _wrap(
+    "600 240", "An ascending chain stabilising at a least fixed point",
+    "Monotone refinement over a finite lattice cannot ascend forever. It stabilises \u2014 and the "
+    "step where it stops is what \u201cdone\u201d means. Provided refinement really is monotone.",
+    """
+    <line x1="56" y1="24" x2="56" y2="190" class="s-axis"/>
+    <line x1="56" y1="190" x2="566" y2="190" class="s-axis"/>
+    <text x="14" y="34" class="s-lbl">more</text>
+    <text x="10" y="184" class="s-lbl">less</text>
+    <text x="300" y="222" class="s-lbl" text-anchor="middle">applications of the refinement operator</text>
+    <path d="M56 174 H116 V138 H176 V108 H236 V86 H296 V72 H356 V66 H416 V66 H476 V66 H546"
+          class="s-step" fill="none"/>
+    <g class="s-dot">
+      <circle cx="116" cy="174" r="3.5"/><circle cx="176" cy="138" r="3.5"/>
+      <circle cx="236" cy="108" r="3.5"/><circle cx="296" cy="86" r="3.5"/>
+      <circle cx="356" cy="72" r="3.5"/><circle cx="416" cy="66" r="3.5"/>
+      <circle cx="476" cy="66" r="3.5"/><circle cx="546" cy="66" r="3.5"/>
+    </g>
+    <line x1="56" y1="52" x2="566" y2="52" class="s-floor"/>
+    <text x="562" y="46" class="s-lbl s-amber" text-anchor="end">lattice top &#8212; never reached, and need not be</text>
+    <text x="470" y="94" class="s-lbl s-accent" text-anchor="middle">refine(refine(x)) = refine(x)</text>
+    <text x="470" y="110" class="s-lbl" text-anchor="middle">the chain stops moving</text>
+    """)
+
+GALOIS = _wrap(
+    "600 230", "The abstraction and concretisation pair that is not established",
+    "Without the adjunction, a closed obligation does not transport back to a statement about the "
+    "program. The arrows exist; the law relating them is not proven.",
+    """
+    <rect x="34" y="52" width="200" height="120" rx="10" class="s-line s-fill1"/>
+    <rect x="366" y="52" width="200" height="120" rx="10" class="s-line s-fill1"/>
+    <text x="134" y="40" class="s-lbl" text-anchor="middle">concrete: program behaviours</text>
+    <text x="466" y="40" class="s-lbl" text-anchor="middle">abstract: obligation states</text>
+    <g class="s-dot"><circle cx="104" cy="92" r="4"/><circle cx="150" cy="128" r="4"/>
+      <circle cx="188" cy="100" r="4"/></g>
+    <g class="s-dot2"><circle cx="436" cy="96" r="4"/><circle cx="486" cy="126" r="4"/></g>
+    <path d="M240 92 C 290 78 320 78 360 88" class="s-arrow-a" fill="none" marker-end="url(#ah)"/>
+    <path d="M360 140 C 320 150 290 150 240 136" class="s-arrow-a" fill="none" marker-end="url(#ah)"/>
+    <text x="300" y="74" class="s-lbl s-accent" text-anchor="middle">&#945;</text>
+    <text x="300" y="166" class="s-lbl s-accent" text-anchor="middle">&#947;</text>
+    <text x="300" y="206" class="s-lbl s-red" text-anchor="middle">&#945;(c) &#8849; a &#8660; c &#8849; &#947;(a) &#8212; not established</text>
+    """)
+
+HASSE = _wrap(
+    "600 250", "A product lattice as a Hasse diagram",
+    "Two obligations, each a chain of three states, give a nine-element product lattice ordered "
+    "componentwise. Real specs multiply many more chains than two.",
+    """
+    <g class="s-hasse" fill="none">
+      <path d="M300 42 L 210 92 M300 42 L 390 92"/>
+      <path d="M210 92 L 120 142 M210 92 L 300 142 M390 92 L 300 142 M390 92 L 480 142"/>
+      <path d="M120 142 L 210 192 M300 142 L 210 192 M300 142 L 390 192 M480 142 L 390 192"/>
+      <path d="M210 192 L 300 226 M390 192 L 300 226"/>
+    </g>
+    <g class="s-node">
+      <circle cx="300" cy="42" r="7"/><circle cx="210" cy="92" r="6"/><circle cx="390" cy="92" r="6"/>
+      <circle cx="120" cy="142" r="6"/><circle cx="300" cy="142" r="6"/><circle cx="480" cy="142" r="6"/>
+      <circle cx="210" cy="192" r="6"/><circle cx="390" cy="192" r="6"/><circle cx="300" cy="226" r="7"/>
+    </g>
+    <text x="322" y="34" class="s-lbl s-accent">&#8868; both fully evidenced</text>
+    <text x="300" y="246" class="s-lbl s-amber" text-anchor="middle">&#8869; nothing evidenced</text>
+    <text x="524" y="146" class="s-lbl" text-anchor="start">joins</text>
+    """)
+
 FIGURES = {
     "layers": LAYERS, "loop": LOOP, "staircase": STAIRCASE, "lln": LLN,
     "lattice": LATTICE, "crdt": CRDT, "gate": GATE, "ephemeral": EPHEMERAL,
+    "fixpoint": FIXPOINT, "galois": GALOIS, "hasse": HASSE,
 }
 
 DEFS = """<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
