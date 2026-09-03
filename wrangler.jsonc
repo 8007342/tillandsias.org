@@ -1,0 +1,15 @@
+{
+  // Static-asset Worker: there is no server-side code and no framework here,
+  // just the generated page. Wrangler uploads `directory` and serves it; a
+  // Worker script is not required when `main` is absent.
+  //
+  // Cloudflare build settings that pair with this file:
+  //   Build command:  (leave empty - index.html is committed, nothing to compile)
+  //   Deploy command: npx wrangler deploy
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tillandsias-org",
+  "compatibility_date": "2026-09-03",
+  "assets": {
+    "directory": "./var/html"
+  }
+}

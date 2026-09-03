@@ -1,0 +1,13 @@
+{
+  "name": "tillandsias-org",
+  "private": true,
+  "description": "Website for the Tillandsias project. Static; no framework, no build step.",
+  "scripts": {
+    "build": "python3 scripts/build-matrix.py",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.42.0"
+  }
+}

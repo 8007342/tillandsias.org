@@ -4,3 +4,7 @@
 .env
 .env.*
 .forge-startup-context.md
+
+# Node / Wrangler
+node_modules/
+.wrangler/

@@ -75,3 +75,50 @@ The `dev-run.sh` public-IP check reports when a tunnel would be required.
 - Architecture: `openspec/changes/add-container-framework/design.md`
 - Secrets spec: `openspec/changes/add-container-framework/specs/container/secrets/spec.md`
 - Dynamic DNS spec: `openspec/changes/add-container-framework/specs/container/dynamic-dns/spec.md`
+
+## Deploying the site (Workers Builds)
+
+The site is static: one generated `var/html/index.html`, no framework, no
+bundler, nothing to compile. Cloudflare's Workers & Pages flow still wants two
+commands when you connect the repo — here is what they should be, and why.
+
+| Field | Value |
+|---|---|
+| Build command | *(leave empty)* |
+| Deploy command | `npx wrangler deploy` |
+
+**Build command is empty on purpose.** `var/html/index.html` is committed, so
+there is nothing for the build step to produce. Regenerating it on Cloudflare
+would mean depending on a Python toolchain in their build image to rebuild a
+file we already have, and a failure there would block a deploy for no gain. If
+you ever *do* want it regenerated remotely, the command is
+`python3 scripts/build-matrix.py` — but keep the generated file committed either
+way, so the deployable artifact never depends on the build succeeding.
+
+**The default deploy command already works** — `wrangler.jsonc` in the repo root
+is what makes it work. It declares a Worker with `assets.directory` pointing at
+`./var/html` and no `main`, which is the supported shape for "serve these files
+and run no code". Only that directory is uploaded, so `docs/`, `plan/`,
+`scripts/` and the rest of the repo never reach the edge.
+
+`package.json` pins Wrangler rather than letting `npx` pull whatever is latest
+at build time; Workers Builds runs `npm install` automatically when it sees it.
+
+### Custom domains
+
+Serving is on `*.workers.dev` until you attach the domain. In the Worker's
+**Settings → Domains & Routes**, add `tillandsias.org`. Cloudflare creates the
+DNS record itself, so no manual A/AAAA entry is needed for this path.
+
+For `www` → apex, do **not** add `www.tillandsias.org` as a second custom domain
+(that serves the site at both names, which splits canonical URLs). Add a
+**Redirect Rule** instead: match hostname `www.tillandsias.org`, redirect to
+`https://tillandsias.org${uri.path}`, status 301, preserve query string.
+
+### Relationship to the dynamic-DNS path above
+
+These are two different ways to serve the same domain and they conflict. The
+`scripts/cloudflare-ddns` flow points `tillandsias.org` at a machine you are
+running; a Workers custom domain points it at Cloudflare's edge. Pick one per
+hostname. If you move to Workers, the DDNS updater should stop managing the
+records it would otherwise fight over.
