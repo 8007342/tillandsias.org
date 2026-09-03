@@ -46,6 +46,16 @@ LEVELS = [
 ]
 
 
+# Rolling stable installers. These deliberately point at GitHub's
+# /releases/latest/ rather than anything hosted here: this site is static HTML
+# and redeploys on commit, while the release channel moves on its own.
+DL = "https://github.com/8007342/tillandsias/releases/latest/download"
+INSTALL = [
+    ("Linux",   "curl -fsSL %s/install.sh | bash" % DL),
+    ("macOS",   "curl -fsSL %s/install-macos.sh | bash" % DL),
+    ("Windows", "irm %s/install-windows.ps1 | iex" % DL),
+]
+
 FLAGS = {
     "GREEN": ("flag-green", "\U0001F7E2", "works"),
     "RED":   ("flag-red",   "\U0001F534", "shortcoming"),
@@ -297,7 +307,14 @@ def build():
                ('<span class="cont">%s</span>' % html.escape(cont)) if cont else "",
                content, fn_html))
 
-    doc = (TEMPLATE.replace("__DEFS__", figures.DEFS)
+    install = "".join('<div class="ins-row"><span class="ins-os">%s</span>'
+                       '<span class="ins-box"><input readonly value="%s" '
+                       'aria-label="%s install command" spellcheck="false">'
+                       '<button class="ins-copy" type="button" title="Copy">Copy</button>'
+                       '</span></div>'
+                       % (os_, html.escape(cmd, quote=True), os_) for os_, cmd in INSTALL)
+    doc = (TEMPLATE.replace("__INSTALL__", install)
+           .replace("__DEFS__", figures.DEFS)
            .replace("__TABS__", "\n".join(tabs))
            .replace("__PANELS__", "\n".join(panels))
            .replace("__REF__", REF))
@@ -352,6 +369,22 @@ h1 .dim{color:var(--ink-faint);font-weight:400}
   border:1px solid var(--line);border-radius:11px;background:var(--bg-2);
   font-size:13.5px;color:var(--ink-dim)}
 .legend b{color:var(--ink);font-weight:600}
+.install{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center;
+  padding:14px 0 2px}
+.ins-row{display:contents}
+.ins-os{font:600 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-faint);white-space:nowrap}
+.ins-box{display:flex;align-items:stretch;min-width:0;border:1px solid var(--line);
+  border-radius:7px;background:#0b1016;overflow:hidden}
+.ins-box:focus-within{border-color:var(--leaf-dim)}
+.ins-box input{flex:1 1 auto;min-width:0;border:0;background:transparent;color:var(--amber);
+  font:500 12.5px/1 var(--mono);padding:8px 10px;text-overflow:ellipsis}
+.ins-box input:focus{outline:none;color:#f2d9a4}
+.ins-copy{flex:0 0 auto;border:0;border-left:1px solid var(--line);background:transparent;
+  color:var(--ink-faint);font:600 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  padding:0 12px;cursor:pointer;transition:.15s}
+.ins-copy:hover{background:rgba(255,255,255,.04);color:var(--ink)}
+.ins-copy.done{color:var(--leaf)}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:20px 0 0;margin:0 0 -1px;
   /* The rail still scrolls on narrow screens; only the bar itself is hidden. */
   scrollbar-width:none;-ms-overflow-style:none}
@@ -470,6 +503,9 @@ footer a:hover{color:var(--leaf)}
   header.hero{padding:48px 0 28px}
   .tab-t{display:none}
   .tab{padding:12px}
+  .install{grid-template-columns:1fr;gap:3px;padding:10px 0 2px}
+  .ins-row{display:block}
+  .ins-os{display:block;margin:7px 0 3px}
   .callout{padding:12px 13px}
   .flag-path{margin-left:12px}
 }
@@ -495,6 +531,9 @@ __DEFS__
 
 <div class="sticky">
   <div class="wrap">
+    <div class="install" aria-label="Install">
+__INSTALL__
+    </div>
     <div class="tabs" role="tablist" aria-label="Explanation level">
 __TABS__
     </div>
@@ -523,6 +562,30 @@ __PANELS__
   crossorigin="anonymous" referrerpolicy="no-referrer"
   onload="renderMathInElement(document.body,{delimiters:[{left:'\\\\[',right:'\\\\]',display:true},{left:'\\\\(',right:'\\\\)',display:false}],throwOnError:false});"></script>
 <script>
+// Copy-to-clipboard for the install commands, with a selection fallback for
+// browsers that refuse the async clipboard outside a secure context.
+(function(){
+  document.querySelectorAll('.ins-box').forEach(function(box){
+    var input = box.querySelector('input'), btn = box.querySelector('.ins-copy');
+    input.addEventListener('focus', function(){ input.select(); });
+    input.addEventListener('click', function(){ input.select(); });
+    btn.addEventListener('click', function(){
+      input.select();
+      var done = function(){
+        btn.textContent = 'Copied';
+        btn.classList.add('done');
+        setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('done'); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(input.value).then(done, function(){
+          try { document.execCommand('copy'); done(); } catch (e) {}
+        });
+      } else {
+        try { document.execCommand('copy'); done(); } catch (e) {}
+      }
+    });
+  });
+})();
 // Footnote tooltips: shown on hover and on keyboard focus, positioned inside
 // the viewport so a citation near the right edge is not clipped.
 (function(){
