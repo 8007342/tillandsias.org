@@ -19,9 +19,16 @@ import figures  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "docs" / "matrix"
-OUT = ROOT / "var" / "html" / "index.html"
+# TILLANDSIAS_OUT redirects the output, so a trial build (see PIN_OVERRIDE) does
+# not overwrite the published page.
+OUT = pathlib.Path(os.environ.get("TILLANDSIAS_OUT") or ROOT / "var" / "html" / "index.html")
 
 REPO = "https://github.com/8007342/tillandsias"
+
+# TILLANDSIAS_PIN_OVERRIDE=vX.Y.Z.B builds every level as if it were pinned to
+# that tag. With a checkout present, the broken-target list it prints is the
+# exact work list for moving the levels to that release. It never edits LEVELS.
+PIN_OVERRIDE = os.environ.get("TILLANDSIAS_PIN_OVERRIDE", "").strip() or None
 
 # Each level pins the release its copy was verified against, not main: a reader
 # clicking a line number must land on the line we actually quoted. Levels move
@@ -55,6 +62,10 @@ LEVELS = [
 def version_key(ref):
     return tuple(int(x) for x in re.findall(r"\d+", ref))
 
+
+if PIN_OVERRIDE:
+    LEVELS = [lvl[:4] + (PIN_OVERRIDE,) for lvl in LEVELS]
+    print("  trial build: every level pinned to %s (LEVELS untouched)" % PIN_OVERRIDE)
 
 SITE_REF = max((lvl[4] for lvl in LEVELS), key=version_key)
 
