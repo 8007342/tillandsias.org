@@ -4,7 +4,7 @@ The "I barely understand my phone" page (`docs/matrix/level-2-phone.md`) answers
 the practical questions a light user has before trusting software: is my stuff
 private, does it cost money, does it need the internet, can it break my computer,
 and what is currently broken. It is the privacy-and-assurance page, framed in
-straight answers.
+straight answers. The rules shared by every level are in `site/level-common`.
 
 ## ADDED Requirements
 
@@ -35,32 +35,19 @@ evidence, not proof; convergence is not a promise of a zero floor.
 - **WHEN** the page explains the verification discipline
 - **THEN** both honest limits are present and footnoted to the pinned tag
 
-### Requirement: Credential-store wording accuracy
-The claim that login credentials go into "your operating system's own password
-store" is overstated: the GitHub token lives in the guest Vault, and Linux/headless
-hosts use a keychain-backed file fallback (`vault_bootstrap.rs:1363-1364`). Any
-editor MUST reword this clause to "a local secret store" with the fallback noted,
-per the audit.
+### Requirement: Credential and release statements match the pin
+Statements about where credentials live and about what the release process
+withholds MUST match the pinned code and be scoped to the artifact they
+describe: a secret store is named by what it is on each platform the page
+covers, including any fallback the code has; a withholding is attributed to the
+exact artifact withheld, never to the release as a whole.
 
-#### Scenario: Credential claim re-sourced
-- **WHEN** the page describes where logins are stored
-- **THEN** it matches the observed behavior (Vault + keychain fallback file), not
-  an OS-password-store-only claim
+#### Scenario: Credential store described
+- **WHEN** the page says where a login is kept
+- **THEN** the statement matches the pinned code on every platform it covers,
+  fallback included, and is footnoted
 
-### Requirement: Known doctoring burden
-The "release process refuses to publish the unsigned file" sentence is true but
-scoped to the MSIX (the unsigned EXE/ZIP still publish with a warning when
-`TILLANDSIAS_SIGNING_ACCOUNT` is unset; `.github/workflows/release.yml:645-658`).
-Any editor MUST scope that sentence and, if the footnote stays, add the workflow
-line to the span.
-
-#### Scenario: MSIX withholding is scoped
-- **WHEN** the page describes the unsigned-Windows-package fix
-- **THEN** the sentence names the MSIX specifically and does not imply the whole
-  release is withheld
-
-## ADDED Artifacts
-
-### Artifact: Level-2 audit annotations
-`docs/matrix/level-2-phone.audit.md` — agent-facing annotations from the
-2026-09-04 audit. Companion to the page; never rendered by the build.
+#### Scenario: Release gate described
+- **WHEN** the page says the release process refuses to publish something unsigned
+- **THEN** the sentence names the artifact withheld and does not imply that the
+  whole release is withheld

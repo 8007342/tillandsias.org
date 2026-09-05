@@ -5,6 +5,7 @@
 <!-- Audit scope: tillandsias runtime repo at v56.9.2.1. Run       -->
 <!-- 2026-09-04. No page content was modified.                     -->
 <!-- ============================================================ -->
+Valid for pin v56.9.2.1 only; superseded by docs/audit/2026-09-05-v56.9.2.1.md once that record lands.
 
 # Agent audit annotations — level 4 ("I'm a Cyber Security expert")
 
@@ -72,4 +73,3 @@ material falsification.
 
 This page (level 4) is owned for content by the website editors. These
 annotations are advisory; the explanation text was intentionally not edited.
-Level 5 is a different owner and is out of scope for this audit.

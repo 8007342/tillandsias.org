@@ -5,6 +5,7 @@
 <!-- Audit scope: tillandsias runtime repo at v56.9.2.1. Run       -->
 <!-- 2026-09-04. No page content was modified.                     -->
 <!-- ============================================================ -->
+Valid for pin v56.9.2.1 only; superseded by docs/audit/2026-09-05-v56.9.2.1.md once that record lands.
 
 # Agent audit annotations — level 2 ("I barely understand my phone")
 

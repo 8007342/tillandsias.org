@@ -3,70 +3,58 @@
 The "I'm a power user" page (`docs/matrix/level-3-power.md`) is the anatomy: what
 runs where, what survives a teardown, and where the sharp edges are. Its audience
 understands containers, networking and CI, and expects the architecture plus its
-honest failure list.
+honest failure list. The rules shared by every level are in `site/level-common`.
 
 ## ADDED Requirements
 
-### Requirement: Enclave anatomy accuracy
-The page MUST describe the current enclave membership accurately. The "Five
-members" list is stale — the live enclave has ten-plus attach sites (proxy, git,
-ssh-lane sidecar, inference, router, nix cache, catalog service, observatorium
-web, opencode forge, forge agent-with-vault, vault). The next editor MUST pull
-the roster from `scripts/check-enclave-membership-documented.sh` or stop labeling
-the list exhaustive; the project itself documents this failure mode (an earlier
-hand-maintained list went stale by six members).
+### Requirement: Enclave anatomy matches the documented-membership guard
+The page MUST describe the enclave's membership as the documented-membership
+guard (`scripts/check-enclave-membership-documented.sh`) records it at the pin,
+or MUST label its list explicitly non-exhaustive. The project's own record is
+that a hand-maintained prose roster goes stale, so this spec carries no roster
+either: the guard is the source, the page cites it, and the single-egress claim
+— one dual-homed proxy is the enclave's only way out — stays intact and
+footnoted to the network spec at the pin.
 
 #### Scenario: Anatomy matches the live guard
 - **WHEN** the page enumerates enclave members
-- **THEN** the list matches the documented-membership guard's roster or is
-  explicitly non-exhaustive, and the `--internal` network + single-dual-homed
-  proxy claim stays intact
+- **THEN** the list matches the guard's roster at the pin or is explicitly
+  non-exhaustive, and the single-egress claim is present and sourced
 
-### Requirement: Survivorship claims are current
-The page MUST state what survives a stop, `podman system reset`, and
-`--reset-guest` per the pinned code: mirror volume + fast-forwarded working copy,
-keychain-backed vault auto-unseal, model cache as a host bind mount, and the
-`--reset-guest` wipe set that keeps the cache. The vault "share only ever lands on
-tmpfs" line MUST be qualified by the shipped fallback share file at
-`/root/.cache/tillandsias/fallback_vault-shamir-share-v1`.
+### Requirement: Survivorship claims match the pinned code
+The page MUST state what survives a stop, a `podman system reset`, and a
+`--reset-guest` per the pinned code, for each artifact it names: the mirror
+volume and working copy, the vault's unseal material, the model cache, and the
+`--reset-guest` wipe set. Where the code writes an artifact to a place a spec
+invariant does not cover (a fallback location), the page MUST say so rather than
+state the invariant as observed behaviour.
 
 #### Scenario: Survivorship lines match the pin
 - **WHEN** an editor changes a survivorship bullet
 - **THEN** each artifact's fate (stop / `podman system reset` / `--reset-guest`)
-  matches the pinned code, including the fallback share file
+  matches the pinned code, fallback locations included, and is footnoted
 
-### Requirement: RED findings MUST be current against the pin
-Each RED MUST reflect the pinned code, not a stale plan entry. Known doctoring
-burden from the 2026-09-04 audit:
-
-- **[^13] global proxy block:** order 923-rmtw is COMPLETED — `--init` deletes the
-  global `[engine] env` proxy block (`main.rs:7364-7400`). The RED must be scoped
-  to legacy hosts not yet re-run through `--init` plus the still-open
-  "failure names the proxy" follow-up, or re-verified against 892-pfnd.
-- **[^11] macOS destroyers:** 804-bpke is COMPLETED — the shipped
-  `scripts/uninstall.sh` preserves the VM unless `--wipe` (`uninstall.sh:124-128`).
-  Re-count the destroyers (effectively three), drop or qualify "the shipped
-  uninstaller included".
-- **[^3] orchestrate-enclave.sh creates the enclave network WITHOUT `--internal`**
-  remains TRUE and is the page's most important live RED — keep it.
+### Requirement: Every RED is true at the pin
+Every RED on the page MUST be true of the code at the level's pinned tag, not of
+a plan entry the code has outrun. A RED the pinned tag has fixed becomes a
+past-tense flag or a GREEN; a RED fixed only in a build newer than the pin stays
+RED and its PATH names that build; a RED that holds only for a subset of hosts
+(those not re-initialised, one platform) says so.
 
 #### Scenario: A stale RED is caught before publish
 - **WHEN** the page is edited and the checked build is run
-- **THEN** each RED line traces to current code or a re-verified open packet, with
-  no plan entry the code has already outrun
+- **THEN** each RED line traces to the code at the pin or to an open work item
+  re-verified at the pin, with no plan entry the code has already outrun
 
 ### Requirement: Gate and CI statements
-The local-gate description (litmus + traces, eleven grandfathered files,
-dispatch-only `release.yml` as the sole workflow) MUST stay accurate and sourced
-to `methodology/ci.yaml` and `openspec/litmus-tests/unbound-grandfathered.txt`.
+The local-gate description (litmus tests plus traces, the grandfathered
+allowlist, and which workflows exist and how each is triggered) MUST stay
+accurate at the pin and sourced to `methodology/ci.yaml`,
+`openspec/litmus-tests/unbound-grandfathered.txt` and the workflow files. Any
+count the page gives for the grandfathered files or the workflows is the count
+at the pin.
 
 #### Scenario: Gate claims stay sourced
 - **WHEN** the gate or CI section is edited
-- **THEN** the count of grandfathered litmus files and the single-workflow claim
-  still match the pinned tree
-
-## ADDED Artifacts
-
-### Artifact: Level-3 audit annotations
-`docs/matrix/level-3-power.audit.md` — agent-facing annotations from the
-2026-09-04 audit. Companion to the page; never rendered by the build.
+- **THEN** the grandfathered count and the workflow inventory still match the
+  pinned tree, and are footnoted with quotes that pass the checked build
