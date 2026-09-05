@@ -13,9 +13,9 @@ host session that has `gh`. Sections are independent and can be filed in any
 order; the ones under *Enclave network isolation*, *Egress proxy* and *Container
 launch hardening* are the ones worth filing first.
 
-Tag under audit: **v56.9.5.1** (commit `77958f552776874e3d43a75878b9caa80f4e6657`).
+Tag under audit: **v56.9.5.1** (commit `b528680d2b938b09279e31faee981a8f6e370b3b`).
 Where a claim is contrasted with the stable release, that is **v56.9.2.1**
-(commit `49458e968aed4f65c73eba5f2ba0f3d5483abd65`).
+(commit `d6d3e3ed910feb24579304d08ef464a229eae21f`).
 
 ---
 
@@ -23,7 +23,7 @@ Where a claim is contrasted with the stable release, that is **v56.9.2.1**
 
 ## Two launchers still create the enclave network without `--internal` at v56.9.5.1
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `scripts/run-forge-project.sh`, `scripts/diagnose-proxy.sh`, `scripts/check-enclave-network-internal.sh`
 - Class: spec-vs-code
 - Found by: tillandsias.org audit 2026-09-05, level 4
@@ -68,7 +68,7 @@ fails the check instead of being invisible to it.
 
 ## `run_provider_login` attaches a container to the enclave without being a documented member, and the membership guard cannot see it
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `crates/tillandsias-headless/src/main.rs`, `scripts/check-enclave-membership-documented.sh`, spec `enclave-network`
 - Class: spec-vs-code
 - Found by: tillandsias.org audit 2026-09-05, level 4
@@ -111,7 +111,7 @@ builder.
 
 ## The enclave-network spec's cleanup-on-exit and lifecycle-telemetry requirements have no implementation
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: spec `enclave-network`, `crates/tillandsias-headless/src/main.rs`
 - Class: spec-vs-code
 - Found by: tillandsias.org audit 2026-09-05, level 4
@@ -151,7 +151,7 @@ zero attached containers) and the two log lines, or mark both requirements
 
 ## The permissive proxy port grants unfiltered egress to every enclave member with no source restriction
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `images/proxy/squid.conf`, spec `proxy-container`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05, level 3
@@ -190,7 +190,7 @@ source ACL restricting it, until a real consumer exists.
 
 ## The proxy CA is one persistent RSA-2048 30-day certificate; the spec promises a per-launch two-level EC P-256 chain on tmpfs
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: spec `proxy-container`, `crates/tillandsias-headless/src/main.rs`, `images/default/ca-path.txt`
 - Class: spec-vs-code
 - Found by: tillandsias.org audit 2026-09-05, level 3
@@ -234,7 +234,7 @@ refresh, citing `images/default/ca-path.txt` for why the path is not tmpfs.
 
 ## Denied runtime traffic gets a TCP reset; the proxy spec says HTTP 403 twice
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: spec `proxy-container`, `images/proxy/squid.conf`
 - Class: spec-vs-code
 - Found by: tillandsias.org audit 2026-09-05, level 3
@@ -268,7 +268,7 @@ domain" scenario, which a reset cannot satisfy.
 
 ## The hardening litmus header says the argv validator has zero production call sites; it has three
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `openspec/litmus-tests/litmus-podman-idiomatic-security-flags.yaml`
 - Class: doc-drift
 - Found by: tillandsias.org audit 2026-09-05, level 4
@@ -301,7 +301,7 @@ points, and name the launch paths that still bypass it.
 
 ## Five production container launches never reach `validate_launch_argv`, and one of them builds an argv the policy forbids
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `crates/tillandsias-headless/src/main.rs`, `crates/tillandsias-podman/src/container_spec.rs`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05, level 4
@@ -357,7 +357,7 @@ correct the two doc comments.
 
 ## The macOS release lane signs a hardcoded three-asset list and runs no transitive integrity check
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `.github/workflows/release.yml`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05, level 5
@@ -398,7 +398,7 @@ release-artifacts` to the macOS job.
 
 ## No default install path verifies a Cosign bundle, and the Linux installer continues when the checksum file is missing
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `scripts/install.sh`, `scripts/install-macos.sh`, `scripts/install-windows.ps1`, spec `update-system`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05, level 5
@@ -438,7 +438,7 @@ present, refuse or warn loudly when it is not).
 
 ## The Vault unseal share persists to a plain file that satisfies the "share in keychain" check, contradicting the tmpfs-only invariant, and `--reset-guest` leaves it behind
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `crates/tillandsias-headless/src/vault_bootstrap.rs`, `crates/tillandsias-headless/src/main.rs`, spec `tillandsias-vault`
 - Class: spec-vs-code
 - Found by: tillandsias.org audit 2026-09-05, level 5
@@ -491,7 +491,7 @@ either restrict the fallback file to a tmpfs path or amend the
 
 ## The forge startup context tells the agent Vault is at `http://vault:8200`; the listener is TLS-only
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `images/default/lib-common.sh`, `images/vault/vault.hcl`
 - Class: doc-drift
 - Found by: tillandsias.org audit 2026-09-05, level 2
@@ -520,7 +520,7 @@ in-enclave hop is authenticated TLS, and the context says it is not.
 
 ## The startup context says on-demand installs verify a Sigstore attestation; the shim disables attestation, and the Homebrew prefix is backed by no volume
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `images/default/lib-common.sh`, `images/default/brew-shim-exec.sh`, `images/default/Containerfile`
 - Class: doc-drift
 - Found by: tillandsias.org audit 2026-09-05, level 2
@@ -569,7 +569,7 @@ and mount a named volume at `/home/linuxbrew` in the forge builders.
 
 ## `litmus:git-mirror-no-anonymous-daemon-write` asserts the opposite of its own name
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `openspec/litmus-tests/litmus-git-mirror-no-anonymous-daemon-write.yaml`
 - Class: doc-drift
 - Found by: tillandsias.org audit 2026-09-05, level 4
@@ -599,7 +599,7 @@ alias note for the old name.
 
 ## The mirror relay wires the GitHub credential helper for any `https://` origin, and the helper answers unconditionally
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `images/git/relay-refs.sh`, `images/git/git-credential-tillandsias.sh`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05, level 4
@@ -634,7 +634,7 @@ helper read `host=` from stdin and refuse anything it does not recognise.
 
 ## The inference engine is fetched at first run from an unpinned `latest` release with no integrity check, the specs promise baked models the image does not carry, and the health check tests the runner binary
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `images/inference/entrypoint.sh`, `images/inference/Containerfile`, specs `inference-container` and `zen-default-with-ollama-analysis-pool`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05, level 3
@@ -695,7 +695,7 @@ checksum before extracting; then either bake T0/T1 (`COPY` into
 
 ## `--publish-local` serves the whole repository, `.git` included, on a route with no auth gate — and does it with none of the hardening flags the spec's builder carries
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `crates/tillandsias-headless/src/main.rs`, `images/web/entrypoint.sh`, spec `enclave-service-catalog`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05, level 4
@@ -752,7 +752,7 @@ directory rather than the repository root.
 
 ## The browser allowlist cannot open any window for a project whose directory name contains a dot
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `crates/tillandsias-browser-mcp/src/allowlist.rs`, `crates/tillandsias-headless/src/local_projects.rs`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05, level 4
@@ -793,7 +793,7 @@ this for container hostnames) and use the same normalised label on both sides.
 
 ## `browser.open` cannot resolve a browser binary: the on-demand chromium installer has no consumer, and the chromium images are built but never run
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `crates/tillandsias-browser-mcp/src/launcher.rs`, `scripts/install-chromium.sh`, `images/chromium/`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05, level 4
@@ -838,7 +838,7 @@ asserts a *caller* exists rather than only the script's text.
 
 ## The safe-browser launcher defaults to host networking; its spec promises enclave-only egress through the proxy
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `scripts/launch-chromium.sh`, spec `chromium-safe-variant`
 - Class: spec-vs-code
 - Found by: tillandsias.org audit 2026-09-05, level 4
@@ -881,7 +881,7 @@ keep `host` reachable only by explicitly setting `TILLANDSIAS_BROWSER_NETWORK`.
 
 ## The Windows tray reads the secure-wire variable directly, the single-reader ratchet has two slots of slack, and the WSL guest unit never receives the flag
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `crates/tillandsias-windows-tray/src/hvsocket.rs`, `scripts/check-secure-wire-single-reader.sh`, `crates/tillandsias-vm-layer/src/wsl.rs`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05, level 5
@@ -932,7 +932,7 @@ default is flipped.
 
 ## README's release ledger has no row for v56.9.5.1
 
-- Tag: v56.9.5.1 (commit 77958f5)
+- Tag: v56.9.5.1 (commit b528680)
 - Area: `README.md`
 - Class: stale-plan-entry
 - Found by: tillandsias.org audit 2026-09-05, level 1

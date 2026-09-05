@@ -50,7 +50,9 @@ relays pushes. Until then the relay is a person or a host session.
 ```
 ## <one-line title: what is wrong, where, at which tag>
 
-- Tag: v56.9.5.1 (commit …)
+- Tag: v56.9.5.1 (commit …)          # peel it: git rev-parse v56.9.5.1^{commit}
+                                     # a bare `git rev-parse <tag>` gives the tag
+                                     # object, which resolves to no commit on GitHub
 - Area: <spec name / crate / script>
 - Class: spec-vs-code | stale-plan-entry | defect | doc-drift
 - Found by: tillandsias.org audit <date>, level <n>

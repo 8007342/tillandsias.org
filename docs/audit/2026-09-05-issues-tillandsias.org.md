@@ -6,7 +6,9 @@ run are in [`2026-09-05-issues-tillandsias.md`](2026-09-05-issues-tillandsias.md
 the run's own record — pins, per-level tables, capability and security tables —
 is [`2026-09-05-v56.9.2.1.md`](2026-09-05-v56.9.2.1.md).
 
-- **Site commit:** `c00622b` (`c00622bf82b1935b2189ee6af8f8c2980ab04337`), working
+- **Site commit:** `05b8ccb` (`05b8ccb1d2dc63e2473fb72f94cdfe6928b12c31`), re-stamped after the verification pass
+  that followed this file's first draft; line references into this repository
+  were resolved at that commit.
   tree clean apart from the records in this directory.
 - **Runtime tags cited:** `v56.9.2.1` (stable, the tag every level pins) and
   `v56.9.5.1` (newest daily). Every runtime line quoted below was read in the
@@ -39,7 +41,7 @@ Nothing in this file was fixed today. Nothing here edits `docs/matrix/`,
 
 ## A1. The level-5 deltas are live on the site while their OpenSpec change is still unapproved, and `openspec/specs/` holds no site spec at all
 
-- Tag: tillandsias.org @ c00622b
+- Tag: tillandsias.org @ 05b8ccb
 - Area: `openspec/changes/level-5-stable-pin-deltas/`, `openspec/specs/`
 - Class: doc-drift
 - Found by: tillandsias.org audit 2026-09-05, level 5
@@ -81,7 +83,7 @@ contract and `changes/` holds only what is genuinely proposed.
 
 ## A2. Ten of level 5's forty-four footnotes need re-anchoring whenever its pin moves, and one quote no longer exists at the daily
 
-- Tag: tillandsias.org @ c00622b; runtime evidence at v56.9.2.1 and v56.9.5.1
+- Tag: tillandsias.org @ 05b8ccb; runtime evidence at v56.9.2.1 and v56.9.5.1
 - Area: `docs/matrix/level-5-phd.md`
 - Class: doc-drift
 - Found by: tillandsias.org audit 2026-09-05, level 5
@@ -130,7 +132,7 @@ anchor.
 
 ## A3. The next level-5 delta change is unwritten while two of its REDs are already outrun in the daily channel
 
-- Tag: tillandsias.org @ c00622b; runtime evidence at v56.9.5.1
+- Tag: tillandsias.org @ 05b8ccb; runtime evidence at v56.9.5.1
 - Area: `openspec/changes/` (no change exists), `docs/matrix/level-5-phd.md`
 - Class: stale-plan-entry
 - Found by: tillandsias.org audit 2026-09-05, level 5
@@ -170,7 +172,7 @@ the deltas accumulate against a change instead of a checkbox.
 
 ## B1. The pages are 46% longer in prose than yesterday, and the "roughly the same length" expectation is written down nowhere
 
-- Tag: tillandsias.org @ c00622b (before: `bf5bde3`)
+- Tag: tillandsias.org @ 05b8ccb (before: `bf5bde3`)
 - Area: `docs/matrix/`, `openspec/changes/add-level-page-specs/specs/site/level-common/spec.md`
 - Class: doc-drift
 - Found by: tillandsias.org audit 2026-09-05, levels 1–5
@@ -233,7 +235,7 @@ written rule instead of guessing at an unwritten one.
 
 ## B2. Level 3's capability inventory has no requirement in its spec
 
-- Tag: tillandsias.org @ c00622b
+- Tag: tillandsias.org @ 05b8ccb
 - Area: `openspec/changes/add-level-page-specs/specs/site/level-3/spec.md`
 - Class: spec-vs-code
 - Found by: tillandsias.org audit 2026-09-05, level 3
@@ -264,7 +266,7 @@ status at the pin matching the current audit record's capability table.
 
 ## B3. The byte-identical rebuild check (task 3.2) now passes and is still recorded as unrun
 
-- Tag: tillandsias.org @ c00622b
+- Tag: tillandsias.org @ 05b8ccb
 - Area: `openspec/changes/add-level-page-specs/tasks.md`, task 3.2
 - Class: stale-plan-entry
 - Found by: tillandsias.org audit 2026-09-05
@@ -295,7 +297,7 @@ empty. An unchecked box says the guarantee is untested when it is not.
 
 ## C1. The only build is Python, which the runtime methodology forbids for committed automation
 
-- Tag: tillandsias.org @ c00622b; runtime evidence at v56.9.2.1 and v56.9.5.1
+- Tag: tillandsias.org @ 05b8ccb; runtime evidence at v56.9.2.1 and v56.9.5.1
 - Area: `scripts/build-matrix.py`, `scripts/figures.py`, `skills/update-website/scripts/`
 - Class: spec-vs-code
 - Found by: tillandsias.org audit 2026-09-05
@@ -365,7 +367,7 @@ when the page generator is next touched substantially).
 
 ## D1. The startup context every agent here reads hands out the pre-flip service URL shape
 
-- Tag: tillandsias.org @ c00622b; runtime evidence at v56.9.2.1 and v56.9.5.1
+- Tag: tillandsias.org @ 05b8ccb; runtime evidence at v56.9.2.1 and v56.9.5.1
 - Area: `.forge-startup-context.md` (generated; source is the runtime's `images/default/lib-common.sh`)
 - Class: doc-drift
 - Found by: tillandsias.org audit 2026-09-05, level 3
@@ -420,7 +422,7 @@ re-verification.
 
 ## E1. Ten of the eleven figures are placed, `loop` is drawn and never used, and the new capability sections carry none
 
-- Tag: tillandsias.org @ c00622b
+- Tag: tillandsias.org @ 05b8ccb
 - Area: `scripts/figures.py`, `docs/matrix/level-3-power.md`, `docs/matrix/level-4-security.md`
 - Class: doc-drift
 - Found by: tillandsias.org audit 2026-09-05, levels 1–5
@@ -466,7 +468,7 @@ one-line edits under the existing dialect.
 
 ## F1. `docs/matrix/*.audit.md` are superseded by this run's record and should move under `docs/audit/`
 
-- Tag: tillandsias.org @ c00622b
+- Tag: tillandsias.org @ 05b8ccb
 - Area: `docs/matrix/level-{1,2,3,4}-*.audit.md`
 - Class: doc-drift
 - Found by: tillandsias.org audit 2026-09-05, levels 1–4
@@ -526,7 +528,7 @@ already exists and is exercised.
 
 ## G1. Nothing stops a broken footnote from being published
 
-- Tag: tillandsias.org @ c00622b
+- Tag: tillandsias.org @ 05b8ccb
 - Area: `skills/update-website/scripts/checked-build.sh`, `.git/hooks`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05
@@ -579,7 +581,7 @@ a `> REFUTED:` at `#L14` before its PATH at `#L15`, so "followed by" must mean
 
 ## G2. The drift report goes silent exactly when every level is up to date
 
-- Tag: tillandsias.org @ c00622b
+- Tag: tillandsias.org @ 05b8ccb
 - Area: `skills/update-website/scripts/drift-report.sh`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05
@@ -615,7 +617,7 @@ forecast.
 
 ## G3. Every broken footnote is re-anchored by hand, and the search is mechanical
 
-- Tag: tillandsias.org @ c00622b
+- Tag: tillandsias.org @ 05b8ccb
 - Area: `skills/update-website/scripts/` (no such script)
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05
@@ -652,7 +654,7 @@ largest effect on how often the loop actually runs.
 
 ## G4. Nothing tells this repository that the runtime released
 
-- Tag: tillandsias.org @ c00622b
+- Tag: tillandsias.org @ 05b8ccb
 - Area: `skills/update-website/scripts/latest-release.sh`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05
@@ -688,7 +690,7 @@ reporting to the operator when its last line is not `ok:up-to-date` —
 
 ## G5. The level-5 delta change is written by hand every time
 
-- Tag: tillandsias.org @ c00622b
+- Tag: tillandsias.org @ 05b8ccb
 - Area: `openspec/changes/level-5-stable-pin-deltas/` (as the worked example)
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05, level 5
@@ -724,7 +726,7 @@ construction.
 
 ## G6. Re-verification is the part that needs a model, and it is the part to keep reviewed
 
-- Tag: tillandsias.org @ c00622b
+- Tag: tillandsias.org @ 05b8ccb
 - Area: `skills/audit-site-claims/SKILL.md`
 - Class: defect
 - Found by: tillandsias.org audit 2026-09-05
