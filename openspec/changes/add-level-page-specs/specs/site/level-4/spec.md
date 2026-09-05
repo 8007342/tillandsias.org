@@ -11,15 +11,16 @@ reads threat models for a living. The rules shared by every level are in
 
 ## ADDED Requirements
 
-### Requirement: The boundary correction stands
-The page MUST keep its platform-by-platform correction front and center: Linux
-provisions no VM; the enclave is a hypervisor boundary on macOS/Windows and a
-namespace boundary on Linux where an escape lands as the invoking user's UID.
+### Requirement: The boundary is stated platform by platform
+The page MUST state, platform by platform and at the level's pin, which boundary
+the enclave actually is on each supported platform and where an escape lands,
+correcting rather than inheriting any impression that every platform gets the
+same boundary; the statement is footnoted at the pin.
 
 #### Scenario: Correction is retained
 - **WHEN** the architecture boundary is described
-- **THEN** the Linux-no-VM correction is present with its escape-blast-radius
-  footnote
+- **THEN** the boundary named for each supported platform is the one the pinned
+  code provisions, and the escape's blast radius is stated and footnoted
 
 ### Requirement: Hardening claims are stated per the pin
 The hardening section MUST state, per the pinned tag: which flags the launch

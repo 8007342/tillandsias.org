@@ -71,8 +71,10 @@ completeness and for readers without a pointer.
   drift — and rebuild with the checkout present so the quotes are re-checked too.
 - **A level describes the stable channel.** Its pin is the release the install commands
   hand a reader. A shortcoming fixed only in a daily build stays RED; its PATH line says
-  when the fix landed and cites it with a footnote carrying that daily's tag (`@vTAG`),
-  which is the only place a footnote may point past the level's pin.
+  when the fix landed and cites it with a footnote carrying that daily's tag (`@vTAG`).
+  That suffix is the only way a footnote may point past the level's pin, and it belongs
+  only on a line that acknowledges something — a fix, a withdrawn claim, a fleet state —
+  established only in a build newer than the pin.
 - **Quotes are verbatim and contiguous.** Copy the characters from the cited range;
   no paraphrase, no ellipsis, at most a few sentences. The checked build searches for
   the quote inside the cited lines after collapsing whitespace, and fails if it is

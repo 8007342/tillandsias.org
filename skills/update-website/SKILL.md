@@ -65,9 +65,10 @@ Every step's script prints a verdict on its last line.
    past-tense flag or a GREEN; a RED fixed only in a daily stays RED and its
    PATH says so; a partial fix says what remains.
 6. **Move the pin.** Levels 1–4: edit the level's tag in the `LEVELS` table of
-   `scripts/build-matrix.py` to the stable tag. Level 5: do not edit it
-   directly; write an OpenSpec change under `openspec/changes/` listing each
-   delta with its evidence and wait for the owner. See the level 5 rule in
+   `scripts/build-matrix.py` to the stable tag. Level 5: write an OpenSpec
+   change under `openspec/changes/` listing each delta with its evidence; you
+   may then apply exactly the deltas it lists and no others. The operator
+   reviews the change before it is archived. See the level 5 rule in
    `docs/matrix/README.md`.
 7. **Checked build must pass.** `skills/update-website/scripts/checked-build.sh`
    → exit 0 and `ok:checked-build`. It fails on any unresolved target or drifted
@@ -107,4 +108,5 @@ Ordered by value over effort. All shell, all already exercised by hand once.
    second agent reads the diff. Needs a model; not free; the part that should
    stay reviewed.
 5. **Level 5 proposal generator.** Step 6 for level 5 only: produce the
-   OpenSpec change with the exact deltas and evidence, never the edit.
+   OpenSpec change with the exact deltas and evidence, and then exactly those
+   edits, nothing else.

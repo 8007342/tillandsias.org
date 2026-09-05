@@ -40,7 +40,11 @@
       — not comparable, because levels 1, 2 and 5 were being edited in the same
       working tree at the time. Left unchecked; re-run on a clean tree.
 - [ ] 3.3 (optional, on adoption) sync specs to `openspec/specs/site/level-<n>/`
-      and `openspec/specs/site/level-common/`, then archive the change
+      and `openspec/specs/site/level-common/`, then archive the change. This
+      change creates the `site/level-5` capability, so it is archived before
+      `level-5-stable-pin-deltas`, which modifies it; archiving them the other
+      way round would leave `site/level-5` holding one run's delta record and
+      nothing else
 
 ## 4. Findings of the 2026-09-04 audit at v56.9.2.1
 
@@ -147,8 +151,10 @@ agents of that session; the dated audit record of that run is the evidence.
       `openspec/changes/level-5-stable-pin-deltas/`: the pin stays at v56.9.2.1,
       one statement false at the pin is corrected, and the shortcomings fixed
       only in the daily channel keep their REDs with the daily named on their
-      PATH lines through `@v56.9.5.1` footnotes. Filed 2026-09-05; lands when
-      the operator approves it.
+      PATH lines through `@v56.9.5.1` footnotes. Filed and applied 2026-09-05
+      (commit bb09c7a: five prose hunks, thirty-two quote lines, four
+      `@v56.9.5.1` footnotes); the change stays open in `openspec/changes/`
+      until the operator has reviewed it, then archives.
 - [ ] 4.18 Delta change at the next pin bump, as its own OpenSpec change: the
       REDs on property tests and on requirement identifiers are outrun in the
       daily channel (`crates/tillandsias-plan/Cargo.toml`,

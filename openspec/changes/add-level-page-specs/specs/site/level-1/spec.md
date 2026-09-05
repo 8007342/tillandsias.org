@@ -32,10 +32,9 @@ both.
   quote that passes the checked build
 
 ### Requirement: Honest flags and RED/PATH pairing
-The page MUST use the level's honesty frame in words its reader can repeat.
-Every `> RED:` MUST be followed by a `> PATH:` line; a RED that no longer
-matches the code at the pin MUST be corrected or downgraded rather than left
-stale, and a PATH MUST NOT say that nothing has been done when the repository
+The page MUST use the level's honesty frame in words its reader can repeat. The
+RED/PATH pairing and the RED lifecycle are as `site/level-common` states them;
+in addition, a PATH MUST NOT say that nothing has been done when the repository
 records that something has.
 
 #### Scenario: A RED is checked against the pin

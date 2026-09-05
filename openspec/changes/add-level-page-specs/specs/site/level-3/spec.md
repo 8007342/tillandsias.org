@@ -36,10 +36,9 @@ state the invariant as observed behaviour.
 
 ### Requirement: Every RED is true at the pin
 Every RED on the page MUST be true of the code at the level's pinned tag, not of
-a plan entry the code has outrun. A RED the pinned tag has fixed becomes a
-past-tense flag or a GREEN; a RED fixed only in a build newer than the pin stays
-RED and its PATH names that build; a RED that holds only for a subset of hosts
-(those not re-initialised, one platform) says so.
+a plan entry the code has outrun; the lifecycle at a pin bump is as
+`site/level-common` states it. A RED that holds only for a subset of hosts
+(those not re-initialised, one platform) MUST say so.
 
 #### Scenario: A stale RED is caught before publish
 - **WHEN** the page is edited and the checked build is run

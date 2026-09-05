@@ -2,9 +2,10 @@
 
 The "I barely understand my phone" page (`docs/matrix/level-2-phone.md`) answers
 the practical questions a light user has before trusting software: is my stuff
-private, does it cost money, does it need the internet, can it break my computer,
-and what is currently broken. It is the privacy-and-assurance page, framed in
-straight answers. The rules shared by every level are in `site/level-common`.
+private, does it cost money, does it need the internet, can it break my computer
+— and, separately, what is currently broken today. It is the
+privacy-and-assurance page, framed in straight answers. The rules shared by
+every level are in `site/level-common`.
 
 ## ADDED Requirements
 

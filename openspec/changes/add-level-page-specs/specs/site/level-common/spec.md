@@ -13,8 +13,9 @@ by being frozen.
 Each level MUST pin its own release tag in the `LEVELS` table of
 `scripts/build-matrix.py`, and every footnote of that level MUST resolve against
 that tag, never `main`. Levels move independently. A footnote MAY point past its
-level's pin only with an explicit `@vTAG` suffix, and only on a PATH line that
-acknowledges a fix present in a build newer than the pin.
+level's pin only with an explicit `@vTAG` suffix, and only where the line
+acknowledges something — a fix, a withdrawn claim, or a fleet state —
+established only in a build newer than the pin.
 
 #### Scenario: Footnote resolves at the pin
 - **WHEN** a reader follows a footnote of a level
@@ -22,8 +23,7 @@ acknowledges a fix present in a build newer than the pin.
 
 #### Scenario: Footnote past the pin
 - **WHEN** a PATH line cites a fix that exists only in a build newer than the pin
-- **THEN** that footnote carries the newer build's tag as an `@vTAG` suffix, and
-  no other footnote of the level points past the pin
+- **THEN** that footnote carries the newer build's tag as an `@vTAG` suffix
 
 ### Requirement: The pin is the stable channel's tag, or the lag is recorded
 A level's pin MUST equal the tag the stable channel resolves to — the binary a
@@ -44,9 +44,10 @@ under `docs/audit/` MUST name the level, the tag it stays at, and why.
 ### Requirement: The checked build passes before publish
 Before a page is published, a build with a checkout present for every pinned
 tag MUST pass: for every footnote the path exists at its tag, the line range is
-inside the file, and the quote — verbatim, contiguous, copied from the cited
-range — appears inside that range after whitespace is collapsed. No level is
-published while the build lists a broken target or a drifted quote for it.
+inside the file, and, where the footnote carries a quote, that quote — verbatim,
+contiguous, copied from the cited range — appears inside that range after
+whitespace is collapsed. No level is published while the build lists a broken
+target or a drifted quote for it.
 
 #### Scenario: Quote drifted
 - **WHEN** a footnote's quote is no longer inside its cited range at the tag

@@ -62,8 +62,9 @@ and the footnotes of that level resolve against that tag, never `main`. The
 page header shows the newest pin across the levels (`SITE_REF`) as the release
 the site was last checked against, so a level whose pin lags is visible by
 comparing its row with the header. A footnote may point past its own level's
-pin only with an explicit `@vTAG` suffix, used on a PATH line that acknowledges
-a fix present only in a newer build.
+pin only with an explicit `@vTAG` suffix, used on a line that acknowledges
+something — a fix, a withdrawn claim, a fleet state — established only in a
+newer build.
 
 Trial builds: `TILLANDSIAS_PIN_OVERRIDE=vX.Y.Z.B` builds every level as if it
 were pinned to that tag without editing `LEVELS`, and `TILLANDSIAS_OUT=<file>`
@@ -88,8 +89,8 @@ procedure; this section only says what the specs assume about it.
    stays RED and its PATH names the daily; a partial fix says what remains.
 3. **Move the pin.** Levels 1 to 4: edit the level's tag in `LEVELS`. Level 5:
    write an OpenSpec change under `openspec/changes/` listing each delta with
-   its evidence, and land it only when the operator has approved it
-   (see `site/level-5`).
+   its evidence, apply exactly the deltas it lists, and archive it only after
+   the operator has reviewed it (see `site/level-5`).
 4. **Checked build must pass.** `skills/update-website/scripts/checked-build.sh`
    exits 0 with `ok:checked-build`; it fails on any unresolved target or
    drifted quote of any level whose checkout is present.
