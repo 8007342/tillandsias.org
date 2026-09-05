@@ -154,6 +154,12 @@ def norm(s):
     return re.sub(r"\s+", " ", s).strip()
 
 
+def norm_source(lines):
+    """Cited lines with comment leaders stripped, so a quote that spans two
+    lines of a shell, YAML or Rust comment still matches verbatim."""
+    return norm("\n".join(re.sub(r"^\s*(?:#|//|--|\*)\s?", "", x) for x in lines))
+
+
 def check_target(level, ref, target, quote):
     """Record anything that does not resolve at the level's pinned release."""
     clone = clone_for(ref)
@@ -180,8 +186,11 @@ def check_target(level, ref, target, quote):
             broken_links.append(
                 (level, target, "line range outside file (%d lines)" % len(lines)))
             return
-    if quote and norm(quote) not in norm("\n".join(lines[lo - 1:hi])):
-        broken_links.append((level, target, "quote not found in the cited range"))
+    if quote:
+        cited = lines[lo - 1:hi]
+        q = norm(quote)
+        if q not in norm("\n".join(cited)) and q not in norm_source(cited):
+            broken_links.append((level, target, "quote not found in the cited range"))
 
 
 def footnote_url(target, ref):
