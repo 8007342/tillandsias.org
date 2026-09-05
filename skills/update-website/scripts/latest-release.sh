@@ -73,7 +73,11 @@ stable_sha=$(echo "$refs" | awk '$2=="refs/tags/stable^{}"{print $1}')
 release_sha=$(echo "$refs" | awk -v t="refs/tags/$stable^{}" '$2==t{print $1}')
 [ -n "$release_sha" ] || release_sha=$(echo "$refs" | awk -v t="refs/tags/$stable" '$2==t{print $1}')
 if [ -n "$stable_sha" ] && [ "$stable_sha" != "$release_sha" ]; then
-  echo "warn: git tag 'stable' (${stable_sha:0:9}) is not at $stable (${release_sha:0:9}); promotion may have skipped step 3" >&2
+  # Observed 2026-09-05: the tag sat eleven days behind the promoted release
+  # because promotion tagged the promoting checkout's local main. Fixed at the
+  # script upstream; moving the published tag is an operator decision. Derive
+  # the channel from the releases endpoint, never from this tag.
+  echo "warn: git tag 'stable' (${stable_sha:0:9}) is not at $stable (${release_sha:0:9}); using the releases endpoint, which is authoritative" >&2
 fi
 
 echo "$stable"
