@@ -75,7 +75,9 @@ issues:
     fix: <the smallest fix>
     evidence:
       - path: crates/…/main.rs#L10-L20
-        quote: <verbatim>
+        quote: <verbatim, from that range at this finding's tag — checked>
+        note: <our reading of it, in our words — not checked, because it does
+               not pretend to be a quotation>
     depends_on: [<other id>, …]
     upstream: ""                     # the filed issue URL, once a credentialed
                                      # session files it; LWW, so the filer wins
@@ -86,6 +88,12 @@ events:
     type: found
     note: <what happened>
 ```
+
+A `quote` is verified the way the site's footnotes are: it must appear in the
+range it cites, at the release the finding names, or the gate refuses it. Where
+no checkout is present the quote is reported unchecked rather than passed over.
+Analysis in a `quote` field is the failure this rule exists to catch — it reads
+as though the source said it. Put it in `note`.
 
 `scripts/issues.py fold` prints the folded state, `validate` refuses a malformed
 or non-idempotent fragment, and `columns` prints the three-column view the site

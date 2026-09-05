@@ -30,7 +30,12 @@ RUNG = {
     "resolved": 2, "verified": 2,
 }
 LATERAL = {"obsoleted", "wontfix"}
-DESCEND = "falsified"
+# Two ways down, and the difference is the point. `falsified` says the ledger's
+# own record was wrong — a finding believed resolved was not. `retracted` says a
+# claim this project PUBLISHED was withdrawn. The second is the more valuable
+# datum: it is the evidence that the method catches its own errors, so it is
+# counted rather than smoothed away, and it carries what was withdrawn.
+DESCEND = {"falsified", "retracted"}
 COLUMN = {0: "red", 1: "yellow", 2: "green"}
 
 SCALARS = ("repo", "title", "area", "class", "severity", "tag", "commit",
@@ -200,7 +205,7 @@ def state_of(evs):
     state, rung = "found", 0
     for e in evs:
         t = e.get("type")
-        if t == DESCEND:
+        if t in DESCEND:
             state, rung = "found", 0
             continue
         if t in LATERAL:
@@ -236,18 +241,22 @@ def cmd_validate():
         for e in frag.get("events", []):
             if not TS.match(e.get("ts", "")):
                 bad.append("%s: event ts %r is not UTC ISO-8601" % (name, e.get("ts")))
-            if e.get("type") not in set(RUNG) | LATERAL | {DESCEND}:
+            if e.get("type") not in set(RUNG) | LATERAL | DESCEND:
                 bad.append("%s: unknown event type %r" % (name, e.get("type")))
             if not e.get("host"):
                 bad.append("%s: event with no host (the LWW tiebreak needs it)" % name)
+            if e.get("type") in DESCEND and not e.get("note"):
+                bad.append("%s: a %s event must say why; going down the ladder "
+                           "without a reason is how a record loses its history"
+                           % (name, e.get("type")))
             seen_events.add(event_identity(e))
 
     state = fold()
     for iid, issue in state.items():
         if not issue.get("title"):
             bad.append("%s: declared with no title" % iid)
-        if issue.get("state") == DESCEND:
-            bad.append("%s: `falsified` is a transition, not a state" % iid)
+        if issue.get("state") in DESCEND:
+            bad.append("%s: %r is a transition, not a state" % (iid, issue["state"]))
         for dep in issue.get("depends_on", []):
             if dep not in state:
                 bad.append("%s: depends on %s, which is not declared" % (iid, dep))
@@ -255,11 +264,71 @@ def cmd_validate():
     if repr(fold()) != repr(state):
         bad.append("the fold is not idempotent")
 
+    bad += check_quotes(state)
     for b in bad:
         print("  " + b)
+
     print("violation:issues:%d" % len(bad) if bad else
           "ok:issues:%d finding(s), %d fragment(s)" % (len(state), len(fragments())))
     return 1 if bad else 0
+
+
+def _norm(s):
+    return re.sub(r"\s+", " ", s or "").strip()
+
+
+def _norm_src(lines):
+    return _norm("\n".join(re.sub(r"^\s*(?:#|//[!/]?|--|\*)(?:\s+|$)", "", x) for x in lines))
+
+
+def check_quotes(state):
+    """Every `quote` must be verbatim in the range it cites, at the release the
+    finding names. This is the same rule the page's footnotes obey, and for the
+    same reason: a citation nobody checks is a citation that drifts. Analysis
+    that is ours rather than the source's belongs in `note`, which is not
+    checked because it does not pretend to be a quotation.
+
+    Where no checkout is present the quote is reported UNCHECKED, never passed
+    over in silence.
+    """
+    import os
+    clones = pathlib.Path(os.environ.get("TILLANDSIAS_CLONE_DIR",
+                                         pathlib.Path.home() / ".cache/tillandsias-org/clones"))
+    bad, unchecked = [], 0
+    for iid, issue in sorted(state.items()):
+        tag = issue.get("tag", "")
+        for ev in issue.get("evidence", []) or []:
+            if not isinstance(ev, dict):
+                continue
+            quote, path = ev.get("quote"), ev.get("path", "")
+            if not quote or not path:
+                continue
+            target, _, anchor = path.partition("#")
+            root = clones / tag
+            if issue.get("repo") == "tillandsias.org":
+                root = ROOT                        # this repository's own tree
+            if not (root / target).exists():
+                if root == ROOT:
+                    bad.append("%s: cites %s, which is not in this repository" % (iid, target))
+                else:
+                    unchecked += 1
+                continue
+            lines = (root / target).read_text(errors="replace").splitlines()
+            lo, hi = 1, len(lines)
+            m = re.match(r"^L(\d+)(?:-L(\d+))?$", anchor or "")
+            if m:
+                lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
+                if hi > len(lines) or lo < 1 or lo > hi:
+                    bad.append("%s: %s names a range outside the file (%d lines)"
+                               % (iid, path, len(lines)))
+                    continue
+            span = lines[lo - 1:hi]
+            if _norm(quote) not in _norm("\n".join(span)) and _norm(quote) not in _norm_src(span):
+                bad.append("%s: quote is not verbatim at %s — move it to `note` if it is "
+                           "our reading rather than the source's words" % (iid, path))
+    if unchecked:
+        print("  %d quote(s) UNCHECKED: no checkout for the release they name" % unchecked)
+    return bad
 
 
 def cmd_columns():
@@ -286,6 +355,11 @@ def cmd_stats():
     for f in ("column", "repo", "class", "severity", "state"):
         print("  %-9s %s" % (f, tally(f)))
     print("  filed upstream: %d" % sum(1 for i in state.values() if i.get("upstream")))
+    rets = [(i["id"], e) for i in state.values() for e in i.get("events", [])
+            if e.get("type") == "retracted"]
+    print("  claims retracted: %d" % len(rets))
+    for iid, e in sorted(rets, key=lambda x: x[1].get("ts", "")):
+        print("    %s  %s  %s" % (e.get("ts", "")[:10], iid, e.get("note", "")[:80]))
     return 0
 
 
