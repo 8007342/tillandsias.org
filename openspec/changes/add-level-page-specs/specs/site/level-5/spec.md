@@ -28,15 +28,21 @@ OpenSpec change.
 Every change to the page's text and every bump of its pin MUST land through an
 OpenSpec change under `openspec/changes/` that lists one delta per requirement,
 flag or footnote it touches, each with `path#Lstart-Lend` evidence and a
-verbatim quote at the target tag. Agents produce the proposal, never the edit;
-the operator approves each change. A structural rewrite is out of scope for a
-delta and needs its own change with a `design.md`.
+verbatim quote at the target tag. An editor MAY apply the deltas it lists, and
+MUST apply no others: the record and the diff are checked against each other,
+and the operator reviews the change before it is archived. A structural rewrite
+is out of scope for a delta and needs its own change with a `design.md`.
 
 #### Scenario: Pin bump proposed
 - **WHEN** a pin bump for level 5 is proposed
 - **THEN** the change lists one delta per footnote whose target or quote drifted
-  between the tags, each with evidence at the target tag, and nothing lands
-  until the operator approves
+  between the tags, each with evidence at the target tag, and the change is not
+  archived until the operator has reviewed it
+
+#### Scenario: The diff exceeds the record
+- **WHEN** the page's diff contains a hunk that no delta in the change lists
+- **THEN** that hunk is a defect: it is reverted, or the change is amended to
+  list it with its evidence before the change is archived
 
 #### Scenario: Agent proposes a rewrite
 - **WHEN** an agent proposes reorganising or rewriting the page rather than a

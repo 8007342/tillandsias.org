@@ -20,9 +20,10 @@ discipline this change follows, and that a reviewer checks it against:
 - **Quotes are verbatim.** Each `>` line under a footnote copies contiguous
   characters from the cited range at the footnote's tag, no ellipsis, at most a
   few sentences. The checked build searches for it after collapsing whitespace
-  and fails if it is absent. Rust doc-comment leaders (`//!`, `///`) and shell
-  `#` leaders are kept in the quote where a quote spans lines, so the match is
-  exact.
+  and fails if it is absent. Where a quote spans several lines of a comment the
+  leaders (`//!`, `///`, `#`, `--`) are dropped from the quote so it reads as
+  prose; the build strips them from the source before matching, so the
+  comparison stays exact.
 - **Nothing else moves.** No reflow, no rephrasing, no renumbering. Existing
   footnote targets and labels are unchanged. New footnotes take the next free
   numbers (41 onward). The `# Title` line and the `## Footnotes` section stay.
