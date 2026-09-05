@@ -6,9 +6,9 @@ When you open a website, you borrow a computer in a huge building far away — *
 
 It is a doll house. Your computer is the table. Tillandsias puts a clean pretend-computer on it, and inside that, little rooms, one program each.
 
-Everything you run there has one plain word: **app** — a small set of words, chosen on purpose, written down as a promise.[^1] A machine reads every line of the waking-up message and fails if a wrong word sneaks in.[^6]
+Everything you run there has one plain word: **app** — chosen on purpose and written down as a promise.[^1] A machine reads every line of the waking-up message and fails if a wrong word sneaks in.[^6]
 
-> GREEN: On the waking-up message the promise is machine-checked, not just hoped for.
+> GREEN: Every line of the waking-up message is machine-checked against a list of forbidden machine words, not just hoped for.
 
 ## Nobody goes outside except the doorman
 
@@ -18,13 +18,13 @@ The honest bit: they once kept a *list* of who lived there, and six residents mo
 
 Robot helpers may only play **inside** the doll house.[^11] If one breaks something, it was pretend.
 
-> GREEN: This part works great — one way out, kept honest by a machine.
+> GREEN: One way out by design, and the list of who lives inside is kept honest by a machine.
 
 ## Broken things get thrown away, not glued
 
 @fig:ephemeral
 
-If a room breaks, nobody glues it. It goes in the bin and Tillandsias builds a fresh one from the same recipe. Gluing is banned: every glue job broke something *underneath* next.[^3]
+If a room breaks, nobody glues it. It goes in the bin and Tillandsias builds a fresh one from the same recipe. Gluing is banned: gluing one layer tends to break the layer underneath next.[^3]
 
 Your real work lives outside the doll house and never gets swept.[^12]
 
@@ -32,21 +32,21 @@ Your real work lives outside the doll house and never gets swept.[^12]
 
 First they write down what a thing should do, so clearly nobody could argue whether it came true. Then a machine presses the promise: green light or red.
 
-**Every time they fix something, they check that nothing else got worse[^4] — and they write down what they checked.**
+**Every time they fix something, they check that nothing else got worse[^23] — and they write down what they checked.**
 
 They are honest: less broken every time does **not** mean ending up perfect — only creeping toward *some* resting place, maybe not zero. They wrote that down.[^4]
 
 They work in many tiny fast tries, not one long careful think — small tries find the answer sooner, so long as each is only a *little* wrong.[^5]
 
-> PLAUSIBLE: It sounds right and works for them. But the sum first written to prove it[^5] needs every try to stand alone, and theirs do not — each reads what the last one learned. They took that proof back:[^13] the idea stays, the proof is owed.
+> PLAUSIBLE: It sounds right and works for them. But the sum first written to prove it[^5] needs every try to stand alone, and theirs do not — each reads what the last one learned. They took that proof back in the newest daily builds:[^13] the idea stays, the proof is owed.
 
 Anyone may have it, read it and change it, free.[^14]
 
 ## Things that are still broken, and one that got fixed
 
-> NOTE: This one got fixed. The doorman's key for sealed letters once sat unlocked in a shared scratch drawer, for anyone to read.[^7] Since August[^16] it travels in a proper safe, locked so only you can read it.[^15]
+> NOTE: This one got fixed. The doorman's key for sealed letters once sat unlocked in a shared scratch drawer, for anyone to read.[^7] Since August[^16] it is locked so only you can read it, and the doorman is handed his own sealed copy instead of reading it out of the drawer.[^15]
 
-> RED: In this release the key lives in the shared drawer,[^17] locked a blink *after* it goes in,[^18] and a "check the lock" chore still runs on every grown-up's computer.[^19]
+> RED: The key still lives in the shared drawer,[^17] locked a blink *after* it goes in,[^18] and a "check the lock" chore runs on every grown-up's computer.[^19]
 > PATH: The daily builds moved the drawer out of the shared space on 4 September 2026.[^20][^22] Locking it first, then retiring the chore, is the written next job.[^18]
 
 > RED: The little status badge in the corner still says "Ready (podman starting…)", "Provisioning…" and "VM failed":[^9] machine words a second written promise forbids.[^21]
@@ -66,7 +66,7 @@ Anyone may have it, read it and change it, free.[^14]
     > Instead make each prompt SMALL and FAST with a CONTROLLED, BOUNDED skew, then iterate — the STRONG LLN (almost-sure convergence) makes the stream of iterations converge hard.
 [^6]: The word list for the waking-up message, and the test that checks every line it can emit | crates/tillandsias-headless/src/bringup_progress.rs#L119-L175
     > fn no_internals_vocabulary_in_any_emitted_line() { for total in 1..=12 { let mut p = BringUpProgress::with_enabled(total, true); for _ in 0..total { let line = p.next_line().to_ascii_lowercase(); for banned in BANNED { assert!( !line.contains(banned),
-[^7]: The original write-up of the doorman's key problem (15 August 2026), with the three fixes it proposed | plan/issues/proxy-ca-private-key-world-readable-2026-08-15.md#L38-L46
+[^7]: The original write-up of the doorman's key problem (15 August 2026): anyone on the computer could read the key, and the three fixes it proposed | plan/issues/proxy-ca-private-key-world-readable-2026-08-15.md#L31-L46
     > 1. Preferred: deliver the key as a podman secret (the entrypoint's secret branch already handles ownership correctly and becomes REACHABLE), or
 [^8]: The open plan to give both badges one shared word list, and why a person must sign it off | plan/issues/tray-string-parity-and-i18n-layer-2026-08-09.md#L104-L130
     > Reconciling existing drift **changes a user-visible string on whichever platform loses**. `spec:tray-ux` "UX curation governance" forbids that without recorded operator approval for the exact surface change.
@@ -74,14 +74,14 @@ Anyone may have it, read it and change it, free.[^14]
     > VmPhase::Ready => "\u{1F7E1} Ready (podman starting\u{2026})".to_string(),
 [^10]: Why the hand-written resident list was replaced by a checking machine | openspec/specs/enclave-network/spec.md#L12
     > A hand-maintained prose list went stale by SIX members between 2026-07 and 2026-08-30 (order 245 P8) — it still said "forge, git, inference, and proxy" after vault, the router, the nix cache, the catalog service, the observatorium web and the ssh-lane sidecar had all joined.
-[^11]: The rule that robot helpers run only inside the doll house | openspec/specs/forge-as-only-runtime/spec.md#L280-L282
-    > the agent process MUST appear only inside the forge container
+[^11]: The rule that robot helpers run only inside the doll house | openspec/specs/forge-as-only-runtime/spec.md#L12-L13
+    > Every coding agent, maintenance shell, and runtime utility executes inside the project's forge container; there is no host-side execution surface.
 [^12]: Sweeping a room never touches your real work | openspec/specs/app-lifecycle/spec.md#L75-L77
     > the container is removed, project-specific cache data is deleted, but the project source directory in `~/src` is never touched
-[^13]: The grown-ups taking the proof back: the rule they used needs each try to be independent, and theirs are not | methodology/philosophy.yaml#L29-L37 @v56.9.5.1
+[^13]: The grown-ups taking the proof back, recorded 2026-09-03 in the daily channel: the rule they used needs each try to be independent, and theirs are not | methodology/philosophy.yaml#L29-L37 @v56.9.5.1
     > CITATION WITHDRAWN (order 976-bd3n, external review 2026-09-03). This block previously claimed the STRONG LLN — almost-sure convergence — for the stream of iterations. INDEPENDENCE IS A HYPOTHESIS OF THAT THEOREM, NOT A STYLISTIC ASSUMPTION, and this system deliberately violates it
-[^14]: The licence: anyone may have it, read it and change it | LICENSE#L1-L2
-    > GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+[^14]: The licence: anyone may have it, read it and change it | LICENSE#L1-L16
+    > the GNU General Public License is intended to guarantee your freedom to share and change all versions of a program
 [^15]: The fix: the key is locked to its owner, and reaches the doorman as a secret rather than through the file | crates/tillandsias-headless/src/main.rs#L3009-L3020
     > Clamp the CA private key to owner-only access (0600) — 755-qcxh.
 [^16]: The ledger closing the key fix on 16 August 2026 | plan/archive/packets-2026-08.yaml#L15094-L15133
@@ -98,3 +98,5 @@ Anyone may have it, read it and change it, free.[^14]
     > Internals vocabulary (VM, WSL, enclave, mirror, vault, container, podman, provisioning) MUST NOT appear in end-user-facing UX text.
 [^22]: The ledger closing the move on 4 September 2026 | plan/index.yaml#L57386-L57387 @v56.9.5.1
     > - type: completed ts: "2026-09-04T09:17:37Z"
+[^23]: The written-down check after every fix: the list of already-broken tests may not grow, and anything on it that starts passing must be struck off | build.sh#L1449-L1454
+    > a failure not named in scripts/test-known-red.txt is a new regression, and a listed test that PASSED is a stale entry that must be deleted
