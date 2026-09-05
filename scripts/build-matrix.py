@@ -157,7 +157,7 @@ def norm(s):
 def norm_source(lines):
     """Cited lines with comment leaders stripped, so a quote that spans two
     lines of a shell, YAML or Rust comment still matches verbatim."""
-    return norm("\n".join(re.sub(r"^\s*(?:#|//|--|\*)\s?", "", x) for x in lines))
+    return norm("\n".join(re.sub(r"^\s*(?:#|//[!/]?|--|\*)(?:\s+|$)", "", x) for x in lines))
 
 
 def check_target(level, ref, target, quote):
