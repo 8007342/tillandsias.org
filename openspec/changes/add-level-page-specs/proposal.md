@@ -31,6 +31,18 @@ finding that is true at one pin is false at the next.
   - `site/level-5`: "I'm a MathWiz / Hacker" — the formal content, under the
     delta discipline: its own pin, every change through an OpenSpec change,
     verdicts re-derived at each pin bump.
+- One delta spec for the site as a whole, `site/navigation`: the hamburger
+  control and the left collapsing menu with its three entries — Home, "What is
+  it?", Live progress — landing on "What is it?"; the home page's labelled
+  placeholder, its `Tillandsias` wordmark and `by Tlatoāni` byline, and the one
+  fun fact drawn per visit from a pool that ships with the page; the Live
+  progress board, where every finding in `issues.d/` sits in exactly one of
+  three columns, the columns are folded from the ledger's own monotone ladder
+  rather than maintained by hand, and each finding's dependencies, chronology
+  and upstream filing state are visible; and the measurement requirements,
+  which permit the intention to grade components and to plot convergence on a
+  logarithmic time axis while forbidding the page to present a pass rate as a
+  CentiColon score, or to draw monotone progress across a change of denominator.
 - Each per-level spec states the page's purpose, its audience, and the
   properties an edit must preserve, expressed as properties that hold at the
   level's pin rather than as verdicts on particular flags. Level 5's spec is the
@@ -53,6 +65,11 @@ finding that is true at one pin is false at the next.
 - `site/level-4`: The "I'm a Cyber Security expert" page's purpose and content contract.
 - `site/level-5`: The "I'm a MathWiz / Hacker" page's purpose, claim form and
   delta discipline.
+- `site/navigation`: The site as a whole — the three pages behind the collapsing
+  menu and which one a reader lands on, the home placeholder and its single
+  fun fact, the three-column progress board derived from the findings ledger,
+  and the rule that a measurement the project cannot yet compute is never shown
+  as measured.
 
 ### Modified Capabilities
 
@@ -60,11 +77,14 @@ None.
 
 ## Impact
 
-- New change directory `openspec/changes/add-level-page-specs/` with six delta
+- New change directory `openspec/changes/add-level-page-specs/` with seven delta
   specs under `specs/site/`.
 - No change to rendered output: the specs and the audit files are not inputs to
   `scripts/build-matrix.py`. The rebuild check and its result are recorded in
   `tasks.md` 3.2.
 - After archive/sync, the main specs tree gains
-  `openspec/specs/site/level-common/spec.md` and
-  `openspec/specs/site/level-<n>/spec.md`.
+  `openspec/specs/site/level-common/spec.md`,
+  `openspec/specs/site/level-<n>/spec.md` and
+  `openspec/specs/site/navigation/spec.md`.
+- `site/navigation` describes the three-page site the operator is building
+  separately; this change writes the contract only and implements none of it.

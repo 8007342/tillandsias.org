@@ -23,6 +23,17 @@
 - [x] 2.6 Strip dated findings, order ids, ledger line numbers, file counts and
       mandated verdicts out of every requirement and Purpose paragraph; file
       them as the work items in section 4 (revision of 2026-09-05)
+- [x] 2.7 `specs/site/navigation/spec.md` — the site as a whole: the hamburger
+      control and the left collapsing menu with its three entries, landing on
+      "What is it?"; the home placeholder, the wordmark and the macron in the
+      byline, and one fun fact drawn per visit from a pool that ships with the
+      page; the Live progress board — every finding in exactly one of three
+      columns, the columns folded from the ledger's ladder rather than kept by
+      hand, dependencies, chronology and upstream filing visible; and the
+      measurement requirements, which allow the intention to grade components
+      and to plot convergence on a logarithmic axis but forbid presenting a pass
+      rate as a score or drawing progress across a change of denominator. The
+      spec only: the operator implements the pages separately
 
 ## 3. Verification
 
