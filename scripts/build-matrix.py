@@ -16,7 +16,9 @@ import sys
 import urllib.parse
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import facts  # noqa: E402
 import figures  # noqa: E402
+import issues  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "docs" / "matrix"
@@ -428,6 +430,125 @@ def parse(path, level):
     return body, {n: tuple(v) for n, v in notes.items()}
 
 
+SEVERITY_ORDER = {"high": 0, "medium": 1, "low": 2}
+COLUMN_TITLE = {
+    "red": ("Found, not yet tracked",
+            "Newly found, undocumented or untracked, and still carrying real uncertainty."),
+    "yellow": ("Tracked, with a plan",
+               "Documented and being worked or actively followed, uncertainty low enough to act on."),
+    "green": ("Done, and holding",
+              "Complete, and the thing it was about now meets its own written criteria."),
+}
+
+
+def home_view():
+    """The landing placeholder: a wordmark, and one fact drawn in the browser."""
+    pool = "".join('<li>%s</li>' % html.escape(f) for f in facts.FACTS)
+    return ('<section class="view" id="view-home" role="tabpanel" aria-labelledby="nav-home">'
+            '<div class="homecard">'
+            '<div class="homeart" role="img" aria-label="Placeholder for an image of the Tlatoāni">'
+            '%s<span class="homeart-note">image to come</span></div>'
+            '<h1 class="wordmark">Tillandsias</h1>'
+            '<p class="byline">by Tlatoāni</p>'
+            '<p class="fact" id="fact">%s</p>'
+            '<ul class="factpool" id="factpool" hidden>%s</ul>'
+            '<p class="homelead">Local hardware. Free software. Nothing rented, nothing metered, '
+            'nothing left behind.</p>'
+            '<p class="homego"><button class="gobtn" data-go="view-what">What is it?</button>'
+            '<button class="gobtn" data-go="view-progress">Live progress</button></p>'
+            '</div></section>'
+            % (figures.PLANTS["xerographica"], html.escape(facts.FACTS[0]), pool))
+
+
+def progress_view():
+    """Three columns, straight off the ledger's own ladder. Every finding is in
+    exactly one of them, because the ladder puts it there."""
+    try:
+        state = issues.fold()
+    except Exception as exc:                       # a malformed fragment must not
+        print("  ! issues ledger did not fold: %s" % exc)   # take the whole page down
+        state = {}
+
+    cols = {"red": [], "yellow": [], "green": []}
+    for f in state.values():
+        cols.get(f.get("column", "red"), cols["red"]).append(f)
+    for rows in cols.values():
+        rows.sort(key=lambda f: (SEVERITY_ORDER.get(f.get("severity"), 3), f["id"]))
+
+    total = len(state) or 1
+    done = len(cols["green"])
+    tracked = len(cols["yellow"])
+
+    def card(f):
+        ev = f.get("events", [])
+        first = ev[0].get("ts", "")[:10] if ev else ""
+        last = ev[-1].get("ts", "")[:10] if ev else ""
+        dep = "".join('<span class="dep">%s</span>' % html.escape(d) for d in f.get("depends_on", []))
+        up = ('<a class="up" href="%s" target="_blank" rel="noopener">filed &#8599;</a>'
+              % html.escape(f["upstream"], quote=True)) if f.get("upstream") else              '<span class="up unfiled">not filed upstream</span>' if f.get("repo") == "tillandsias" else ""
+        return ('<li class="card sev-%s"><div class="card-h"><code>%s</code>'
+                '<span class="repo">%s</span><span class="sev">%s</span></div>'
+                '<p class="card-t">%s</p>'
+                '<p class="card-m">%s%s%s</p>%s</li>'
+                % (html.escape(f.get("severity", "low")), html.escape(f["id"]),
+                   html.escape(f.get("repo", "")), html.escape(f.get("severity", "")),
+                   html.escape(f.get("title", "(untitled)")),
+                   html.escape(f.get("area", "")),
+                   (" &middot; found %s" % first) if first else "",
+                   (" &middot; moved %s" % last) if last and last != first else "",
+                   ('<p class="card-d">needs %s</p>' % dep) if dep else "") ) +                (('<li class="card-up">%s</li>' % up) if False else "")
+
+    def column(key):
+        title, blurb = COLUMN_TITLE[key]
+        rows = cols[key]
+        return ('<section class="col col-%s"><h3>%s <span class="n">%d</span></h3>'
+                '<p class="col-b">%s</p><ul class="cards">%s</ul></section>'
+                % (key, title, len(rows), blurb,
+                   "".join(card(f) for f in rows) or '<li class="card empty">nothing here yet</li>'))
+
+    bar = ('<div class="bar" role="img" aria-label="%d of %d findings resolved, %d tracked">'
+           '<span class="bar-g" style="width:%.1f%%"></span>'
+           '<span class="bar-y" style="width:%.1f%%"></span></div>'
+           % (done, len(state), tracked, 100.0 * done / total, 100.0 * tracked / total))
+
+    return ('<section class="view" id="view-progress" role="tabpanel" aria-labelledby="nav-progress">'
+            '<div class="wrap">'
+            '<h2 class="view-h">Live progress</h2>'
+            '<p class="view-lede">Every defect this project has found, in one of three columns and '
+            'nowhere else. A finding climbs from left to right and comes back only when someone '
+            'writes down why. The columns are not maintained by hand: they are the ledger\'s own '
+            'ladder, folded at build time from <code>issues.d/</code>.</p>'
+            '%s'
+            '<p class="tally"><b>%d</b> findings &middot; <b>%d</b> done &middot; <b>%d</b> tracked '
+            '&middot; <b>%d</b> waiting &middot; <b>%d</b> filed upstream</p>'
+            '<div class="cols">%s%s%s</div>'
+            '%s'
+            '</div></section>'
+            % (bar, len(state), done, tracked, len(cols["red"]),
+               sum(1 for f in state.values() if f.get("upstream")),
+               column("red"), column("yellow"), column("green"),
+               centicolon_note()))
+
+
+def centicolon_note():
+    """What we intend to plot here, and why there is no data yet. The site does
+    not get to show a convergence curve it cannot compute."""
+    return ('<section class="cc"><h3>Convergence, once there is something to plot</h3>'
+            '<p>The plan is to grade this project the way the runtime grades itself, with its '
+            'CentiColon score, and to show it per component on a logarithmic time axis so the '
+            'newest work occupies the most width — the shape the staircase figure on the '
+            'power-user level already draws for the argument.</p>'
+            '<p>Two things are missing, and the page will not pretend otherwise. The score the '
+            'runtime publishes today is a pass rate over a hardcoded weight table of continuous '
+            'integration checks, not the arithmetic its own specification defines: none of the '
+            'base weights, multipliers, cap rules or penalties in the methodology is computed '
+            'anywhere in that tree. And nothing yet scores <em>this</em> project at all. Until '
+            'both change, the bar above counts findings, which is a real measurement of a small '
+            'thing rather than a fabricated measurement of a large one.</p>'
+            '<p class="cc-open">Tracked as findings in the ledger, not as a promise here.</p>'
+            '</section>')
+
+
 def build():
     panels, tabs = [], []
     for idx, (slug, title, blurb, cont, ref, plant) in enumerate(LEVELS):
@@ -517,6 +638,8 @@ def build():
            .replace("__LEAF__", figures.PLANTS["ionantha"])
            .replace("__FAVICON__", favicon)
            .replace("__DEFS__", figures.DEFS)
+           .replace("__HOME__", home_view())
+           .replace("__PROGRESS__", progress_view())
            .replace("__TABS__", "\n".join(tabs))
            .replace("__PANELS__", "\n".join(panels))
            .replace("__SITE_REF__", SITE_REF))
@@ -740,6 +863,89 @@ em{color:#dbe4ee}
 footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--ink-faint);font-size:14px}
 footer a{color:var(--ink-dim)}
 footer a:hover{color:var(--leaf)}
+/* --- the menu, and the three views it switches between --- */
+.view{display:none}
+.view.is-active{display:block}
+.burger{position:fixed;top:14px;left:14px;z-index:40;width:38px;height:34px;display:flex;
+  flex-direction:column;justify-content:center;gap:4px;padding:0 8px;cursor:pointer;
+  background:rgba(12,16,21,.82);backdrop-filter:blur(8px);border:1px solid var(--line);
+  border-radius:9px}
+.burger span{display:block;height:1.5px;background:var(--ink-dim);border-radius:2px;transition:.18s}
+.burger:hover span{background:var(--leaf)}
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(5.5px) rotate(45deg)}
+.burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+.drawer{position:fixed;top:0;left:0;bottom:0;z-index:39;width:250px;padding:66px 14px 20px;
+  background:var(--bg-2);border-right:1px solid var(--line);
+  transform:translateX(-100%);transition:transform .2s ease;display:flex;flex-direction:column;gap:2px}
+.drawer.is-open{transform:none}
+.drawer-h{margin:0 8px 14px;font:600 11px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;
+  color:var(--leaf)}
+.drawer-f{margin:auto 8px 0;font-size:12px;color:var(--ink-faint)}
+.nav{display:flex;align-items:center;gap:10px;width:100%;text-align:left;cursor:pointer;
+  background:transparent;border:1px solid transparent;border-radius:8px;color:var(--ink-dim);
+  font:500 14.5px/1 var(--sans);padding:11px 10px;transition:.15s}
+.nav:hover{color:var(--ink);background:rgba(255,255,255,.04)}
+.nav.is-on{color:var(--ink);background:var(--panel);border-color:var(--line)}
+.nav-i{width:1.2em;text-align:center;color:var(--leaf-dim);font-size:13px}
+.nav.is-on .nav-i{color:var(--leaf)}
+.scrim{position:fixed;inset:0;z-index:38;background:rgba(4,6,9,.55)}
+/* --- home --- */
+.homecard{max-width:760px;margin:0 auto;padding:96px 24px 80px;text-align:center}
+.homeart{position:relative;display:flex;align-items:center;justify-content:center;
+  height:clamp(180px,30vh,300px);margin:0 0 34px;border:1px solid var(--line);border-radius:14px;
+  background:linear-gradient(180deg,#0c1119,#080b10);color:var(--leaf-dim)}
+.homeart svg{width:74px;height:74px;opacity:.5}
+.homeart-note{position:absolute;bottom:12px;right:14px;font:500 10.5px/1 var(--mono);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.wordmark{margin:0;font-size:clamp(46px,10vw,96px);line-height:1;letter-spacing:-.04em;font-weight:660}
+.byline{margin:12px 0 0;font:400 17px/1 var(--sans);color:var(--ink-dim)}
+.fact{max-width:52ch;margin:34px auto 0;font:italic 400 15.5px/1.65 var(--sans);color:var(--ink-faint)}
+.factpool{display:none}
+.homelead{max-width:52ch;margin:26px auto 0;font-size:15px;color:var(--ink-dim)}
+.homego{margin:32px 0 0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.gobtn{cursor:pointer;background:transparent;border:1px solid var(--line-2);border-radius:9px;
+  color:var(--ink-dim);font:500 14px/1 var(--sans);padding:11px 18px;transition:.15s}
+.gobtn:hover{color:var(--ink);border-color:var(--leaf-dim);background:rgba(95,214,164,.05)}
+/* --- live progress --- */
+.view-h{margin:76px 0 10px;font-size:clamp(28px,4vw,40px);letter-spacing:-.026em;font-weight:650}
+.view-lede{max-width:74ch;margin:0 0 22px;color:var(--ink-dim);font-size:15.5px}
+.bar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:#141b24;margin:0 0 10px}
+.bar-g{background:var(--leaf)} .bar-y{background:var(--amber)}
+.tally{margin:0 0 30px;font-size:13.5px;color:var(--ink-faint)}
+.tally b{color:var(--ink-dim);font-weight:640}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+.col{border:1px solid var(--line);border-radius:12px;background:var(--bg-2);padding:16px 14px}
+.col h3{margin:0 0 4px;font-size:14.5px;font-weight:640;display:flex;align-items:center;gap:8px}
+.col h3 .n{font:600 11px/1 var(--mono);color:var(--bg);border-radius:20px;padding:4px 8px}
+.col-red h3{color:var(--rose)} .col-red h3 .n{background:var(--rose)}
+.col-yellow h3{color:var(--amber)} .col-yellow h3 .n{background:var(--amber)}
+.col-green h3{color:var(--leaf)} .col-green h3 .n{background:var(--leaf)}
+.col-b{margin:0 0 14px;font-size:12.5px;line-height:1.5;color:var(--ink-faint)}
+.cards{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.card{border:1px solid var(--line);border-left:2px solid var(--line-2);border-radius:9px;
+  background:var(--panel);padding:10px 11px}
+.card.sev-high{border-left-color:var(--rose)}
+.card.sev-medium{border-left-color:var(--amber)}
+.card.sev-low{border-left-color:var(--line-2)}
+.card.empty{color:var(--ink-faint);font-size:13px;border-left-color:transparent;text-align:center}
+.card-h{display:flex;align-items:center;gap:8px;margin:0 0 5px;font:500 10.5px/1 var(--mono)}
+.card-h code{background:none;border:0;padding:0;color:var(--leaf-dim)}
+.card-h .repo{color:var(--ink-faint)}
+.card-h .sev{margin-left:auto;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.1em}
+.card-t{margin:0 0 5px;font-size:13.5px;line-height:1.45;color:#c9d4e0}
+.card-m{margin:0;font:400 11.5px/1.45 var(--mono);color:var(--ink-faint);word-break:break-word}
+.card-d{margin:6px 0 0;font-size:11.5px;color:var(--ink-faint)}
+.dep{display:inline-block;font:500 10.5px var(--mono);color:var(--amber);
+  border:1px solid rgba(230,180,94,.3);border-radius:4px;padding:1px 5px;margin-right:4px}
+.up{font:500 11px var(--mono);color:var(--leaf);text-decoration:none}
+.up.unfiled{color:var(--ink-faint)}
+.cc{margin:40px 0 0;padding:20px 20px 8px;border:1px solid var(--line);border-radius:12px;
+  background:var(--bg-2)}
+.cc h3{margin:0 0 10px;font-size:16px;font-weight:640}
+.cc p{margin:0 0 14px;max-width:78ch;font-size:14px;line-height:1.6;color:var(--ink-dim)}
+.cc-open{font:500 12px var(--mono);color:var(--ink-faint)}
+@media (max-width:900px){.cols{grid-template-columns:1fr}}
 @media (max-width:760px){
   header.hero{padding:48px 0 24px}
   .tab-t{display:none}
@@ -755,6 +961,20 @@ footer a:hover{color:var(--leaf)}
 <body>
 __DEFS__
 
+<button class="burger" id="burger" aria-label="Open the menu" aria-expanded="false"
+        aria-controls="drawer"><span></span><span></span><span></span></button>
+<nav class="drawer" id="drawer" aria-label="Site">
+  <p class="drawer-h">tillandsias.org</p>
+  <button class="nav" id="nav-home" data-go="view-home"><span class="nav-i">&#127968;</span>Home</button>
+  <button class="nav is-on" id="nav-what" data-go="view-what"><span class="nav-i">&#63;</span>What is it?</button>
+  <button class="nav" id="nav-progress" data-go="view-progress"><span class="nav-i">&#9673;</span>Live progress</button>
+  <p class="drawer-f">Checked against release <code>__SITE_REF__</code>.</p>
+</nav>
+<div class="scrim" id="scrim" hidden></div>
+
+__HOME__
+
+<section class="view is-active" id="view-what" role="tabpanel" aria-labelledby="nav-what">
 <header class="hero">
   <div class="wrap">
     <p class="eyebrow"><span class="leaf-ico" aria-hidden="true">__LEAF__</span>tillandsias.org <span class="ver" title="The release of the source repository this page was last checked against">&middot; __SITE_REF__</span></p>
@@ -794,6 +1014,9 @@ __TABS__
 __PANELS__
   </div>
 </main>
+</section>
+
+__PROGRESS__
 
 <footer>
   <div class="wrap">
@@ -875,6 +1098,56 @@ __PANELS__
   document.addEventListener('focusout', hide);
   window.addEventListener('scroll', function(){ tip.classList.remove('on'); }, {passive:true});
 })();
+// The menu, the three views, and one fact chosen per visit.
+(function(){
+  var burger = document.getElementById('burger'),
+      drawer = document.getElementById('drawer'),
+      scrim  = document.getElementById('scrim');
+  function setMenu(open){
+    drawer.classList.toggle('is-open', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    scrim.hidden = !open;
+  }
+  burger.addEventListener('click', function(){
+    setMenu(!drawer.classList.contains('is-open'));
+  });
+  scrim.addEventListener('click', function(){ setMenu(false); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') setMenu(false);
+  });
+
+  var views = [].slice.call(document.querySelectorAll('.view')),
+      navs  = [].slice.call(document.querySelectorAll('.nav'));
+  function go(id, push){
+    if (!document.getElementById(id)) return;
+    views.forEach(function(v){ v.classList.toggle('is-active', v.id === id); });
+    navs.forEach(function(n){ n.classList.toggle('is-on', n.dataset.go === id); });
+    setMenu(false);
+    if (push) history.replaceState(null, '', id === 'view-what' ? location.pathname : '#' + id.slice(5));
+    window.scrollTo(0, 0);
+  }
+  [].slice.call(document.querySelectorAll('[data-go]')).forEach(function(b){
+    b.addEventListener('click', function(){ go(b.dataset.go, true); });
+  });
+
+  // One fact per visit, drawn in the browser so the page is a little different
+  // each time. The pool ships in the markup, so this works with no request.
+  var pool = document.getElementById('factpool'), out = document.getElementById('fact');
+  if (pool && out) {
+    var lines = pool.querySelectorAll('li');
+    if (lines.length) out.textContent = lines[Math.floor(Math.random() * lines.length)].textContent;
+  }
+
+  // A deep link opens its view: #home, #progress, or a level such as #level-3-power.
+  function fromHash(){
+    var h = location.hash.slice(1);
+    if (!h) return;
+    if (h === 'home' || h === 'progress') return go('view-' + h, false);
+    if (document.getElementById('panel-' + h)) go('view-what', false);
+  }
+  window.addEventListener('hashchange', fromHash);
+  fromHash();
+})();
 (function(){
   var tabs = [].slice.call(document.querySelectorAll('.tab'));
   function show(slug){
@@ -890,7 +1163,8 @@ __PANELS__
   }
   tabs.forEach(function(t){ t.addEventListener('click', function(){ show(t.dataset.target); }); });
   document.addEventListener('keydown', function(e){
-    if (e.key >= '1' && e.key <= '5' && !/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) {
+    var onWhat = document.getElementById('view-what').classList.contains('is-active');
+    if (onWhat && e.key >= '1' && e.key <= '5' && !/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) {
       var t = tabs[+e.key - 1]; if (t) show(t.dataset.target);
     }
   });
