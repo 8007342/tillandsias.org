@@ -43,6 +43,7 @@ Small on purpose. Anything not listed here is not supported.
 | `$x$` and `$$x$$` | inline / display maths, rendered by KaTeX |
 | `@fig:name` | a diagram from `scripts/figures.py` |
 | `[^3]` … `[^3]: Label \| path#L10-L20` | a footnote linking into the source repo |
+| `[^3]: Label \| path#L10-L20 @v56.9.5.1` | the same, resolved against that release instead of the level's pin |
 | `    > quoted lines` (under a footnote) | the verbatim quote shown in the tooltip and the list |
 
 A callout continues across lines that begin with `>`; a bare `>` starts a new
@@ -68,6 +69,10 @@ completeness and for readers without a pointer.
   `build-matrix.py`, not against `main`, so a reader clicking a line number lands on
   the line we quoted. When you bump a level's tag, re-verify its line ranges — they
   drift — and rebuild with the checkout present so the quotes are re-checked too.
+- **A level describes the stable channel.** Its pin is the release the install commands
+  hand a reader. A shortcoming fixed only in a daily build stays RED; its PATH line says
+  when the fix landed and cites it with a footnote carrying that daily's tag (`@vTAG`),
+  which is the only place a footnote may point past the level's pin.
 - **Quotes are verbatim and contiguous.** Copy the characters from the cited range;
   no paraphrase, no ellipsis, at most a few sentences. The checked build searches for
   the quote inside the cited lines after collapsing whitespace, and fails if it is

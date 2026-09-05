@@ -97,7 +97,10 @@ BOLD = re.compile(r"\*\*([^*]+)\*\*")
 EM = re.compile(r"(?<![\w*])\*([^*\n]+)\*(?![\w*])")
 FN_REF = re.compile(r"\[\^(\d+)\]")
 MATH_INLINE = re.compile(r"(?<!\$)\$([^$\n]+)\$(?!\$)")
-FN_DEF = re.compile(r"^\[\^(\d+)\]:\s*(.+?)\s*\|\s*(\S+)\s*$")
+# `[^n]: Label | target` with an optional ` @vX.Y.Z.B` after the target: that
+# footnote resolves against the named release instead of the level's pin, for
+# a PATH line that acknowledges a fix which exists only in a newer channel.
+FN_DEF = re.compile(r"^\[\^(\d+)\]:\s*(.+?)\s*\|\s*(\S+?)(?:\s+@(v[\d.]+))?\s*$")
 
 broken_links = []
 
@@ -198,7 +201,10 @@ class Ctx:
     def __init__(self, level, ref, notes):
         self.level, self.ref, self.notes = level, ref, notes
         self.fns = set()
-        self.urls = {n: footnote_url(t, ref) for n, (_, t, _) in notes.items()}
+        self.urls = {n: footnote_url(t, own or ref) for n, (_, t, _, own) in notes.items()}
+
+    def ref_for(self, n):
+        return self.notes[n][3] or self.ref
 
 
 def inline(text, ctx):
@@ -224,9 +230,11 @@ def inline(text, ctx):
         # footnote's label, its verbatim quote when one is recorded, and the
         # target, so a reader can judge a citation without leaving the sentence.
         if n in ctx.notes:
-            label, target, quote = ctx.notes[n]
+            label, target, quote, own = ctx.notes[n]
             url, external = ctx.urls[n]
             shown = target if not external else re.sub(r"^https?://", "", target)
+            if own and not external:
+                shown += " @" + own
             attrs = (' href="%s" target="_blank" rel="noopener" data-label="%s" data-target="%s"'
                      % (html.escape(url, quote=True), html.escape(label, quote=True),
                         html.escape(shown, quote=True)))
@@ -376,7 +384,7 @@ def parse(path, level):
             m = FN_DEF.match(s)
             if m:
                 last = m.group(1)
-                notes[last] = [m.group(2), m.group(3), ""]
+                notes[last] = [m.group(2), m.group(3), "", m.group(4)]
             elif s.startswith(">") and last:
                 notes[last][2] = (notes[last][2] + " " + s.lstrip(">").strip()).strip()
             elif s:
@@ -408,21 +416,24 @@ def build():
         if notes:
             rows = []
             for n in sorted(notes, key=int):
-                label, target, quote = notes[n]
+                label, target, quote, own = notes[n]
                 url, external = ctx.urls[n]
                 if not external:
-                    check_target(slug, ref, target, quote)
+                    check_target(slug, own or ref, target, quote)
                 shown = target if not external else re.sub(r"^https?://", "", target)
+                tag = ('<span class="fn-tag" title="This footnote points at a newer release than '
+                       'the rest of the level">@%s</span>' % own) if own and not external else ""
                 q = '<q class="fn-quote">%s</q>' % html.escape(quote) if quote else ""
                 rows.append(
                     '<li id="f%s-%s"><a class="fn-back" href="#r%s-%s" aria-label="back to text">%s</a>'
                     '<span class="fn-body">%s <a class="fn-link" href="%s" target="_blank" '
-                    'rel="noopener">%s<span class="ext" aria-hidden="true">&#8599;</span></a>%s</span></li>'
-                    % (slug, n, slug, n, n, html.escape(label), url, html.escape(shown), q))
+                    'rel="noopener">%s<span class="ext" aria-hidden="true">&#8599;</span></a>%s%s</span></li>'
+                    % (slug, n, slug, n, n, html.escape(label), url, html.escape(shown), tag, q))
             quoted = sum(1 for v in notes.values() if v[2])
             fn_html = ('<section class="footnotes"><h3>Footnotes</h3>'
                        '<p class="fn-note">Every link points at release <code>%s</code> of the '
-                       'source repository, so line numbers match the text above. A footnote '
+                       'source repository, so line numbers match the text above; a link marked '
+                       'with its own release tag points at that newer release instead. A footnote '
                        'number in the text opens its source in a new tab; hover it for the '
                        'quoted lines.</p>'
                        '<ol class="fn-list">%s</ol></section>' % (ref, "".join(rows)))
@@ -647,6 +658,8 @@ em{color:#dbe4ee}
 .fn-link{display:inline;color:var(--ink-faint);font:500 12.5px var(--mono);
   text-decoration:none;border-bottom:1px dotted var(--line-2);word-break:break-all}
 .fn-link:hover{color:var(--leaf);border-bottom-color:var(--leaf-dim)}
+.fn-tag{margin-left:6px;font:600 10px/1 var(--mono);letter-spacing:.06em;color:var(--amber);
+  border:1px solid rgba(230,180,94,.35);border-radius:4px;padding:2px 5px;vertical-align:1px}
 .fn-quote{display:block;margin:4px 0 2px;padding-left:10px;border-left:2px solid var(--line-2);
   font-size:13px;color:var(--ink-faint);font-style:normal;quotes:none}
 .fn-quote::before,.fn-quote::after{content:none}
