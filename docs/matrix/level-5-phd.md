@@ -1,4 +1,4 @@
-# Level 5 — For the PhD / MathWiz / Hacker
+# Level 5 — For the MathWiz / Hacker
 
 The lower levels gave you the object and its defects. What is left is the only part
 that can be attacked with a pencil: the formal content, stated as claims with
