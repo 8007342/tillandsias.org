@@ -1,0 +1,23 @@
+issues:
+  - id: 9f823c95
+    repo: tillandsias
+    title: Two scripts create the enclave network without --internal, and the new guard cannot see them
+    area: scripts/orchestrate-enclave.sh, scripts/run-forge-project.sh, scripts/diagnose-proxy.sh
+    class: spec-vs-code
+    severity: high
+    tag: v56.9.5.1
+    commit: b528680d2b938b09279e31faee981a8f6e370b3b
+    claim: The enclave is isolated because its network is created with --internal, and a build-gate check now reads the create sites.
+    code: scripts/run-forge-project.sh#L116-L119 and scripts/diagnose-proxy.sh#L90-L93 still create tillandsias-enclave with no --internal; scripts/check-enclave-network-internal.sh#L87-L115 checks a restated three-file list rather than discovering create sites, so both pass the gate.
+    why: A stack brought up by either script is not isolated, and the guard's green means only that the three files it names were clean. A check whose coverage is a hardcoded set reports the set, not the property.
+    fix: Make the guard discover every create site from source rather than restating a file list, and add the flag to both scripts.
+    evidence:
+      - path: scripts/run-forge-project.sh#L116-L119
+        quote: network create --driver bridge --subnet "$ENCLAVE_SUBNET"
+    upstream: ""
+events:
+  - id: 9f823c95
+    ts: "2026-09-05T19:40:00Z"
+    host: calmecacpilli
+    type: found
+    note: Found by the tillandsias.org spec-versus-code audit at v56.9.5.1, confirmed by an adversarial second pass.
