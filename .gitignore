@@ -8,3 +8,6 @@
 # Node / Wrangler
 node_modules/
 .wrangler/
+
+# Python bytecode from the build script
+__pycache__/

@@ -2,11 +2,13 @@
 """Assemble var/html/index.html from docs/matrix/level-*.md.
 
 The sources are written in a small markdown dialect (see docs/matrix/README.md):
-headings, bullets, GREEN/RED/PATH/NOTE callouts, $math$, @fig:NAME figures, and
-[^n] footnotes whose targets are repo-relative paths resolved against a pinned
-release tag so a reader lands on the exact line.
+headings, bullets, GREEN/RED/PATH/NOTE and PROVEN/PLAUSIBLE/REFUTED callouts,
+$math$, @fig:NAME figures, and [^n] footnotes whose targets are repo-relative
+paths resolved against the release tag each level is pinned to, so a reader
+lands on the exact line, with an optional verbatim quote shown in the tooltip.
 """
 import html
+import os
 import pathlib
 import re
 import subprocess
@@ -20,30 +22,41 @@ SRC = ROOT / "docs" / "matrix"
 OUT = ROOT / "var" / "html" / "index.html"
 
 REPO = "https://github.com/8007342/tillandsias"
-# Links are pinned to the release the copy was written against, not to main:
-# a reader clicking a line number must land on the line we actually quoted.
-REF = "v56.9.2.1"
-# Set TILLANDSIAS_CLONE to a checkout at REF to validate every footnote target.
-CLONE = pathlib.Path(
-    __import__("os").environ.get("TILLANDSIAS_CLONE", "")) if True else None
 
+# Each level pins the release its copy was verified against, not main: a reader
+# clicking a line number must land on the line we actually quoted. Levels move
+# independently so that a page whose owner accepts only tiny deltas (level 5)
+# is not dragged forward by a re-verification of the others. The newest pin is
+# shown in the page header as the release the site was last checked against.
 LEVELS = [
     ("level-1-five",     "Like I'm 5",
-     "The simplest way of putting it that is still true.", ""),
+     "The simplest way of putting it that is still true.", "",
+     "v56.9.2.1"),
     ("level-2-phone",    "I barely understand my phone",
      "Straight answers to what you are actually wondering: privacy, cost, and what breaks.",
-     "Picks up where \u201clike I\u2019m 5\u201d left off."),
+     "Picks up where “like I’m 5” left off.",
+     "v56.9.2.1"),
     ("level-3-power",    "I'm a power user",
      "The anatomy: what runs where, what survives a teardown, and where the sharp edges are.",
-     "Assumes the two levels before it."),
+     "Assumes the two levels before it.",
+     "v56.9.2.1"),
     ("level-4-security", "I'm a Cyber Security expert",
-     "The architecture interrogated rather than described \u2014 boundaries, egress, provenance, "
+     "The architecture interrogated rather than described — boundaries, egress, provenance, "
      "and what the tests do not actually test.",
-     "Assumes the three levels before it."),
-    ("level-5-phd",      "I'm a PhD / MathWiz / Hacker",
+     "Assumes the three levels before it.",
+     "v56.9.2.1"),
+    ("level-5-phd",      "I'm a MathWiz / Hacker",
      "And you would like me to be condescending about it. Very well.",
-     "Assumes everything before it. Mathematics from here down."),
+     "Assumes everything before it. Mathematics from here down.",
+     "v56.9.2.1"),
 ]
+
+
+def version_key(ref):
+    return tuple(int(x) for x in re.findall(r"\d+", ref))
+
+
+SITE_REF = max((lvl[4] for lvl in LEVELS), key=version_key)
 
 
 # Rolling stable installers. These deliberately point at GitHub's
@@ -56,11 +69,16 @@ INSTALL = [
     ("Windows", "irm %s/install-windows.ps1 | iex" % DL),
 ]
 
+# kind -> (css class, glyph, visible label). GREEN/RED say what the *thing*
+# does; PROVEN/PLAUSIBLE/REFUTED say how good *our argument* for it is.
 FLAGS = {
-    "GREEN": ("flag-green", "\U0001F7E2", "works"),
-    "RED":   ("flag-red",   "\U0001F534", "shortcoming"),
-    "PATH":  ("flag-path",  "→",     "path to green"),
-    "NOTE":  ("flag-note",  "•",     "note"),
+    "GREEN":     ("flag-green",     "●", "verified"),
+    "RED":       ("flag-red",       "●", "shortcoming"),
+    "PATH":      ("flag-path",      "→", "path to green"),
+    "NOTE":      ("flag-note",      "•", "note"),
+    "PROVEN":    ("flag-proven",    "✓", "shown"),
+    "PLAUSIBLE": ("flag-plausible", "∼", "plausible"),
+    "REFUTED":   ("flag-refuted",   "✗", "does not hold"),
 }
 
 INLINE_CODE = re.compile(r"`([^`]+)`")
@@ -73,32 +91,106 @@ FN_DEF = re.compile(r"^\[\^(\d+)\]:\s*(.+?)\s*\|\s*(\S+)\s*$")
 broken_links = []
 
 
-def footnote_url(target, level):
+# --- checked builds -----------------------------------------------------------
+#
+# TILLANDSIAS_CLONE_DIR=/dir   checkouts named by tag: /dir/v56.9.5.1, ...
+# TILLANDSIAS_CLONE=/path      one checkout; its tag is read from git, and it
+#                              is used only for levels pinned to that tag.
+# With neither the page still builds; with either, every footnote target of a
+# level whose checkout is present is checked — path exists, line range inside
+# the file, quote found verbatim inside the cited range — and the build prints
+# anything that does not resolve and exits non-zero.
+
+def _clone_tag(path):
+    try:
+        out = subprocess.run(["git", "-C", str(path), "describe", "--tags", "--exact-match"],
+                             capture_output=True, text=True, check=False)
+        return out.stdout.strip() or None
+    except OSError:
+        return None
+
+
+def _clones():
+    found, unknown = {}, None
+    d = os.environ.get("TILLANDSIAS_CLONE_DIR", "")
+    if d:
+        for p in pathlib.Path(d).iterdir() if pathlib.Path(d).is_dir() else []:
+            if p.is_dir() and p.name.startswith("v"):
+                found[p.name] = p
+    one = os.environ.get("TILLANDSIAS_CLONE", "")
+    if one:
+        p = pathlib.Path(one)
+        tag = _clone_tag(p)
+        if tag:
+            found.setdefault(tag, p)
+        else:
+            unknown = p
+            print("  ! TILLANDSIAS_CLONE has no exact tag; checking every level against it")
+    return found, unknown
+
+
+CLONES, CLONE_UNTAGGED = _clones()
+
+
+def clone_for(ref):
+    return CLONES.get(ref) or CLONE_UNTAGGED
+
+
+def norm(s):
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def check_target(level, ref, target, quote):
+    """Record anything that does not resolve at the level's pinned release."""
+    clone = clone_for(ref)
+    if clone is None:
+        return
+    path, _, anchor = target.partition("#")
+    file = clone / path
+    if not file.exists():
+        broken_links.append((level, target, "path does not exist at %s" % ref))
+        return
+    try:
+        lines = file.read_text(errors="replace").splitlines()
+    except OSError as exc:
+        broken_links.append((level, target, str(exc)))
+        return
+    lo, hi = 1, len(lines)
+    if anchor:
+        m = re.match(r"^L(\d+)(?:-L(\d+))?$", anchor)
+        if not m:
+            broken_links.append((level, target, "malformed line anchor"))
+            return
+        lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
+        if lo < 1 or hi > len(lines) or lo > hi:
+            broken_links.append(
+                (level, target, "line range outside file (%d lines)" % len(lines)))
+            return
+    if quote and norm(quote) not in norm("\n".join(lines[lo - 1:hi])):
+        broken_links.append((level, target, "quote not found in the cited range"))
+
+
+def footnote_url(target, ref):
     """Repo-relative path (with optional #L anchors) or external URL -> href."""
     if target.startswith(("http://", "https://")):
         return target, True
     path, _, anchor = target.partition("#")
-    if CLONE and CLONE.name:
-        if not (CLONE / path).exists():
-            broken_links.append((level, target, "path does not exist at %s" % REF))
-        elif anchor:
-            m = re.match(r"^L(\d+)(?:-L(\d+))?$", anchor)
-            if not m:
-                broken_links.append((level, target, "malformed line anchor"))
-            else:
-                lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
-                try:
-                    n = len((CLONE / path).read_text(errors="replace").splitlines())
-                    if lo < 1 or hi > n or lo > hi:
-                        broken_links.append(
-                            (level, target, "line range outside file (%d lines)" % n))
-                except OSError as exc:
-                    broken_links.append((level, target, str(exc)))
-    url = "%s/blob/%s/%s" % (REPO, REF, path)
+    url = "%s/blob/%s/%s" % (REPO, ref, path)
     return url + ("#" + anchor if anchor else ""), False
 
 
-def inline(text, level, fns, notes=None):
+# --- rendering ------------------------------------------------------------------
+
+class Ctx:
+    """Per-level rendering state: slug, pinned ref, footnote table, resolved urls."""
+
+    def __init__(self, level, ref, notes):
+        self.level, self.ref, self.notes = level, ref, notes
+        self.fns = set()
+        self.urls = {n: footnote_url(t, ref) for n, (_, t, _) in notes.items()}
+
+
+def inline(text, ctx):
     """Escape, then apply inline markup. Code and math are shielded from emphasis."""
     out = html.escape(text.strip())
     shield = []
@@ -116,45 +208,58 @@ def inline(text, level, fns, notes=None):
 
     def ref(m):
         n = m.group(1)
-        fns.add(n)
-        # The tooltip carries the footnote's own label and target, so a reader
-        # can judge a citation without losing their place in the sentence.
-        tip = ""
-        if notes and n in notes:
-            label, target = notes[n]
-            tip = ' data-tip="%s"' % html.escape("%s  \u00b7  %s" % (label, target), quote=True)
-        return ('<sup class="fnref" id="r%s-%s"><a href="#f%s-%s"%s>%s</a></sup>'
-                % (level, n, level, n, tip, n))
+        ctx.fns.add(n)
+        # The number opens the source in a new tab; the tooltip carries the
+        # footnote's label, its verbatim quote when one is recorded, and the
+        # target, so a reader can judge a citation without leaving the sentence.
+        if n in ctx.notes:
+            label, target, quote = ctx.notes[n]
+            url, external = ctx.urls[n]
+            shown = target if not external else re.sub(r"^https?://", "", target)
+            attrs = (' href="%s" target="_blank" rel="noopener" data-label="%s" data-target="%s"'
+                     % (html.escape(url, quote=True), html.escape(label, quote=True),
+                        html.escape(shown, quote=True)))
+            if quote:
+                attrs += ' data-quote="%s"' % html.escape(quote, quote=True)
+            attrs += ' aria-label="Footnote %s: %s (opens the source in a new tab)"' % (
+                n, html.escape(label, quote=True))
+        else:
+            attrs = ' href="#f%s-%s"' % (ctx.level, n)
+        return '<sup class="fnref" id="r%s-%s"><a%s>%s</a></sup>' % (ctx.level, n, attrs, n)
 
     out = FN_REF.sub(ref, out)
     return re.sub(r"\x00(\d+)\x00", lambda m: shield[int(m.group(1))], out)
 
 
-def render(lines, level, fns, notes=None):
+def render(lines, ctx):
     out, para, items, ordered = [], [], [], [False]
     math_buf, in_math = [], [False]
     callout = []  # [css class, icon, label, [paragraphs]] while one is open
 
     def flush_para():
         if para:
-            out.append("<p>%s</p>" % inline(" ".join(para), level, fns, notes))
+            out.append("<p>%s</p>" % inline(" ".join(para), ctx))
             para.clear()
 
     def flush_items():
         if items:
             tag = "ol" if ordered[0] else "ul"
             out.append("<%s>%s</%s>" % (tag, "".join(
-                "<li>%s</li>" % inline(i, level, fns, notes) for i in items), tag))
+                "<li>%s</li>" % inline(i, ctx) for i in items), tag))
             items.clear()
             ordered[0] = False
 
     def flush_callout():
         if callout:
             cls, icon, label, paras = callout[0]
-            body = "".join("<p>%s</p>" % inline(x, level, fns, notes) for x in paras if x.strip())
+            paras = [x for x in paras if x.strip()]
+            body = "".join(
+                "<p>%s%s</p>" % ('<span class="callout-k">%s</span> ' % label if i == 0 else "",
+                                 inline(x, ctx))
+                for i, x in enumerate(paras))
             out.append(
                 '<div class="callout %s"><span class="callout-icon" aria-hidden="true">%s</span>'
-                '<span class="sr">%s: </span><div>%s</div></div>' % (cls, icon, label, body))
+                '<div>%s</div></div>' % (cls, icon, body))
             callout.clear()
 
     def flush():
@@ -200,13 +305,17 @@ def render(lines, level, fns, notes=None):
             if name in figures.FIGURES:
                 out.append(figures.FIGURES[name])
             else:
-                print("  ! unknown figure @fig:%s in %s" % (name, level))
+                print("  ! unknown figure @fig:%s in %s" % (name, ctx.level))
         elif line.startswith("### "):
             flush()
-            out.append("<h4>%s</h4>" % inline(line[4:], level, fns, notes))
+            out.append("<h4>%s</h4>" % inline(line[4:], ctx))
         elif line.startswith("## "):
             flush()
-            out.append("<h3>%s</h3>" % inline(line[3:], level, fns, notes))
+            out.append("<h3>%s</h3>" % inline(line[3:], ctx))
+        elif line.startswith("# "):
+            # The level's own title, under the tab that already names the audience.
+            flush()
+            out.append('<h2 class="panel-h">%s</h2>' % inline(line[2:], ctx))
         elif line.startswith(">"):
             rest = line.lstrip(">").strip()
             kind, _, body = rest.partition(":")
@@ -241,38 +350,46 @@ def render(lines, level, fns, notes=None):
 
 
 def parse(path, level):
-    """Split a source file into body lines and footnote definitions."""
-    body, notes, in_notes = [], {}, False
+    """Split a source file into body lines and footnote definitions.
+
+    A footnote is `[^n]: Label | target`, optionally followed by one or more
+    lines starting with `>` that carry a verbatim quote from the target.
+    """
+    body, notes, in_notes, last = [], {}, False, None
     for line in path.read_text().splitlines():
         if re.match(r"^##\s+Footnotes\s*$", line, re.I):
             in_notes = True
             continue
         if in_notes:
-            m = FN_DEF.match(line.strip())
+            s = line.strip()
+            m = FN_DEF.match(s)
             if m:
-                notes[m.group(1)] = (m.group(2), m.group(3))
-            elif line.strip():
+                last = m.group(1)
+                notes[last] = [m.group(2), m.group(3), ""]
+            elif s.startswith(">") and last:
+                notes[last][2] = (notes[last][2] + " " + s.lstrip(">").strip()).strip()
+            elif s:
                 print("  ! unparsed footnote line in %s: %s" % (level, line[:70]))
         else:
             body.append(line)
-    return body, notes
+    return body, {n: tuple(v) for n, v in notes.items()}
 
 
 def build():
     panels, tabs = [], []
-    for idx, (slug, title, blurb, cont) in enumerate(LEVELS):
+    for idx, (slug, title, blurb, cont, ref) in enumerate(LEVELS):
         path = SRC / ("%s.md" % slug)
-        fns = set()
         if path.exists():
             body, notes = parse(path, slug)
-            content = render(body, slug, fns, notes)
         else:
-            content, notes = "<p>Not written yet.</p>", {}
+            body, notes = ["Not written yet."], {}
+        ctx = Ctx(slug, ref, notes)
+        content = render(body, ctx)
 
-        missing = sorted(fns - set(notes), key=int)
+        missing = sorted(ctx.fns - set(notes), key=int)
         if missing:
             print("  ! %s references undefined footnotes: %s" % (slug, ", ".join(missing)))
-        unused = sorted(set(notes) - fns, key=int)
+        unused = sorted(set(notes) - ctx.fns, key=int)
         if unused:
             print("  ! %s defines unreferenced footnotes: %s" % (slug, ", ".join(unused)))
 
@@ -280,18 +397,27 @@ def build():
         if notes:
             rows = []
             for n in sorted(notes, key=int):
-                label, target = notes[n]
-                url, external = footnote_url(target, slug)
+                label, target, quote = notes[n]
+                url, external = ctx.urls[n]
+                if not external:
+                    check_target(slug, ref, target, quote)
                 shown = target if not external else re.sub(r"^https?://", "", target)
+                q = '<q class="fn-quote">%s</q>' % html.escape(quote) if quote else ""
                 rows.append(
                     '<li id="f%s-%s"><a class="fn-back" href="#r%s-%s" aria-label="back to text">%s</a>'
                     '<span class="fn-body">%s <a class="fn-link" href="%s" target="_blank" '
-                    'rel="noopener">%s<span class="ext" aria-hidden="true">&#8599;</span></a></span></li>'
-                    % (slug, n, slug, n, n, html.escape(label), url, html.escape(shown)))
+                    'rel="noopener">%s<span class="ext" aria-hidden="true">&#8599;</span></a>%s</span></li>'
+                    % (slug, n, slug, n, n, html.escape(label), url, html.escape(shown), q))
+            quoted = sum(1 for v in notes.values() if v[2])
             fn_html = ('<section class="footnotes"><h3>Footnotes</h3>'
                        '<p class="fn-note">Every link points at release <code>%s</code> of the '
-                       'source repository, so line numbers match the text above.</p>'
-                       '<ol class="fn-list">%s</ol></section>' % (REF, "".join(rows)))
+                       'source repository, so line numbers match the text above. A footnote '
+                       'number in the text opens its source in a new tab; hover it for the '
+                       'quoted lines.</p>'
+                       '<ol class="fn-list">%s</ol></section>' % (ref, "".join(rows)))
+            checked = "checked" if clone_for(ref) else "unchecked"
+            print("  %-18s %2d footnotes, %2d quoted, %s at %s"
+                  % (slug, len(notes), quoted, checked, ref))
 
         active = " is-active" if idx == 0 else ""
         tabs.append(
@@ -308,16 +434,16 @@ def build():
                content, fn_html))
 
     install = "".join('<div class="ins-row"><span class="ins-os">%s</span>'
-                       '<span class="ins-box"><input readonly value="%s" '
-                       'aria-label="%s install command" spellcheck="false">'
-                       '<button class="ins-copy" type="button" title="Copy">Copy</button>'
-                       '</span></div>'
-                       % (os_, html.escape(cmd, quote=True), os_) for os_, cmd in INSTALL)
+                      '<span class="ins-box"><input readonly value="%s" '
+                      'aria-label="%s install command" spellcheck="false">'
+                      '<button class="ins-copy" type="button" title="Copy">Copy</button>'
+                      '</span></div>'
+                      % (os_, html.escape(cmd, quote=True), os_) for os_, cmd in INSTALL)
     doc = (TEMPLATE.replace("__INSTALL__", install)
            .replace("__DEFS__", figures.DEFS)
            .replace("__TABS__", "\n".join(tabs))
            .replace("__PANELS__", "\n".join(panels))
-           .replace("__REF__", REF))
+           .replace("__SITE_REF__", SITE_REF))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(doc)
 
@@ -325,8 +451,8 @@ def build():
         print("\n  %d BROKEN footnote target(s):" % len(broken_links))
         for lvl, tgt, why in broken_links:
             print("    %-18s %-52s %s" % (lvl, tgt, why))
-    elif CLONE and CLONE.name:
-        print("  all footnote targets resolve at %s" % REF)
+    elif CLONES or CLONE_UNTAGGED:
+        print("  all checked footnote targets resolve")
     print("wrote %s (%d bytes)" % (OUT, len(doc)))
     return 1 if broken_links else 0
 
@@ -358,19 +484,23 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.68 var(--san
   background-attachment:fixed}
 .wrap{max-width:980px;margin:0 auto;padding:0 24px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-header.hero{padding:76px 0 40px;border-bottom:1px solid var(--line)}
+header.hero{padding:76px 0 34px;border-bottom:1px solid var(--line)}
 .eyebrow{font:600 12px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;
   color:var(--leaf);margin:0 0 20px}
+.eyebrow .ver{color:var(--ink-faint);letter-spacing:.12em;text-transform:none;font-weight:500}
 h1{margin:0;font-size:clamp(32px,5vw,56px);line-height:1.07;letter-spacing:-.026em;font-weight:650}
 h1 .dim{color:var(--ink-faint);font-weight:400}
 .lede{max-width:64ch;margin:22px 0 0;font-size:19px;color:var(--ink-dim)}
 .lede strong{color:var(--ink);font-weight:600}
-.legend{display:flex;flex-wrap:wrap;gap:18px;margin:28px 0 0;padding:16px 18px;
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:26px 0 0;padding:12px 16px;
   border:1px solid var(--line);border-radius:11px;background:var(--bg-2);
-  font-size:13.5px;color:var(--ink-dim)}
-.legend b{color:var(--ink);font-weight:600}
-.install{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center;
-  padding:14px 0 2px}
+  font-size:12.5px;line-height:1.5;color:var(--ink-faint)}
+.legend b{color:var(--ink-dim);font-weight:600}
+.legend .lg{display:inline-block;width:1.1em;font:600 11px/1 var(--mono);font-style:normal;text-align:center}
+.lg-green,.lg-proven{color:var(--leaf)} .lg-red,.lg-refuted{color:var(--rose)}
+.lg-path,.lg-plausible{color:var(--amber)}
+.install-strip{padding:18px 0 4px}
+.install{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center}
 .ins-row{display:contents}
 .ins-os{font:600 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
   color:var(--ink-faint);white-space:nowrap}
@@ -385,7 +515,7 @@ h1 .dim{color:var(--ink-faint);font-weight:400}
   padding:0 12px;cursor:pointer;transition:.15s}
 .ins-copy:hover{background:rgba(255,255,255,.04);color:var(--ink)}
 .ins-copy.done{color:var(--leaf)}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding:20px 0 0;margin:0 0 -1px;
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0 0;margin:0 0 -1px;
   /* The rail still scrolls on narrow screens; only the bar itself is hidden. */
   scrollbar-width:none;-ms-overflow-style:none}
 .tabs::-webkit-scrollbar{display:none}
@@ -397,6 +527,7 @@ h1 .dim{color:var(--ink-faint);font-weight:400}
 .tab-n{font:600 11px/1 var(--mono);color:var(--leaf-dim);border:1px solid var(--line);
   border-radius:5px;padding:4px 6px}
 .tab.is-active .tab-n{color:var(--bg);background:var(--leaf);border-color:var(--leaf)}
+/* Only the level rail is sticky; the install commands scroll away with the header. */
 .sticky{position:sticky;top:0;z-index:10;background:rgba(7,9,12,.88);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 main{padding:0 0 96px}
@@ -408,9 +539,11 @@ main{padding:0 0 96px}
 .blurb .cont{display:block;margin-top:6px;font:500 12px var(--mono);color:var(--leaf-dim);
   letter-spacing:.03em}
 .prose{padding-top:14px}
+.prose h2.panel-h{margin:14px 0 18px;font-size:clamp(24px,3.2vw,32px);line-height:1.15;
+  letter-spacing:-.024em;font-weight:650;max-width:30ch}
 .prose h3{margin:44px 0 14px;font-size:23px;letter-spacing:-.02em;font-weight:640;
   padding-top:18px;border-top:1px solid var(--line)}
-.prose h3:first-child{border-top:none;margin-top:16px;padding-top:0}
+.prose h3:first-child,.prose h2.panel-h+h3{border-top:none;margin-top:16px;padding-top:0}
 .prose h4{margin:30px 0 10px;font-size:16.5px;font-weight:640;color:var(--ink)}
 .prose p{margin:0 0 16px;color:#c9d4e0;max-width:74ch}
 .prose ul,.prose ol{margin:0 0 20px;padding-left:0;list-style:none;max-width:74ch}
@@ -425,18 +558,24 @@ code{font:500 .875em/1.4 var(--mono);background:#161d26;border:1px solid #212b38
   padding:.12em .38em;color:var(--amber);word-break:break-word}
 strong{color:#eef3f8;font-weight:640}
 em{color:#dbe4ee}
-.callout{display:flex;gap:12px;align-items:flex-start;margin:0 0 12px;padding:14px 16px;
-  border:1px solid var(--line-2);border-radius:10px;background:var(--bg-2);max-width:74ch}
-.callout div{color:#cdd8e4}
-.callout-icon{flex:0 0 auto;font-size:14px;line-height:1.5;filter:saturate(1.1)}
-.flag-green{border-left:3px solid var(--leaf)}
-.flag-red{border-left:3px solid var(--rose)}
-.flag-path{border-left:3px solid var(--amber);margin-top:-6px;margin-left:26px;
-  background:transparent;border-top:none;border-right:none;border-bottom:none;
-  border-radius:0;padding:4px 0 10px 14px;font-size:14.5px}
-.flag-path .callout-icon{color:var(--amber);font-weight:700}
-.flag-path div{color:var(--ink-dim)}
-.flag-note{border-left:3px solid var(--line-2)}
+/* Callouts are deliberately quiet: a hairline, a glyph, a small label. The
+   prose is the content; the flags annotate it. */
+.callout{display:flex;gap:10px;align-items:flex-start;margin:0 0 10px;padding:4px 0 4px 12px;
+  border-left:2px solid var(--line-2);max-width:74ch;font-size:14.5px;line-height:1.58}
+.callout div{color:var(--ink-dim)}
+.callout p{margin:0 0 8px;color:inherit}
+.callout p:last-child{margin-bottom:0}
+.callout-icon{flex:0 0 auto;width:1.1em;text-align:center;font:600 11px/1.9 var(--mono);color:var(--ink-faint)}
+.callout-k{font:600 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-faint);margin-right:4px;white-space:nowrap}
+.flag-green{border-left-color:var(--leaf-dim)} .flag-green .callout-icon,.flag-green .callout-k{color:var(--leaf)}
+.flag-red{border-left-color:var(--rose)} .flag-red .callout-icon,.flag-red .callout-k{color:var(--rose)}
+.flag-path{border-left-color:transparent;margin:-8px 0 12px 14px;padding-left:12px;font-size:13.5px}
+.flag-path .callout-icon,.flag-path .callout-k{color:var(--amber)}
+.flag-note{border-left-color:var(--line-2)}
+.flag-proven{border-left-color:var(--leaf-dim)} .flag-proven .callout-icon,.flag-proven .callout-k{color:var(--leaf)}
+.flag-plausible{border-left-color:var(--amber)} .flag-plausible .callout-icon,.flag-plausible .callout-k{color:var(--amber)}
+.flag-refuted{border-left-color:var(--rose)} .flag-refuted .callout-icon,.flag-refuted .callout-k{color:var(--rose)}
 .fig{margin:26px 0 28px;padding:18px 18px 12px;border:1px solid var(--line);border-radius:12px;
   background:linear-gradient(180deg,#0d1219,#0a0e14);color:var(--ink-dim)}
 .fig svg{display:block;width:100%;height:auto;overflow:visible}
@@ -471,21 +610,23 @@ em{color:#dbe4ee}
 .math,.math-block{color:#e6eef7}
 .katex{font-size:1.04em}
 .fnref{font:600 10.5px var(--mono);vertical-align:super;line-height:0}
-.fnref a{color:var(--leaf);text-decoration:none;padding:0 1px}
+.fnref a{color:var(--leaf);text-decoration:none;padding:0 1px;position:relative;cursor:pointer}
 .fnref a:hover{text-decoration:underline}
-.fnref a{position:relative}
-#tip{position:fixed;z-index:60;max-width:min(30rem,calc(100vw - 24px));padding:9px 12px;
+#tip{position:fixed;z-index:60;max-width:min(32rem,calc(100vw - 24px));padding:9px 12px;
   border:1px solid var(--line-2);border-radius:8px;background:#141b24;color:var(--ink-dim);
   font:400 13px/1.5 var(--sans);box-shadow:0 10px 30px rgba(0,0,0,.5);pointer-events:none;
   opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s}
 #tip.on{opacity:1;transform:none}
 #tip b{color:var(--ink);font-weight:600}
-#tip span{display:block;margin-top:4px;font:500 11.5px var(--mono);color:var(--ink-faint);
+#tip q{display:block;margin:6px 0 0;padding:2px 0 2px 10px;border-left:2px solid var(--leaf-dim);
+  color:#cdd8e4;font-style:normal;quotes:none}
+#tip q::before,#tip q::after{content:none}
+#tip span{display:block;margin-top:6px;font:500 11.5px var(--mono);color:var(--ink-faint);
   word-break:break-all}
 .footnotes{margin:56px 0 0;padding:26px 0 0;border-top:1px solid var(--line)}
 .footnotes h3{margin:0 0 6px;font:600 12px/1 var(--mono);letter-spacing:.2em;
   text-transform:uppercase;color:var(--ink-dim)}
-.fn-note{margin:0 0 18px;font-size:13.5px;color:var(--ink-faint)}
+.fn-note{margin:0 0 18px;font-size:13.5px;color:var(--ink-faint);max-width:74ch}
 .fn-list{list-style:none;margin:0;padding:0;counter-reset:none}
 .fn-list li{display:flex;gap:12px;margin:0 0 9px;font-size:14px;line-height:1.55}
 .fn-back{flex:0 0 22px;text-align:right;font:600 11px var(--mono);color:var(--leaf-dim);
@@ -495,19 +636,22 @@ em{color:#dbe4ee}
 .fn-link{display:inline;color:var(--ink-faint);font:500 12.5px var(--mono);
   text-decoration:none;border-bottom:1px dotted var(--line-2);word-break:break-all}
 .fn-link:hover{color:var(--leaf);border-bottom-color:var(--leaf-dim)}
+.fn-quote{display:block;margin:4px 0 2px;padding-left:10px;border-left:2px solid var(--line-2);
+  font-size:13px;color:var(--ink-faint);font-style:normal;quotes:none}
+.fn-quote::before,.fn-quote::after{content:none}
 .ext{padding-left:3px;opacity:.7}
 footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--ink-faint);font-size:14px}
 footer a{color:var(--ink-dim)}
 footer a:hover{color:var(--leaf)}
 @media (max-width:760px){
-  header.hero{padding:48px 0 28px}
+  header.hero{padding:48px 0 24px}
   .tab-t{display:none}
   .tab{padding:12px}
-  .install{grid-template-columns:1fr;gap:3px;padding:10px 0 2px}
+  .install{grid-template-columns:1fr;gap:3px}
+  .install-strip{padding:12px 0 2px}
   .ins-row{display:block}
   .ins-os{display:block;margin:7px 0 3px}
-  .callout{padding:12px 13px}
-  .flag-path{margin-left:12px}
+  .flag-path{margin-left:8px}
 }
 </style>
 </head>
@@ -516,24 +660,32 @@ __DEFS__
 
 <header class="hero">
   <div class="wrap">
-    <p class="eyebrow">tillandsias.org</p>
+    <p class="eyebrow">tillandsias.org <span class="ver" title="The release of the source repository this page was last checked against">&middot; __SITE_REF__</span></p>
     <h1>An idempotent, ephemeral cloud region,<br><span class="dim">folded through your hypervisor.</span></h1>
     <p class="lede">Local hardware. Free software. Nothing rented, nothing metered, nothing left
       behind. Below is <strong>what it is and how it works</strong>, told five times over — pick
       the version that fits the person reading.</p>
     <div class="legend">
-      <span>&#x1F7E2; <b>Green flag</b> — verified and working.</span>
-      <span>&#x1F534; <b>Red flag</b> — incomplete, pending, or overclaimed.</span>
-      <span>&#8594; <b>Path to green</b> — what the plan records as the fix, or that it records none.</span>
+      <span><i class="lg lg-green">&#x25CF;</i> <b>Verified</b> — checked against the source, and working.</span>
+      <span><i class="lg lg-red">&#x25CF;</i> <b>Shortcoming</b> — incomplete, pending, or overclaimed.</span>
+      <span><i class="lg lg-path">&#8594;</i> <b>Path</b> — what the plan records as the fix, or that it records none.</span>
+      <span><i class="lg lg-proven">&#x2713;</i> <b>Shown</b> — an argument we can point at the code or a test for.</span>
+      <span><i class="lg lg-plausible">&#x223C;</i> <b>Plausible</b> — sounds right; not yet demonstrated.</span>
+      <span><i class="lg lg-refuted">&#x2717;</i> <b>Does not hold</b> — an argument we tried, and it failed.</span>
     </div>
   </div>
 </header>
 
-<div class="sticky">
+<div class="install-strip">
   <div class="wrap">
     <div class="install" aria-label="Install">
 __INSTALL__
     </div>
+  </div>
+</div>
+
+<div class="sticky">
+  <div class="wrap">
     <div class="tabs" role="tablist" aria-label="Explanation level">
 __TABS__
     </div>
@@ -549,8 +701,9 @@ __PANELS__
 <footer>
   <div class="wrap">
     <p>Source: <a href="https://github.com/8007342/tillandsias/">github.com/8007342/tillandsias</a>.
-    Every footnote on this page links into release <code>__REF__</code>, so the line numbers
-    stay true even as the project moves on.</p>
+    Each level's footnotes link into the release named at the foot of that level, so the
+    line numbers stay true even as the project moves on. Last checked against
+    <code>__SITE_REF__</code>.</p>
   </div>
 </footer>
 
@@ -586,20 +739,24 @@ __PANELS__
     });
   });
 })();
-// Footnote tooltips: shown on hover and on keyboard focus, positioned inside
-// the viewport so a citation near the right edge is not clipped.
+// Footnote tooltips: label, the quoted lines when recorded, and the target.
+// Shown on hover and on keyboard focus, positioned inside the viewport so a
+// citation near the right edge is not clipped. The click itself opens the
+// source in a new tab; the list at the foot of the level stays for completeness.
 (function(){
   var tip = document.createElement('div');
   tip.id = 'tip'; tip.setAttribute('role', 'tooltip');
   document.body.appendChild(tip);
   var hideTimer;
   function show(a){
-    var raw = a.getAttribute('data-tip'); if (!raw) return;
+    var label = a.getAttribute('data-label'); if (!label) return;
     clearTimeout(hideTimer);
-    var parts = raw.split('  \u00b7  ');
     tip.innerHTML = '';
-    var b = document.createElement('b'); b.textContent = parts[0]; tip.appendChild(b);
-    if (parts[1]) { var s = document.createElement('span'); s.textContent = parts[1]; tip.appendChild(s); }
+    var b = document.createElement('b'); b.textContent = label; tip.appendChild(b);
+    var quote = a.getAttribute('data-quote');
+    if (quote) { var q = document.createElement('q'); q.textContent = quote; tip.appendChild(q); }
+    var target = a.getAttribute('data-target');
+    if (target) { var s = document.createElement('span'); s.textContent = target + ' \\u2197'; tip.appendChild(s); }
     tip.classList.add('on');
     var r = a.getBoundingClientRect(), t = tip.getBoundingClientRect();
     var left = Math.min(Math.max(8, r.left + r.width / 2 - t.width / 2), window.innerWidth - t.width - 8);
@@ -610,13 +767,13 @@ __PANELS__
   }
   function hide(){ hideTimer = setTimeout(function(){ tip.classList.remove('on'); }, 80); }
   document.addEventListener('mouseover', function(e){
-    var a = e.target.closest('.fnref a[data-tip]'); if (a) show(a);
+    var a = e.target.closest('.fnref a[data-label]'); if (a) show(a);
   });
   document.addEventListener('mouseout', function(e){
-    if (e.target.closest('.fnref a[data-tip]')) hide();
+    if (e.target.closest('.fnref a[data-label]')) hide();
   });
   document.addEventListener('focusin', function(e){
-    var a = e.target.closest('.fnref a[data-tip]'); if (a) show(a);
+    var a = e.target.closest('.fnref a[data-label]'); if (a) show(a);
   });
   document.addEventListener('focusout', hide);
   window.addEventListener('scroll', function(){ tip.classList.remove('on'); }, {passive:true});
@@ -640,7 +797,7 @@ __PANELS__
       var t = tabs[+e.key - 1]; if (t) show(t.dataset.target);
     }
   });
-  // A footnote link from another level must switch to that level before jumping.
+  // A back-link from the footnote list must switch to that level before jumping.
   window.addEventListener('hashchange', function(){
     var m = /^#(?:[rf])(level-[a-z0-9-]+)-\\d+$/.exec(location.hash);
     if (m) show(m[1]);
