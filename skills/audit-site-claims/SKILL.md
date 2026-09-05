@@ -73,3 +73,31 @@ in `scripts/build-matrix.py` (levels 1–4) or write an OpenSpec change (level
 5). Run `update-website/scripts/checked-build.sh`; it must print
 `ok:checked-build`. Record the audit under `docs/audit/` and file the runtime
 findings with `file-findings`.
+
+## Running it with several agents at once
+
+This was first run on 2026-09-05 as a fleet of agents (one auditor and one
+skeptic per level slice and per capability, then one writer, one reviewer and
+one fixer per level). What made it work:
+
+- **Two checkouts, real disk.** The stable tag and the newest daily under
+  `$TILLANDSIAS_CLONE_DIR`, never in the forge's 256 MB `/tmp`.
+- **Private builds.** Every agent builds with `TILLANDSIAS_OUT` pointing at
+  its own file and reads only the lines about its level; concurrent edits to
+  other levels would otherwise look like its own failures. Only the final,
+  serial `checked-build.sh` writes `var/html/index.html`.
+- **One file per agent.** A writer edits its level and nothing else; the
+  OpenSpec and audit-record agents edit their own directories. No agent runs
+  `git add`, `commit`, `stash` or `checkout`; the operator commits per level.
+- **Guides, not prompts.** The audience rules and the required changes for a
+  level live in a short guide file the writer, the reviewer and the fixer all
+  read, so the three agree on what "done" means.
+- **The skeptic's word wins.** Where a skeptic's `refuted` or `missed` entry
+  contradicts the audit it reviewed, the writer follows the skeptic; a second
+  skeptic reviews the written page against the code again.
+- **Quotes from comments.** A quote that spans lines of a shell, YAML or Rust
+  comment is written without the comment leaders; the build strips them before
+  matching.
+- **Concurrency is small.** A forge with four cores runs two agents at a time
+  per workflow; budget hours, not minutes, and run independent phases as
+  separate workflows so they overlap.
