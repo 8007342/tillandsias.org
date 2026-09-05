@@ -20,7 +20,11 @@ stable=$("$HERE/latest-release.sh" | tail -1)
 case "$stable" in blocked:*) echo "$stable"; exit 2;; esac
 daily=$("$HERE/latest-release.sh" --channel unstable | tail -1)
 case "$daily" in blocked:*) echo "$daily"; exit 2;; esac
-tags=$(printf '%s\n%s\n%s\n%s\n' "$pins" "$stable" "$daily" "$*" | tr ' ' '\n' | grep -E '^v[0-9]' | sort -u)
+# Also every release a footnote names with an `@vTAG` suffix: those are the
+# citations the gate would otherwise be unable to check.
+ROOT=$(cd "$HERE/../../.." && pwd)
+cited=$(grep -hoE '@v[0-9]+(\.[0-9]+){3}' "$ROOT"/docs/matrix/level-*.md 2>/dev/null | tr -d '@' | sort -u)
+tags=$(printf '%s\n%s\n%s\n%s\n%s\n' "$pins" "$stable" "$daily" "$cited" "$*" | tr ' ' '\n' | grep -E '^v[0-9]' | sort -u)
 
 mkdir -p "$CLONE_DIR"
 if [ ! -e "$BASE/.git" ]; then

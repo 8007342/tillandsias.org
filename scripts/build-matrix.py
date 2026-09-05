@@ -122,6 +122,11 @@ MATH_INLINE = re.compile(r"(?<!\$)\$([^$\n]+)\$(?!\$)")
 FN_DEF = re.compile(r"^\[\^(\d+)\]:\s*(.+?)\s*\|\s*(\S+?)(?:\s+@(v[\d.]+))?\s*$")
 
 broken_links = []
+# (level, ref) pairs a footnote cited but no checkout could answer for. Silence
+# here once let a build report "all checked footnote targets resolve" while
+# every daily-channel footnote went unopened, so an unchecked target is now a
+# first-class result rather than an early return.
+unchecked = set()
 
 
 # --- checked builds -----------------------------------------------------------
@@ -180,9 +185,10 @@ def norm_source(lines):
 
 
 def check_target(level, ref, target, quote):
-    """Record anything that does not resolve at the level's pinned release."""
+    """Record anything that does not resolve at the release it names."""
     clone = clone_for(ref)
     if clone is None:
+        unchecked.add((level, ref))
         return
     path, _, anchor = target.partition("#")
     file = clone / path
@@ -475,9 +481,13 @@ def build():
                        'number in the text opens its source in a new tab; hover it for the '
                        'quoted lines.</p>'
                        '<ol class="fn-list">%s</ol></section>' % (ref, "".join(rows)))
-            checked = "checked" if clone_for(ref) else "unchecked"
-            print("  %-18s %2d footnotes, %2d quoted, %s at %s"
-                  % (slug, len(notes), quoted, checked, ref))
+            cited = {ref} | {v[3] for v in notes.values() if v[3]}
+            missing = sorted(r for r in cited if clone_for(r) is None)
+            state = ("unchecked at " + ", ".join(sorted(cited)) if len(missing) == len(cited)
+                     else "checked at " + ", ".join(sorted(cited - set(missing)))
+                     + (", UNCHECKED at " + ", ".join(missing) if missing else ""))
+            print("  %-18s %2d footnotes, %2d quoted, %s"
+                  % (slug, len(notes), quoted, state))
 
         active = " is-active" if idx == 0 else ""
         tabs.append(
@@ -510,17 +520,27 @@ def build():
            .replace("__TABS__", "\n".join(tabs))
            .replace("__PANELS__", "\n".join(panels))
            .replace("__SITE_REF__", SITE_REF))
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(doc)
-
     if broken_links:
         print("\n  %d BROKEN footnote target(s):" % len(broken_links))
         for lvl, tgt, why in broken_links:
             print("    %-18s %-52s %s" % (lvl, tgt, why))
-    elif CLONES or CLONE_UNTAGGED:
-        print("  all checked footnote targets resolve")
-    print("wrote %s (%d bytes)" % (OUT, len(doc)))
-    return 1 if broken_links else 0
+    if unchecked:
+        print("\n  %d level/release pair(s) UNCHECKED — no checkout for the "
+              "release the footnote names:" % len(unchecked))
+        for lvl, ref in sorted(unchecked):
+            print("    %-18s %s" % (lvl, ref))
+    elif not broken_links and (CLONES or CLONE_UNTAGGED):
+        print("  every footnote target resolves, at every release cited")
+
+    # A page that failed its own check is not written: an earlier version of
+    # this script overwrote the deploy artifact and then reported the failure.
+    if broken_links:
+        print("not written: %s" % OUT)
+        return 1
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text(doc)
+    print("wrote %s (%d bytes)" % (OUT, len(doc.encode("utf-8"))))
+    return 0
 
 
 TEMPLATE = """<!doctype html>

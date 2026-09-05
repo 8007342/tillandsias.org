@@ -10,8 +10,14 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../../.." && pwd)
 CLONE_DIR=${TILLANDSIAS_CLONE_DIR:-$HOME/.cache/tillandsias-org/clones}
 
+# Every release the pages cite, not only the ones they pin: a footnote may
+# carry an `@vTAG` suffix for a fix that exists in a newer build, and a gate
+# that demands only the pins passes while those go unopened.
+cited=$( { "$HERE/pinned-refs.sh" | cut -f2
+           grep -hoE '@v[0-9]+(\.[0-9]+){3}' "$ROOT"/docs/matrix/level-*.md | tr -d '@'
+         } | sort -u )
 missing=""
-for tag in $("$HERE/pinned-refs.sh" | cut -f2 | sort -u); do
+for tag in $cited; do
   [ -d "$CLONE_DIR/$tag" ] || missing="$missing $tag"
 done
 if [ -n "$missing" ]; then
@@ -28,6 +34,10 @@ if [ $rc -ne 0 ] || echo "$out" | grep -q 'BROKEN'; then
 fi
 if echo "$out" | grep -qE '^\s*! '; then
   echo "blocked:build-warnings"
+  exit 1
+fi
+if echo "$out" | grep -q 'UNCHECKED'; then
+  echo "blocked:targets-unchecked"
   exit 1
 fi
 echo "ok:checked-build"
