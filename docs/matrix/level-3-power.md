@@ -11,7 +11,7 @@ A forge is a Fedora Minimal image in two layers: a heavy base carrying the toolc
 > GREEN: Works out of the box. The tool cache is a named volume, never a host path, so first-run installs survive the container's removal without opening a host-home surface.[^21]
 
 > RED: The storage spec names four RAM-backed roots and a host RAM gate with a matching container memory ceiling; at this release three roots are mounted, the source tree is not one of them, and the RAM gate and the ceiling exist as library code nothing calls.[^25][^26] The Homebrew prefix is backed by no volume, so every on-demand tool is re-installed at every launch and its bootstrap needs live egress each time.[^27] And the context file tells the agent each such install verifies a signed attestation per bottle; the shim states that attestation is off, because fetching it would need a GitHub credential no forge may hold — what remains is integrity from one publisher.[^28][^29]
-> PATH: The source tmpfs landed in the daily channel, sized from the mirror's pack.[^30] The RAM gate and ceiling stay an open, ready item whose remaining slice is named: run the host RAM check before launch and emit equal memory limits.[^26] The recorded remedy for the prefix asks for a decision between persisting it and baking the tools into the image.[^27] The context file's wording has no fix recorded.
+> PATH: The source tmpfs landed in the daily channel on 2026-09-04, sized from the mirror's pack.[^30][^144] The RAM gate and ceiling stay an open, ready item whose remaining slice is named: run the host RAM check before launch and emit equal memory limits.[^26] The recorded remedy for the prefix asks for a decision between persisting it and baking the tools into the image.[^27] For the context file's wording there is a recorded remedy too: fetch and pin the attestation bundles when the image is built, so a lane can verify one with no GitHub credential present at all.[^145]
 
 ### The HTTPS proxy and its cache
 
@@ -24,7 +24,7 @@ Every container is born with its proxy variables set and the proxy's certificate
 
 ### Local inference
 
-Every forge finds a model server at `http://inference:11434`, started on launch if it is not already running and shared across projects.[^45][^46] The first run pulls the engine and one small tool-capable chat model into a host directory that outlives the containers.[^47][^48][^9] Readiness is best-effort: a failed wait warns and the forge launches anyway.[^46] The context file tells the agent, in a closed vocabulary, what the host's accelerators are and whether the endpoint is ready — ready means at least one model is cached, never "starting up".[^49][^50] Larger tiers are opt-in behind an environment variable; the CPU floor is unconditional by spec.[^51][^52]
+Every forge finds a model server at `http://inference:11434`, started on launch if it is not already running and shared across projects.[^45][^46][^146] The first run pulls the engine and one small tool-capable chat model into a host directory that outlives the containers.[^47][^48][^9] Readiness is best-effort: a failed wait warns and the forge launches anyway.[^46] The context file tells the agent, in a closed vocabulary, what the host's accelerators are and whether the endpoint is ready — ready means at least one model is cached, never "starting up".[^49][^50] Larger tiers are opt-in behind an environment variable; the CPU floor is unconditional by spec.[^51][^52]
 
 > GREEN: Works out of the box on the CPU floor, and a missing or broken endpoint never blocks a session.[^46]
 
@@ -38,14 +38,14 @@ Git needs nothing from you inside a forge. A read-only global gitconfig redirect
 
 > GREEN: Works out of the box once GitHub Login has run on the host; without a stored token the relay refuses the push and says so.[^68]
 
-> RED: Offline, a push simply fails — nothing is queued.[^71] The authenticated SSH lane is built but dark behind an environment variable that defaults to off.[^70]
-> PATH: Flipping the SSH lane on by default is an open, ready item, pending the transport decision behind it.[^72]
+> RED: The push path inside the enclave is anonymous: any peer that can reach the mirror may create branches or fast-forward them and have the privileged relay carry those updates upstream. Being on an internal-only network is placement, not client authentication.[^69] The authenticated SSH lane that would replace it is built but dark behind an environment variable that defaults to off.[^70] Offline, a push simply fails — nothing is queued.[^71]
+> PATH: Flipping the SSH lane on by default is an open, ready item, pending the transport decision behind it.[^72] For the offline push: No path to green is recorded in the repo.
 
 ### The vault
 
 Secrets live in a Vault container at `vault:8200`, reached over TLS with the enclave certificate already trusted.[^74][^75] A lane with a credentialed provider is handed a single-purpose token on tmpfs at `/run/secrets/vault-token` whose policy reaches only that provider's paths; the generic forge policy cannot read the GitHub token, which the git mirror, the tray and the login flow can.[^76][^77][^78][^79] Across a stop, Vault unseals itself from one Shamir share held in your host keychain, with no passphrase prompt.[^8]
 
-> GREEN: The token is injected at container start with nothing for the agent to do, and a test pins that a credentialed lane gets exactly one scoped secret.[^76]
+> GREEN: The token is injected at container start with nothing for the agent to do,[^76] and a test pins that every credentialed lane mounts its scoped lease while a credential-free lane mounts none.[^147]
 
 > RED: The context file tells the agent the vault is at `http://vault:8200`. The shipped listener is TLS-only, so that address answers an HTTP error; only the in-image helper carries the right default.[^80][^75][^81] The token defaults to a one-hour life and nothing in the lane renews it.[^82]
 > PATH: No path to green is recorded in the repo.
@@ -63,7 +63,7 @@ The agent finds four tool servers already registered, for Claude Code and OpenCo
 
 Ask the agent to publish the project and it does not start a server in the forge. It asks the host, over a socket that exists only for that lane, to launch a sibling: a busybox httpd with the project mounted read-only, joined to the enclave network and given a router route.[^93][^94][^95][^96] The URL comes back as `http://www.<project>.localhost:<port>`, fetchable from the forge through the proxy.[^96][^97] The project is attributed from the socket the request arrived on, never from the request.[^95]
 
-> RED: Works with caveats, and they are real. The sibling serves the repository root, so a site kept in a subdirectory answers 404 at `/` and `.git` was reachable through the router.[^98] Only `www` is routed, not the apex.[^96] Nothing reaps the sibling when the forge that published it dies: its name matches none of the stack sweep's patterns.[^99] The project must live under `~/src` on the host,[^100] the web image is built by initialisation rather than by a forge launch, so a host that never initialised hits a phantom registry pull,[^101][^102][^103] and the only end-to-end test of publishing has never been run by any suite.[^104]
+> RED: Works with caveats, and they are real. The sibling serves the repository root, so a site kept in a subdirectory answers 404 at `/`, and `.git` is reachable through the router: the deny that closed it was applied by hand to a running router, while the route a publish generates carries no dotfile rule at this release.[^98] Only `www` is routed, not the apex.[^96] Nothing reaps the sibling when the forge that published it dies: its name matches none of the stack sweep's patterns.[^99] The project must live under `~/src` on the host,[^100] the web image is built by initialisation rather than by a forge launch, so a host that never initialised hits a phantom registry pull,[^101][^102][^103] and the only end-to-end test of publishing has never been run by any suite.[^104]
 > PATH: The document-root convention and the `~/src` assumption are open, ready items.[^98][^100]
 > PATH: For the orphaned sibling and the phantom pull: No path to green is recorded in the repo.
 
@@ -96,11 +96,11 @@ The router publishes to one loopback address — port 80 by default, with fallba
 
 Starting one is a curl on Linux, an installer script on macOS, a tray executable on Windows. Then `tillandsias --headless /path/to/project --claude`.
 
-> GREEN: Isolation is structural — one `--internal` network, exactly one dual-homed container — not a firewall ruleset you maintain. The launcher the tray runs passes the flag, and the membership guard runs in the build gate.[^1][^31][^32]
+> GREEN: Isolation is structural — one `--internal` network, exactly one dual-homed container — not a firewall ruleset you maintain. The launcher the tray runs passes the flag,[^1][^31] and the membership guard runs in the build gate.[^32][^148]
 
 > GREEN: A standing audit corrected the routing spec against the live runtime: it had pinned a privileged port a rootless host cannot always bind. The invariant it protects, loopback-only, was untouched.[^2]
 
-> RED: Two things the spec asks for are absent. It requires the network to be removed at application exit when empty; nothing implements that — the only removal is the destructive reset.[^1][^33] And the guard counts only builder and launcher functions by name, so an attach site written any other way is invisible to it.[^32]
+> RED: One thing the spec asks for is missing; another is enforced more narrowly than it reads. The spec requires the network to be removed at application exit when empty, and nothing implements that — the only removal is the destructive reset.[^1][^33] And the membership guard, which does run, counts only builder and launcher functions by name, so an attach site written any other way is invisible to it.[^32]
 > PATH: No path to green is recorded in the repo.
 
 > RED: The repo's own stack-orchestration script creates the enclave network with **no `--internal`**. A stack brought up that way is not isolated, and at this release nothing checks for the missing flag.[^3]
@@ -128,8 +128,8 @@ Idempotence is what makes destroy-and-recreate a repair procedure rather than a 
 > RED: The spec also promises that your host working copy is fast-forwarded after every successful push. No code implements it at this release: the file the spec names does not exist, and the tray-managed host checkout it fed was removed by ruling. After a forge push, your host checkout moves only when you pull.[^130][^143]
 > PATH: No path to green is recorded in the repo.
 
-> RED: On macOS the "cache survives" line is not yet proven. The VM at this release already boots with a second shared directory for the model cache, and the guest's first boot mounts it, so the durable path exists.[^131][^132] What remains open: guests provisioned before that change are not migrated, because the mount is written on first boot only; survival across a VM rebuild has not been demonstrated end to end; and the re-download cost was put at about 2.5 GB when filed, with the one later measurement much smaller and the figure recorded as unverified.[^11][^133] The shipped uninstaller now preserves the VM unless asked to wipe.[^134][^135] A partially restored cache is worse than none — the inference service answers a version check and then fails every request.[^11]
-> PATH: An open, ready item: prove survival end to end, which needs a re-provision nobody has authorised, and migrate the guests provisioned before the share. The next recorded step, from the daily channel on 2026-09-04, is to re-measure on a warm cache.[^133][^136]
+> RED: On macOS the "cache survives" line is not yet proven. The VM at this release already boots with a second shared directory for the model cache, and the guest's first boot mounts it, so the durable path exists.[^131][^132] What remains open: guests provisioned before that change are not migrated, because the mount is written on first boot only, and survival across a VM rebuild has not been demonstrated end to end.[^11][^133] The shipped uninstaller now preserves the VM unless asked to wipe.[^134][^135] A partially restored cache is worse than none — the inference service answers a version check and then fails every request.[^11]
+> PATH: An open, ready item: prove survival end to end, which needs a re-provision nobody has authorised, and migrate the guests provisioned before the share. The next recorded step, from the daily channel on 2026-09-04, is to re-measure on a warm cache: the one cold measurement taken so far came in far below the re-download cost the item was filed with, which now stands as unverified in magnitude.[^133][^136]
 
 > RED: On Windows, wiping the guest used to leave the old unseal share in Credential Manager, and the tray pushed that dead key into the fresh guest, permanently breaking GitHub login. The wipe paths now clear the stale share; a host that already holds one still delivers it, and the guest cannot tell the host it was rejected.[^12][^137]
 > PATH: The reconcile half is blocked: the delivery reply carries no accept-or-reject signal, so a delivered share that fails to authenticate cannot yet lose to the guest's own secret.[^138] Until then, remove the stale credential by hand. A second wipe path that still missed the clearing was found and fixed in the daily channel on 2026-09-02.[^139]
@@ -190,13 +190,13 @@ Second, the gate on your machine is the only gate there is.
     > Builds upon the heavy base image to inject configuration,
 [^19]: Image identity is a content hash of the sources | openspec/specs/default-image/spec.md#L94-L98
     > The default forge image SHALL use a content-hash canonical tag derived from the image source set.
-[^20]: Harnesses refresh at every launch into the persistent per-project tool cache; the first launch must fail loudly | openspec/specs/default-image/spec.md#L185-L193
-    > Agent harnesses SHALL be refreshed at container launch into the persistent project tool cache.
+[^20]: Harnesses refresh at every launch into the persistent per-project tool cache, and a freshly installed binary that fails its contracts is replaced by the last good one | openspec/specs/default-image/spec.md#L185-L226
+    > A freshly installed OpenCode that violates any of those contracts SHALL be rejected and replaced by that last-good binary.
 [^21]: The tool cache is a podman named volume, not a host bind-mount, so it cannot become a credential-leak path | crates/tillandsias-headless/src/main.rs#L13482-L13493
     > A named volume — not a host bind-mount —
 [^22]: The three RAM-backed roots the launcher mounts at this release | crates/tillandsias-headless/src/main.rs#L13682-L13684
     > .tmpfs("/tmp:size=256m,mode=1777")
-[^23]: On-demand tools: allowlisted commands become PATH shims that install on first use | images/default/brew-tools-allowlist.txt#L14-L16
+[^23]: The on-demand tool allowlist in full: every listed command becomes a PATH shim that installs on first use | images/default/brew-tools-allowlist.txt#L1-L122
     > Commands listed here get a PATH shim in the forge: running the command
 [^24]: Where the startup context file is written | images/default/lib-common.sh#L3828
     > local ctx_file="$project_dir/.forge-startup-context.md"
@@ -234,7 +234,7 @@ Second, the gate on your machine is the only gate there is.
     > ssl_bump peek ssl_bump_step1 ssl_bump bump github_release_assets ssl_bump splice all
 [^41]: Spliced HTTPS is never cached by the proxy | openspec/specs/proxy-container/spec.md#L43-L48
     > the HTTPS response SHALL NOT be cached (tunneled traffic is opaque to squid)
-[^42]: cargo, npm and pip caches redirected into the per-project cache | images/default/lib-common.sh#L1732
+[^42]: cargo, Go, npm and pip caches all redirected into the per-project cache | images/default/lib-common.sh#L1732-L1764
     > export CARGO_HOME="$PROJECT_CACHE/cargo"
 [^43]: Blocked hosts get a TCP reset, not a 403 | images/proxy/squid.conf#L136-L141
     > deny_info TCP_RESET strict_deny_acl
@@ -288,6 +288,8 @@ Second, the gate on your machine is the only gate there is.
     > No upstream configured; accepting as a durable local-only mirror update
 [^68]: Without a stored token the relay refuses and names the remedy | images/git/relay-refs.sh#L193
     > HTTPS upstream credential is unavailable; run GitHub Login before pushing
+[^69]: The mirror daemon's push path is anonymous inside the enclave, and the repo says so in the same breath as the hardening that limits the damage | images/git/entrypoint.sh#L413-L431
+    > The daemon remains anonymous inside the enclave: any reachable peer can still
 [^70]: The authenticated SSH push lane is dark behind one flag until the default flip | crates/tillandsias-headless/src/main.rs#L9708-L9714
     > std::env::var("TILLANDSIAS_MIRROR_SSHD")
 [^71]: Offline or credential-less, the forge's push returns non-zero and nothing is partially applied | openspec/specs/git-mirror-service/spec.md#L220-L226
@@ -336,8 +338,8 @@ Second, the gate on your machine is the only gate there is.
     > Requests outside the catalog are refused host-side; the guest cannot mint categories.
 [^94]: The web image: busybox httpd on 8080, document root /var/www | openspec/specs/web-image/spec.md#L22-L23
     > The image MUST serve static files from `/var/www` on port 8080 using busybox httpd with no additional packages or configuration.
-[^95]: One socket per lane, bind-mounted into the forge; attribution comes from the listener | openspec/specs/mcp-tool-socket/spec.md#L29-L35
-    > The tray SHALL create one socket per lane at
+[^95]: One socket per lane, bind-mounted into the forge; attribution comes from the listener that accepted the connection, never from the request | openspec/specs/mcp-tool-socket/spec.md#L29-L62
+    > The project (and instance) a request acts on SHALL be derived from WHICH LISTENER accepted the connection. The tray SHALL NOT read the project from the request body, from the peer process's environment, or from any other peer-supplied source.
 [^96]: The live publish path: worktree mounted read-only, a www route made public, an http URL on the router's host port | crates/tillandsias-headless/src/main.rs#L15964-L16052
     > "http://www.{project_name}.localhost:{router_host_port}"
 [^97]: From inside the forge, .localhost requests are forwarded by the proxy to the router | images/proxy/squid.conf#L170-L175
@@ -434,3 +436,13 @@ Second, the gate on your machine is the only gate there is.
     > containers-conf-env-line-is-orphaned-and-never-converges
 [^143]: The operator directive that removed the tray-managed host checkout | plan/index.yaml#L16322
     > It is REMOVED ENTIRELY.
+[^144]: The daily channel's record of the source tmpfs landing, dated | plan/index.yaml#L52151-L52155 @v56.9.5.1
+    > TMPFS SLICE LANDED (997-e4v2, slice 1 of 3). compute_hot_budget() has a real caller for the first time since it was archived as complete on 2026-04-27.
+[^145]: Fetch and pin the attestation bundles at image build time so no lane needs a GitHub identity (status: ready) | plan/index.yaml#L12068-L12090
+    > a forge lane installs an allowlisted tool with attestation verified and NO GitHub credential present anywhere in the lane
+[^146]: The shared inference container is created only when it is not already running, so sibling forges share one | crates/tillandsias-headless/src/main.rs#L13187-L13197
+    > inference is recreate-if-not-running (a --replace would drop loaded models and interrupt a sibling's inference mid-flight).
+[^147]: The test pinning the scoped lease for every credentialed lane, and its absence from the credential-free ones | crates/tillandsias-headless/src/main.rs#L22028-L22078
+    > Credential-free lanes never mount a provider lease.
+[^148]: The check gate invokes the membership guard and fails the build when it refuses | build.sh#L2665-L2675
+    > if ! _run bash "$SCRIPT_DIR/scripts/check-enclave-membership-documented.sh" 2>&1; then
