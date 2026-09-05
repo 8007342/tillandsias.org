@@ -3,18 +3,22 @@
 ## The delta discipline
 
 Level 5 is the one page whose owner accepts only tiny, individually justified
-deltas, and every change to its text is proposed here before it lands. The
-discipline this change follows, and that a reviewer checks it against:
+deltas, and every change to its text is listed here before it lands. The editor
+applies exactly the deltas listed and no others, and the operator reviews this
+change before it is archived. The discipline this change follows, and that a
+reviewer checks it against:
 
 - **One delta per entry.** Each of D1–D7 in `proposal.md` names one change,
   its exact wording, and the evidence path `#L` at the tag it cites. Nothing
-  is bundled.
+  is bundled, and the record lists nothing the diff does not contain: an edit
+  that landed before this record existed is recorded in the level's audit
+  annotation, not grafted on here.
 - **The pin does not move.** `scripts/build-matrix.py` keeps level 5 at
   v56.9.2.1. Every ordinary footnote resolves there and every quote is taken
   from there.
 - **Daily-channel facts get `@vTAG` footnotes.** A shortcoming fixed only in
   the daily channel stays RED at the stable pin; its PATH says when the fix
-  landed and cites it with a footnote carrying `@v56.9.5.1` — the only place a
+  landed and cites it with a footnote carrying `@v56.9.5.1` — the only way a
   footnote may point past the level's pin. Four such footnotes are added
   ([^41]–[^44]); no other footnote carries the tag.
 - **Quotes are verbatim.** Each `>` line under a footnote copies contiguous
