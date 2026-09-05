@@ -83,6 +83,24 @@ completeness and for readers without a pointer.
   separately from the others, and every change to its text is proposed in an OpenSpec
   change under `openspec/changes/` before it lands.
 
+## The plant aside
+
+Each level opens with one true sentence about *Tillandsia*, the genus the project
+is named after, beside a small drawing of a species. It is page furniture, so it
+lives in the `LEVELS` table of `scripts/build-matrix.py` rather than in the level's
+source: the explanation files carry only their argument, and level 5 is not touched
+to add decoration. The glyphs are in `scripts/figures.py` as `PLANTS`.
+
+Rules for it: one sentence, botanically true, and the tie to the software is a
+half-clause at most — the aside sits beside the argument, never inside it. It
+carries no footnote, because it is not a claim about the software and the footnote
+machinery resolves into the runtime repository. If a fact here is ever disputed,
+cut it rather than dress it up.
+
+There is no *Tillandsia* in Unicode and none in the free emoji sets, and the page
+loads no external images, so the drawings are hand-authored inline SVG in
+`currentColor` like every other figure here.
+
 ## Figures
 
 `layers`, `loop`, `staircase`, `lln`, `lattice`, `crdt`, `gate`, `ephemeral`,

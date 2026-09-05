@@ -314,3 +314,59 @@ DEFS = """<svg width="0" height="0" style="position:absolute" aria-hidden="true"
 <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
         orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker>
 </defs></svg>"""
+
+
+# --- The plant itself -------------------------------------------------------
+#
+# Tillandsias are air plants: a rosette of narrow recurved leaves, no soil, and
+# roots that grip rather than feed. Each level's aside carries one species drawn
+# as a glyph — stroke-only, `currentColor`, legible at 15px, no second palette
+# and nothing fetched. There is no Tillandsia in Unicode and none in the
+# free emoji sets, so these are hand-drawn.
+
+_PLANT = ('<svg viewBox="0 0 16 16" role="img" aria-label="{alt}" fill="none" '
+          'stroke="currentColor" stroke-width="1.1" stroke-linecap="round" '
+          'stroke-linejoin="round">{body}</svg>')
+
+
+def _plant(alt, body):
+    return _PLANT.format(alt=alt, body=body)
+
+
+PLANTS = {
+    # T. ionantha — a tight upright rosette.
+    "ionantha": _plant("a small upright air plant", """
+    <path d="M8 15 Q8 9 8 2.6"/>
+    <path d="M8 15 Q6.1 9.4 4.6 4.9"/>
+    <path d="M8 15 Q9.9 9.4 11.4 4.9"/>
+    <path d="M8 15 Q4.4 11 2.4 7.6"/>
+    <path d="M8 15 Q11.6 11 13.6 7.6"/>"""),
+
+    # T. bulbosa — a bulbed base with a few snaking leaves.
+    "bulbosa": _plant("an air plant with a bulbed base", """
+    <path d="M6.4 15 Q5.8 12.2 8 11.4 Q10.2 12.2 9.6 15"/>
+    <path d="M8 11.4 C7.4 8.4 5.9 6.8 6.9 3.2"/>
+    <path d="M8 11.4 C9.6 8.8 11.6 7.9 10.9 4.6"/>
+    <path d="M8 11.4 C6.1 9.6 3.7 9.2 4.1 6.2"/>"""),
+
+    # T. xerographica — a broad rosette whose outer leaves curl back.
+    "xerographica": _plant("a broad air plant with curling leaves", """
+    <path d="M8 15 L8 4.4"/>
+    <path d="M8 15 C7.6 10.2 6.6 6.8 4.8 4.8"/>
+    <path d="M8 15 C8.4 10.2 9.4 6.8 11.2 4.8"/>
+    <path d="M8 15 C7 11.2 5 9.2 2.7 9.7 C1.8 9.9 1.7 10.8 2.4 11.3"/>
+    <path d="M8 15 C9 11.2 11 9.2 13.3 9.7 C14.2 9.9 14.3 10.8 13.6 11.3"/>"""),
+
+    # T. usneoides — Spanish moss, which hangs rather than sits.
+    "usneoides": _plant("hanging strands of Spanish moss", """
+    <path d="M3.4 1.8 C4.4 4.6 3.3 6.6 4.3 9.2 C4.9 10.8 4.2 12 4.9 14.4"/>
+    <path d="M8 1.8 C9 5 7.9 7.4 8.9 10.2 C9.5 11.8 8.9 12.9 9.3 15.2"/>
+    <path d="M12.4 2.6 C13 5.4 11.9 7.2 12.7 10 C13.1 11.4 12.6 12.2 12.9 13.8"/>"""),
+
+    # T. caput-medusae — leaves that twist away from a swollen base.
+    "caput-medusae": _plant("an air plant with twisting leaves", """
+    <path d="M5.9 14.8 Q5.4 11.6 8 10.9 Q10.6 11.6 10.1 14.8"/>
+    <path d="M7.2 10.9 C6.1 8.2 4.1 7.2 4.7 4.3 C5 2.9 6.2 2.8 6.7 3.7"/>
+    <path d="M8.4 10.9 C8.9 8 10.7 6.7 10.2 4.1"/>
+    <path d="M9.4 11.3 C11.2 9.5 13.1 9.5 13.5 7.1"/>"""),
+}

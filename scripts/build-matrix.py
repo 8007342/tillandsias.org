@@ -13,6 +13,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import urllib.parse
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import figures  # noqa: E402
@@ -35,27 +36,45 @@ PIN_OVERRIDE = os.environ.get("TILLANDSIAS_PIN_OVERRIDE", "").strip() or None
 # independently so that a page whose owner accepts only tiny deltas (level 5)
 # is not dragged forward by a re-verification of the others. The newest pin is
 # shown in the page header as the release the site was last checked against.
+# Each row: slug, tab title, blurb, continuation note, pinned release, and the
+# plant aside — a glyph from figures.PLANTS and one true sentence about the
+# genus the project is named after. The aside is page furniture, like the tab
+# title and the blurb: it lives here rather than in the level's source so the
+# explanation files carry only their argument, and so level 5, which moves
+# only in individually tracked deltas, is not touched to add decoration.
 LEVELS = [
     ("level-1-five",     "Like I'm 5",
      "The simplest way of putting it that is still true.", "",
-     "v56.9.2.1"),
+     "v56.9.2.1",
+     ("ionantha",
+      "A real tillandsia needs no soil and no pot — it drinks from the air, and borrows nothing.")),
     ("level-2-phone",    "I barely understand my phone",
      "Straight answers to what you are actually wondering: privacy, cost, and what breaks.",
      "Picks up where “like I’m 5” left off.",
-     "v56.9.2.1"),
+     "v56.9.2.1",
+     ("bulbosa",
+      "A tillandsia is an epiphyte, not a parasite: it rests on its tree and takes nothing from it.")),
     ("level-3-power",    "I'm a power user",
      "The anatomy: what runs where, what survives a teardown, and where the sharp edges are.",
      "Assumes the two levels before it.",
-     "v56.9.2.1"),
+     "v56.9.2.1",
+     ("xerographica",
+      "Its roots only grip; the leaves do the drinking — a plant that runs rootless.")),
     ("level-4-security", "I'm a Cyber Security expert",
      "The architecture interrogated rather than described — boundaries, egress, provenance, "
      "and what the tests do not actually test.",
      "Assumes the three levels before it.",
-     "v56.9.2.1"),
+     "v56.9.2.1",
+     ("usneoides",
+      "Silvery leaf scales open to take water in, then trap air to keep it: every exchange "
+      "across one surface.")),
     ("level-5-phd",      "I'm a MathWiz / Hacker",
      "And you would like me to be condescending about it. Very well.",
      "Assumes everything before it. Mathematics from here down.",
-     "v56.9.2.1"),
+     "v56.9.2.1",
+     ("caput-medusae",
+      "A monocot bromeliad flowers once and dies, leaving offsets behind — the pup is never "
+      "the parent.")),
 ]
 
 
@@ -64,7 +83,7 @@ def version_key(ref):
 
 
 if PIN_OVERRIDE:
-    LEVELS = [lvl[:4] + (PIN_OVERRIDE,) for lvl in LEVELS]
+    LEVELS = [lvl[:4] + (PIN_OVERRIDE,) + lvl[5:] for lvl in LEVELS]
     print("  trial build: every level pinned to %s (LEVELS untouched)" % PIN_OVERRIDE)
 
 SITE_REF = max((lvl[4] for lvl in LEVELS), key=version_key)
@@ -405,7 +424,7 @@ def parse(path, level):
 
 def build():
     panels, tabs = [], []
-    for idx, (slug, title, blurb, cont, ref) in enumerate(LEVELS):
+    for idx, (slug, title, blurb, cont, ref, plant) in enumerate(LEVELS):
         path = SRC / ("%s.md" % slug)
         if path.exists():
             body, notes = parse(path, slug)
@@ -413,6 +432,16 @@ def build():
             body, notes = ["Not written yet."], {}
         ctx = Ctx(slug, ref, notes)
         content = render(body, ctx)
+
+        # The plant aside sits under the level's own title, above its first
+        # section: an aside, in the page's quietest voice, never a claim about
+        # the software and so never footnoted.
+        glyph, fact = plant
+        note = ('<p class="plantnote"><span class="plant-ico" aria-hidden="true">%s</span>'
+                '<span>%s</span></p>' % (figures.PLANTS[glyph], html.escape(fact)))
+        head = re.search(r"</h2>", content)
+        content = (content[:head.end()] + "\n" + note + content[head.end():]
+                   if head else note + "\n" + content)
 
         missing = sorted(ctx.fns - set(notes), key=int)
         if missing:
@@ -470,7 +499,13 @@ def build():
                       '<button class="ins-copy" type="button" title="Copy">Copy</button>'
                       '</span></div>'
                       % (os_, html.escape(cmd, quote=True), os_) for os_, cmd in INSTALL)
+    # The tab icon is the same glyph the header carries, inlined as a data URI:
+    # nothing to fetch, and the CSP has no image host to allow.
+    favicon = "data:image/svg+xml," + urllib.parse.quote(
+        figures.PLANTS["ionantha"].replace('stroke="currentColor"', 'stroke="#5fd6a4"'), safe="")
     doc = (TEMPLATE.replace("__INSTALL__", install)
+           .replace("__LEAF__", figures.PLANTS["ionantha"])
+           .replace("__FAVICON__", favicon)
            .replace("__DEFS__", figures.DEFS)
            .replace("__TABS__", "\n".join(tabs))
            .replace("__PANELS__", "\n".join(panels))
@@ -493,6 +528,7 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="__FAVICON__">
 <title>Tillandsias — an ephemeral cloud region, folded through your hypervisor</title>
 <meta name="description" content="What Tillandsias is and how it works, explained at five levels — with its strengths and its unfinished edges both marked, and every claim linked to source.">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css"
@@ -574,7 +610,15 @@ main{padding:0 0 96px}
   letter-spacing:-.024em;font-weight:650;max-width:30ch}
 .prose h3{margin:44px 0 14px;font-size:23px;letter-spacing:-.02em;font-weight:640;
   padding-top:18px;border-top:1px solid var(--line)}
-.prose h3:first-child,.prose h2.panel-h+h3{border-top:none;margin-top:16px;padding-top:0}
+.prose h3:first-child,.prose h2.panel-h+h3,.prose .plantnote+h3{border-top:none;margin-top:16px;padding-top:0}
+/* The plant aside: one true sentence about the genus the project is named
+   after. Quiet on purpose — it sits beside the argument, never inside it. */
+.plantnote{display:flex;gap:9px;align-items:flex-start;max-width:64ch;
+  margin:-2px 0 30px;font:italic 400 13.5px/1.6 var(--sans);color:var(--ink-faint)}
+.plant-ico{flex:0 0 auto;color:var(--leaf-dim);padding-top:2px}
+.plant-ico svg{display:block;width:15px;height:15px}
+.eyebrow .leaf-ico{color:var(--leaf);vertical-align:-2px;margin-right:7px}
+.eyebrow .leaf-ico svg{display:inline-block;width:13px;height:13px}
 .prose h4{margin:30px 0 10px;font-size:16.5px;font-weight:640;color:var(--ink)}
 .prose p{margin:0 0 16px;color:#c9d4e0;max-width:74ch}
 .prose ul,.prose ol{margin:0 0 20px;padding-left:0;list-style:none;max-width:74ch}
@@ -693,7 +737,7 @@ __DEFS__
 
 <header class="hero">
   <div class="wrap">
-    <p class="eyebrow">tillandsias.org <span class="ver" title="The release of the source repository this page was last checked against">&middot; __SITE_REF__</span></p>
+    <p class="eyebrow"><span class="leaf-ico" aria-hidden="true">__LEAF__</span>tillandsias.org <span class="ver" title="The release of the source repository this page was last checked against">&middot; __SITE_REF__</span></p>
     <h1>An idempotent, ephemeral cloud region,<br><span class="dim">folded through your hypervisor.</span></h1>
     <p class="lede">Local hardware. Free software. Nothing rented, nothing metered, nothing left
       behind. Below is <strong>what it is and how it works</strong>, told five times over — pick
