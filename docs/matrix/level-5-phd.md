@@ -88,10 +88,10 @@ that each is order-preserving for every affected obligation[^9] — which is exa
 the right shape of obligation, and exactly what is not run.
 
 > RED: The fixed-point argument's load-bearing hypothesis is monotonicity of the refinement operator, and monotonicity is assumed, not proved. The repository's own discharge procedure is generative property testing over reachable obligation states; the workspace contains no property-testing dependency at all — no `proptest`, no `quickcheck`, in any crate manifest. What would be needed is modest and specific: an enumeration of the permitted transition relation, plus a proof or a generative test that every transition is order-preserving in each affected coordinate, with tombstones and scope changes excluded as declared non-monotone.
-> PATH: The checks are specified as phase one of a staged validation program[^9]. That phase was unimplemented at this release; implementing the model and its generative property tests was filed as scheduled work on 2026-09-03. The prerequisite is the sharper half: there is nothing to property-test until the obligation model exists as code rather than as prose.
+> PATH: The checks are specified as phase one of a staged validation program[^9]. That phase was unimplemented at this release; implementing the model and its generative property tests was filed as scheduled work on 2026-09-03. The prerequisite is the sharper half: there is nothing to property-test until the obligation model exists as code rather than as prose. The obligation model and its generative property tests landed in the daily channel on 2026-09-03 (release v56.9.4.1), over a committed rule set rather than the live validators, and are not yet in the stable channel[^41].
 
 > RED: The lattice's coordinates are mostly not instantiated. The obligation model is indexed by stable requirement identifiers, but no specification file in the tree carries a requirement identifier field — requirements are named by prose headings, against several thousand RFC-2119 keywords. The credit term that prices this, `requirement_has_stable_id`, occurs exactly once in the entire repository: in the weight table that defines it[^10]. Nothing reads it. A product order over coordinates that do not exist is a well-formed object over an empty index.
-> PATH: Priced in the scoring rules but not gated on, and unscheduled at this release. A migration to stable random identifiers was filed on 2026-09-03, carrying the rule that a refinement preserving the original intent keeps its identifier while a change of meaning becomes a tombstone plus a new one — a boundary that is author judgement and cannot be enforced by a validator, so the documentation must say so rather than imply a guard covers it.
+> PATH: Priced in the scoring rules but not gated on, and unscheduled at this release. A migration to stable random identifiers was filed on 2026-09-03, carrying the rule that a refinement preserving the original intent keeps its identifier while a change of meaning becomes a tombstone plus a new one — a boundary that is author judgement and cannot be enforced by a validator, so the documentation must say so rather than imply a guard covers it. In the daily channel, on 2026-09-03, every requirement received a stable random identifier and a gate check now refuses a missing or duplicated one[^42]; nothing yet computes the credit term.
 
 > GREEN: The negative results — no contraction, no Galois connection, no probabilities — are first-class claims carrying their own discharge conditions, not caveats appended to positive ones. Each names the object a future claim would have to construct.
 
@@ -161,7 +161,7 @@ scales, and the inequality is not scale-invariant: a release can lower its resid
 by enlarging its denominator.
 
 > RED: The release-boundary inequality is stated over a quantity whose codomain is allowed to change between the two terms being compared. Nothing normalises residuals across a denominator change, so non-increase is a comparison between two differently-scaled integers. A ratio $d_v/N_v$ would be comparable and is not what is checked.
-> PATH: A phase-two check requiring denominator changes to emit an explicit scope-change signal is specified[^9]; it is unimplemented, and no normalisation rule is recorded even in specification.
+> PATH: A phase-two check requiring denominator changes to emit an explicit scope-change signal is specified[^9]; it is unimplemented, and no normalisation rule is recorded even in specification. In the daily channel the ranking function in code now labels a score whose denominator lost a tombstoned obligation as not comparable, and the script prints that label[^44]; no normalisation rule is recorded.
 
 ## Iteration: the law of large numbers at full strength
 
@@ -290,7 +290,7 @@ to today's scores is unlicensed. Building the layer that would license it is ope
 work, and the repository files it as such.
 
 > RED: What computes the score is not the specified arithmetic. A sixteen-arm hardcoded weight table over CI check names in a shell script produces it[^27], and the committed dashboard's 890/990 is that pass-rate[^28]. None of the base weights, multipliers, cap rules or sixteen penalties in the methodology are computed anywhere in the tree.
-> PATH: The framework specification delegates the arithmetic to a named crate and modules[^29]; that crate is a README and one `.rs.example` file, and is not a workspace member. Ruled on 2026-09-03: the two are to be the same object, the shell scorer is to call the model rather than reimplement it, completed work is to be backfilled retroactively, and the requirement is to be hard-enforced going forward rather than requested.
+> PATH: The framework specification delegates the arithmetic to a named crate and modules[^29]; that crate is a README and one `.rs.example` file, and is not a workspace member. Ruled on 2026-09-03: the two are to be the same object, the shell scorer is to call the model rather than reimplement it, completed work is to be backfilled retroactively, and the requirement is to be hard-enforced going forward rather than requested. The three parts of the ruling were executed the same day in the daily channel — the shell scorer hands its weights to the model[^43], completed work was backfilled where the ledger pins the evidence (a small fraction of rows), and a gate refuses new obligations the score cannot see.
 
 > RED: The methodology's own complexity constraint — methodology-to-codebase ratio below 0.15, with a red flag at 5000 lines of CI validators[^30] — is uninstrumented and has never fired, while the script that computes the score is itself 1,739 lines and the shell corpus it dispatches into exceeds 78,000.
 > PATH: The rule names two measurement procedures; neither is implemented as a check.
@@ -323,7 +323,7 @@ intent, which is where LWW does its damage. Applying LWW to a *list* silently
 discards the loser's entries, which is why events are a set and not a register — a
 distinction the file calls the whole correctness argument[^31]. Determinism is pinned
 by folding in $(\text{timestamp}, \text{filename})$ order rather than directory
-order[^33], and the three properties are tested by name[^34].
+order[^33], and two of the three properties — commutativity and idempotence — are tested by name[^34].
 
 The status field is not a plain register: it composes a monotone join over a closure
 rank with LWW as tiebreak at equal rank, treats terminal-but-lateral values as
@@ -359,42 +359,78 @@ revision rather than rejection. Use the mathematics. Discount the dashboard.
 ## Footnotes
 
 [^1]: Formal objects — obligation, the state chain, product lattices, and the ranking function's monotonicity conditions | methodology/math-foundations.yaml#L13-L43
+    > A named, auditable requirement, invariant, litmus signal, trace signal, provenance binding, or environment assumption with a stable ID.
 [^2]: Stated purpose — separating defensible mathematics from analogy | methodology/math-foundations.yaml#L4-L11
+    > Separate the math the methodology can defend from analogies it must not overclaim.
 [^3]: Davey & Priestley, *Introduction to Lattices and Order*, 2nd ed. — product orders, heights, completeness | https://doi.org/10.1017/CBO9780511809088
 [^4]: The lattice-model claim and its stated limit | methodology/math-foundations.yaml#L46-L59
+    > This proves monotonicity of the model, not truth of the modeled requirement or adequacy of the chosen obligation set.
 [^5]: The fixed-point claim: idempotence of refine, and its limit | methodology/math-foundations.yaml#L61-L74
+    > Define the refinement operator over a finite artifact snapshot and check idempotence: refine(refine(state)) == refine(state).
 [^6]: Tarski, *A lattice-theoretical fixpoint theorem and its applications*, Pacific J. Math. 5 (1955) — the Knaster–Tarski theorem, generalising Knaster's 1928 powerset case | https://doi.org/10.2140/pjm.1955.5.285
 [^7]: Kleene, *Introduction to Metamathematics* (1952), cited for the iterative least-fixed-point construction | https://archive.org/details/introductiontome00klee
 [^8]: Bar-raise governance — the bar is fixed within a release, rises only by operator decision, and the automation must not self-escalate | methodology/convergence.yaml#L410-L432
+    > is a one-off scope expansion that The Tlatoāni MUST approve every time. Recurring automation (the meta-orchestration loop) MUST NOT self-escalate the bar.
 [^9]: The staged validation program: the monotonicity property tests and the denominator scope-change check | methodology/math-foundations.yaml#L175-L198
+    > - allowed_evidence_transitions_are_monotone - tombstone_and_scope_change_transitions_are_explicitly_non_monotone
 [^10]: The evidence-credit table containing `requirement_has_stable_id` | methodology/proximity.yaml#L47-L57
+    > requirement_has_stable_id: 0.10
 [^11]: Multi-version convergence: the moving target, the residual floor, and the refusal of the zero-floor claim | methodology/philosophy.yaml#L103-L121
+    > Release-over-release non-increase of d_v guarantees convergence to some residual floor d_* >= 0; it does not by itself prove d_* = 0. A zero-floor claim would additionally require a validated progress premise that excludes positive residual fixed points
 [^12]: Rudin, *Principles of Mathematical Analysis*, 3rd ed., Thm. 3.14 — monotone bounded sequences converge | https://archive.org/details/principlesofmath0000rudi
 [^13]: Banach, *Sur les opérations dans les ensembles abstraits*, Fund. Math. 3 (1922) | https://doi.org/10.4064/fm-3-1-133-181
 [^14]: Contraction explicitly not claimed, with the metric/operator/constant debt itemised | methodology/math-foundations.yaml#L108-L120
+    > Without that metric proof, "monotonic convergence" means ordered non-regression plus finite residual descent, not metric contraction.
 [^15]: The cap rules, the sixteen penalties, and the rollup that makes the score non-additive in its parts | methodology/proximity.yaml#L60-L97
+    > requirement_cc = weighted_obligation * earned_credit + penalties bounded to [0, weighted_obligation].
 [^16]: Weak versus strong LLN, bounded per-prompt skew, and the unbounded-skew hazard | methodology/philosophy.yaml#L8-L31
+    > then iterate — the STRONG LLN (almost-sure convergence) makes the stream of iterations converge hard. The hazard is uncontrolled skew sneaking in at the END of every individual prompt: if a prompt's skew is not bounded, infinite iterations do NOT converge hard.
 [^17]: Kolmogorov, *Grundbegriffe der Wahrscheinlichkeitsrechnung* (1933) — the strong law and its variance criterion | https://doi.org/10.1007/978-3-642-49888-6
 [^18]: Durrett, *Probability: Theory and Examples*, 5th ed. — SLLN, Kolmogorov's three-series theorem, and the ergodic and martingale substitutes | https://doi.org/10.1017/9781108591034
 [^19]: Retrieval as a cache; commits as the Lamport clock versioning it — the mechanism that makes iterations dependent | methodology/philosophy.yaml#L32-L39
+    > That cache is updated on COMMITS — a commit hitting the relevant bits retrains the RAG. Commits are therefore the LAMPORT CLOCK of the RAG models: they causally order and version the cached knowledge against the code
 [^20]: Birkhoff, *Proof of the ergodic theorem*, PNAS 17 (1931) | https://doi.org/10.1073/pnas.17.2.656
 [^21]: Cousot & Cousot, *Abstract Interpretation*, POPL 1977 | https://doi.org/10.1145/512950.512973
 [^22]: The concession: no Galois connection is defined — "an abstraction discipline, not a formal abstract interpreter" | methodology/math-foundations.yaml#L76-L89
+    > Tillandsias does not yet define a full Galois connection between program semantics and spec obligations. Until then, this is an abstraction discipline, not a formal abstract interpreter.
 [^23]: Floyd, *Assigning Meanings to Programs* (1967), cited for ranking-style progress reasoning | https://doi.org/10.1090/psapm/019/0235771
 [^24]: Scores are not probabilities; finite coverage is not proof of absence | methodology/math-foundations.yaml#L122-L135
+    > Evidence bundles and CentiColon scores should not be interpreted as probabilities. If probabilistic or belief-function confidence is later added, it must be a separate layer from obligation closure.
 [^25]: Shafer, *A Mathematical Theory of Evidence* (1976), cited as a possible separate confidence layer | https://press.princeton.edu/books/paperback/9780691100425/a-mathematical-theory-of-evidence
 [^26]: Walley, *Statistical Reasoning with Imprecise Probabilities* (1991) | https://doi.org/10.1007/978-1-4899-3472-7
 [^27]: What actually computes the score: a sixteen-arm hardcoded weight table over CI check names | scripts/local-ci.sh#L384-L403
+    > check_weight() { case "$1" in spec-cheatsheet-binding) echo 100 ;; spec-code-drift) echo 120 ;; spec-trace-coverage) echo 90 ;; version-monotonicity) echo 40 ;;
 [^28]: The committed dashboard's earned and total figures | docs/convergence/centicolon-dashboard.json#L75-L76
+    > "total_cc": 990, "earned_cc": 890,
 [^29]: The framework specification delegating CentiColon arithmetic to a crate that is a README and one example file | methodology/litmus-framework.yaml#L88-L96
+    > files: - crates/tillandsias-litmus/src/convergence/mod.rs - crates/tillandsias-litmus/src/convergence/centicolon.rs
 [^30]: The uninstrumented complexity constraint and its 5000-line red flag | methodology/convergence.yaml#L329-L342
+    > ratio_constraint: "methodology_complexity / codebase_complexity < 0.15" anti_pattern: > A validation system that requires more code to understand than the code being validated. Red flag: CI validators exceed 5000 lines or require specialized training to understand.
 [^31]: The three CRDT primitives, and why each field uses the one it does | crates/tillandsias-plan/src/fragments.rs#L28-L39
+    > Applying LWW to a LIST would silently discard the loser's entries, which is why events are a set and not a register.
 [^32]: Semantic merge typed as a cache with CRDT preconditions, plus the anti-pattern | methodology/cheatsheets.yaml#L88-L114
+    > Calling a lossy semantic cache a CRDT without stable IDs, tombstones, deterministic merge, and property tests creates false convergence claims.
 [^33]: Determinism rules: fold order and idempotence | crates/tillandsias-plan/src/fragments.rs#L41-L49
+    > Fragments fold in `(ts, filename)` order, never directory order — the filesystem does not promise an order, and two hosts folding differently would compute different states from identical inputs, which presents as corruption rather than as a sorting bug.
 [^34]: Commutativity and idempotence of the fold pinned as named tests | crates/tillandsias-plan/src/fragments.rs#L2648-L2668
+    > fn the_fold_is_commutative_the_defining_crdt_property() { Order of arrival must not change the result.
 [^35]: Rank-aware status join with a falsification escape hatch | crates/tillandsias-plan/src/fragments.rs#L307-L320
+    > The closure ladder implemented<completed<verified<done is a monotone lattice: you climb UP freely and move DOWN only through a `falsified` event.
 [^36]: A retracted CRDT claim, with the failed property named | crates/tillandsias-plan/lua/collect.lua#L7-L11
+    > This is a SEEN-SET DEDUP, not a CRDT — the earlier header's CRDT claim (commutativity in particular) was false: first-wins keeps whichever duplicate arrives first, so order matters.
 [^37]: The join-semilattice argument for the version scheme, and the SemVer critique | methodology/versioning.yaml#L104-L124
+    > SemVer (Major.Minor.Patch) allows arbitrary resets: Patch can go 1→2→1 if someone hotfixes a branch. There is no natural total order.
 [^38]: CRDT preconditions filed at claim strength "external analogy" | methodology/provenance.yaml#L179-L192
+    > claim_strength: external_analogy
 [^39]: The documented component semantics the project retired | methodology/versioning.yaml#L9-L20
+    > Major: meaning: "Contract version — breaking changes only"
 [^40]: Thesis defence position: finite ordered convergence under declared validators, with unknown-event intake as the escape hatch | methodology/math-foundations.yaml#L200-L206
+    > The defensible claim is finite ordered convergence under declared validators: stable obligations form a finite lattice; evidence-improving transitions are checked for monotonicity; CentiColons are a bounded ranking function over that model; fixed points mean validator stability; and unknown-event intake is the escape hatch
+[^41]: Generative property tests for monotonicity, inflationarity and idempotence of the refinement operator, over a committed rule set | crates/tillandsias-plan/src/obligation_props.rs#L172-L219 @v56.9.5.1
+    > MONOTONICITY over the real rule set — what Knaster-Tarski actually needs and what the methodology's idempotence check never examined. #[test] fn refine_is_monotone_on_the_real_rules((x, y) in comparable_pair()) {
+[^42]: The gate that refuses a missing or duplicated requirement identifier, and states what it cannot check | scripts/check-requirement-ids.sh#L5-L35 @v56.9.5.1
+    > Every spec requirement carries a stable identifier, and no two carry the same one.
+[^43]: The shell scorer hands its weights to the model instead of summing them itself | scripts/local-ci.sh#L538-L563 @v56.9.5.1
+    > What LEFT is the arithmetic: earned/denominator/residual are now computed by `tillandsias-plan score-checks`, which runs obligation::centicolon_function over a SpecState.
+[^44]: The ranking function in code names which side of the monotone band a score is on | crates/tillandsias-plan/src/obligation.rs#L620-L638 @v56.9.5.1
+    > Outside the band, with the reason NAMED rather than implied. A consumer must not read a rise or fall across this boundary as progress or regress. Broken(&'static str),
