@@ -483,20 +483,29 @@ def progress_view():
         ev = f.get("events", [])
         first = ev[0].get("ts", "")[:10] if ev else ""
         last = ev[-1].get("ts", "")[:10] if ev else ""
-        dep = "".join('<span class="dep">%s</span>' % html.escape(d) for d in f.get("depends_on", []))
-        up = ('<a class="up" href="%s" target="_blank" rel="noopener">filed &#8599;</a>'
-              % html.escape(f["upstream"], quote=True)) if f.get("upstream") else              '<span class="up unfiled">not filed upstream</span>' if f.get("repo") == "tillandsias" else ""
+        dep = "".join('<span class="dep">%s</span>' % html.escape(d)
+                      for d in f.get("depends_on", []))
+        # A runtime finding this project cannot file itself says so, so the gap
+        # between "recorded here" and "in front of the people who can fix it"
+        # is visible rather than quietly forgotten.
+        if f.get("upstream"):
+            up = ('<a class="up" href="%s" target="_blank" rel="noopener">filed &#8599;</a>'
+                  % html.escape(f["upstream"], quote=True))
+        elif f.get("repo") == "tillandsias":
+            up = '<span class="up unfiled">not filed upstream</span>'
+        else:
+            up = ""
+        when = ((" &middot; found %s" % first) if first else " &middot; no dated event") + \
+               ((" &middot; moved %s" % last) if last and last != first else "")
         return ('<li class="card sev-%s"><div class="card-h"><code>%s</code>'
                 '<span class="repo">%s</span><span class="sev">%s</span></div>'
-                '<p class="card-t">%s</p>'
-                '<p class="card-m">%s%s%s</p>%s</li>'
+                '<p class="card-t">%s</p><p class="card-m">%s%s</p>%s%s</li>'
                 % (html.escape(f.get("severity", "low")), html.escape(f["id"]),
                    html.escape(f.get("repo", "")), html.escape(f.get("severity", "")),
                    html.escape(f.get("title", "(untitled)")),
-                   html.escape(f.get("area", "")),
-                   (" &middot; found %s" % first) if first else "",
-                   (" &middot; moved %s" % last) if last and last != first else "",
-                   ('<p class="card-d">needs %s</p>' % dep) if dep else "") ) +                (('<li class="card-up">%s</li>' % up) if False else "")
+                   html.escape(f.get("area", "")), when,
+                   ('<p class="card-d">needs %s</p>' % dep) if dep else "",
+                   ('<p class="card-u">%s</p>' % up) if up else ""))
 
     def column(key):
         title, blurb = COLUMN_TITLE[key]
@@ -938,6 +947,7 @@ footer a:hover{color:var(--leaf)}
 .card-d{margin:6px 0 0;font-size:11.5px;color:var(--ink-faint)}
 .dep{display:inline-block;font:500 10.5px var(--mono);color:var(--amber);
   border:1px solid rgba(230,180,94,.3);border-radius:4px;padding:1px 5px;margin-right:4px}
+.card-u{margin:6px 0 0}
 .up{font:500 11px var(--mono);color:var(--leaf);text-decoration:none}
 .up.unfiled{color:var(--ink-faint)}
 .cc{margin:40px 0 0;padding:20px 20px 8px;border:1px solid var(--line);border-radius:12px;

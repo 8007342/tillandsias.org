@@ -16,6 +16,7 @@ last-writer-wins registers per (id, field) decided by (ts, host). See
 import hashlib
 import pathlib
 import re
+import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -245,6 +246,10 @@ def cmd_validate():
                 bad.append("%s: unknown event type %r" % (name, e.get("type")))
             if not e.get("host"):
                 bad.append("%s: event with no host (the LWW tiebreak needs it)" % name)
+            for k, v in e.items():
+                if isinstance(v, str) and " #" in v and not (v.startswith('"') or v.startswith("'")):
+                    bad.append("%s: %s carries an unquoted ' #', which a YAML reader "
+                               "would treat as a comment; quote the value" % (name, k))
             if e.get("type") in DESCEND and not e.get("note"):
                 bad.append("%s: a %s event must say why; going down the ladder "
                            "without a reason is how a record loses its history"
@@ -304,16 +309,24 @@ def check_quotes(state):
             if not quote or not path:
                 continue
             target, _, anchor = path.partition("#")
-            root = clones / tag
             if issue.get("repo") == "tillandsias.org":
-                root = ROOT                        # this repository's own tree
-            if not (root / target).exists():
-                if root == ROOT:
-                    bad.append("%s: cites %s, which is not in this repository" % (iid, target))
-                else:
+                # Read the file as it stood at the commit the finding names. The
+                # working tree moves under a finding; the stamp is the claim.
+                commit = issue.get("commit") or issue.get("tag") or "HEAD"
+                out = subprocess.run(["git", "-C", str(ROOT), "show",
+                                      "%s:%s" % (commit, target)],
+                                     capture_output=True, text=True)
+                if out.returncode:
+                    bad.append("%s: %s does not exist at the commit this finding "
+                               "stamps (%s)" % (iid, target, commit[:9]))
+                    continue
+                lines = out.stdout.splitlines()
+            else:
+                root = clones / tag
+                if not (root / target).exists():
                     unchecked += 1
-                continue
-            lines = (root / target).read_text(errors="replace").splitlines()
+                    continue
+                lines = (root / target).read_text(errors="replace").splitlines()
             lo, hi = 1, len(lines)
             m = re.match(r"^L(\d+)(?:-L(\d+))?$", anchor or "")
             if m:

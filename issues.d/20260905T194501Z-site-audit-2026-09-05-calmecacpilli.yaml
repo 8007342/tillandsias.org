@@ -1,0 +1,783 @@
+# Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md — the sixteen
+# findings that audit filed against this website, plus the one open question in
+# its closing section that is a finding rather than a restatement.
+#
+# Every finding here is about THIS repository, so its `tag`/`commit` names a
+# commit of this repository and never a runtime release. All of them were
+# re-checked, and every number in them re-derived, against the tree at
+# c4039e1 — the two exceptions are marked: a988d3c4 is a runtime finding and
+# carries the runtime tag, and the line ranges into
+# openspec/changes/add-level-page-specs/ were read in the working tree at
+# c4039e1, which carries uncommitted spec work under that change.
+issues:
+  - id: 576200f9
+    repo: tillandsias.org
+    title: The level-5 deltas are live on the site while their OpenSpec change is unapproved, and openspec/specs/ holds no site spec
+    area: openspec/changes/level-5-stable-pin-deltas, openspec/specs
+    class: doc-drift
+    severity: medium
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The level-5 delta discipline says an editor may apply the deltas a change
+        lists, and that the operator reviews the change before it is archived. The
+        record of the work says the remaining deltas are waiting on the operator.
+    code: |
+        The seven applied deltas D1-D7 are live: eleven of the thirteen task boxes
+        in openspec/changes/level-5-stable-pin-deltas/tasks.md are [x], and the two
+        that are not are the proposed deltas D8 and D9, which the same file says
+        wait for the operator rather than for an editor. The prose and the four
+        @v56.9.5.1 footnotes [^41]-[^44] are in docs/matrix/level-5-phd.md, and the
+        result is in var/html/index.html, which Cloudflare serves on commit.
+        Meanwhile openspec/specs/ and openspec/changes/archive/ each hold only
+        .gitkeep, so no site capability has ever been promoted out of changes/ and
+        the current contract for every level lives in one of the three unarchived
+        changes there.
+    why: |
+        Applying before approval is permitted, so this is an unclosed loop rather
+        than a violation. It matters because the reviewable artifact and the
+        published artifact have drifted apart in status: a reader of openspec/
+        cannot tell which of the three open changes describe the live site and
+        which are proposals, and openspec/specs/site/level-5/ — where the next
+        editor would look for the page's contract — does not exist. The longer the
+        change sits, the more the next audit's deltas pile onto an unreviewed base.
+    fix: |
+        The operator reviews level-5-stable-pin-deltas and archives it, together
+        with add-level-page-specs, whose task 3.3 names the same sync, so that
+        openspec/specs/site/level-{common,1..5}/ become the current contract and
+        changes/ holds only what is genuinely proposed.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/level-5/spec.md#L28-L41
+        quote: An editor MAY apply the deltas it lists, and
+      - path: openspec/changes/level-5-stable-pin-deltas/tasks.md#L33-L36
+        quote: so they wait for the operator rather than riding along with this change.
+    depends_on:
+    upstream: ""
+
+  - id: 247ed660
+    repo: tillandsias.org
+    title: Ten of level 5's forty-four footnotes need re-anchoring when its pin moves, and one quote no longer exists at the daily
+    area: docs/matrix/level-5-phd.md
+    class: doc-drift
+    severity: medium
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The matrix rules say that when a level's tag is bumped its line ranges are
+        re-verified, and the level-5 spec adds that a pin-bump change lists one
+        delta per footnote whose target or quote drifted between the tags.
+    code: |
+        A trial build pinned to the newest daily reports six broken level-5
+        targets, every one a quote no longer inside its cited range: [^10] and
+        [^15] into methodology/proximity.yaml, [^11], [^16] and [^19] into
+        methodology/philosophy.yaml, and [^34] into
+        crates/tillandsias-plan/src/fragments.rs. The four @v56.9.5.1 footnotes
+        [^41]-[^44] are the other half: each resolves at the daily today, but once
+        the pin is the daily the suffix is redundant and the REDs their PATH lines
+        hang from are fixed at that tag, so the flags have to be re-derived rather
+        than the anchors merely moved. [^16] is the hard one: its quote about the
+        strong law is deleted at the daily, not moved — it is one of the nine
+        quotes in the whole site that the daily no longer contains anywhere in the
+        file they cite — and the surrounding text records the citation as
+        withdrawn.
+    why: |
+        Ten of forty-four footnotes is close to a quarter of the page, and the
+        level-5 rule forbids doing that work as an ordinary edit: each is a delta
+        with evidence and a verbatim quote at the target tag, in a change the
+        operator reviews. Written down now, at the tags where both sides were read,
+        the next pin bump is mechanical; discovered at bump time it is a
+        re-derivation of the strong-law argument under time pressure.
+    fix: |
+        Put the six-row drift table and the four suffix footnotes into the next
+        level-5 change's tasks.md as its work list, with [^16] flagged as needing
+        new prose rather than a new anchor.
+    evidence:
+      - path: docs/matrix/README.md#L70-L71
+        quote: When you bump a level's tag, re-verify its line ranges — they
+      - path: docs/matrix/level-5-phd.md#L386
+        quote: "[^16]: Weak versus strong LLN, bounded per-prompt skew, and the unbounded-skew hazard | methodology/philosophy.yaml#L8-L31"
+    depends_on:
+    upstream: ""
+
+  - id: 6efcbb8b
+    repo: tillandsias.org
+    title: The next level-5 delta change is unwritten while two of its REDs are already outrun in the daily channel
+    area: openspec/changes, docs/matrix/level-5-phd.md
+    class: stale-record
+    severity: medium
+    tag: cb07e89
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        Task 4.18 of add-level-page-specs names the work for the next pin bump —
+        the REDs on property tests and on requirement identifiers, the footnotes
+        that drift between the tags, the measured numbers to re-measure — as its
+        own OpenSpec change, one delta per item.
+    code: |
+        The box is unchecked and no such change directory exists: openspec/changes/
+        holds add-container-framework, add-level-page-specs, level-5-stable-pin-deltas
+        and an empty archive. The fixes it names are real at the daily and were read
+        there — the generative property tests over the refinement operator, and the
+        gate for stable requirement identifiers — and of level 5's fifteen cited
+        files, seven differ between the two tags: fragments.rs,
+        methodology/philosophy.yaml, methodology/proximity.yaml and
+        scripts/local-ci.sh changed, and obligation.rs, obligation_props.rs and
+        scripts/check-requirement-ids.sh exist only in the daily. Only the four the
+        D2-D5 footnotes name are acknowledged on the page today.
+    why: |
+        Level 5 is the page that may lag, and lag is legitimate while it is
+        recorded. Task 4.18 is the only record, it is a paragraph inside another
+        change's task list, and it will be read by whoever bumps the pin rather
+        than by whoever reviews the site next week.
+    fix: |
+        Open openspec/changes/level-5-pin-bump-<tag>/ now, empty except a
+        proposal.md carrying task 4.18's list and the drift table of finding
+        247ed660, so the deltas accumulate against a change instead of a checkbox.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/tasks.md#L169-L177
+        quote: 4.18 Delta change at the next pin bump, as its own OpenSpec change
+      - path: docs/matrix/level-5-phd.md#L429-L430
+        quote: crates/tillandsias-plan/src/obligation_props.rs#L172-L219 @v56.9.5.1
+    depends_on:
+      - 247ed660
+    upstream: ""
+
+  - id: 3d8dffde
+    repo: tillandsias.org
+    title: The pages are 48% longer in prose than yesterday, and the length expectation is written down nowhere
+    area: docs/matrix, openspec/changes/add-level-page-specs/specs/site/level-common
+    class: doc-drift
+    severity: medium
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The editorial rules that are written down constrain shape, not size: one
+        merged narrative per level, implementation trivia is not substance, a page
+        that is all flags has stopped being prose. None of them constrains length,
+        and a search for length, shorter, longer, concise and brev across docs,
+        openspec, skills and scripts returns no rule.
+    code: |
+        Prose words outside the footnote definitions and their quote lines went
+        from 8,277 at bf5bde3, the last commit of 2026-09-04, to 12,240 across the
+        five levels — a factor of 1.48 — and footnote definitions from 105 to 342.
+        Level 3 more than tripled, 1,034 words to 3,681, and its new capability
+        inventory is 2,119 of those 3,681. The spread between the shortest and the
+        longest level is essentially unchanged, 6.6x before and 6.5x after.
+    why: |
+        The operator asked for the capability inventory, and an inventory is a
+        completeness claim: it is worth having because it enumerates, and cannot be
+        halved without becoming a sample. The unwritten length norm has no recorded
+        justification and nothing checks it, so the next editing agent is guessing
+        at a rule it cannot read.
+    fix: |
+        One requirement in the level-common spec stating the argument/reference
+        split — levels 1 and 2 stay readable in one sitting, levels 3 to 5 are as
+        long as their subject provided every section earns its place under the
+        rules that already exist — so the next editor is bound by a written rule.
+    evidence:
+      - path: docs/matrix/README.md#L60-L86
+        quote: Rules that are not style preferences
+      - path: docs/matrix/README.md#L82-L83
+        quote: Implementation trivia is not substance.
+    depends_on:
+    upstream: ""
+
+  - id: 077e5ab2
+    repo: tillandsias.org
+    title: Level 3's capability inventory has no requirement in its spec
+    area: openspec/changes/add-level-page-specs/specs/site/level-3/spec.md
+    class: spec-vs-code
+    severity: medium
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The level-3 spec says the page is the anatomy — what runs where, what
+        survives a teardown, and where the sharp edges are — and at c4039e1 carries
+        four requirements: enclave anatomy, survivorship claims, every RED true at
+        the pin, and gate and CI statements.
+    code: |
+        The page opens with a section the spec does not mention, an eight-part
+        inventory of what a forge gives you on launch, each part ending in a GREEN
+        or a RED with its PATH. It is 2,119 of the page's 3,681 prose words and the
+        part a reader arrives for.
+    why: |
+        A requirement is what survives the next rewrite. The four existing
+        requirements hold the next editor to four sections; nothing holds anyone
+        to keeping the inventory complete, to matching the audit record's
+        capability table, or to marking a capability spec-only when the code does
+        not carry it. The page and its contract disagree about what the page is for.
+    fix: |
+        Add one requirement to the level-3 spec: the page enumerates the
+        capabilities a forge provides on launch, one flag per capability, with the
+        status at the pin matching the current audit record's capability table.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/level-3/spec.md#L3-L6
+        quote: runs where, what survives a teardown, and where the sharp edges are.
+      - path: docs/matrix/level-3-power.md#L3
+        quote: What you get the moment a forge opens
+    depends_on:
+    upstream: ""
+
+  - id: 5811a59d
+    repo: tillandsias.org
+    title: The byte-identical rebuild check is recorded as unrun, and it no longer passes now that the page embeds the ledger
+    area: openspec/changes/add-level-page-specs/tasks.md
+    class: stale-record
+    severity: low
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        Task 3.2 records the 2026-09-05 attempt as inconclusive — two different
+        hashes, not comparable because three levels were being edited in the same
+        working tree — and leaves the box unchecked, to be re-run on a clean tree.
+    code: |
+        The check did start passing: rebuilt from the tree at c00622b, the
+        committed page and a private build both hash to
+        baab0e512b737f8467646dfc2688b4da609bc680b1b13c631dae2e7913cc3714, and the
+        same run printed that all checked footnote targets resolve and exited zero.
+        The box is still [ ] and still carries the superseded pair of hashes. It
+        would now be wrong to tick it: since 30c6e5e the page also renders the
+        folded findings ledger, and the committed var/html/index.html at c4039e1
+        was built against ledger fragments that are not in that commit, so
+        rebuilding c4039e1 from its own tree gives a different hash — six findings
+        on the committed board against the one fragment the commit carries.
+    why: |
+        That hash is the guarantee that the artifact Cloudflare serves is the one
+        the sources produce, which is the assumption the deployment notes rest on
+        when they leave the build command empty. An unchecked box says the
+        guarantee is untested; worse, the guarantee has since stopped holding and
+        nothing in the record says so.
+    fix: |
+        Commit the ledger fragments the published page was built from, re-run the
+        check on the clean tree, and tick task 3.2 with the hash and the date
+        beside it — so that the page, its sources and the ledger it renders are
+        one commit.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/tasks.md#L33-L52
+        quote: Left unchecked; re-run on a clean tree.
+    depends_on:
+    upstream: ""
+
+  - id: 778a9057
+    repo: tillandsias.org
+    title: The only page build is Python, which the runtime methodology forbids for committed automation
+    area: scripts/build-matrix.py, scripts/figures.py, scripts/issues.py, skills/update-website/scripts
+    class: spec-vs-code
+    severity: high
+    tag: cb07e89
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        The runtime methodology, identical at both tags, forbids Python for
+        runtime, harness or repository scripts, allows Rust and POSIX shell that
+        dispatches existing binaries, and requires explicit approval from the
+        operator before an exception is committed or used by recurring automation.
+    code: |
+        This repository's page generator is 1,185 lines of Python plus 372 more of
+        inline-SVG figures, and the ledger fold the page now renders adds a third
+        file of 392; package.json wires the generator to npm run build; and two
+        committed skill scripts, checked-build.sh and drift-report.sh, invoke it on
+        every run of the update loop. That is recurring automation. The convention
+        is written down in skills/README.md as an inheritance argument rather than
+        an approval, and the rule's own checker resolves the repository root with
+        git rev-parse and so has only ever scanned the runtime repository. No
+        recorded approval was found in either repository.
+    why: |
+        The site is the project's public argument that it says what is true about
+        itself, and the security level's whole case is that promises are
+        machine-checked. A methodology rule this repository quietly does not follow
+        is something a reader of that page is entitled to know about, and it is a
+        live risk: the day the checker learns about sibling repositories, the build
+        breaks and the page cannot be regenerated. A Rust rewrite is the approved
+        path and is not small — the markdown dialect, seven callout kinds, the
+        footnote parser with its release-override suffix, the checked-build
+        resolver, the ledger fold and the whole template, with byte-identical
+        output as the acceptance test — and a POSIX-shell port is not permitted by
+        the rule's own wording, since it would not be dispatching an existing
+        binary.
+    fix: |
+        Ask the operator for the explicit exception the rule provides for, and
+        record it beside the build command in docs/matrix/README.md, naming the
+        three files it covers and the condition — no new Python, replacement in
+        Rust when the page generator is next touched substantially.
+    evidence:
+      - path: docs/audit/2026-09-05-issues-tillandsias.org.md#L305-L311
+        quote: Python is not allowed for Tillandsias runtime, harness, or repository
+      - path: package.json#L6
+        quote: '"build": "python3 scripts/build-matrix.py",'
+      - path: skills/README.md#L18-L23
+        quote: runtime's methodology forbids Python for its own committed automation, and this
+    depends_on:
+    upstream: ""
+
+  - id: a988d3c4
+    repo: tillandsias
+    title: The forge startup context hands agents the pre-flip project.service.localhost URL shape
+    area: images/default/lib-common.sh, spec subdomain-naming-flip
+    class: doc-drift
+    severity: medium
+    tag: v56.9.5.1
+    commit: b528680d2b938b09279e31faee981a8f6e370b3b
+    claim: |
+        The subdomain-naming-flip requirement stands at both tags and mandates
+        service.project.localhost for every URL that names a forge service.
+    code: |
+        The startup-context generator in images/default/lib-common.sh still emits
+        the pre-flip shape — project.service.localhost — in the dev-server
+        paragraph, at L4223 in v56.9.2.1 and at L4535 in v56.9.5.1, so every agent
+        in every forge reads it. The browser MCP enforces the flipped shape and
+        refuses any other host. The publishing paragraph a few lines below the
+        stale one is correct, and so is the copy that lands in a project's
+        .forge-startup-context.md, which is this file's output.
+    why: |
+        An agent that follows the context file hands its user a hostname the router
+        has no route for and the browser tool refuses by shape, then debugs a dev
+        server that looks dead. This is the fourth documented case of the startup
+        context misinforming an agent — the vault address, the on-demand
+        attestation claim and the Local Experts mode are already flagged on the
+        site's level-3 page — and the only one that hands the agent a wrong
+        artifact to give the user rather than a wrong belief about a service.
+    fix: |
+        Swap the two labels in images/default/lib-common.sh so the line reads
+        service.project.localhost. The file is generated into each project and
+        gitignored there, so nothing in the website repository can fix it: it is
+        filed here alongside the vault-address and attestation entries, and the
+        site's level-3 context-file RED picks it up at the next re-verification.
+    evidence:
+      - path: images/default/lib-common.sh#L4535
+        quote: user \`http://${project_name}.<service>.localhost/\` (no port). Full
+      - path: openspec/specs/subdomain-naming-flip/spec.md#L19
+        quote: All URLs referencing forge services MUST use the pattern `<service>.<project>.localhost`
+    depends_on:
+    upstream: ""
+
+  - id: 89ab166a
+    repo: tillandsias.org
+    title: The loop figure is drawn and placed nowhere, and the new capability sections carry no figure
+    area: scripts/figures.py, docs/matrix/level-3-power.md, docs/matrix/level-4-security.md
+    class: doc-drift
+    severity: low
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The matrix rules list eleven figures defined as inline SVG in
+        scripts/figures.py, drawn with the page's own CSS variables so that they
+        carry one idea each.
+    code: |
+        All eleven exist and are registered. Ten are placed, fourteen times in all,
+        seven of them on level 5. The loop figure — the closed loop from specs
+        through evidence back to specs — appears in no level file, and neither its
+        title nor its caption appears in any byte of var/html/index.html. The two
+        sections written that day are figureless: level 3's eight-capability
+        inventory has none, and level 4's layer-by-layer case has only the gate
+        figure it already had.
+    why: |
+        A figure defined and never placed is dead weight in a file whose whole
+        point is that the figures carry one idea each, and the longest, newest,
+        most list-shaped section on the site has no visual anchor at all.
+    fix: |
+        Place @fig:loop in level 3's gate section, where the argument is exactly
+        that specs, evidence and the gate close on each other, and move @fig:layers
+        above the capability inventory instead of below it. Both are one-line edits
+        under the existing dialect and no new figure needs drawing.
+    evidence:
+      - path: scripts/figures.py#L307-L311
+        quote: '"layers": LAYERS, "loop": LOOP, "staircase": STAIRCASE, "lln": LLN,'
+      - path: docs/matrix/README.md#L108-L109
+        quote: '`layers`, `loop`, `staircase`, `lln`, `lattice`, `crdt`, `gate`, `ephemeral`,'
+    depends_on:
+    upstream: ""
+
+  - id: a0be2422
+    repo: tillandsias.org
+    title: The per-level annotation files are superseded and still sit in docs/matrix beside page content
+    area: docs/matrix/level-1-five.audit.md and its four siblings
+    class: doc-drift
+    severity: low
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        Each annotation file says it is valid for the v56.9.2.1 pin only and
+        superseded once the day's record under docs/audit/ lands; the audit
+        directory's README agrees, and the level-common contract makes it a rule
+        that they are never a source of requirement text.
+    code: |
+        That record landed, so the annotation files are history — and they still
+        sit in docs/matrix/, the directory whose README opens with the instruction
+        to edit the words there and whose every other file is page content. Each
+        opens with a comment header saying it is not page content. There are five
+        of them now, level 5's having been added the same day at 4ba2294, so the
+        audit's own remark that the set is incomplete is itself stale.
+    why: |
+        Two kinds of file in one directory, distinguished only by an infix, is a
+        trap for the next editing agent working from a glob. The build protects
+        itself by rendering only the slugs in its LEVELS table, so only a human
+        reader is harmed, quietly.
+    fix: |
+        Move each to docs/audit/2026-09-04-level-<n>-<slug>.audit.md, then update
+        the three places that name the old path: the audit README, the design note
+        of add-level-page-specs, and the level-common requirement quoted above.
+    evidence:
+      - path: docs/matrix/level-1-five.audit.md#L9
+        quote: Valid for pin v56.9.2.1 only; superseded by docs/audit/2026-09-05-v56.9.2.1.md once that record lands.
+      - path: docs/matrix/level-5-phd.audit.md#L2-L4
+        quote: level-5-phd.audit.md — AGENT ANNOTATIONS, NOT PAGE CONTENT.
+    depends_on:
+    upstream: ""
+
+  - id: 52c8f180
+    repo: tillandsias.org
+    title: Nothing runs the checked build before a push, so a broken footnote can be published
+    area: skills/update-website/scripts/checked-build.sh, .git/hooks
+    class: defect
+    severity: high
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The update-website skill requires the checked build to pass before
+        publishing, and the matrix rules say a footnote that 404s is worse than no
+        footnote and a drifted quote is worse than a 404.
+    code: |
+        checked-build.sh does exactly what it promises and nothing runs it. There
+        is no .githooks directory and .git/hooks holds only the stock samples,
+        there is no .github/ in this repository, and wrangler deploys committed
+        assets with no build step — so a push to main publishes whatever
+        var/html/index.html contains. Both qualities are a matter of the author
+        remembering.
+    why: |
+        This is the whole class the trial build measures: if the five pins were
+        moved to the newest daily without re-verification, 125 of the 342 footnote
+        targets would resolve to a range that no longer contains their quote. One
+        rule the gate still could not check is that every RED is followed by a
+        PATH, which no script enforces today; a lint would be ten lines, and must
+        read "followed by" as "before the next RED or GREEN", since on level 4 one
+        REFUTED sits between a RED and its PATH — the only such case on the site,
+        and every one of the thirty-nine REDs is answered today.
+    fix: |
+        A tracked .githooks/pre-push that runs checked-build.sh and refuses on a
+        non-zero exit, plus a one-line installer setting core.hooksPath and a line
+        in the skill telling a fresh forge to run it. Fail closed when the
+        checkouts are absent: an unchecked level is not a checked build.
+    evidence:
+      - path: skills/update-website/scripts/checked-build.sh#L4
+        quote: missing: an unchecked level is not a checked build.
+      - path: docs/matrix/README.md#L14-L15
+        quote: a footnote that 404s is worse than no footnote, and a quote
+    depends_on:
+    upstream: ""
+
+  - id: 3d0ef7e2
+    repo: tillandsias.org
+    title: The drift report computes no forecast when every level already pins stable
+    area: skills/update-website/scripts/drift-report.sh
+    class: defect
+    severity: medium
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The skill says that if every level already pins the stable tag and nothing
+        is broken the report prints ok:up-to-date, and that the daily-channel
+        counts still tell you whether any PATH lines can be updated.
+    code: |
+        The report runs its trial build only when some level's pin differs from
+        stable. Every level pins stable today, so it prints per-level file counts
+        and ok:up-to-date, and the one number that matters for planning — how much
+        work the next promotion will be — is never computed. The script already
+        knows how; it just points its pin override at stable rather than at the
+        daily.
+    why: |
+        The forecast is what turns "we should look at the site" into a number. Run
+        against the daily today it is 125 broken targets out of 342, a week before
+        anyone proposes moving a pin.
+    fix: |
+        Roughly fifteen lines: a second trial build pinned to the daily whenever
+        the daily differs from stable, reported as a forecast and never as a
+        failure, with a verdict carrying both numbers. The scheduling question is
+        the real cost and is shared with finding d0c34ed6.
+    evidence:
+      - path: skills/update-website/scripts/drift-report.sh#L64-L67
+        quote: if [ "$repin_needed" -eq 1 ]; then
+      - path: skills/update-website/scripts/drift-report.sh#L75-L79
+        quote: echo "ok:up-to-date"
+    depends_on:
+    upstream: ""
+
+  - id: 296676d4
+    repo: tillandsias.org
+    title: Every broken footnote is re-anchored by hand although the search is mechanical
+    area: skills/update-website/scripts
+    class: defect
+    severity: medium
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The skill's step 5 tells the editor to correct targets, quotes and prose in
+        the level's source, following the audit-site-claims procedure per level.
+    code: |
+        The tooling reports that a quote left its range and never says where the
+        quote went, yet for almost all of it the answer is one command. The day's
+        record measured 112 moved and 9 gone out of 121 breakages; re-measured
+        against the same daily at c4039e1, after the pages grew, it is 125
+        breakages of which 116 are the same characters elsewhere in the same file
+        and need only a new line range, and 9 are genuinely gone and need a human
+        to write new prose. No such helper exists in
+        skills/update-website/scripts, which holds five scripts.
+    why: |
+        It removes toil, and toil is what makes a pin bump get postponed. It is
+        also the precondition for a delta generator: a generator can only list one
+        delta per drifted footnote if something can compute the new target.
+    fix: |
+        A re-anchor.sh taking a level and a tag, about sixty lines of shell over
+        grep, sed and git, parsing footnote definitions the way the build does and
+        printing one of three verdicts per broken target — moved with the new
+        range, relocated to another file, or gone — as a paste-ready block.
+    evidence:
+      - path: skills/update-website/SKILL.md#L73-L74
+        quote: Checked build must pass.
+      - path: docs/audit/2026-09-05-issues-tillandsias.org.md#L630-L636
+        quote: 112 have simply moved
+    depends_on:
+    upstream: ""
+
+  - id: d0c34ed6
+    repo: tillandsias.org
+    title: Nothing tells this repository that the runtime published a release
+    area: skills/update-website/scripts/latest-release.sh
+    class: defect
+    severity: medium
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The skill's second automation candidate is the same drift report, fired
+        when the runtime publishes a release, either by the release workflow
+        pinging this repository or by a cron that polls tags.
+    code: |
+        latest-release.sh resolves both channels correctly and cheaply, stable from
+        the releases endpoint with cache-busting and a cross-check against the git
+        tag, unstable over git ls-remote with no API call at all. It is polled by a
+        human who remembers to run the loop.
+    why: |
+        Dailies land daily, the pages pin stable, and stable moves only on
+        promotion — so the event worth waking up for is rare and easy to miss.
+        During that window the site's PATH lines say a fix is not yet promoted
+        about things that are promoted, which is the one lie this design exists to
+        avoid.
+    fix: |
+        A cron entry on a host session running drift-report.sh and reporting to the
+        operator whenever its last line is not ok:up-to-date; plan/host-notes.md is
+        the channel a host session already has. A ping from the runtime's release
+        workflow is better and belongs on the runtime's side of the fence, which
+        makes it a request rather than a task.
+    evidence:
+      - path: skills/update-website/scripts/latest-release.sh#L1-L8
+        quote: Print the newest Tillandsias release tag on a channel.
+      - path: skills/update-website/SKILL.md#L101-L102
+        quote: Same report, fired when the runtime publishes a
+    depends_on:
+      - 3d0ef7e2
+    upstream: ""
+
+  - id: 05229912
+    repo: tillandsias.org
+    title: The level-5 delta change is assembled by hand every time
+    area: openspec/changes/level-5-stable-pin-deltas
+    class: defect
+    severity: low
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The skill's fifth candidate is to produce the OpenSpec change for level 5
+        with the exact deltas and evidence, never the edit. The requirement it
+        serves is one delta per requirement, flag or footnote touched, each with a
+        line-range citation and a verbatim quote at the target tag.
+    code: |
+        The change filed that day was assembled by hand: seven applied deltas
+        D1-D7, four new footnotes [^41]-[^44], twenty-eight verbatim quotes added
+        under the in-repo footnotes, and a task list whose every line had to be
+        verified twice. Most of that is generable — the drift set, the new anchors,
+        the quote text at the target tag, and the skeletons of proposal.md and
+        tasks.md.
+    why: |
+        The failure the level-5 spec names — the page's diff containing a hunk that
+        no delta lists — is detectable only if the change lists everything the diff
+        should contain, and a generator that starts from the drift set does that by
+        construction.
+    fix: |
+        About 120 lines on top of the re-anchor helper: take a target tag, diff the
+        cited-file set, read level 5's rows out of a trial build at that tag, and
+        emit the change directory with a proposal, one unchecked box per delta and
+        the minimal delta spec validation insists on. It must never touch
+        docs/matrix/level-5-phd.md; stopping short is the point.
+    evidence:
+      - path: openspec/changes/level-5-stable-pin-deltas/tasks.md#L1-L8
+        quote: Deltas (each verified against the checkouts before applying)
+      - path: openspec/changes/add-level-page-specs/specs/site/level-5/spec.md#L28-L40
+        quote: flag or footnote it touches, each with `path#Lstart-Lend` evidence and a
+    depends_on:
+      - 296676d4
+    upstream: ""
+
+  - id: e87c4f45
+    repo: tillandsias.org
+    title: Per-level re-verification is unautomated, and is the part that must stay reviewed
+    area: skills/audit-site-claims/SKILL.md
+    class: defect
+    severity: low
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The skill's fourth candidate is an agent per level running the
+        audit-site-claims procedure, then a skeptic per level, then a human or a
+        second agent reading the diff — needing a model, not free, and the part
+        that should stay reviewed.
+    code: |
+        The 2026-09-05 run did it by hand and at scale: an auditing agent per slice
+        of the work and a skeptic per slice whose refutations overrode the audit,
+        then a writer, a reviewer and a corrector per level. The record says why
+        the skeptic pass is not optional — several corrections came from it rather
+        than from the first pass, including the two sibling scripts that still
+        create the enclave network without the isolation flag and the withdrawal of
+        a commit-count figure.
+    why: |
+        This is the class of claim no script can check: a RED still literally true
+        but no longer honest, prose that outran its footnote, a PATH line promising
+        something the ledger has closed. It should be the last candidate automated
+        and the first to keep a human on.
+    fix: |
+        Not a fix but a sequencing decision: automate the pre-push gate, the
+        forecast and the re-anchor helper first, so that when agents do run, the
+        objective failures are already impossible; then fan out one agent per level
+        with a skeptic each, and gate publication on a human reading the diff.
+    evidence:
+      - path: docs/audit/2026-09-05-v56.9.2.1.md#L521-L526
+        quote: was given to an auditing agent that had to name a file
+      - path: skills/update-website/SKILL.md#L106-L107
+        quote: An agent per level with the
+    depends_on:
+      - 52c8f180
+      - 3d0ef7e2
+      - 296676d4
+    upstream: ""
+
+  - id: 373585f1
+    repo: tillandsias.org
+    title: The published site cannot be reached from a forge, so no claim about it was verified as served HTML
+    area: docs/audit, and the proxy allowlist in the runtime
+    class: process
+    severity: low
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The audit verifies what a reader of tillandsias.org sees, and the update
+        loop ends by publishing to it.
+    code: |
+        The site is not reachable from the forge that builds it: the connection is
+        reset, because the proxy allowlist is baked into the proxy image and the
+        project's own domain reached it only in the daily channel. So every claim
+        in the day's records about what a reader sees rests on the committed
+        var/html/index.html and its rebuild hash, not on served HTML.
+    why: |
+        The last link in the chain is unverified. A build can be byte-identical to
+        the committed artifact and the served page still differ — a stale cache, a
+        misrouted deployment, a worker that never took the commit — and nothing in
+        this repository would notice. It is also the only claim class the checked
+        build cannot reach, so it will stay unverified until a session outside the
+        stable image looks.
+    fix: |
+        Until a forge on a release carrying the allowlist entry can fetch the site,
+        have a host session or the operator fetch the published page and compare
+        its hash with the committed artifact, and record the comparison in the
+        run's record beside the rebuild hash.
+    evidence:
+      - path: docs/audit/2026-09-05-v56.9.2.1.md#L564-L567
+        quote: is not reachable from this
+      - path: docs/audit/2026-09-05-v56.9.2.1.md#L566-L567
+        quote: so the pages were verified as source and as a local build, not as served HTML.
+      - path: images/proxy/allowlist.txt#L205-L215
+        note: Read in the two runtime checkouts rather than in this repository, so it is our reading and not a checked quotation - the stable tree carries no entry for the domain at all, and the daily adds a leading-dot entry for it under a comment recording exactly this failure.
+    depends_on:
+    upstream: ""
+events:
+  - id: 576200f9
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section A1; re-checked open against the tree at c4039e1 — openspec/specs/ and openspec/changes/archive/ hold only .gitkeep, and eleven of the change's thirteen boxes are ticked.
+  - id: 247ed660
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section A2; re-checked open against the tree at c4039e1 — level 5 still pins v56.9.2.1, a trial build against the daily still breaks exactly those six targets, and no re-anchoring change exists.
+  - id: 6efcbb8b
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section A3; re-checked open against the tree at c4039e1 — task 4.18 unchecked, no pin-bump change directory, and seven of level 5's fifteen cited files differ between the tags.
+  - id: 3d8dffde
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section B1; re-checked open against the tree at c4039e1, with every word and footnote count re-derived there and at bf5bde3 rather than copied from the audit — no length or shape rule exists in docs/matrix/README.md or the level-common spec.
+  - id: 077e5ab2
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section B2; re-checked open against the tree at c4039e1, where the level-3 spec carries four requirements and none is about the inventory. An uncommitted expansion of that spec in the working tree adds a required-sections requirement that would close this; it is not in any commit, so the finding stands.
+  - id: 5811a59d
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section B3; re-checked open against the tree at c4039e1 — task 3.2 is still unchecked and still records the superseded hashes, and the rebuild the audit reported as passing was re-run here, passing at c00622b and no longer reproducing at c4039e1.
+  - id: 778a9057
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section C1; re-checked open against the tree at c4039e1, with the line counts re-measured there — package.json still runs the Python build, a third Python file now folds the ledger inside it, and no approval is recorded.
+  - id: a988d3c4
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section D1. Recorded against the runtime rather than this website: the generator that emits the stale line is images/default/lib-common.sh, present with the same wording at L4223 in v56.9.2.1 and L4535 in v56.9.5.1, and nothing in this repository can fix it.
+  - id: 89ab166a
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section E1; re-checked open against the tree at c4039e1 — eleven figures registered, ten placed fourteen times, and neither the loop figure's title nor its caption appears in var/html/index.html.
+  - id: a0be2422
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section F1; re-checked open against the tree at c4039e1 — five annotation files are still under docs/matrix/, one more than the audit counted.
+  - id: 52c8f180
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section G1; re-checked open against the tree at c4039e1 — no .githooks directory exists and .git/hooks holds only samples. The forecast was re-run rather than copied: 125 of 342 targets break against the daily, and all thirty-nine REDs are answered by a PATH today.
+  - id: 3d0ef7e2
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section G2; re-checked open against the tree at c4039e1 — the trial build is still gated on repin_needed.
+  - id: 296676d4
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section G3; re-checked open against the tree at c4039e1 — skills/update-website/scripts holds five scripts and no re-anchor helper. The moved/gone split was re-derived against the v56.9.5.1 checkout: 116 moved, 9 gone.
+  - id: d0c34ed6
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section G4; re-checked open against the tree at c4039e1 — nothing schedules latest-release.sh or the drift report.
+  - id: 05229912
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section G5; re-checked open against the tree at c4039e1 — no generator exists and the one filed change was hand-written; its seven deltas, four footnotes and twenty-eight quotes were counted in the change itself.
+  - id: e87c4f45
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from docs/audit/2026-09-05-issues-tillandsias.org.md section G6; re-checked open against the tree at c4039e1 — re-verification remains a hand-run multi-agent pass.
+  - id: 373585f1
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Migrated from the closing "Open questions this record does not answer" of docs/audit/2026-09-05-issues-tillandsias.org.md, where it is the one item that is a finding rather than a restatement; the same limitation is listed in the run record's "What could not be verified here". Re-checked against the tree at c4039e1 and against both checkouts - the stable allowlist has no entry for the domain, the daily has one.

@@ -1,0 +1,355 @@
+# The findings the final completeness audit confirmed and this repository did
+# not close, as listed in the "What could not be verified here" section of
+# docs/audit/2026-09-05-v56.9.2.1.md, plus the two that section records as
+# fixed the same day and the tag-object repair that landed with them. Each was
+# re-checked, and every number in it re-derived, against the tree at c4039e1;
+# the three fixed ones carry a resolved event, verified there, and the rest only
+# found. Every finding is about THIS repository, so `tag`/`commit` names a
+# commit of this repository and never a runtime release. The section's sixth item — that the
+# pages run longer than the editorial rule suggests — is finding 3d8dffde,
+# already migrated from the site audit, and is not restated here.
+issues:
+  - id: 56415013
+    repo: tillandsias.org
+    title: The checked build passed on footnotes whose release had no checkout
+    area: scripts/build-matrix.py, skills/update-website/scripts/checked-build.sh
+    class: defect
+    severity: high
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The checked build is the gate this repository calls the thing that stops a
+        lie from deploying: it resolves every footnote target against the checkout
+        for the tag that footnote names, and fails on any unresolved target or
+        drifted quote.
+    code: |
+        With only the stable checkout present the build printed that all checked
+        footnote targets resolved and exited zero while all 38 footnotes naming the
+        daily channel went unopened — ten of them citing one of eight files that do
+        not exist at the stable tag at all. Three causes: the check returned early when a
+        release had no checkout and recorded nothing; the per-level line said
+        "checked at <pin>" whatever it had actually opened; and the wrapper
+        demanded checkouts only for the tags the levels pin, so the daily tag was
+        never required.
+    why: |
+        The gate was silent about exactly the citations most likely to drift — the
+        ones a PATH line uses to acknowledge a fix that is in the daily channel and
+        not yet promoted. A gate whose green means only that it opened the easy
+        half is worse than no gate, because the publishing step trusts it.
+    fix: |
+        Make an unchecked target a first-class result, report it per level and in a
+        summary naming each level and release it could not answer for, require a
+        checkout for every release any footnote names, and refuse the push on any
+        unchecked target.
+    evidence:
+      - path: scripts/build-matrix.py#L126-L129
+        quote: every daily-channel footnote went unopened, so an unchecked target is now a
+      - path: skills/update-website/scripts/checked-build.sh#L38-L41
+        quote: blocked:targets-unchecked
+    depends_on:
+    upstream: ""
+
+  - id: 67b4a3aa
+    repo: tillandsias.org
+    title: The audit record's own counts went stale before it was published
+    area: docs/audit/2026-09-05-v56.9.2.1.md
+    class: stale-record
+    severity: medium
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The run's record carries the per-level tables and the headline totals for
+        the site the run produced.
+    code: |
+        It was written mid-run and never updated, so it described a site that was
+        never published: 329 footnotes with 317 quoted against 342 and 330 in the
+        tree it claimed to describe, per-level counts of 22, 141 and 93 against 23,
+        147 and 99, and a level-2 section still counting a verdict the verification
+        pass deleted and a verified claim the same pass withdrew as false.
+    why: |
+        This record is the artifact a reader consults to learn what the day's work
+        established. Counts that belong to no tree make every other number in it
+        unfalsifiable, and the level-2 error pointed the wrong way — it reported a
+        reassurance that had been withdrawn precisely because it was false in the
+        reassuring direction.
+    fix: |
+        Re-derive every count at the commit the record describes, name that commit
+        in the record, and say what actually happened to both level-2 flags.
+    evidence:
+      - path: docs/audit/2026-09-05-v56.9.2.1.md#L7-L11
+        quote: re-derived at that commit, after the verification pass that followed the
+      - path: docs/audit/2026-09-05-v56.9.2.1.md#L11-L13
+        quote: 342 footnotes across the five pages, 330 of them
+    depends_on:
+    upstream: ""
+
+  - id: 66b46da4
+    repo: tillandsias.org
+    title: The runtime issue drafts cited annotated-tag object hashes as commits
+    area: docs/audit/2026-09-05-issues-tillandsias.md, skills/file-findings/SKILL.md
+    class: defect
+    severity: medium
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        Each section of the runtime issue drafts is meant to be pasted into the
+        runtime's tracker with the commit its evidence was read at, so a reader can
+        follow the citation to the code.
+    code: |
+        The header and the Tag line of all 22 issue sections carried the hash of
+        the annotated tag object — 77958f55… for v56.9.5.1, 49458e96… for
+        v56.9.2.1 — rather than the commit it points at. Pasted into the tracker
+        each would have cited a hash that resolves to no commit there. The mistake was
+        in the instruction rather than in the transcription: the issue template in
+        the file-findings skill said only "commit …" beside the tag.
+    why: |
+        A finding relayed to another project is only as good as its citation. A
+        hash that resolves nowhere makes the whole relay unusable, and the template
+        would have reproduced the error in every future run.
+    fix: |
+        Peel every hash to the commit, and make the template say to peel — git
+        rev-parse <tag>^{commit} — because a bare rev-parse of an annotated tag
+        gives the tag object.
+    evidence:
+      - path: docs/audit/2026-09-05-issues-tillandsias.md#L16-L18
+        quote: Tag under audit: **v56.9.5.1** (commit `b528680d2b938b09279e31faee981a8f6e370b3b`).
+      - path: skills/file-findings/SKILL.md#L53-L55
+        quote: a bare `git rev-parse <tag>` gives the tag
+    depends_on:
+    upstream: ""
+
+  - id: 548baf18
+    repo: tillandsias.org
+    title: The audit record's Method paragraph still reports the superseded footnote counts
+    area: docs/audit/2026-09-05-v56.9.2.1.md
+    class: stale-record
+    severity: low
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The record says every count in it was re-derived at the commit it
+        describes, and that an earlier version describing the tree as it stood
+        mid-run is superseded.
+    code: |
+        The correction reached the header and the five per-level tables but not the
+        Method section, whose closing paragraph still reports 22, 29, 141, 93 and
+        44 footnotes for levels one to five and 317 of 329 carrying a verbatim
+        quote. Counted in the tree at c4039e1 the levels carry 23, 29, 147, 99 and
+        44, totalling 342 with 330 quoted — the same numbers the header now gives.
+        The record therefore contradicts itself by thirteen footnotes, and by
+        thirteen again on the quoted count.
+    why: |
+        The Method section is where the record explains why its numbers can be
+        trusted, so a stale count there undermines the paragraph it sits in. It is
+        also the residue of a fix believed complete, which is how a corrected
+        record quietly goes stale again.
+    fix: |
+        Re-derive the three numbers in that paragraph at the commit the record
+        names, as the header and the per-level tables already were.
+    evidence:
+      - path: docs/audit/2026-09-05-v56.9.2.1.md#L545-L547
+        quote: reports 22, 29, 141, 93 and 44 footnotes for levels one to five, all resolving,
+      - path: docs/audit/2026-09-05-v56.9.2.1.md#L11-L12
+        quote: 342 footnotes across the five pages, 330 of them
+    depends_on:
+      - 67b4a3aa
+    upstream: ""
+
+  - id: 7d737704
+    repo: tillandsias.org
+    title: A footnote referenced more than once emits a duplicate element identifier
+    area: scripts/build-matrix.py, var/html/index.html
+    class: defect
+    severity: low
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The generated page gives each footnote reference an identifier so the
+        footnote list can point back at the place in the prose that cited it.
+    code: |
+        The identifier is built from the level slug and the footnote number alone,
+        and is emitted at every occurrence of the reference, so a footnote cited
+        twice on one page produces the same id twice. Of the 775 ids in the
+        published page, 56 are emitted more than once — 69 duplicate emissions in
+        all, every one of them a footnote back-reference. For example
+        id="rlevel-1-five-5" appears twice in var/html/index.html.
+    why: |
+        Duplicate ids are invalid HTML, and the back-link they exist for lands on
+        whichever occurrence the browser reaches first, which is not necessarily
+        the one the reader came from. Assistive technology and in-page anchors both
+        rely on ids being unique.
+    fix: |
+        Number the occurrences — append an occurrence index to the id for the
+        second and later references — and have the footnote list link to the first.
+    evidence:
+      - path: scripts/build-matrix.py#L283
+        quote: return '<sup class="fnref" id="r%s-%s"><a%s>%s</a></sup>' % (ctx.level, n, attrs, n)
+      - path: var/html/index.html
+        quote: id="rlevel-1-five-5"
+    depends_on:
+    upstream: ""
+
+  - id: 956f6baa
+    repo: tillandsias.org
+    title: The drift report over-counts because it ignores per-footnote release overrides
+    area: skills/update-website/scripts/drift-report.sh
+    class: defect
+    severity: low
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        For each level the report lists the cited files that changed between the
+        level's pin and the stable tag, on the ground that a footnote into a
+        changed file needs re-verification even when its line range still resolves.
+    code: |
+        Its path extraction takes the target out of every footnote definition and
+        drops the trailing release override, so a footnote already anchored at the
+        daily channel with an @vTAG suffix is counted as if it were resolved
+        against the level's pin. Those footnotes are unaffected by a pin bump —
+        the checked build resolves them against the release they name — yet they
+        inflate both the changed-file count and the per-level totals the report
+        prints.
+    why: |
+        The report exists to size the next promotion. An inflated number is the
+        same kind of lie as an inflated claim on the page: it makes the work look
+        larger than it is, and the one thing that makes a pin bump get postponed is
+        the belief that it is large.
+    fix: |
+        Keep the @vTAG suffix when extracting targets, and exclude from the
+        pin-versus-stable diff every footnote that names its own release.
+    evidence:
+      - path: skills/update-website/scripts/drift-report.sh#L30-L32
+        quote: sed -n 's/^\[\^[0-9]*\]:.*| *\([^ #]*\).*$/\1/p' "$ROOT/docs/matrix/$1.md" | grep -vE '^https?://' | sort -u
+      - path: docs/matrix/README.md#L46
+        quote: the same, resolved against that release instead of the level's pin
+    depends_on:
+    upstream: ""
+
+  - id: 53650fa1
+    repo: tillandsias.org
+    title: Cross-references in the audit records name line ranges that moved during the day
+    area: docs/audit/2026-09-05-issues-tillandsias.org.md, docs/audit/2026-09-05-v56.9.2.1.md
+    class: doc-drift
+    severity: low
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        The records cite this repository's own files by path and line range, and
+        state that line references into this repository were resolved at the site
+        commit each record names.
+    code: |
+        The commits that followed moved the lines. The site issues record cites
+        skills/update-website/scripts/checked-build.sh#L22 as the line that invokes
+        the Python build; at c4039e1 line 22 is `done` and the invocation is at
+        L28, because the gate repair inserted a checkout loop above it. Where a
+        reference was qualified with the commit it was read at — the two into
+        scripts/build-matrix.py — it still resolves; the unqualified ones do not.
+    why: |
+        These records are the durable form of the day's findings, and a citation
+        that lands on the wrong line is the same defect the pages are gated against.
+        The fix pattern already exists in the same files: name the commit beside
+        the range.
+    fix: |
+        Qualify every intra-repository line reference in the records with the
+        commit it was read at, as the two build-matrix references already are, or
+        re-anchor them at the commit the record now names.
+    evidence:
+      - path: docs/audit/2026-09-05-issues-tillandsias.org.md#L321
+        quote: `skills/update-website/scripts/checked-build.sh#L22` and
+      - path: skills/update-website/scripts/checked-build.sh#L22
+        quote: done
+    depends_on:
+    upstream: ""
+
+  - id: 1e141597
+    repo: tillandsias.org
+    title: The 2026-09-04 annotation files were left unamended beside pages the verification pass rewrote
+    area: docs/matrix/level-1-five.audit.md and its three 2026-09-04 siblings
+    class: stale-record
+    severity: low
+    tag: c4039e1
+    commit: c4039e18f5533054f368b9836867655880d55c09
+    claim: |
+        Each annotation file is a per-footnote verdict table for the page it sits
+        beside, written 2026-09-04 against the pinned release.
+    code: |
+        The four 2026-09-04 files were last touched at 607b5cf, before the
+        verification pass rewrote the pages they annotate at 4a56048, 8155885,
+        ef65ab0 and de2759b. Their verdicts now describe text that is gone: the
+        level-2 table still marks footnote 5 OK against
+        ephemeral-secret-refresh/spec.md#L1-L20 with the gloss "reissued at every
+        start", while the page's footnote 5 was re-anchored to #L9-L25 and the
+        reassurance it carried was withdrawn as false in the reassuring direction.
+    why: |
+        An annotation file that contradicts the page beside it is worse than none:
+        it is the artifact a next editor would consult to learn which claims were
+        checked, and it will hand them a verdict that was overturned the same day.
+    fix: |
+        Amend each file with the corrections the verification pass applied, or —
+        better, and jointly with finding a0be2422 — move them under docs/audit/ with
+        their date in the name, where a superseded record is expected to be read as
+        history.
+    evidence:
+      - path: docs/matrix/level-2-phone.audit.md#L24
+        quote: ephemeral-secret-refresh/spec.md#L1-L20 — reissued at every start.
+      - path: docs/matrix/level-2-phone.md#L60
+        quote: Internal secrets are removed and reissued at every start, so an unclean shutdown leaves nothing stale | openspec/specs/ephemeral-secret-refresh/spec.md#L9-L25
+    depends_on:
+      - a0be2422
+    upstream: ""
+events:
+  - id: 56415013
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Confirmed by the final completeness audit and recorded in the "What could not be verified here" section of docs/audit/2026-09-05-v56.9.2.1.md as one of the two fixed the same day.
+  - id: 56415013
+    ts: "2026-09-05T19:45:05Z"
+    host: calmecacpilli
+    type: resolved
+    note: Fixed at ceb944b and verified in the tree at c4039e1 — unchecked targets are tracked per level and reported, the wrapper requires a checkout for every release any footnote names, and it exits blocked:targets-unchecked on any that went unopened.
+  - id: 67b4a3aa
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Confirmed by the final completeness audit and recorded in the "What could not be verified here" section of docs/audit/2026-09-05-v56.9.2.1.md as the second of the two fixed the same day.
+  - id: 67b4a3aa
+    ts: "2026-09-05T19:45:05Z"
+    host: calmecacpilli
+    type: resolved
+    note: Fixed at 8007f39 and verified in the tree at c4039e1 — the header and the five per-level tables carry counts re-derived at the commit the record now names, and the level-2 section says what happened to both flags. The residue in the Method paragraph is filed separately as 548baf18.
+  - id: 66b46da4
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Found in the same end-of-day pass over the day's artifacts as the other completeness findings, and recorded in the commit message of 8007f39.
+  - id: 66b46da4
+    ts: "2026-09-05T19:45:05Z"
+    host: calmecacpilli
+    type: resolved
+    note: Fixed at 8007f39 and verified in the tree at c4039e1 — the header cites the full peeled commits b528680d2b938b09279e31faee981a8f6e370b3b and d6d3e3ed910feb24579304d08ef464a229eae21f, each section's Tag line cites the peeled short hash b528680, no tag-object hash survives anywhere in the file, and the skill's template now says to peel.
+  - id: 548baf18
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Found while verifying that 67b4a3aa was closed — the Method paragraph of docs/audit/2026-09-05-v56.9.2.1.md still carries the pre-correction counts at c4039e1, so the record contradicts its own header.
+  - id: 7d737704
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Confirmed by the final completeness audit, left open, and listed in the "What could not be verified here" section of docs/audit/2026-09-05-v56.9.2.1.md; re-checked at c4039e1, where 56 of the published page's identifiers are emitted more than once, 69 duplicate emissions in all — recounted here rather than copied.
+  - id: 956f6baa
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Confirmed by the final completeness audit, left open, and listed in the "What could not be verified here" section of docs/audit/2026-09-05-v56.9.2.1.md; re-checked at c4039e1 by reading the report's path extraction.
+  - id: 53650fa1
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Confirmed by the final completeness audit, left open, and listed in the "What could not be verified here" section of docs/audit/2026-09-05-v56.9.2.1.md; re-checked at c4039e1 against the checked-build.sh reference, which now lands on the wrong line.
+  - id: 1e141597
+    ts: "2026-09-05T19:45:00Z"
+    host: calmecacpilli
+    type: found
+    note: Confirmed by the final completeness audit, left open, and listed in the "What could not be verified here" section of docs/audit/2026-09-05-v56.9.2.1.md; re-checked at c4039e1 against the level-2 annotation table and the corrected page.

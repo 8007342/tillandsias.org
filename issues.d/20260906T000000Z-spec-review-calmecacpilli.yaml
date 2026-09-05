@@ -1,0 +1,629 @@
+# The specification review of 2026-09-05: eight page specs written that day
+# (site/level-common, site/level-1..5, site/navigation), each reviewed by a
+# second agent, every review returning `fail` — 62 defects across the six level
+# and navigation reviews. Ten findings are recorded here: every defect of
+# severity high or medium, grouped by the shape it repeats in. The low ones are
+# wording nits and belong in the change's own tasks.md.
+#
+# Evidence resolves in THIS repository at commit 38bcc40, whose working tree
+# carries the eight specs uncommitted (level-1..5 modified, site/navigation
+# untracked); this repository has no tags, so `tag:` names the branch.
+issues:
+  - id: 0d88cfc7
+    repo: tillandsias.org
+    title: The level specs restate site/level-common's shared rules instead of referencing them
+    area: openspec/changes/add-level-page-specs/specs/site
+    class: process
+    severity: medium
+    tag: main
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        site/level-common exists so that the shared rules are "stated once so the
+        per-level specs can say only what is particular to their page", and each
+        level spec defers to it by name where a rule is shared.
+    code: |
+        Eight defects across five reviews are one shape: the level spec restates
+        the shared rule rather than referencing it. Level 1 re-asserts
+        level-common's RED lifecycle in a scenario under a requirement that has
+        just deferred to it, and its footnote-past-the-pin scenario is
+        level-common's. Level 2 restates the RED lifecycle and narrows it — a
+        replaced defect "MUST be written in the past tense", where level-common
+        allows a past-tense flag or a GREEN — and then says its lifecycle is as
+        level-common states. The cross-level same-source sentence is verbatim in
+        both level 1 and level 2. The page-furniture ban appears in levels 1, 2,
+        3 and 4. Level 3 copies level 1's footnote-target sentence verbatim, and
+        reproduces the no-path sentence level-common already carries. Level 5
+        restates level-common in four requirements (own pin, verdicts
+        re-derived, sourcing, audit annotations), and states the
+        newer-build/@vTAG rule three times inside its own file, a fourth in
+        level-common and a fifth in level-5-stable-pin-deltas.
+    why: |
+        Normative copies drift independently: an editor correcting one leaves the
+        others contradicting it, and level 2's copy already narrows what
+        level-common permits, so two editors reading two specs reach opposite
+        verdicts on the same fixed RED. Two of the duplicated rules are also
+        cross-level by construction — a level cannot satisfy "cite the same
+        source as the other level" alone — so no level spec is the right owner.
+        Nothing here misleads a reader today: the specs are unpublished and
+        govern no page yet. They are what the next update loop reads.
+    fix: |
+        Reduce each restating half to a reference to level-common, and move the
+        two genuinely shared rules the level specs invented — levels agree on a
+        source for a shared claim; page furniture lives in the LEVELS table —
+        into site/level-common, so each level spec carries only its particular.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/level-common/spec.md#L3-L4
+        quote: stated once so the per-level specs can
+        note: level-common's Purpose, stating the rule the eight defects break.
+      - path: openspec/changes/add-level-page-specs/specs/site/level-1/spec.md#L225-L227
+        quote: Where another level cites a source for the same claim, this page MUST cite the same source
+      - path: openspec/changes/add-level-page-specs/specs/site/level-2/spec.md#L288-L290
+        quote: Where another level cites a source for the same claim, this page MUST cite the same source
+        note: the identical sentence in the second spec — a cross-level rule owned by neither.
+      - path: openspec/changes/add-level-page-specs/specs/site/level-2/spec.md#L271-L272
+        quote: A defect that the pinned code has already replaced MUST be written in the past tense
+      - path: openspec/changes/add-level-page-specs/specs/site/level-common/spec.md#L64-L66
+        quote: a RED the new pin's code has fixed becomes a past-tense flag or a GREEN
+        note: the shared rule level 2 narrowed while claiming to defer to it.
+      - path: openspec/changes/add-level-page-specs/specs/site/level-3/spec.md#L252-L253
+        quote: Each footnote MUST land on the range that states the claim its sentence makes
+        note: verbatim from level-1/spec.md#L219-L220; level 4 carries a third near-copy.
+    depends_on:
+    upstream: ""
+
+  - id: 3ed0ddf7
+    repo: tillandsias.org
+    title: Requirement text carries dated findings, counts and rosters that level-common forbids
+    area: openspec/changes/add-level-page-specs/specs/site/level-{2,3,4},navigation
+    class: process
+    severity: medium
+    tag: main
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        The shared contract forbids a page spec's requirement text from carrying
+        a dated finding, a file count or a mandated verdict on a specific flag,
+        and says such findings are work items in the change's tasks.md while the
+        spec states the property the finding is an instance of.
+    code: |
+        Four specs do exactly what that requirement forbids. Level 4's "RED
+        precision and scope" hard-codes three audit findings — a litmus corpus
+        count down to the literal replacement phrase, a "(server-side branch
+        protection)" scope that the page has already stopped using, and a
+        mandated verdict on one named footnote — all three already tracked as
+        work items in this change's own tasks.md. Level 3's survivorship
+        requirement hard-codes a roster of artifacts two requirements after the
+        same spec rejects prose rosters on principle, and the roster does not
+        match the page: the host working copy it names appears on the page only
+        inside a RED. Level 2 counts today's sources and headings into MUST text
+        ("the two honest limits", "the page's four questions"). The navigation
+        spec conditions a MUST NOT on a dated measurement of the runtime's
+        local-ci.sh — a weight table over CI check names — which the review
+        found half-superseded at the newest daily, where the arithmetic is run
+        by a score-checks subcommand.
+    why: |
+        A requirement that names an instance duplicates the ledger and rots
+        against it: it mandates a false number the moment the philosophy adds a
+        limit, the page answers a fifth question or the litmus corpus grows, and
+        the navigation clause is unappliable because the progress page has no pin
+        and the answer differs by release. These are the specs' own stated rule
+        being broken by the specs, not a claim to a reader: nothing is published,
+        so no reader is misled today.
+    fix: |
+        Reduce each to the durable property it is an instance of — a number in
+        prose is re-derived at the pin or replaced by the unquantified noun; a
+        claim about state outside the repository is scoped to what the repository
+        evidences; the page states what survives for every artifact whose fate it
+        asserts — and leave the instances in tasks.md and the dated audit record.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/level-common/spec.md#L81-L83
+        quote: MUST NOT contain a dated finding, an order or packet identifier, a ledger line number, a file count, or a mandated verdict on a specific flag
+      - path: openspec/changes/add-level-page-specs/specs/site/level-4/spec.md#L267-L268
+        quote: a corpus count is the count at the pin or is replaced by "the litmus corpus"
+      - path: openspec/changes/add-level-page-specs/specs/site/level-4/spec.md#L268-L270
+        quote: a claim about what happens outside the repository (server-side branch protection) is scoped to what the repository itself validates
+      - path: openspec/changes/add-level-page-specs/specs/site/level-3/spec.md#L40-L42
+        quote: the mirror volume and working copy, the vault's unseal material, the model cache
+      - path: openspec/changes/add-level-page-specs/specs/site/level-2/spec.md#L48
+        quote: state the two honest limits in the project's own philosophy
+      - path: openspec/changes/add-level-page-specs/specs/site/navigation/spec.md#L324-L325
+        quote: that figure is produced by a weight table over continuous-integration check names rather than by the arithmetic the runtime's own methodology defines
+    depends_on:
+    upstream: ""
+
+  - id: 764caa09
+    repo: tillandsias.org
+    title: Requirements freeze today's verdicts, so a pin bump would make the spec mandate a false sentence
+    area: openspec/changes/add-level-page-specs/specs/site/level-{1,4,5}
+    class: process
+    severity: medium
+    tag: main
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        The level-5 spec states its own governing principle — this spec requires
+        the form of the verdicts and never a particular verdict — and
+        level-common orders that a RED the new pin's code has fixed becomes a
+        past-tense flag or a GREEN.
+    code: |
+        Three requirements do the opposite, and the reviews show two of them
+        already falsified one release forward. Level 4 makes a REFUTED permanent
+        and unconditional, with no pin condition, while the page's only REFUTED
+        says the hardening litmus cannot fail at this release — a claim the
+        change's own tasks.md 4.16 records as no longer holding on the newer
+        build. Level 5's section enumeration mandates today's conclusions rather
+        than the object each section covers: item 4 requires the gap between what
+        the repository asserts of the operator and what the theorem needs, item 6
+        requires the law-of-large-numbers family the doctrine invokes and the
+        hypothesis the architecture violates by design; the review found both
+        falsified at the only candidate pin, where the workspace property-tests
+        monotonicity of refine and the methodology withdraws its strong-LLN
+        claim. Level 1 requires the method section to carry an honest limit that
+        exists only because the pinned methodology currently withholds a metric
+        proof.
+    why: |
+        At the next pin bump each of these compels the page to keep a sentence
+        its source no longer supports — the precise failure level-common's RED
+        lifecycle exists to prevent — or leaves the page unable to comply without
+        inventing a defect. The level-5 case also reverses this change's own
+        completed task 2.6, which stripped mandated verdicts out of every
+        requirement. Nothing is published, so no reader is misled today; the cost
+        falls on the first editor to move a pin.
+    fix: |
+        Condition each on the pin, as level 5's "Verdicts are re-derived, never
+        frozen" already does: name the section's object and the job it does and
+        let the conclusion be a fact of the pin; keep a REFUTED while it holds at
+        the pin and restate it in the past tense, naming the release that changed
+        it, when the pin moves; and require the limit the cited methodology
+        records at the pin rather than today's wording of it.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/level-5/spec.md#L413-L414
+        quote: This spec requires the form of the verdicts and never a particular verdict
+      - path: openspec/changes/add-level-page-specs/specs/site/level-5/spec.md#L88-L91
+        quote: the law-of-large-numbers family the doctrine invokes, which member the situation actually needs
+        note: item 6 of the section enumeration, mandating an analysis of a family the doctrine no longer invokes at the candidate pin.
+      - path: openspec/changes/add-level-page-specs/specs/site/level-4/spec.md#L283-L285
+        quote: the page MUST keep it as a REFUTED line, stated in the words someone would use to propose it
+      - path: docs/matrix/level-4-security.md#L14
+        quote: At this release the test cannot fail, so a pass says nothing about the flags.
+        note: the page's only REFUTED — the sentence the requirement above would make permanent.
+      - path: openspec/changes/add-level-page-specs/specs/site/level-1/spec.md#L72-L73
+        quote: its honest limit (getting less broken is not the same as ending up perfect)
+    depends_on:
+    upstream: ""
+
+  - id: 8dd0e5c5
+    repo: tillandsias.org
+    title: Nine requirements contradict their own scenario or a sibling requirement
+    area: openspec/changes/add-level-page-specs/specs/site/level-{1,2,3,4,5}
+    class: process
+    severity: medium
+    tag: main
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        Each of these requirements is written to be applied by an editor who was
+        not present when it was written, and openspec validate passes on all
+        three changes, so nothing structural flags them.
+    code: |
+        Nine requirements instruct and forbid the same thing. Level 4's required
+        sections open "in this order" and close by permitting the surface
+        sections to be reordered, silently dropping the assurance-last constraint
+        stated two sentences earlier. Level 4 lists the argument markers as
+        optional, with dropping one explicitly not a regression, while "Rejected
+        arguments stay on the page" makes a REFUTED mandatory. Level 4's
+        hardening requirement governs a "hardening section" its own section list
+        never defines. Level 3 makes it a MUST that each subsystem subsection say
+        what falls short at the pin, and its own third scenario says a subsystem
+        with nothing wrong keeps its subsection. Level 3 requires each unanswered
+        item of a multi-item RED to be named in a scoped no-path clause and then
+        makes the scoping optional in the next sentence. Level 5 requires each
+        argument section to end with the flags that judge it while the same
+        requirement declares markers optional and the page's first argument
+        section carries none. Level 1's app-vocabulary requirement asserts the
+        pinned source records a machine check of the promise it has just shown,
+        and its third scenario forbids presenting that check as proof of that
+        promise. Level 2 requires a cost sentence that its own platform
+        requirement would forbid on Linux, and gives no precedence rule where
+        "verbs match what the code does" and "the footnote target carries the
+        claim" pull in opposite directions — the case that produced both rules.
+    why: |
+        A requirement that contradicts itself cannot be applied: an editor either
+        picks a half and calls it compliance, or reads the whole spec as
+        approximate. Three of these would license deleting true page content, and
+        one would license writing a claim false on a supported platform. Nothing
+        is published, so no reader is misled today; the damage is to the next
+        editor, who is the reader these specs are written for.
+    fix: |
+        Resolve each pair in favour of the scenario, which is the half derived
+        from the page: state ordering once and positively; carve the required
+        markers out of the optional list by reference; anchor the hardening rule
+        to the boundary section's hardening paragraphs; make the shortcoming
+        clause conditional; say which no-path form governs and when scoping
+        becomes required; make the flag rule a placement rule; reword the
+        app-vocabulary MUST to permit a machine check only when the written
+        promise it enforces is named; and add the missing precedence clause.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/level-4/spec.md#L26
+        quote: The page MUST carry, in this order
+      - path: openspec/changes/add-level-page-specs/specs/site/level-4/spec.md#L37-L38
+        quote: The surface sections MAY be reordered among themselves; the boundary section MUST be first.
+      - path: openspec/changes/add-level-page-specs/specs/site/level-4/spec.md#L56-L57
+        quote: None of these is required, and dropping one MUST NOT be treated as a regression
+        note: the argument markers, which the requirement quoted in finding 764caa09 makes mandatory.
+      - path: openspec/changes/add-level-page-specs/specs/site/level-3/spec.md#L80-L81
+        quote: each saying what the reader gets and what falls short at the pin
+      - path: openspec/changes/add-level-page-specs/specs/site/level-3/spec.md#L103-L105
+        quote: its subsection stays and says what it gives, rather than being deleted for having no RED
+      - path: openspec/changes/add-level-page-specs/specs/site/level-3/spec.md#L321-L322
+        quote: each item either gets its remedy, or is named in a scoped no-path clause
+      - path: openspec/changes/add-level-page-specs/specs/site/level-3/spec.md#L325-L326
+        quote: optionally with a scoping prefix or suffix naming which item it answers
+      - path: openspec/changes/add-level-page-specs/specs/site/level-5/spec.md#L149
+        quote: Each argument section MUST end with the flags that judge it
+      - path: openspec/changes/add-level-page-specs/specs/site/level-1/spec.md#L45-L47
+        quote: MUST NOT present the check as proof of the promise the reader was shown
+        note: the scenario that forbids what the requirement text at #L33-L35 instructs.
+    depends_on:
+    upstream: ""
+
+  - id: cf6b4dff
+    repo: tillandsias.org
+    title: Every claim MUST carry a footnote resolving at the level's pin is false of both pages that state it
+    area: openspec/changes/add-level-page-specs/specs/site/level-{1,4}
+    class: doc-drift
+    severity: medium
+    tag: main
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        Level 1 and level 4 both open their "Claims are no stronger than their
+        source" requirement with the same sentence: every claim MUST carry a
+        footnote resolving at the level's pin. Level 1's Purpose says the same of
+        every sentence on the page.
+    code: |
+        The sentence is false of both pages and contradicted by the shared
+        contract it sits under. level-common permits a footnote to point past the
+        pin with an explicit @vTAG suffix, and both pages use it — the review
+        counted roughly twenty @v56.9.5.1 footnotes on level 4 alone, none of
+        which resolves at v56.9.2.1. Both pages also carry unfootnoted claims:
+        level-1-five.md states its cloud framing and its doll-house mapping with
+        no footnote marker at all, and the review lists three more lines there
+        and three unfootnoted absolutes on level 4, none of them scheduled for
+        repair in the change's tasks.md.
+    why: |
+        This is the first sentence of the requirement that governs every claim on
+        the page, and it is contradicted by the shared contract, by the pages it
+        describes, and — on level 4 — by another requirement in the same file
+        that mandates PATH evidence at a newer tag. An editor either ignores it
+        or deletes true prose to satisfy it. The specs are unpublished, so no
+        reader is misled today; the pages themselves are unaffected by this
+        finding, which is about what the spec says of them.
+    fix: |
+        Scope it: every factual claim about the runtime carries a footnote; a
+        claim about the pinned release resolves at the pin, and a PATH clause
+        reporting a newer build resolves at the tag its @vTAG names. Leave where
+        and how footnotes resolve to level-common, and either schedule the
+        unfootnoted lines or say that a section's framing sentence inherits the
+        citations of the claims it introduces.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/level-1/spec.md#L152
+        quote: Every claim MUST carry a footnote resolving at the level's pin
+      - path: openspec/changes/add-level-page-specs/specs/site/level-4/spec.md#L174-L175
+        quote: Every claim MUST carry a footnote resolving at the level's pin and MUST be no stronger than the cited range.
+      - path: openspec/changes/add-level-page-specs/specs/site/level-common/spec.md#L15-L18
+        quote: A footnote MAY point past its level's pin only with an explicit `@vTAG` suffix
+      - path: docs/matrix/level-1-five.md#L7
+        quote: It is a doll house. Your computer is the table.
+        note: one of the page's unfootnoted claims — the line carries no footnote marker.
+    depends_on:
+    upstream: ""
+
+  - id: ecbe8175
+    repo: tillandsias.org
+    title: Universal MUSTs assert of the pages and of the audit record what is not true of them
+    area: openspec/changes/add-level-page-specs/specs/site/level-{3,4,5}
+    class: doc-drift
+    severity: medium
+    tag: main
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        These requirements are written as descriptions of the pages they govern
+        and of how the project works, in the register of a contract the page
+        already satisfies.
+    code: |
+        Eight of them are false of their subject on the day they ship. Level 4
+        states that audits of the page are run against a build newer than the
+        pin; the page's own annotation file is scoped to the pin itself, and the
+        current dated record says it re-verified every claim at the pin. Level 4
+        requires promise, reason, price and purchase before the flags of every
+        defended surface; the supply-chain heading is followed immediately by its
+        first GREEN with no prose at all. Level 3 defines its required
+        subsections as one per subsystem a launch brings up unconfigured, which
+        by the page's own account excludes two of its eight subsections, and its
+        add-or-remove scenario then licenses deleting them. Level 3's GREEN
+        attribution MUST is broken by five of nine GREENs, and its "any list"
+        MUST catches an illustrative naming of toolchains that nobody thinks is
+        wrong. Level 5's closed section enumeration has no home for the live RED
+        on the methodology's complexity constraint; its superlative ban forbids
+        the theorem statements the page exists to make; and its Verdict rule
+        requires every sentence there to restate an established claim, which the
+        section's closing line does not.
+    why: |
+        A requirement falsified by its own subject teaches an editor that this
+        spec's MUSTs are approximate — and several of these, applied literally,
+        would have the editor delete true prose or a live RED to comply. The
+        audit-premise sentence is worse than wrong: it reads as licence to
+        distrust an at-the-pin audit, which is the steady state the update loop
+        aims at. The specs are unpublished, so nothing here misleads a reader
+        today.
+    fix: |
+        Scope each MUST to the case its own scenarios test, and make the audit
+        premise conditional ("where an audit is run against a build newer than
+        the pin"). Bind the Verdict rule to claims rather than sentences, the
+        superlative ban to claims about the tree, the list rule to lists offered
+        as the inventory of a bounded set, and widen level 3's subsection class
+        to any subsystem a session reaches without the reader configuring it.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/level-4/spec.md#L302-L303
+        quote: Audits of this page are run against a build newer than the level's pin
+      - path: docs/matrix/level-4-security.audit.md#L5
+        quote: "Audit scope: tillandsias runtime repo at v56.9.2.1."
+        note: the page's own annotation file, scoped to the pin the requirement says audits are never run at.
+      - path: openspec/changes/add-level-page-specs/specs/site/level-4/spec.md#L98-L100
+        quote: For each defended surface the page MUST state, before its flags, what the design promises, why the choice is defensible on its own terms, what it costs, and what that cost buys.
+      - path: docs/matrix/level-4-security.md#L59-L61
+        quote: "## Supply chain and provenance"
+        note: the heading is followed by a blank line and then the section's first GREEN — no prose before the flags.
+      - path: openspec/changes/add-level-page-specs/specs/site/level-3/spec.md#L79-L80
+        quote: one subsection per subsystem that a launch brings up unconfigured
+      - path: openspec/changes/add-level-page-specs/specs/site/level-5/spec.md#L375-L376
+        quote: Every sentence of the Verdict MUST restate a claim the sections above established.
+      - path: docs/matrix/level-5-phd.md#L357
+        quote: Use the mathematics. Discount the dashboard.
+        note: the Verdict's closing line, which establishes and restates nothing.
+    depends_on:
+    upstream: ""
+
+  - id: 6767e64d
+    repo: tillandsias.org
+    title: The wording rules do not reach footnote labels, and the disagreement remedy prefers the wrong half
+    area: openspec/changes/add-level-page-specs/specs/site/level-2, docs/matrix/level-2-phone.md
+    class: process
+    severity: high
+    tag: main
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        The level-2 spec's wording rules govern "a reassuring sentence", "the
+        page" and "the visible sentence", and its "Prose and tooltip disagree"
+        scenario resolves a conflict between the two by correcting the sentence
+        to the footnote's terms or re-anchoring the footnote.
+    code: |
+        A footnote's label is author-written prose the reader sees on hover and
+        in the rendered list, and the checked build verifies only path, range and
+        quote — never the label. So the one surface the build cannot check is
+        also the one the spec does not govern, and the consequence is live: the
+        verification pass withdrew the false reassurance from the page's prose,
+        which now says secrets are re-registered at every start, while [^5]'s
+        label still tells the reader they are removed and reissued so that an
+        unclean shutdown leaves nothing stale — the invented staleness property
+        this spec's own "Reassurance is bounded by the cited source" forbids.
+        Both remedies in the disagreement scenario treat the footnote as the
+        correct half, so an editor applying it would restore the withdrawn claim
+        into the sentence.
+    why: |
+        This is the one defect of the eight specs that touches published text: a
+        false reassurance is on the live page today, in the surface the build
+        does not check, and the spec written to prevent exactly that failure
+        leaves the surface ungoverned and then points the remedy at the wrong
+        half. Finding 1e141597 records the same label from the annotation-file
+        angle; this one is about the rule that was supposed to catch it.
+    fix: |
+        Say once, in this spec, that a footnote's label is page prose bound by
+        every wording and sourcing rule here, as PATH, GREEN and RED text are.
+        Add the third remedy — the label is rewritten to what the cited range
+        states — and order the remedies by which half the pinned source supports
+        rather than by which half is the footnote. Add a scenario: when a claim
+        is withdrawn from a sentence, the label of every footnote attached to it
+        is checked for the same claim.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/level-2/spec.md#L150-L151
+        quote: A reassuring sentence MUST claim only the outcome its cited range states
+      - path: openspec/changes/add-level-page-specs/specs/site/level-2/spec.md#L205-L206
+        quote: the sentence is corrected to the footnote's terms, or the footnote is re-anchored to a source that states the sentence
+      - path: docs/matrix/level-2-phone.md#L60
+        quote: Internal secrets are removed and reissued at every start, so an unclean shutdown leaves nothing stale
+        note: the label of [^5], live on the page, carrying the claim the prose withdrew.
+    depends_on:
+    upstream: ""
+
+  - id: e2e95e62
+    repo: tillandsias.org
+    title: Two register MUSTs name no criterion an editor could apply
+    area: openspec/changes/add-level-page-specs/specs/site/level-{1,4}
+    class: process
+    severity: medium
+    tag: main
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        Level 1's register requirement and level 4's layer requirement are stated
+        as MUSTs, which the change's tasks.md treats as checkable by an editor
+        reviewing the page.
+    code: |
+        Three clauses give nothing to check against. "One metaphor family" leaves
+        family undefined, and the page mixes doll-house imagery, household and
+        postal imagery and a literal UI element, so the MUST is either already
+        breached or unenforceable. "Machine vocabulary" names no list, on a page
+        whose own subject is that two different banned-word lists exist and
+        differ. Level 4's requirement that a mitigation be criticised "without
+        the criticism being softened" offers no test at all.
+    why: |
+        An unappliable MUST is either ignored, which teaches that the rest are
+        optional, or used to justify an arbitrary edit; the metaphor clause's
+        first use would be to delete prose that works. Nothing is published, so
+        no reader is misled today.
+    fix: |
+        Keep the enforceable rule level 1 already states — one metaphor per
+        object, and no second metaphor for an object that has one — and drop
+        "one metaphor family". Define the vocabulary ban by reference to the
+        banned-word lists the pinned source records, noting that more than one
+        exists and the prose must avoid the union. Delete the "softened" clause,
+        whose intent the scenario about what a cost bought already carries.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/level-1/spec.md#L128
+        quote: The page MUST hold one metaphor family across its whole length
+      - path: openspec/changes/add-level-page-specs/specs/site/level-1/spec.md#L131
+        quote: Its own prose MUST NOT use machine vocabulary
+      - path: openspec/changes/add-level-page-specs/specs/site/level-4/spec.md#L102-L103
+        quote: a mitigation MUST be criticised without the criticism being softened
+    depends_on:
+    upstream: ""
+
+  - id: 1e3f8c3d
+    repo: tillandsias.org
+    title: The navigation spec describes a progress board the build does not produce
+    area: openspec/changes/add-level-page-specs/specs/site/navigation, scripts/build-matrix.py
+    class: doc-drift
+    severity: medium
+    tag: main
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        The navigation spec requires the board to place every finding in exactly
+        one of three columns whose blurbs a reader who has never opened the
+        ledger can apply, to show per finding whether it has been filed where it
+        has to go, to show when each was first recorded and last moved, and to
+        order each column by a rule the build states.
+    code: |
+        Three of those do not hold. The ledger's lateral terminals, obsoleted and
+        wontfix, are not ladder rungs and are placed in the middle column by the
+        fold, but the spec's middle-column blurb requires that a plan of work
+        exists and the left requires found-and-not-yet-tracked, so such a card
+        matches no blurb the page states. The filing state is computed and then
+        discarded: build-matrix.py builds the filed-or-unfiled markup into `up`
+        and appends it behind a literal `if False`, and would emit it as a
+        sibling list item outside the card even if the guard were flipped, so no
+        card on the published board carries a filing link or says "not filed
+        upstream". A finding whose events carry no timestamp renders as a blank
+        meta field rather than as explicitly undated, and the ordering rule
+        (severity, then id) exists only as a Python sort key.
+    why: |
+        The requirement the board exists for — an unfiled finding MUST NOT be
+        displayed in a way that lets it read as filed — is unmet by omission for
+        every runtime finding on the live board, mitigated only by the aggregate
+        "0 filed upstream" tally beside it. The column defect is in the opposite
+        direction: the spec is unpublished and the fold already does something
+        defensible, but the blurb a reader is told to apply and the placement the
+        code performs disagree, so the first wontfix will be misfiled by the
+        page's own definition.
+    fix: |
+        In the build, drop the `if False` and emit the filing state inside the
+        card. In the spec, name where a lateral terminal sits in the ledger's own
+        terms — on the board, never in the right-hand column, its card saying the
+        attempt ended without completion — widen the middle column's stated
+        meaning to cover it, require a finding with no chronology to render as
+        undated rather than blank, and say where the ordering rule is stated.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/navigation/spec.md#L306-L307
+        quote: an unfiled finding MUST NOT be displayed in a way that lets it read as filed
+      - path: scripts/build-matrix.py#L499
+        quote: up) if False else
+        note: the tail of card(), where the filed-or-unfiled markup is discarded unrendered.
+      - path: issues.d/README.md#L52
+        quote: are **lateral terminals**, not rungs
+      - path: openspec/changes/add-level-page-specs/specs/site/navigation/spec.md#L230-L232
+        quote: where a plan of work exists and uncertainty is low enough to act on
+        note: the middle-column blurb, which a wontfix finding placed there does not satisfy.
+      - path: openspec/changes/add-level-page-specs/specs/site/navigation/spec.md#L284-L285
+        quote: MUST show when it was first recorded and when it last moved
+    depends_on:
+    upstream: ""
+
+  - id: 64d733d3
+    repo: tillandsias.org
+    title: The Home positioning line makes a claim no level page footnotes
+    area: openspec/changes/add-level-page-specs/specs/site/navigation, scripts/build-matrix.py
+    class: doc-drift
+    severity: medium
+    tag: main
+    commit: cb07e89c411e6c63abb8995928ed9a6da34ddc8c
+    claim: |
+        The navigation spec's scenario for the positioning line says that where
+        it makes a claim about what the software does, it says only what a level
+        page already carries with a footnote, in words no stronger, and short
+        enough that the two can be compared at a glance.
+    code: |
+        The line the build ships is a verbatim copy of the "What is it?" hero
+        lede, which is page furniture carrying no footnote. The review reports
+        that a grep across the level pages finds none of "Local hardware",
+        "rented", "metered" or "left behind"; two of the line's clauses map
+        loosely onto footnoted level-2 sentences, and "nothing left behind" maps
+        onto nothing at all. The scenario names no level sentence to compare
+        against and no party to do the comparing, so neither the build nor a
+        reviewer can fail it.
+    why: |
+        This is the requirement in the navigation spec that governs a claim on
+        the live Home page, and as written it neither identifies its source nor
+        is checkable — the clause it exists to keep honest has no footnoted
+        counterpart anywhere on the site. Unlike the rest of this review's
+        findings, the sentence it fails to govern is published.
+    fix: |
+        Bind the positioning line to a named source — it repeats one sentence a
+        level page carries with its footnote, and an editor can point at that
+        sentence — or govern the hero lede in this spec as well, so the two
+        copies have one owner. Then move the unbacked clause onto a level page
+        with a footnote, or drop it.
+    evidence:
+      - path: openspec/changes/add-level-page-specs/specs/site/navigation/spec.md#L175-L176
+        quote: it says only what a level page already carries with a footnote, in words no stronger
+      - path: scripts/build-matrix.py#L455
+        quote: Local hardware. Free software. Nothing rented, nothing metered,
+        note: the shipped positioning line, duplicated from the hero lede, which carries no footnote.
+    depends_on:
+    upstream: ""
+events:
+  - id: 0d88cfc7
+    ts: "2026-09-06T00:00:00Z"
+    host: calmecacpilli
+    type: found
+    note: From the specification review of the eight site page specs; eight defects across five reviews share this shape.
+  - id: 3ed0ddf7
+    ts: "2026-09-06T00:00:00Z"
+    host: calmecacpilli
+    type: found
+    note: From the specification review of the eight site page specs; four defects, one per spec that breaks level-common's own rule.
+  - id: 764caa09
+    ts: "2026-09-06T00:00:00Z"
+    host: calmecacpilli
+    type: found
+    note: From the specification review of the eight site page specs; three defects, two of them already falsified one release forward.
+  - id: 8dd0e5c5
+    ts: "2026-09-06T00:00:00Z"
+    host: calmecacpilli
+    type: found
+    note: From the specification review of the eight site page specs; nine defects, in five of the six specs reviewed.
+  - id: cf6b4dff
+    ts: "2026-09-06T00:00:00Z"
+    host: calmecacpilli
+    type: found
+    note: From the specification review of the eight site page specs; the same opening sentence flagged in both the level-1 and level-4 reviews.
+  - id: ecbe8175
+    ts: "2026-09-06T00:00:00Z"
+    host: calmecacpilli
+    type: found
+    note: From the specification review of the eight site page specs; eight defects across the level-3, level-4 and level-5 reviews.
+  - id: 6767e64d
+    ts: "2026-09-06T00:00:00Z"
+    host: calmecacpilli
+    type: found
+    note: From the specification review of the eight site page specs; the two high defects of the level-2 review, which share one live consequence.
+  - id: e2e95e62
+    ts: "2026-09-06T00:00:00Z"
+    host: calmecacpilli
+    type: found
+    note: From the specification review of the eight site page specs; the level-1 register defect and the untestable clause the level-4 review flagged alongside it.
+  - id: 1e3f8c3d
+    ts: "2026-09-06T00:00:00Z"
+    host: calmecacpilli
+    type: found
+    note: From the specification review of the eight site page specs; three defects of the navigation review, one of which is a live build defect.
+  - id: 64d733d3
+    ts: "2026-09-06T00:00:00Z"
+    host: calmecacpilli
+    type: found
+    note: From the specification review of the eight site page specs; the navigation review's positioning-line defect.
