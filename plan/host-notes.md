@@ -211,3 +211,34 @@ escalated.
 
 > **Next host entry belongs here:** the first-connection measurement. That is
 > the line §10 of `local-https-serve.md` is waiting on.
+
+### 2026-09-06 — `forge-tillandsias-org` (OpenCode, in-forge)
+
+*Measured, not assumed, from inside a post-fix forge launch.*
+
+**The control socket is still not bound, and this launch is worse than 09-01.**
+- `TILLANDSIAS_CONTROL_SOCKET` — **unset** (on 09-01 it was at least set, to an
+  absent path). `/run/host/tillandsias-mcp/` does not exist; `/run/host` itself
+  is absent; `/run/secrets` is empty.
+- `host-browser` is registered and enabled in `~/.config/opencode/config.json`,
+  but its bridge exits before connecting (`TILLANDSIAS_CONTROL_SOCKET not set`),
+  so `publish_local` / `service_status` / `service_stop` never initialize. **A
+  forge still cannot publish or enumerate a sibling — zero successful
+  observations, six days after `19057a9e3`.**
+
+**Router has moved and currently routes nothing.** `tillandsias-router` now
+resolves to **10.0.42.7** (Caddy; :8080 answers; admin API :2019 closed). Every
+`*.localhost` host — `www.tillandsias.org.localhost`,
+`tillandsias.org.localhost`, `tillandsias.org.<service>.localhost` — returns
+`tillandsias-router: no route for …`. The 09-01 sibling + its routes are gone
+(or were never carried onto this stack).
+
+**Both flatten as host work, as on 09-01.** To serve again, replay the proxy:
+host-side `publish_local {"category":"WEB"}` (mints `tillandsias-tillandsias.org-web`,
+bind-mounts the host worktree `~/src/tillandsias.org`, registers
+`www` + apex `.localhost` routes, returns the URL for the user). The
+for-storage docroot rung and the browser-dot-project finding
+(`crates/tillandsias-browser-mcp` allowlist refuses `tillandsias.org` as a
+project label) are outside this note. And before the next forge launch, bind the
+lane socket at `/run/host/tillandsias-mcp/mcp.sock` and export
+`TILLANDSIAS_CONTROL_SOCKET` — the 09-06 relaunch did not deliver either.
