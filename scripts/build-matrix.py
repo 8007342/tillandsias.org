@@ -7,12 +7,14 @@ $math$, @fig:NAME figures, and [^n] footnotes whose targets are repo-relative
 paths resolved against the release tag each level is pinned to, so a reader
 lands on the exact line, with an optional verbatim quote shown in the tooltip.
 """
+import datetime
 import html
 import os
 import pathlib
 import re
 import subprocess
 import sys
+import time
 import urllib.parse
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -89,6 +91,11 @@ if PIN_OVERRIDE:
     print("  trial build: every level pinned to %s (LEVELS untouched)" % PIN_OVERRIDE)
 
 SITE_REF = max((lvl[4] for lvl in LEVELS), key=version_key)
+
+_epoch_sec = int(os.environ.get("SOURCE_DATE_EPOCH", time.time()))
+_now_dt = datetime.datetime.fromtimestamp(_epoch_sec, tz=datetime.timezone.utc)
+_seconds_of_day = _now_dt.hour * 3600 + _now_dt.minute * 60 + _now_dt.second
+BUILD_STAMP = f"{_now_dt.year - 1970}.{_now_dt.month}.{_now_dt.day}.x.{_seconds_of_day}"
 
 
 # Rolling stable installers. These deliberately point at GitHub's
@@ -651,7 +658,8 @@ def build():
            .replace("__PROGRESS__", progress_view())
            .replace("__TABS__", "\n".join(tabs))
            .replace("__PANELS__", "\n".join(panels))
-           .replace("__SITE_REF__", SITE_REF))
+           .replace("__SITE_REF__", SITE_REF)
+           .replace("__BUILD_STAMP__", BUILD_STAMP))
     if broken_links:
         print("\n  %d BROKEN footnote target(s):" % len(broken_links))
         for lvl, tgt, why in broken_links:
@@ -707,6 +715,7 @@ header.hero{padding:76px 0 34px;border-bottom:1px solid var(--line)}
 .eyebrow{font:600 12px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;
   color:var(--leaf);margin:0 0 20px}
 .eyebrow .ver{color:var(--ink-faint);letter-spacing:.12em;text-transform:none;font-weight:500}
+.eyebrow .updated{color:var(--ink-faint);opacity:.75;font-size:10px;letter-spacing:.08em;text-transform:none;font-weight:400;margin-left:8px}
 h1{margin:0;font-size:clamp(32px,5vw,56px);line-height:1.07;letter-spacing:-.026em;font-weight:650}
 h1 .dim{color:var(--ink-faint);font-weight:400}
 .lede{max-width:64ch;margin:22px 0 0;font-size:19px;color:var(--ink-dim)}
@@ -987,7 +996,7 @@ __HOME__
 <section class="view is-active" id="view-what" role="tabpanel" aria-labelledby="nav-what">
 <header class="hero">
   <div class="wrap">
-    <p class="eyebrow"><span class="leaf-ico" aria-hidden="true">__LEAF__</span>tillandsias.org <span class="ver" title="The release of the source repository this page was last checked against">&middot; __SITE_REF__</span></p>
+    <p class="eyebrow"><span class="leaf-ico" aria-hidden="true">__LEAF__</span>tillandsias.org <span class="ver" title="The release of the source repository this page was last checked against">&middot; __SITE_REF__</span> <span class="updated">&middot; website last updated __BUILD_STAMP__</span></p>
     <h1>An idempotent, ephemeral cloud region,<br><span class="dim">folded through your hypervisor.</span></h1>
     <p class="lede">Local hardware. Free software. Nothing rented, nothing metered, nothing left
       behind. Below is <strong>what it is and how it works</strong>, told five times over — pick
