@@ -93,10 +93,28 @@ if PIN_OVERRIDE:
 
 SITE_REF = max((lvl[4] for lvl in LEVELS), key=version_key)
 
-_epoch_sec = int(os.environ.get("SOURCE_DATE_EPOCH", time.time()))
-_now_dt = datetime.datetime.fromtimestamp(_epoch_sec, tz=datetime.timezone.utc)
-_seconds_of_day = _now_dt.hour * 3600 + _now_dt.minute * 60 + _now_dt.second
-BUILD_STAMP = f"{_now_dt.year - 1970}.{_now_dt.month}.{_now_dt.day}.x.{_seconds_of_day}"
+def build_stamp():
+    # "website last updated": the date the checkout that produced this page was
+    # last committed. It MUST NOT be derived from SOURCE_DATE_EPOCH: that pin
+    # exists to make rebuilds byte-identical and so is constant by force, so it
+    # can never mean "when the page changed." git HEAD is the one identity that
+    # is constant within a release (byte-identical rebuilds still hold) and yet
+    # advances on every update. Falls back to the pinned epoch's date only when
+    # git is absent (a tarball build), where no better identity exists.
+    try:
+        out = subprocess.run(["git", "-C", str(ROOT), "log", "-1", "--format=%cI"],
+                             capture_output=True, text=True, check=True)
+        commit_at = out.stdout.strip()
+        if commit_at and commit_at[:4].isdigit():
+            return commit_at[:10]
+    except (OSError, subprocess.SubprocessError):
+        pass
+    fallback = datetime.datetime.fromtimestamp(
+        int(os.environ.get("SOURCE_DATE_EPOCH", time.time())), tz=datetime.timezone.utc)
+    return f"{fallback:%Y-%m-%d}"
+
+
+BUILD_STAMP = build_stamp()
 
 
 # Rolling stable installers. These deliberately point at GitHub's
