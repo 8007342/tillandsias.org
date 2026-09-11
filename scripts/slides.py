@@ -1,4 +1,4 @@
-"""The deck for the Slides page: three slides, each a small dict.
+"""The deck for the Slides page: three slides, then a CRDT-methodology tail.
 
 The Slides page is the site's presentation page for a live talk about
 Tillandsias. It is not a level page and carries no footnote lists, so the deck
@@ -11,13 +11,18 @@ on" line so a reader can follow a claim to its footnote.
 Rules for anything added here:
 - Never state more than the named level states. If a slide says it, the level
   on its `draws_on` line carries it with a footnote.
-- Placeholders make no claims. A `ph` block renders as a labelled "content to
-  come" chip, not as prose.
+- The two methodology slides embed the methodology levels' own staircase and
+  law-of-large-numbers figure (the registry keeps both), and restate no more
+  than those figures caption. Placeholders make no claims. A `ph` block renders
+  as a labelled "content to come" chip, not as prose.
 - The deck ships inside the page: nothing here is fetched, drawn or animated
   from a third party.
 
 Block kinds the renderer knows:
   ("p", text)                 a paragraph of established or furniture prose
+  ("fig", name)               embed the site's own figure by registry name; the
+                              page draws that figure on a methodology level, and
+                              this slide restates only its caption
   ("ph", text)                a labelled placeholder holding room for content
   ("pillars", [(name, note), ...])
                               three named cards; each card's note is the
@@ -61,15 +66,49 @@ SLIDES = [
     {
         "label": "Mechanism",
         "eyebrow": "tillandsias · the how",
-        "title": "A region that stays convergent: built by the methodology, on "
-                 "conflict-free replicated data types.",
+        "title": "A region that stays convergent: the plan ledger as a "
+                 "replicated data type, and the staircase it guarantees.",
+        "lede": "",
         "blocks": [
-            ("ph", "The methodology: the project grades its own work, spec-first "
-                   "and delta-disciplined, and the ledger records every verdict "
-                   "with the evidence."),
-            ("ph", "CRDTs: the plan ledger as a convergent replicated data type — "
-                   "where the claim holds, and where the project says itself it "
-                   "does not. Told at the MathWiz level."),
+            ("fig", "staircase"),
+            ("p", "The methodology's own figure on the mechanism level: "
+                  "evidence that only climbs, one run whose skew you cannot "
+                  "see — and many short runs whose average lands, provided "
+                  "each run's bias is bounded."),
+            ("ph", "The algebra: where the join exists the ledger converges — "
+                   "and where the site says itself it does not."),
+        ],
+        "draws_on": ("level-5-phd",),
+    },
+    {
+        "label": "Uncertainty",
+        "eyebrow": "tillandsias · the method",
+        "title": "Reducing uncertainty one slide-aware run at a time: the law "
+                 "of large numbers, made visible.",
+        "lede": "",
+        "blocks": [
+            ("fig", "lln"),
+            ("p", "A single big prompt has a distance to the truth its own bar "
+                  "cannot show; many small fast prompts land closer — provided "
+                  "every prompt's bias stays bounded."),
+            ("ph", "CRDT: how the region keeps those runs convergent, told at "
+                   "the methodology level."),
+        ],
+        "draws_on": ("level-5-phd",),
+    },
+    {
+        "label": "CRDTs, everywhere",
+        "eyebrow": "tillandsias · the how",
+        "title": "The ledger as a conflict-free replicated data type: state "
+                 "that converges under any order of arrival.",
+        "blocks": [
+            ("fig", "crdt"),
+            ("p", "The methodology's own figure: replicated fragments fold in "
+                  "either order and land on the same state — no lock, no "
+                  "coordinator, no merge conflict, no lost write."),
+            ("ph", "Where the claim is put none too strongly: the algebraic "
+                   "conditions under which the ledger converges, and the "
+                   "footnotes that still hold."),
         ],
         "draws_on": ("level-5-phd",),
     },

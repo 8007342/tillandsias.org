@@ -581,6 +581,12 @@ def slides_view():
         if kind == "ph":
             return ('<div class="s-ph"><span class="s-ph-k">content to come</span>'
                     '<span class="s-ph-t">%s</span></div>' % html.escape(payload))
+        if kind == "fig":
+            if payload not in figures.FIGURES:
+                return '<div class="s-ph"><span class="s-ph-k">content to come</span>' \
+                       '<span class="s-ph-t">no figure named %s in the site registry</span></div>' \
+                       % html.escape(payload)
+            return figures.FIGURES[payload]
         if kind == "pillars":
             cards = "".join(
                 '<div class="s-pillar"><h3>%s</h3><div class="s-ph">'

@@ -42,7 +42,7 @@ controls, arrow and home/end keys (ArrowRight/ArrowLeft or Space for next, Home
 for the first slide, End for the last), and — because the site rejects nothing
 that runs without a script — the markup MUST contain a way to reach the deck's
 first slide without scripting. The reader MUST always see where they are: a
-counter ("2 / 3") and a progress rail that fills as the reader advances.
+counter (e.g. "2 / 3", where the denominator is the deck's actual slide count as rendered, not a fixed number in this spec) and a progress rail that fills as the reader advances.
 
 #### Scenario: A talk moves forward
 - **WHEN** the reader presses the next control or the right arrow or space
@@ -73,7 +73,7 @@ slide change. An empty input (no slide number) MUST mean the first slide.
 #### Scenario: A talk starts at slide two
 - **WHEN** a reader follows a link to `#slides-2`
 - **THEN** the slides page opens with the second slide shown and the counter
-  reading 2 / 3
+  reading its number over the deck's actual count, e.g. 2 / 3
 
 #### Scenario: The back button is pressed
 - **WHEN** a reader advances from slide two to slide three and then presses back
@@ -148,7 +148,7 @@ pillars of the story — the containerized workflow, Linux security, and the
 portable cloud region — and MUST close with **the mechanism** slide naming the
 methodology and conflict-free replicated data types. That ordering is the
 deck's contract: adding a slide between or ahead of these three is a change to
-this spec. Each of the three slides MUST show its title and MUST hold space for
+this spec. A change MAY add a CRDT-methodology tail after the mechanism slide — never between or ahead of the three — and each tail slide still names the level it draws on, no stronger. Each of the three slides MUST show its title and MUST hold space for
 its content with labelled placeholders where the content is not yet written.
 
 #### Scenario: A fourth slide is proposed
@@ -159,3 +159,66 @@ its content with labelled placeholders where the content is not yet written.
 - **WHEN** a pillar of the story is renamed, added or dropped at a later change
 - **THEN** the pillars slide is edited to match, and its drawing-on lines are
   re-checked
+### Requirement: The deck fits the viewport
+The deck MUST render without causing a scrollbar on the page itself: while the
+deck is the active view, the page MUST NOT acquire a scrollbar from the deck's
+frame, so the deck displays cleanly in a fullscreen presentation. The deck
+frame MUST size itself to the available viewport; a slide whose content would
+exceed that room MUST still be reached in full — the frame scrolls its own slide
+body rather than letting tall content escape the frame and push the page. A
+reader on a slide MUST always be able to read every line that slide carries; the
+deck MUST NOT clip a line to fit the room, and MUST NOT trade a page scrollbar
+for a silently truncated slide.
+
+#### Scenario: A talk is projected fullscreen
+- **WHEN** the deck is the active view and the browser is fullscreen
+- **THEN** the page shows no scrollbar from the deck, the deck frame fills the
+  available height, and the current slide's every line is reachable
+
+#### Scenario: A slide has more text than the frame holds
+- **WHEN** a slide's content is taller than the deck frame
+- **THEN** the slide's own body scrolls inside the frame, and the page itself
+  does not scroll
+
+### Requirement: A slide may embed the site's own figure
+A slide MAY embed one of the site's own figures by name. An embedded figure MUST
+come from the site's own figure registry — the same SVG the level pages already
+ship, drawn by the site's own code — so the deck never imports a foreign image,
+a third-party script or a CDN. The figure MUST restate only what its owning
+level establishes, exactly as the level page's figureline states it: the slide
+embeds the registry figure with its own caption, and MUST NOT redraw, reword or
+strengthen it. The slide still carries its drawing-on line naming the level that
+owns that figure.
+
+#### Scenario: A slide wants the staircase
+- **WHEN** an editor wants a slide to show the methodology's staircases or
+  convergence
+- **THEN** the slide embeds the registry figure `staircase` or `lln` — the page
+  ships that figure on the level that owns it — and the slide's drawing-on line
+  names that level
+
+#### Scenario: A slide wants a foreign diagram
+- **WHEN** an editor wants to drop in a diagram the site did not draw
+- **THEN** it is refused: the deck embeds only the site's own figures, and
+  nothing from a third party
+
+### Requirement: The CRDT slides tell the story the methodology establishes
+The deck's CRDT slides MUST restate the methodology exactly as the level that
+owns it establishes the story: that the project's fastest path to truth is many
+small fast prompts whose individual struggles are visibleable, not one big
+prompt whose distance to the point cannot be seen from outside; and how keeping
+the plan ledger convergent through replicated data types helps the region reduce
+uncertainty monotonically — each slide drawing on the methodology level and
+saying nothing that level's claim does not carry, with the same floor and the
+same asserted-versus-proved honesty the level footnotes.
+
+#### Scenario: The great graph is wanted on a slide
+- **WHEN** an editor wants the deck to show the many-small-prompts graph
+- **THEN** it is the level's own staircase/LLN figure, drawn on that level, and
+  the slide's words are exactly as strong as that level's footnote carries
+
+#### Scenario: A CRDT fact the methodology has not established is wanted
+- **WHEN** an editor wants a slide to claim something about the replicated data
+  type that no level footnotes (liveness, a zero floor, a proof of monotonicity)
+- **THEN** it is refused: the slide keeps, at most, the wording its drawing-on
+  level already makes, and anything stronger is a labelled placeholder
