@@ -106,12 +106,12 @@ def build_stamp():
                              capture_output=True, text=True, check=True)
         commit_at = out.stdout.strip()
         if commit_at and commit_at[:4].isdigit():
-            return commit_at[:10]
+            return f"{int(commit_at[:4]) - 1970}.{int(commit_at[5:7])}.{int(commit_at[8:10])}"
     except (OSError, subprocess.SubprocessError):
         pass
     fallback = datetime.datetime.fromtimestamp(
         int(os.environ.get("SOURCE_DATE_EPOCH", time.time())), tz=datetime.timezone.utc)
-    return f"{fallback:%Y-%m-%d}"
+    return f"{fallback.year - 1970}.{fallback.month}.{fallback.day}"
 
 
 BUILD_STAMP = build_stamp()
