@@ -21,6 +21,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import facts  # noqa: E402
 import figures  # noqa: E402
 import issues  # noqa: E402
+import slides  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "docs" / "matrix"
@@ -462,7 +463,8 @@ def home_view():
             '<p class="homelead">Local hardware. Free software. Nothing rented, nothing metered, '
             'nothing left behind.</p>'
             '<p class="homego"><button class="gobtn" data-go="view-what">What is it?</button>'
-            '<button class="gobtn" data-go="view-progress">Live progress</button></p>'
+            '<button class="gobtn" data-go="view-progress">Live progress</button>'
+            '<button class="gobtn" data-go="view-slides">Slides</button></p>'
             '</div></section>'
             % (figures.PLANTS["xerographica"], html.escape(facts.FACTS[0]), pool))
 
@@ -565,6 +567,69 @@ def centicolon_note():
             '</section>')
 
 
+def slides_view():
+    """The deck: three slides behind the menu, one visible at a time.
+
+    The deck restates only what the levels establish, so a slide names the
+    level it draws on and everything un-written is a labelled placeholder that
+    makes no claim."""
+    titles = {lvl[0]: lvl[1] for lvl in LEVELS}
+
+    def blk(kind, payload):
+        if kind == "p":
+            return ('<p>%s</p>' % html.escape(payload))
+        if kind == "ph":
+            return ('<div class="s-ph"><span class="s-ph-k">content to come</span>'
+                    '<span class="s-ph-t">%s</span></div>' % html.escape(payload))
+        if kind == "pillars":
+            cards = "".join(
+                '<div class="s-pillar"><h3>%s</h3><div class="s-ph">'
+                '<span class="s-ph-k">content to come</span>'
+                '<span class="s-ph-t">%s</span></div></div>'
+                % (html.escape(name), html.escape(note)) for name, note in payload)
+            return '<div class="s-pillars">%s</div>' % cards
+        return ""
+
+    slides_html = []
+    for i, s in enumerate(slides.SLIDES, 1):
+        draws = " &middot; ".join(
+            '<a href="#%s">%s</a>' % (slug, html.escape(titles.get(slug, slug)))
+            for slug in s["draws_on"])
+        cite = ""
+        if draws:
+            cite = ('<p class="s-cite"><span>drawing on</span> %s</p>' % draws)
+        body = "".join(blk(*b) for b in s["blocks"])
+        lede = ('<p class="s-lede">%s</p>' % html.escape(s["lede"])) if s.get("lede") else ""
+        slides_html.append(
+            '<section class="slide%s" data-slide="%d" aria-hidden="%s">'
+            '<p class="s-eyebrow">%s</p>'
+            '<h3 class="s-title">%s</h3>'
+            '%s'
+            '<div class="s-body">%s</div>'
+            '%s</section>'
+            % (" is-on" if i == 1 else "", i, "false" if i == 1 else "true",
+               html.escape(s["eyebrow"]), html.escape(s["title"]),
+               lede, body, cite))
+
+    return ('<section class="view" id="view-slides" role="tabpanel" aria-labelledby="nav-slides">'
+            '<div class="wrap deck">'
+            '<h2 class="deck-h">Slides</h2>'
+            '<p class="deck-sub">The story of Tillandsias in three slides, for a live talk: '
+            'the thesis, the three pillars, and the mechanism that keeps the region '
+            'conflict-free. One slide at a time — move with the buttons or the arrow keys.</p>'
+            '<div class="deck-frame">%s</div>'
+            '<div class="deck-nav" role="group" aria-label="Slides">'
+            '<button class="s-prev" id="slide-prev" type="button" disabled>&#8592; Prev</button>'
+            '<span class="s-count"><b id="s-count-n">1</b> / %d</span>'
+            '<button class="s-next" id="slide-next" type="button">Next &#8594;</button>'
+            '</div>'
+            '<div class="s-rail" role="progressbar" aria-label="Position in the deck" '
+            'aria-valuemin="1" aria-valuemax="%d" aria-valuenow="1"><span class="s-rail-fill" '
+            'id="s-rail-fill"></span></div>'
+            '</div></section>'
+            % ("".join(slides_html), len(slides.SLIDES), len(slides.SLIDES)))
+
+
 def build():
     panels, tabs = [], []
     for idx, (slug, title, blurb, cont, ref, plant) in enumerate(LEVELS):
@@ -656,6 +721,7 @@ def build():
            .replace("__DEFS__", figures.DEFS)
            .replace("__HOME__", home_view())
            .replace("__PROGRESS__", progress_view())
+           .replace("__SLIDES__", slides_view())
            .replace("__TABS__", "\n".join(tabs))
            .replace("__PANELS__", "\n".join(panels))
            .replace("__SITE_REF__", SITE_REF)
@@ -964,6 +1030,48 @@ footer a:hover{color:var(--leaf)}
 .cc h3{margin:0 0 10px;font-size:16px;font-weight:640}
 .cc p{margin:0 0 14px;max-width:78ch;font-size:14px;line-height:1.6;color:var(--ink-dim)}
 .cc-open{font:500 12px var(--mono);color:var(--ink-faint)}
+/* --- the slides deck --- */
+.deck-h{margin:76px 0 8px;font-size:clamp(28px,4vw,40px);letter-spacing:-.026em;font-weight:650}
+.deck-sub{margin:0 0 22px;color:var(--ink-dim);font-size:15.5px;line-height:1.6;max-width:74ch}
+.deck-frame{border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  background:linear-gradient(180deg,#0c1119,#080b10)}
+.slide{display:none;padding:38px 40px 32px;animation:fade .28s ease both;min-height:280px}
+.slide.is-on{display:block}
+.s-eyebrow{margin:0 0 18px;font:600 11.5px/1 var(--mono);letter-spacing:.18em;
+  text-transform:uppercase;color:var(--leaf)}
+.s-title{margin:0 0 12px;font-size:clamp(22px,3.4vw,34px);line-height:1.12;
+  letter-spacing:-.02em;font-weight:650;max-width:30ch}
+.s-lede{margin:0;color:var(--ink-dim);font-size:17px;line-height:1.6;max-width:64ch}
+.s-body{margin-top:20px}
+.s-body>p{margin:0 0 14px;color:#c9d4e0;font-size:16px;line-height:1.65;max-width:74ch}
+.s-ph{display:flex;flex-direction:column;gap:4px;max-width:74ch;margin:0 0 12px;
+  padding:14px 16px;border:1px dashed var(--line-2);border-radius:9px;
+  background:rgba(255,255,255,.015);color:var(--ink-faint);font-size:14px;line-height:1.55}
+.s-ph-k{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-faint)}
+.s-ph-t{margin-top:4px}
+.s-pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0 4px}
+.s-pillar{border:1px solid var(--line);border-radius:10px;background:var(--bg-2);
+  padding:14px 14px 12px;display:flex;flex-direction:column;gap:8px}
+.s-pillar h3{margin:0;font-size:16px;line-height:1.4;font-weight:640;color:var(--ink)}
+.s-pillar .s-ph{margin:0;flex:1}
+.s-cite{margin:28px 0 0;padding-top:14px;border-top:1px solid var(--line);
+  font:500 12px/1.7 var(--mono);color:var(--ink-faint)}
+.s-cite a{color:var(--leaf-dim);text-decoration:none;margin:0 2px}
+.s-cite a:hover{color:var(--leaf);text-decoration:underline}
+.deck-nav{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  margin:16px 0 10px}
+.s-prev,.s-next{cursor:pointer;background:transparent;border:1px solid var(--line-2);
+  border-radius:9px;color:var(--ink-dim);font:500 13.5px/1 var(--sans);
+  padding:10px 16px;transition:.15s}
+.s-prev:hover:not(:disabled),.s-next:hover:not(:disabled){color:var(--ink);
+  border-color:var(--leaf-dim);background:rgba(95,214,164,.05)}
+.s-prev:disabled,.s-next:disabled{opacity:.4;cursor:default}
+.s-count{font:500 13px var(--mono);color:var(--ink-faint);letter-spacing:.05em}
+.s-count b{color:var(--ink)}
+.s-rail{height:4px;margin:0 0 40px;border-radius:2px;background:#141b24;overflow:hidden}
+.s-rail-fill{display:block;height:100%;width:33.33%;background:var(--leaf);
+  border-radius:2px;transition:width .25s ease}
 @media (max-width:900px){.cols{grid-template-columns:1fr}}
 @media (max-width:760px){
   header.hero{padding:48px 0 24px}
@@ -974,6 +1082,8 @@ footer a:hover{color:var(--leaf)}
   .ins-row{display:block}
   .ins-os{display:block;margin:7px 0 3px}
   .flag-path{margin-left:8px}
+  .slide{padding:24px 20px 20px;min-height:0}
+  .s-pillars{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -987,6 +1097,7 @@ __DEFS__
   <button class="nav" id="nav-home" data-go="view-home"><span class="nav-i">&#127968;</span>Home</button>
   <button class="nav is-on" id="nav-what" data-go="view-what"><span class="nav-i">&#63;</span>What is it?</button>
   <button class="nav" id="nav-progress" data-go="view-progress"><span class="nav-i">&#9673;</span>Live progress</button>
+  <button class="nav" id="nav-slides" data-go="view-slides"><span class="nav-i">&#9654;</span>Slides</button>
   <p class="drawer-f">Checked against release <code>__SITE_REF__</code>.</p>
 </nav>
 <div class="scrim" id="scrim" hidden></div>
@@ -1036,6 +1147,8 @@ __PANELS__
 </section>
 
 __PROGRESS__
+
+__SLIDES__
 
 <footer>
   <div class="wrap">
@@ -1157,15 +1270,71 @@ __PROGRESS__
     if (lines.length) out.textContent = lines[Math.floor(Math.random() * lines.length)].textContent;
   }
 
-  // A deep link opens its view: #home, #progress, or a level such as #level-3-power.
+  // A deep link opens its view: #home, #progress, #slides, or a level such as #level-3-power.
   function fromHash(){
     var h = location.hash.slice(1);
     if (!h) return;
-    if (h === 'home' || h === 'progress') return go('view-' + h, false);
+    if (h === 'home' || h === 'progress' || h === 'slides') return go('view-' + h, false);
     if (document.getElementById('panel-' + h)) go('view-what', false);
   }
   window.addEventListener('hashchange', fromHash);
   fromHash();
+})();
+// The deck: one slide at a time. Moving a slide is a real history step, so the
+// back button undoes it; a deep link (#slides-2) opens the view on that slide,
+// and a number past either end is clamped and the URL corrected.
+(function(){
+  var view = document.getElementById('view-slides');
+  if (!view) return;
+  var slides = [].slice.call(document.querySelectorAll('.slide'));
+  var count = slides.length;
+  var num = document.getElementById('s-count-n'),
+      fill = document.getElementById('s-rail-fill'),
+      rail = document.querySelector('.s-rail'),
+      prev = document.getElementById('slide-prev'),
+      next = document.getElementById('slide-next');
+  var current = 1;
+  function set(n, push){
+    current = Math.min(Math.max(1, n), count);
+    slides.forEach(function(s){
+      var on = +s.dataset.slide === current;
+      s.classList.toggle('is-on', on);
+      s.setAttribute('aria-hidden', on ? 'false' : 'true');
+    });
+    if (num) num.textContent = current;
+    if (fill) fill.style.width = (100 * current / count) + '%';
+    if (rail) rail.setAttribute('aria-valuenow', current);
+    if (prev) prev.disabled = current === 1;
+    if (next) next.disabled = current === count;
+    var url = current === 1 ? '#slides' : '#slides-' + current;
+    history[push ? 'pushState' : 'replaceState'](null, '', url);
+  }
+  if (prev) prev.addEventListener('click', function(){ set(current - 1, true); });
+  if (next) next.addEventListener('click', function(){ set(current + 1, true); });
+  document.addEventListener('keydown', function(e){
+    if (!view.classList.contains('is-active')) return;
+    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (document.getElementById('drawer').classList.contains('is-open')) return;
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); set(current + 1, true); }
+    else if (e.key === 'ArrowLeft') { set(current - 1, true); }
+    else if (e.key === 'Home') { set(1, true); }
+    else if (e.key === 'End') { set(count, true); }
+  });
+function fromDeckHash(){
+    var h = location.hash.slice(1);
+    var m = /^slides-(\\d+)$/.exec(h);
+    if (m) {
+      go('view-slides', false);
+      set(parseInt(m[1], 10), false);
+      return;
+    }
+    if (h === 'slides') {
+      go('view-slides', false);
+      set(1, false);
+    }
+  }
+  window.addEventListener('hashchange', fromDeckHash);
+  fromDeckHash();
 })();
 (function(){
   var tabs = [].slice.call(document.querySelectorAll('.tab'));
