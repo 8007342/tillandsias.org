@@ -7,14 +7,12 @@ $math$, @fig:NAME figures, and [^n] footnotes whose targets are repo-relative
 paths resolved against the release tag each level is pinned to, so a reader
 lands on the exact line, with an optional verbatim quote shown in the tooltip.
 """
-import datetime
 import html
 import os
 import pathlib
 import re
 import subprocess
 import sys
-import time
 import urllib.parse
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -94,13 +92,14 @@ if PIN_OVERRIDE:
 SITE_REF = max((lvl[4] for lvl in LEVELS), key=version_key)
 
 def build_stamp():
-    """The UTC calendar date this generated page was built.
+    """The stable app version this generated page describes.
 
-    This is deliberately a reader-facing date, not an epoch-relative runtime
-    version and not the previous commit's timestamp. A pre-commit rebuild keeps
-    the checked-in page synchronized with the source that deploys it.
+    Tillandsias release tags have a fourth build coordinate. The website uses
+    the app's three-part display version, while the full tag remains visible in
+    the release reference beside it. The tracked pre-commit rebuild keeps this
+    generated value synchronized whenever a pin changes.
     """
-    return datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    return SITE_REF.removeprefix("v").rsplit(".", 1)[0]
 
 
 BUILD_STAMP = build_stamp()
