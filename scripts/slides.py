@@ -90,6 +90,24 @@ SLIDES = [
                      "level-4-security", "level-5-phd"),
     },
     {
+        "label": "Aggregation",
+        "eyebrow": "tillandsias · the working model",
+        "title": "Local truths can compose into one accountable picture.",
+        "blocks": [
+            ("fig", "aggregate-traces"),
+            ("p", "Each coloured trace has its own target and its own start "
+                  "time. A checked target may settle sharply; an uncertain "
+                  "one may only show a noisy downward tendency. Neither kind "
+                  "of trace should borrow certainty from the other."),
+            ("p", "The lower line aggregates only comparable work: the same "
+                  "identities, scope and weights. It is a compact record of "
+                  "what the project measured across workstreams, not a claim "
+                  "that all targets share one probability law."),
+        ],
+        "draws_on": ("level-2-phone", "level-3-power", "level-4-security",
+                     "level-5-phd"),
+    },
+    {
         "label": "CRDTs, everywhere",
         "eyebrow": "tillandsias · the how",
         "title": "Merge the same facts with the same rules.",

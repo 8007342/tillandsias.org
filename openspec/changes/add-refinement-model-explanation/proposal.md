@@ -12,4 +12,7 @@ empirical telemetry. Level 5 writes the candidate stochastic model, names its
 dependence problem, and preserves the existing withdrawal of the SLLN claim.
 
 The shared figure shows multiple local residual traces and an aligned shared trace.
-Its caption must say that it is schematic rather than a measurement or proof.
+Its caption must say that it is schematic rather than a measurement or proof. A
+second slide generalises that trace: coloured workstreams start at different times,
+some settle against checked targets, some remain fuzzy, and the aggregate is shown
+only after scope alignment.

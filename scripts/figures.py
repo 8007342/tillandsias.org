@@ -309,6 +309,39 @@ REFINEMENT_MESH = _wrap(
     <text x="300" y="294" class="s-lbl" text-anchor="middle">a checked commit preserves history; it does not prove every line improved</text>
     """)
 
+AGGREGATE_TRACES = _wrap(
+    "600 330", "Several local refinement traces with different targets combined on one timeline",
+    "A schematic aggregation: some local residuals reach a checked target, others only trend toward an uncertain one. The combined trace is an aligned summary, not a probability estimate or proof of shared convergence.",
+    """
+    <text x="300" y="18" class="s-lbl s-accent" text-anchor="middle">one commit timeline; local targets begin at different points</text>
+    <path d="M46 44 V230 H566" class="s-axis" fill="none"/>
+    <text x="12" y="52" class="s-lbl">residual</text>
+    <text x="566" y="248" class="s-lbl" text-anchor="end">accepted refinements →</text>
+
+    <g fill="none" stroke-width="1.3" stroke-dasharray="4 4">
+      <path d="M112 87 H554" style="stroke:var(--leaf)"/>
+      <path d="M194 124 H554" style="stroke:var(--violet)"/>
+      <path d="M272 162 H554" style="stroke:var(--amber)"/>
+      <path d="M350 198 H554" style="stroke:var(--rose)"/>
+    </g>
+    <g class="s-lbl s-sm">
+      <text x="116" y="80" style="fill:var(--leaf)">security target</text>
+      <text x="198" y="117" style="fill:var(--violet)">runtime target</text>
+      <text x="276" y="155" style="fill:var(--amber)">documentation target, still fuzzy</text>
+      <text x="354" y="191" style="fill:var(--rose)">deployment target, still fuzzy</text>
+    </g>
+
+    <path d="M112 58 H158 V71 H204 V79 H250 V84 H296 V87 H342 V87" fill="none" stroke="var(--leaf)" stroke-width="2.5"/>
+    <path d="M194 70 H240 V90 H286 V106 H332 V118 H378 V124 H424 V124" fill="none" stroke="var(--violet)" stroke-width="2.5"/>
+    <path d="M272 94 C302 107 316 120 338 116 S374 134 398 129 S438 151 462 145 S500 164 530 158" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <path d="M350 108 C374 126 392 142 412 137 S446 158 466 151 S498 175 520 170 S542 188 554 184" fill="none" stroke="var(--rose)" stroke-width="2.5" stroke-dasharray="6 4"/>
+
+    <text x="76" y="272" class="s-lbl">aligned aggregate</text>
+    <path d="M46 286 H112 V278 H178 V267 H244 V259 H310 V253 H376 V248 H442 V244 H508 V241 H566" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+    <g fill="var(--ink)"><circle cx="112" cy="278" r="3"/><circle cx="244" cy="259" r="3"/><circle cx="376" cy="248" r="3"/><circle cx="508" cy="241" r="3"/></g>
+    <text x="300" y="318" class="s-lbl s-amber" text-anchor="middle">aggregate only after identities, scope and weights are aligned</text>
+    """)
+
 HASSE = _wrap(
     "600 250", "A product lattice as a Hasse diagram",
     "Two obligations, each a chain of three states, give a nine-element product lattice ordered "
@@ -333,6 +366,7 @@ HASSE = _wrap(
 FIGURES = {
     "layers": LAYERS, "loop": LOOP, "staircase": STAIRCASE, "lln": LLN,
     "refinement-mesh": REFINEMENT_MESH,
+    "aggregate-traces": AGGREGATE_TRACES,
     "lattice": LATTICE, "crdt": CRDT, "gate": GATE, "ephemeral": EPHEMERAL,
     "fixpoint": FIXPOINT, "galois": GALOIS, "hasse": HASSE,
 }
