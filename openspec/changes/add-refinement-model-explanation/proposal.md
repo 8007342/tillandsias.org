@@ -15,4 +15,5 @@ The shared figure shows multiple local residual traces and an aligned shared tra
 Its caption must say that it is schematic rather than a measurement or proof. A
 second slide generalises that trace: coloured workstreams start at different times,
 some settle against checked targets, some remain fuzzy, and the aggregate is shown
-only after scope alignment.
+only after scope alignment. Use beginner-product examples — accessibility and
+language, marketing, dashboards and customer support — rather than platform roles.

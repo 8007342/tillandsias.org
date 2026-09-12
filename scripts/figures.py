@@ -292,7 +292,7 @@ REFINEMENT_MESH = _wrap(
       <path d="M42 40 V128 H202"/><path d="M222 40 V128 H382"/><path d="M402 40 V128 H562"/>
     </g>
     <g class="s-lbl">
-      <text x="45" y="48">security</text><text x="225" y="48">runtime</text><text x="405" y="48">docs</text>
+      <text x="45" y="48">accessibility</text><text x="225" y="48">product copy</text><text x="405" y="48">dashboard</text>
       <text x="46" y="145">local target</text><text x="226" y="145">local target</text><text x="406" y="145">local target</text>
     </g>
     <path d="M48 62 L76 76 L104 70 L132 96 L160 102 L192 112" class="s-step" fill="none"/>
@@ -311,35 +311,47 @@ REFINEMENT_MESH = _wrap(
 
 AGGREGATE_TRACES = _wrap(
     "600 330", "Several local refinement traces with different targets combined on one timeline",
-    "A schematic aggregation: some local residuals reach a checked target, others only trend toward an uncertain one. The combined trace is an aligned summary, not a probability estimate or proof of shared convergence.",
+    "A schematic aggregation: small iterations wobble around and then nearer each local target. The lower view normalises distance to each target before combining workstreams; it is not a probability estimate or proof of shared convergence.",
     """
-    <text x="300" y="18" class="s-lbl s-accent" text-anchor="middle">one commit timeline; local targets begin at different points</text>
-    <path d="M46 44 V230 H566" class="s-axis" fill="none"/>
-    <text x="12" y="52" class="s-lbl">residual</text>
-    <text x="566" y="248" class="s-lbl" text-anchor="end">accepted refinements →</text>
-
-    <g fill="none" stroke-width="1.3" stroke-dasharray="4 4">
-      <path d="M112 87 H554" style="stroke:var(--leaf)"/>
-      <path d="M194 124 H554" style="stroke:var(--violet)"/>
-      <path d="M272 162 H554" style="stroke:var(--amber)"/>
-      <path d="M350 198 H554" style="stroke:var(--rose)"/>
+    <text x="300" y="18" class="s-lbl s-accent" text-anchor="middle">many small refinements; each workstream starts when its work begins</text>
+    <path d="M46 38 V210 H566" class="s-axis" fill="none"/>
+    <text x="12" y="47" class="s-lbl">distance</text>
+    <text x="566" y="226" class="s-lbl" text-anchor="end">accepted refinements →</text>
+    <g fill="none" stroke-width="1.2" stroke-dasharray="4 4">
+      <path d="M90 68 H554" style="stroke:var(--leaf)"/>
+      <path d="M170 104 H554" style="stroke:var(--violet)"/>
+      <path d="M250 140 H554" style="stroke:var(--amber)"/>
+      <path d="M330 176 H554" style="stroke:var(--rose)"/>
     </g>
     <g class="s-lbl s-sm">
-      <text x="116" y="80" style="fill:var(--leaf)">security target</text>
-      <text x="198" y="117" style="fill:var(--violet)">runtime target</text>
-      <text x="276" y="155" style="fill:var(--amber)">documentation target, still fuzzy</text>
-      <text x="354" y="191" style="fill:var(--rose)">deployment target, still fuzzy</text>
+      <text x="94" y="61" style="fill:var(--leaf)">accessibility &amp; language</text>
+      <text x="174" y="97" style="fill:var(--violet)">marketing</text>
+      <text x="254" y="133" style="fill:var(--amber)">dashboard</text>
+      <text x="334" y="169" style="fill:var(--rose)">customer support</text>
     </g>
-
-    <path d="M112 58 H158 V71 H204 V79 H250 V84 H296 V87 H342 V87" fill="none" stroke="var(--leaf)" stroke-width="2.5"/>
-    <path d="M194 70 H240 V90 H286 V106 H332 V118 H378 V124 H424 V124" fill="none" stroke="var(--violet)" stroke-width="2.5"/>
-    <path d="M272 94 C302 107 316 120 338 116 S374 134 398 129 S438 151 462 145 S500 164 530 158" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-dasharray="6 4"/>
-    <path d="M350 108 C374 126 392 142 412 137 S446 158 466 151 S498 175 520 170 S542 188 554 184" fill="none" stroke="var(--rose)" stroke-width="2.5" stroke-dasharray="6 4"/>
-
-    <text x="76" y="272" class="s-lbl">aligned aggregate</text>
-    <path d="M46 286 H112 V278 H178 V267 H244 V259 H310 V253 H376 V248 H442 V244 H508 V241 H566" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
-    <g fill="var(--ink)"><circle cx="112" cy="278" r="3"/><circle cx="244" cy="259" r="3"/><circle cx="376" cy="248" r="3"/><circle cx="508" cy="241" r="3"/></g>
-    <text x="300" y="318" class="s-lbl s-amber" text-anchor="middle">aggregate only after identities, scope and weights are aligned</text>
+    <g fill="none" stroke-width="1.8" stroke-linejoin="round">
+      <path d="M90 42 L118 90 L146 55 L174 78 L202 62 L230 72 L258 66 L286 70" style="stroke:var(--leaf)"/>
+      <path d="M170 58 L198 130 L226 82 L254 116 L282 92 L310 110 L338 98 L366 106" style="stroke:var(--violet)"/>
+      <path d="M250 76 L278 168 L306 116 L334 154 L362 128 L390 148 L418 134 L446 144 L474 138" style="stroke:var(--amber)"/>
+      <path d="M330 96 L358 202 L386 146 L414 190 L442 158 L470 183 L498 164 L526 178 L554 169" style="stroke:var(--rose)"/>
+    </g>
+    <g>
+      <g fill="var(--leaf)"><circle cx="118" cy="90" r="3"/><circle cx="174" cy="78" r="3"/><circle cx="230" cy="72" r="3"/><circle cx="286" cy="70" r="3"/></g>
+      <g fill="var(--violet)"><circle cx="198" cy="130" r="3"/><circle cx="254" cy="116" r="3"/><circle cx="310" cy="110" r="3"/><circle cx="366" cy="106" r="3"/></g>
+      <g fill="var(--amber)"><circle cx="278" cy="168" r="3"/><circle cx="334" cy="154" r="3"/><circle cx="390" cy="148" r="3"/><circle cx="474" cy="138" r="3"/></g>
+      <g fill="var(--rose)"><circle cx="358" cy="202" r="3"/><circle cx="414" cy="190" r="3"/><circle cx="470" cy="183" r="3"/><circle cx="554" cy="169" r="3"/></g>
+    </g>
+    <path d="M46 246 V306 H566" class="s-axis" fill="none"/>
+    <line x1="46" y1="278" x2="566" y2="278" class="s-floor"/>
+    <text x="50" y="254" class="s-lbl">normalised combined view</text>
+    <text x="562" y="272" class="s-lbl s-amber" text-anchor="end">0 = each local target</text>
+    <g fill="none" stroke-width="1.7" stroke-dasharray="5 4">
+      <path d="M90 258 L146 294 L202 266 L258 284 L314 272 L370 280" style="stroke:var(--leaf)"/>
+      <path d="M170 248 L226 302 L282 262 L338 288 L394 270 L450 280" style="stroke:var(--violet)"/>
+      <path d="M250 242 L306 306 L362 260 L418 290 L474 269 L530 281" style="stroke:var(--amber)"/>
+      <path d="M330 238 L386 309 L442 258 L498 292 L554 270" style="stroke:var(--rose)"/>
+    </g>
+    <text x="300" y="325" class="s-lbl" text-anchor="middle">combine only aligned identities, scope and weights — this is a picture, not a proof</text>
     """)
 
 HASSE = _wrap(

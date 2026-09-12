@@ -80,7 +80,7 @@ SLIDES = [
                   "refinement, not as literal vector sets stored by Git. The "
                   "model proposes a delta; tests, review and a commit decide "
                   "whether it joins the record."),
-            ("p", "Security, runtime and documentation can each have a local "
+            ("p", "Accessibility, product copy and dashboards can each have a local "
                   "target. Their residuals are meaningful only against their "
                   "own fixed specifications. The shared line is useful "
                   "engineering telemetry after scope is aligned, not a proof "
@@ -95,10 +95,11 @@ SLIDES = [
         "title": "Local truths can compose into one accountable picture.",
         "blocks": [
             ("fig", "aggregate-traces"),
-            ("p", "Each coloured trace has its own target and its own start "
-                  "time. A checked target may settle sharply; an uncertain "
-                  "one may only show a noisy downward tendency. Neither kind "
-                  "of trace should borrow certainty from the other."),
+            ("p", "Each coloured trace is a product job with its own target "
+                  "and start time: accessibility and language, marketing, "
+                  "dashboards, or customer support. The dots can wobble while "
+                  "they move nearer their own dotted line; one trace must not "
+                  "borrow certainty from another."),
             ("p", "The lower line aggregates only comparable work: the same "
                   "identities, scope and weights. It is a compact record of "
                   "what the project measured across workstreams, not a claim "

@@ -178,8 +178,8 @@ finite obligation model says exactly what those validators can record, and no mo
 @fig:refinement-mesh
 
 For a workstream $i$ with a fixed specification $T_i$, write $d_i(R_k,T_i)$ for
-its declared, measured residual. Security, runtime, documentation and deployment
-may each have their own $d_i$. A shared residual is meaningful only after the
+its declared, measured residual. Accessibility and language, marketing, dashboards
+and customer support may each have their own $d_i$. A shared residual is meaningful only after the
 obligation identities, weights and scope have been aligned; tombstoning already
 marks the shipped scorer's comparison as broken.[^44][^45] Thus the diagram's local
 traces are engineering telemetry, not samples from a common distribution.
