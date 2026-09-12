@@ -159,6 +159,43 @@ it: adding easy obligations can improve the percentage without closing an old ga
 > RED: The scorer marks a tombstone as a broken monotone regime, and the shell reports that regime[^44][^45]. This is useful local instrumentation, but does not establish a cross-release comparison for arbitrary changes of weights or obligation scope.
 > PATH: The validation program requires denominator changes to be reported separately[^9]. A complete cross-release comparison must align the obligation set and weights; no general normalisation rule is established by the cited implementation.
 
+## A repository refinement is a model, not a theorem
+
+Here is the engineering picture in a form precise enough to attack. Let $R_k$ be
+the repository state visible to a task, $p_k$ its prompt and $C_k$ the selected
+context built from source, rules, retrieved material and task state. A model proposes
+a delta $Delta_k$; review and validators decide whether to commit it:
+
+$$C_k = \operatorname{select}(R_k,p_k), \qquad
+\Delta_k = M(C_k), \qquad R_{k+1} = \operatorname{accept}(R_k,\Delta_k).$$
+
+"Vectors" is a useful picture of the representations the model constructs from
+$C_k$; it is not Git's data model. A commit can retain reachable history while its
+new tree replaces or deletes files. Nor is an accepted patch automatically an
+improvement. The acceptance step is where tests, review and evidence enter; the
+finite obligation model says exactly what those validators can record, and no more.[^1][^40]
+
+@fig:refinement-mesh
+
+For a workstream $i$ with a fixed specification $T_i$, write $d_i(R_k,T_i)$ for
+its declared, measured residual. Security, runtime, documentation and deployment
+may each have their own $d_i$. A shared residual is meaningful only after the
+obligation identities, weights and scope have been aligned; tombstoning already
+marks the shipped scorer's comparison as broken.[^44][^45] Thus the diagram's local
+traces are engineering telemetry, not samples from a common distribution.
+
+> PLAUSIBLE: Repeated small, checked refinements can reduce observed local residuals faster than one large unreviewed change, while commits preserve an inspectable history of accepted evidence. This is a useful operating method, not a proof that the residual reaches zero.
+> PATH: Record each target, its scope and its negative controls; compare only aligned measurements; and retain counterexamples and retractions as first-class outcomes.[^9][^40]
+
+The tempting probabilistic upgrade is to treat $Delta_k$ as one random refinement
+with a finite-step skew, then invoke a weak or strong law over many refinements.
+That argument needs a stochastic model of the quality functional, a target mean and
+conditions on the joint process. Large context windows, high-dimensional embeddings
+and a fresh prompt do not supply independence. The next input contains $R_{k+1}$,
+which was made using the previous output; this is feedback, not a negligible detail.
+The possible formal routes are the ones below: establish a dependence structure that
+supports an ergodic or martingale theorem, or leave the claim empirical.[^16][^18][^19]
+
 ## Iteration: the law of large numbers at full strength
 
 The methodology now withdraws its strong-law citation for dependent iterations[^16].

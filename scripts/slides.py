@@ -71,6 +71,25 @@ SLIDES = [
         "draws_on": ("level-5-phd",),
     },
     {
+        "label": "Refinement",
+        "eyebrow": "tillandsias · the working model",
+        "title": "Many local changes, one shared record.",
+        "blocks": [
+            ("fig", "refinement-mesh"),
+            ("p", "Treat the repository and prompt as selected context for a "
+                  "refinement, not as literal vector sets stored by Git. The "
+                  "model proposes a delta; tests, review and a commit decide "
+                  "whether it joins the record."),
+            ("p", "Security, runtime and documentation can each have a local "
+                  "target. Their residuals are meaningful only against their "
+                  "own fixed specifications. The shared line is useful "
+                  "engineering telemetry after scope is aligned, not a proof "
+                  "that any sequence converges to truth."),
+        ],
+        "draws_on": ("level-1-five", "level-2-phone", "level-3-power",
+                     "level-4-security", "level-5-phd"),
+    },
+    {
         "label": "CRDTs, everywhere",
         "eyebrow": "tillandsias · the how",
         "title": "Merge the same facts with the same rules.",

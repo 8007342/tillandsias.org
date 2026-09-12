@@ -38,6 +38,13 @@ They are honest: less broken every time does **not** mean ending up perfect — 
 
 They work in many tiny fast tries, not one long careful think — small tries find the answer sooner, so long as each is only a *little* wrong.[^5]
 
+Imagine every saved try as a big scrapbook: bits of the recipe, the rules, what
+was found before, and the new note someone just made. A helper reads the useful
+pages, tries one small improvement, and the grown-ups keep it only after checking
+it.[^23] The scrapbook remembers old saved pages, but the newest page can still
+replace a bad drawing. So "more" means more checked history and evidence, not
+that every mark is automatically better.
+
 > PLAUSIBLE: It sounds right and works for them. But the sum first written to prove it[^5] needs every try to stand alone, and theirs do not — each reads what the last one learned. They have taken that proof back:[^13] the idea stays, the proof is owed.
 
 Anyone may have it, read it and change it, free.[^14]

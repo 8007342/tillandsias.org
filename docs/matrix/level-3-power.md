@@ -34,6 +34,18 @@ The launcher prepares a shared model server at `http://inference:11434`, started
 
 ### The git mirror and push relay
 
+For an agent, a refinement is a controlled data path: it receives selected source,
+rules, task context and tool results; it proposes a patch; local checks and review
+decide whether that patch becomes a commit. Git retains reachable commits, while the
+current tree is a snapshot that may replace or delete files. Calling the repository a
+"set of vectors" is therefore a useful description of the model's selected context,
+not Git's storage format and not a guarantee that every current file survives.[^61][^62][^66]
+
+Several tasks can run this loop at once. Each needs its own declared target and
+measurement; the shared repository is the coordination point, not evidence that
+their measurements are already comparable. The relay makes an accepted push atomic,[^62][^63]
+which preserves the record of what was accepted, not the truth of the patch.
+
 Git needs nothing from you inside a forge. A read-only global gitconfig redirects the project's GitHub URL to a bare mirror in its own named volume, so `git remote -v` still says github.com while clone, fetch and push hit the enclave.[^61][^6] A push is not acknowledged until the mirror's hook has relayed exactly those refs upstream with one atomic push.[^62][^63] The token authorising that relay is read from the vault inside the git service at push time and never enters the forge.[^64][^65] Deletions and branch rewinds land nowhere;[^66] a project with no upstream keeps its pushes in the mirror.[^67]
 
 > GREEN: Works out of the box once GitHub Login has run on the host; without a stored token the relay refuses the push and says so.[^68]

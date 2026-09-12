@@ -283,6 +283,32 @@ GALOIS = _wrap(
     <text x="300" y="206" class="s-lbl s-red" text-anchor="middle">&#945;(c) &#8849; a &#8660; c &#8849; &#947;(a) &#8212; not established</text>
     """)
 
+REFINEMENT_MESH = _wrap(
+    "600 300", "Three local refinement traces and one shared residual trace",
+    "A schematic engineering model: each checked change can move one local residual, while the shared record is judged against aligned specifications. It is not a probability measurement or a convergence proof.",
+    """
+    <text x="300" y="20" class="s-lbl s-accent" text-anchor="middle">local tasks: source + prompt + checks → committed delta</text>
+    <g class="s-axis" fill="none">
+      <path d="M42 40 V128 H202"/><path d="M222 40 V128 H382"/><path d="M402 40 V128 H562"/>
+    </g>
+    <g class="s-lbl">
+      <text x="45" y="48">security</text><text x="225" y="48">runtime</text><text x="405" y="48">docs</text>
+      <text x="46" y="145">local target</text><text x="226" y="145">local target</text><text x="406" y="145">local target</text>
+    </g>
+    <path d="M48 62 L76 76 L104 70 L132 96 L160 102 L192 112" class="s-step" fill="none"/>
+    <path d="M228 58 L256 68 L284 90 L312 82 L340 106 L372 112" class="s-step" fill="none"/>
+    <path d="M408 66 L436 82 L464 78 L492 94 L520 106 L552 112" class="s-step" fill="none"/>
+    <g class="s-dot2"><circle cx="76" cy="76" r="3"/><circle cx="132" cy="96" r="3"/><circle cx="160" cy="102" r="3"/>
+      <circle cx="256" cy="68" r="3"/><circle cx="312" cy="82" r="3"/><circle cx="340" cy="106" r="3"/>
+      <circle cx="436" cy="82" r="3"/><circle cx="492" cy="94" r="3"/><circle cx="520" cy="106" r="3"/></g>
+    <path d="M44 174 V258 H562" class="s-axis" fill="none"/>
+    <text x="48" y="182" class="s-lbl">shared residual</text>
+    <path d="M52 190 H126 V206 H200 V218 H274 V226 H348 V234 H422 V239 H496 V243 H554" class="s-step" fill="none"/>
+    <line x1="44" y1="246" x2="562" y2="246" class="s-floor"/>
+    <text x="556" y="276" class="s-lbl s-amber" text-anchor="end">shared target: specifications, aligned before comparison</text>
+    <text x="300" y="294" class="s-lbl" text-anchor="middle">a checked commit preserves history; it does not prove every line improved</text>
+    """)
+
 HASSE = _wrap(
     "600 250", "A product lattice as a Hasse diagram",
     "Two obligations, each a chain of three states, give a nine-element product lattice ordered "
@@ -306,6 +332,7 @@ HASSE = _wrap(
 
 FIGURES = {
     "layers": LAYERS, "loop": LOOP, "staircase": STAIRCASE, "lln": LLN,
+    "refinement-mesh": REFINEMENT_MESH,
     "lattice": LATTICE, "crdt": CRDT, "gate": GATE, "ephemeral": EPHEMERAL,
     "fixpoint": FIXPOINT, "galois": GALOIS, "hasse": HASSE,
 }

@@ -34,6 +34,20 @@ You were told they check that nothing got worse. Precisely: the project's stated
 
 Two honest limits follow, in the project's own words. Passing tests are *evidence, not proof* — they show no contradiction was found, not that none exists.[^8] And "never worse" means settling toward some floor, not that the floor is zero; the stronger mathematical result that would guarantee zero is explicitly not claimed.[^9]
 
+## Lots of small maps, one destination
+
+An AI does not swallow a repository as one magic answer. It is given selected
+source, rules and a request; it suggests a small change; then people and tests
+decide whether to keep that change. Think of the selected material as a map, not
+as every file turned literally into a vector. The next job starts from the newly
+saved repository, so it can use what the earlier job learned.
+
+Different jobs have different nearby destinations: a security repair, a clearer
+screen, or a working installer. They all share the larger destination of matching
+what the project promised. We can measure particular gaps and refuse a known
+regression,[^7][^21] but a row of successful changes is not proof that the whole
+journey reaches perfection.[^8][^9]
+
 ## Where it falls short today
 
 > RED: On Macs, the application has not yet passed Apple's inspection service, so a copy downloaded with a web browser is blocked on first launch; the recommended one-line install sidesteps that only by not going through a browser.[^10]

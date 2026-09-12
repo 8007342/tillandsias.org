@@ -100,6 +100,13 @@ The audit trail is committed and unusually candid. It is also agent-self-reporte
 
 The convergence argument you already have is not a security argument, and the project does not offer it as one. What carries the weight is a pair of invariants — verification claims must be falsifiable, and evidence is not proof[^25] — plus the methodology's refusal to read its completion score as a probability.[^26] So: a passing suite is a bounded signal over the defects someone thought to write a litmus test for, and, as the hardening case shows, only over those whose tests distinguish the relevant failure from success. Finite litmus coverage is not proof of absence of defects; the repo says so before you do.
 
+Security is one local target among several. An agent may add a check, a boundary or
+an audit record to the shared repository, but that does not make the next change
+independent, nor does it turn a passing security test into a statement about every
+other target. The useful engineering loop is narrower: make the claimed boundary
+explicit, try to break it, retain the evidence and record the counterexample when it
+fails.[^25][^26]
+
 ## Footnotes
 
 [^1]: Podman the only host dependency on Linux; macOS/Windows provision a VM | README.md#L52-L53
