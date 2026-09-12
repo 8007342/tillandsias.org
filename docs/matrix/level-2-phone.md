@@ -2,13 +2,13 @@
 
 ## What it is for, in one paragraph
 
-The reason a grown-up wants one is narrower than "the cloud, but at home". Software you did not write — increasingly, AI assistants that write and run code for you — has to work somewhere. The choice is between your actual machine and a sealed room containing only the project folder you deliberately opened.[^1] Tillandsias is that room, plus the plumbing to open it in a second and forget about it.
+The reason a grown-up wants one is narrower than "the cloud, but at home". Software you did not write — increasingly, AI assistants that write and run code for you — has to work somewhere. The choice is between your actual machine and a sealed room containing only the project folder you deliberately opened.[^1] Tillandsias is that room, plus the plumbing to prepare it and start your tools.
 
 @fig:gate
 
 ## Is my stuff private, and who could see it?
 
-Nobody, because there is nowhere for it to go. The people who make Tillandsias operate no servers your copy talks to: no account, no sign-up, no usage tracking, no crash reporting, no identifier attached to you or your machine.[^2] Your logs stay on your own disk where you can read them, and leave only if you send them somewhere yourself. Any login you hand over goes into a secret store on your own machine — the project's own vault, whose key sits in your operating system's keychain, or on some hosts in a local file — never on anyone else's server.[^3][^16]
+The people who make Tillandsias operate no servers your copy talks to: no account, no sign-up, no usage tracking, no crash reporting, no identifier attached to you or your machine.[^2] Your logs stay on your own disk where you can read them, and leave only if you send them somewhere yourself. Any login you hand over goes into a secret store on your own machine — the project's own vault, whose key sits in your operating system's keychain, or on some hosts in a local file — never on anyone else's server.[^3][^16]
 
 > GREEN: The privacy claim does not rest on anyone's intentions. There is no server of theirs to send anything to, so there is no decision to trust and none to reverse.[^2] It covers their side only — a service you sign into yourself still sees what you tell it.
 
@@ -16,7 +16,7 @@ Nobody, because there is nowhere for it to go. The people who make Tillandsias o
 
 It costs nothing: free software under a licence that lets anyone read, run, modify and pass it on.[^4] You have already paid for the only hardware involved.
 
-The internet is needed only for ordinary, visible reasons: fetching the program, fetching updates, reaching a service you chose.[^17] The work itself does not require it, and the AI assistants can run on your own machine — which is why the privacy claim survives them.[^18]
+The internet is needed only for ordinary, visible reasons: fetching the program, fetching updates, reaching a service you chose.[^17] Local work can continue without sending it to an AI provider: language models can run on your own machine.[^18] That does not make every action offline-ready. Fetching a missing tool or model needs a connection, and a push configured for GitHub fails when its upstream cannot be reached.[^31]
 
 ## What happens when I turn it off? Can it break my computer?
 
@@ -42,8 +42,11 @@ Two honest limits follow, in the project's own words. Passing tests are *evidenc
 > RED: One Windows package in a past release went out without its signature, which makes it not merely warned-about but impossible to install, with no user-side workaround.[^12]
 > PATH: That one package is now withheld from a release whenever it is unsigned;[^26] the other Windows downloads still publish unsigned, with the only warning in the build log,[^27] and the signing route has been chosen but not yet put in place.[^13]
 
-> RED: A built-in "expert" feature once gave confident answers with no sources at all: it described a careful research procedure, did not run it, returned an empty citation list, and stamped its own output verified anyway.[^14]
-> PATH: It was switched off and replaced: the shipped configuration now points the assistant at a grounded service that either cites the sources it actually used or plainly refuses.[^28] The replacement was checked live in the daily channel on 2026-09-02.[^29] One item is still open — evidence that its small scripting layer runs on the Mac and Windows build lanes.[^15]
+> NOTE: A built-in "expert" feature once gave confident answers with no sources at all: it described a careful research procedure, did not run it, returned an empty citation list, and stamped its own output verified anyway.[^14]
+> GREEN: It was switched off and replaced: the shipped configuration now points the assistant at a grounded service that either cites the sources it actually used or plainly refuses.[^28] The replacement was checked live on 2026-09-02 and is now in the stable release.[^29] One limit remains below.
+
+> RED: Portability evidence for the replacement’s small scripting layer is still missing from the Mac and Windows build lanes.[^15]
+> PATH: Run that layer on those hosts and record the evidence; the task explicitly remains open until then.[^15]
 
 Two install problems and one feature that once promised more than it delivered and has since been replaced. None touch the privacy story, and all three are here because the project's own checking found them.
 
@@ -57,13 +60,13 @@ Two install problems and one feature that once promised more than it delivered a
     > **Credentials you provide** (for example, a GitHub login you initiate) are stored in a local secret store on your machine.
 [^4]: GNU General Public License, version 3 | LICENSE#L1-L2
     > GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
-[^5]: Internal secrets are removed and reissued at every start, so an unclean shutdown leaves nothing stale | openspec/specs/ephemeral-secret-refresh/spec.md#L9-L25
+[^5]: Internal secrets are removed and reissued at every start, so an unclean shutdown leaves nothing stale | openspec/specs/ephemeral-secret-refresh/spec.md#L10-L25
     > The system SHALL check for existing podman secrets before creation. If a secret exists from a prior unclean shutdown, it SHALL be removed and recreated with fresh content.
 [^6]: "Designed to be wiped and rebuilt freely" | PRIVACY.md#L46-L47
     > You can remove all of it at any time by resetting or uninstalling; the application is designed to be wiped and rebuilt freely.
 [^7]: The convergence objective: minimise the measured distance between specification, code and reality | methodology/convergence.yaml#L2-L8
     > objective: | Minimize: Δ(spec ↔ code) + Δ(code ↔ cheatsheet) + Δ(cheatsheet ↔ reality) + Δ(litmus_binding ↔ spec)
-[^8]: Evidence boundaries — traceability and passing tests are evidence, not proof of correctness | methodology/philosophy.yaml#L228-L232
+[^8]: Evidence boundaries — traceability and passing tests are evidence, not proof of correctness | methodology/philosophy.yaml#L249-L252
     > Traceability, version matching, litmus success, and CRDT metadata convergence are evidence. They are not proof of semantic correctness by themselves.
 [^9]: The stronger contraction result is explicitly not claimed | methodology/math-foundations.yaml#L107-L120
     > The methodology does not currently claim Banach-style contraction. It can report decreasing residuals, but it has not proven a contraction constant over a complete metric space of project states.
@@ -75,7 +78,7 @@ Two install problems and one feature that once promised more than it delivered a
     > **Consequence for the pending signing decision.** The unsigned MSIX (`0x800B0100`, packet 722-w7a2) blocks the **GitHub-release** channel only. It does not block the Store channel at all.
 [^13]: The chosen signing route for the Windows release channel | plan/issues/windows-signing-research-2026-08-16.md#L1-L25
     > **SignPath Foundation is the signing path for the GitHub-release channel.** Packet 722-w7a2 is reshaped, not closed: its deliverable changes from "an Azure Trusted Signing account" to the SignPath Foundation chain, with Azure **Artifact Signing** as the recorded fallback.
-[^14]: Audit of the shipped "local expert" facade: answers stamped valid with no retrieval and no citations | openspec/changes/expert-serve-grounded-pipeline/proposal.md#L1-L25
+[^14]: Audit of the shipped "local expert" facade: answers stamped valid with no retrieval and no citations | openspec/changes/expert-serve-grounded-pipeline/proposal.md#L1-L24
     > The `pipeline` CLI arm did no retrieval and no validation, yet stamped every response `validated: true` with `confidence: 0.5` and `citations: []`
 [^15]: The one item still open on the replacement: portability evidence from the Mac and Windows build lanes | openspec/changes/expert-serve-grounded-pipeline/tasks.md#L52-L54
     > 4.5 mlua portability evidence from the darwin/msys lanes (902-5bf9's blocking criterion) — OPEN: needs those hosts; the Lua surface kept here is deliberately thin enough to replace if evidence fails.
@@ -85,15 +88,15 @@ Two install problems and one feature that once promised more than it delivered a
     > **Software sources** — package repositories and release downloads (for example GitHub, Linux distribution mirrors, and language package registries) to fetch the software it runs.
 [^18]: AI providers only if you configure one; language models can run entirely on your own machine | PRIVACY.md#L60-L63
     > **AI providers, only if you configure one.** Tillandsias can run language models entirely on your own machine. If you instead configure a remote provider, the content you send is transmitted to that provider under their terms.
-[^20]: The downloaded system image is cached on the host between runs | openspec/specs/vm-provisioning-lifecycle/spec.md#L41-L48
+[^20]: The downloaded system image is cached on the host between runs | openspec/specs/vm-provisioning-lifecycle/spec.md#L42-L49
     > cached at `~/.local/share/tillandsias/rootfs-fedora-44-<sha256>.tar.xz` (on macOS: `~/Library/Application Support/tillandsias/rootfs-…`; on Windows: `%LOCALAPPDATA%\tillandsias\rootfs-…`).
 [^21]: The rule that convergence is monotonic: once achieved, divergence must be detectable | methodology/convergence.yaml#L56-L58
     > - Convergence is monotonic under normal operation: once achieved, divergence must be detectable
-[^22]: The build's trace ratchet: a new reference to a specification that does not exist fails the build | build.sh#L906-L914
+[^22]: The build's trace ratchet: a new reference to a specification that does not exist fails the build | build.sh#L965-L973
     > The ratchet fails in BOTH directions: a new ghost, or a baseline entry
-[^23]: The build's test verdict is a ratchet: a failure not on the known list is a new regression | build.sh#L1449-L1454
+[^23]: The build's test verdict is a ratchet: a failure not on the known list is a new regression | build.sh#L1521-L1526
     > THE VERDICT IS A RATCHET, NOT CARGO'S EXIT CODE.
-[^24]: The build script notarizes and staples when given a signing identity and the notary credentials | scripts/build-macos-tray.sh#L209-L232
+[^24]: The build script notarizes and staples when given a signing identity and the notary credentials | scripts/build-macos-tray.sh#L255-L278
     > say "notarize: submitting (this waits for Apple's verdict)"
 [^25]: The release workflow runs the macOS build script with no credentials handed to it | .github/workflows/release.yml#L468-L469
     > run: scripts/build-macos-tray.sh
@@ -103,7 +106,10 @@ Two install problems and one feature that once promised more than it delivered a
     > ::warning::TILLANDSIAS_SIGNING_ACCOUNT is unset — publishing UNSIGNED Windows artifacts (plan packet 722-w7a2)
 [^28]: The shipped assistant configuration points at the grounded expert service: citations kept only if used, typed refusals otherwise | images/default/config-overlay/opencode/config.json#L18-L30
     > "description": "Grounded local experts: retrieval from the published spec index, citations kept only if used, typed unsupported: refusals — served by tillandsias-plan expert-serve beside the MCP servers (order 920-pxg6).",
-[^29]: The live end-to-end check of the replacement, recorded 2026-09-02 in the daily channel | openspec/changes/expert-serve-grounded-pipeline/tasks.md#L86-L98 @v56.9.5.1
+[^29]: The live end-to-end check of the replacement, recorded 2026-09-02 in the daily channel | openspec/changes/expert-serve-grounded-pipeline/tasks.md#L86-L98
     > 5.10 Live OpenCode session verification against a running expert-serve — DONE on macuahuitl-tillandsias-forge 2026-09-02
 [^30]: Uninstalling removes the cached image, except on macOS where it is preserved unless you ask for a full wipe | scripts/uninstall.sh#L124-L128
     > Preserving the VM image in $DATA_DIR (use --wipe to remove it).
+
+[^31]: A failed upstream push is refused without partially updating refs | openspec/specs/git-mirror-service/spec.md#L225-L230
+    > the forge's `git push` SHALL return non-zero
