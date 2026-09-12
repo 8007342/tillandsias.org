@@ -69,7 +69,7 @@ LOOP = _wrap(
 
 STAIRCASE = _wrap(
     "600 270", "Residual distance falling release over release toward a floor above zero",
-    "Distance-to-target falls at every release and is never allowed to rise — but it settles on a "
+    "Schematic: if comparable residuals never rise, they approach a "
     "floor, and nobody has proven that floor is zero.",
     """
     <line x1="58" y1="20" x2="58" y2="212" class="s-axis"/>
@@ -92,9 +92,9 @@ STAIRCASE = _wrap(
     """)
 
 LLN = _wrap(
-    "600 260", "One slow sample versus many fast samples converging",
-    "Left: one long run, one sample, one skew you cannot see. Right: many short runs whose "
-    "average lands — provided each run's bias is bounded.",
+    "600 260", "An illustration of averaging, not a measured convergence result",
+    "Schematic only: averaging can reduce variation under suitable hypotheses. "
+    "Dependent iterations and persistent bias need a separate argument; this diagram is not evidence.",
     """
     <text x="150" y="24" class="s-lbl" text-anchor="middle">one big slow iteration</text>
     <text x="450" y="24" class="s-lbl s-accent" text-anchor="middle">many small fast iterations</text>
@@ -117,9 +117,9 @@ LLN = _wrap(
       <circle cx="532" cy="93" r="2.6"/><circle cx="550" cy="98" r="2.6"/>
     </g>
     <path d="M352 108 C 420 104 480 98 566 96" class="s-mean" fill="none"/>
-    <text x="450" y="184" class="s-lbl s-accent" text-anchor="middle">the running average converges</text>
-    <text x="450" y="200" class="s-lbl" text-anchor="middle">&#8212; only if each sample's bias is bounded</text>
-    <text x="300" y="234" class="s-lbl" text-anchor="middle">Unbounded per-iteration skew: infinitely many iterations still miss.</text>
+    <text x="450" y="184" class="s-lbl s-accent" text-anchor="middle">an illustrative running average</text>
+    <text x="450" y="200" class="s-lbl" text-anchor="middle">no convergence theorem established here</text>
+    <text x="300" y="234" class="s-lbl" text-anchor="middle">Bounded bias alone does not make the average reach the truth.</text>
     """)
 
 LATTICE = _wrap(
@@ -154,8 +154,8 @@ LATTICE = _wrap(
 
 CRDT = _wrap(
     "600 250", "Two agents appending independently and folding to the same result",
-    "Two machines that never spoke, folded in either order, produce byte-identical state. "
-    "That is the whole trick.",
+    "With the same delivered facts and valid merge rules, replicas agree regardless of arrival order. "
+    "This illustration shows set union, not every field in the ledger.",
     """
     <text x="120" y="26" class="s-lbl">agent A &#8212; offline</text>
     <text x="400" y="26" class="s-lbl">agent B &#8212; offline</text>
@@ -175,7 +175,7 @@ CRDT = _wrap(
     </g>
     <rect x="176" y="172" width="248" height="40" rx="8" class="s-line s-gate"/>
     <text x="300" y="197" class="s-txt s-accent">fold &#8212; order does not matter</text>
-    <text x="300" y="236" class="s-lbl" text-anchor="middle">no lock, no coordinator, no merge conflict, no lost write</text>
+    <text x="300" y="236" class="s-lbl" text-anchor="middle">set union preserves facts; registers choose a winning value</text>
     """)
 
 GATE = _wrap(

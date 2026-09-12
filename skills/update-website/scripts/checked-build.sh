@@ -25,6 +25,14 @@ if [ -n "$missing" ]; then
   exit 2
 fi
 
+ledger=$(cd "$ROOT" && TILLANDSIAS_CLONE_DIR="$CLONE_DIR" python3 scripts/issues.py validate 2>&1)
+rc=$?
+echo "$ledger"
+if [ "$rc" -ne 0 ] || echo "$ledger" | grep -q 'UNCHECKED'; then
+  echo "blocked:issues-not-verified"
+  exit 1
+fi
+
 out=$(cd "$ROOT" && TILLANDSIAS_CLONE_DIR="$CLONE_DIR" python3 scripts/build-matrix.py 2>&1)
 rc=$?
 echo "$out"

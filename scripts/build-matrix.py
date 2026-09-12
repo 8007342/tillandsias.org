@@ -50,33 +50,33 @@ PIN_OVERRIDE = os.environ.get("TILLANDSIAS_PIN_OVERRIDE", "").strip() or None
 LEVELS = [
     ("level-1-five",     "Like I'm 5",
      "The simplest way of putting it that is still true.", "",
-     "v56.9.2.1",
+     "v56.9.12.2",
      ("ionantha",
       "A real tillandsia needs no soil and no pot — it drinks from the air, and borrows nothing.")),
     ("level-2-phone",    "I barely understand my phone",
      "Straight answers to what you are actually wondering: privacy, cost, and what breaks.",
      "Picks up where “like I’m 5” left off.",
-     "v56.9.2.1",
+     "v56.9.12.2",
      ("bulbosa",
       "A tillandsia is an epiphyte, not a parasite: it rests on its tree and takes nothing from it.")),
     ("level-3-power",    "I'm a power user",
      "The anatomy: what runs where, what survives a teardown, and where the sharp edges are.",
      "Assumes the two levels before it.",
-     "v56.9.2.1",
+     "v56.9.12.2",
      ("xerographica",
       "Its roots only grip; the leaves do the drinking — a plant that runs rootless.")),
     ("level-4-security", "I'm a Cyber Security expert",
      "The architecture interrogated rather than described — boundaries, egress, provenance, "
      "and what the tests do not actually test.",
      "Assumes the three levels before it.",
-     "v56.9.2.1",
+     "v56.9.12.2",
      ("usneoides",
       "Silvery leaf scales open to take water in, then trap air to keep it: every exchange "
       "across one surface.")),
     ("level-5-phd",      "I'm a MathWiz / Hacker",
      "And you would like me to be condescending about it. Very well.",
      "Assumes everything before it. Mathematics from here down.",
-     "v56.9.2.1",
+     "v56.9.12.2",
      ("caput-medusae",
       "A monocot bromeliad flowers once and dies, leaving offsets behind — the pup is never "
       "the parent.")),
@@ -263,6 +263,7 @@ class Ctx:
     def __init__(self, level, ref, notes):
         self.level, self.ref, self.notes = level, ref, notes
         self.fns = set()
+        self.ref_counts = {}
         self.urls = {n: footnote_url(t, own or ref) for n, (_, t, _, own) in notes.items()}
 
     def ref_for(self, n):
@@ -288,6 +289,7 @@ def inline(text, ctx):
     def ref(m):
         n = m.group(1)
         ctx.fns.add(n)
+        ctx.ref_counts[n] = ctx.ref_counts.get(n, 0) + 1
         # The number opens the source in a new tab; the tooltip carries the
         # footnote's label, its verbatim quote when one is recorded, and the
         # target, so a reader can judge a citation without leaving the sentence.
@@ -306,7 +308,8 @@ def inline(text, ctx):
                 n, html.escape(label, quote=True))
         else:
             attrs = ' href="#f%s-%s"' % (ctx.level, n)
-        return '<sup class="fnref" id="r%s-%s"><a%s>%s</a></sup>' % (ctx.level, n, attrs, n)
+        suffix = '' if ctx.ref_counts[n] == 1 else '-%d' % ctx.ref_counts[n]
+        return '<sup class="fnref" id="r%s-%s%s"><a%s>%s</a></sup>' % (ctx.level, n, suffix, attrs, n)
 
     out = FN_REF.sub(ref, out)
     return re.sub(r"\x00(\d+)\x00", lambda m: shield[int(m.group(1))], out)
@@ -478,8 +481,8 @@ def home_view():
             '<p class="byline">by Tlatoāni</p>'
             '<p class="fact" id="fact">%s</p>'
             '<ul class="factpool" id="factpool" hidden>%s</ul>'
-            '<p class="homelead">Local hardware. Free software. Nothing rented, nothing metered, '
-            'nothing left behind.</p>'
+            '<p class="homelead">A small cloud region on your own computer. Disposable workspaces, '
+            'with work preserved through your git remote.</p>'
             '<p class="homego"><button class="gobtn" data-go="view-what">What is it?</button>'
             '<button class="gobtn" data-go="view-progress">Live progress</button>'
             '<button class="gobtn" data-go="view-slides">Slides</button></p>'
@@ -550,10 +553,10 @@ def progress_view():
     return ('<section class="view" id="view-progress" role="tabpanel" aria-labelledby="nav-progress">'
             '<div class="wrap">'
             '<h2 class="view-h">Live progress</h2>'
-            '<p class="view-lede">Every defect this project has found, in one of three columns and '
-            'nowhere else. A finding climbs from left to right and comes back only when someone '
-            'writes down why. The columns are not maintained by hand: they are the ledger\'s own '
-            'ladder, folded at build time from <code>issues.d/</code>.</p>'
+            '<p class="view-lede">Findings recorded by this website, as of this build. These columns '
+            'show our audit record, not live telemetry or an inventory of every app defect. '
+            'A finding advances when evidence supports it; a correction records why an earlier '
+            'claim was wrong. Earlier events remain in the history.</p>'
             '%s'
             '<p class="tally"><b>%d</b> findings &middot; <b>%d</b> done &middot; <b>%d</b> tracked '
             '&middot; <b>%d</b> waiting &middot; <b>%d</b> filed upstream</p>'
@@ -567,26 +570,25 @@ def progress_view():
 
 
 def centicolon_note():
-    """What we intend to plot here, and why there is no data yet. The site does
-    not get to show a convergence curve it cannot compute."""
-    return ('<section class="cc"><h3>Convergence, once there is something to plot</h3>'
-            '<p>The plan is to grade this project the way the runtime grades itself, with its '
-            'CentiColon score, and to show it per component on a logarithmic time axis so the '
-            'newest work occupies the most width — the shape the staircase figure on the '
-            'power-user level already draws for the argument.</p>'
-            '<p>Two things are missing, and the page will not pretend otherwise. The score the '
-            'runtime publishes today is a pass rate over a hardcoded weight table of continuous '
-            'integration checks, not the arithmetic its own specification defines: none of the '
-            'base weights, multipliers, cap rules or penalties in the methodology is computed '
-            'anywhere in that tree. And nothing yet scores <em>this</em> project at all. Until '
-            'both change, the bar above counts findings, which is a real measurement of a small '
-            'thing rather than a fabricated measurement of a large one.</p>'
-            '<p class="cc-open">Tracked as findings in the ledger, not as a promise here.</p>'
+    """Distinguish the website's measured counts from the runtime's scorer."""
+    return ('<section class="cc"><h3>What this progress measures</h3>'
+            '<p>The bar counts findings recorded here. A resolved finding means its stated '
+            'remedy was checked; it does not mean the entire application is complete or that '
+            'every installed copy has been repaired. Adding a newly discovered defect can '
+            'lower the completed percentage while improving what we know.</p>'
+            '<p>The runtime now delegates scoring to an obligation model, but coverage of '
+            'the methodology’s full scoring rules remains partial. '
+            '<a href="#level-5-phd">The methodology level explains the implemented model '
+            'and its limits, with release-pinned evidence.</a> This website has no CentiColon '
+            'scorer or comparable score history of its own, so no convergence curve is shown.</p>'
+            '<p>We preserve findings, append evidence and record retractions. Monotonic '
+            'improvement means a more accurate, reviewable record; it does not require the '
+            'number of green flags to rise at every update.</p>'
             '</section>')
 
 
 def slides_view():
-    """The deck: three slides behind the menu, one visible at a time.
+    """The deck behind the menu, one visible at a time.
 
     The deck restates only what the levels establish, so a slide names the
     level it draws on and everything un-written is a labelled placeholder that
@@ -607,9 +609,7 @@ def slides_view():
             return figures.FIGURES[payload]
         if kind == "pillars":
             cards = "".join(
-                '<div class="s-pillar"><h3>%s</h3><div class="s-ph">'
-                '<span class="s-ph-k">content to come</span>'
-                '<span class="s-ph-t">%s</span></div></div>'
+                '<div class="s-pillar"><h3>%s</h3><p>%s</p></div>'
                 % (html.escape(name), html.escape(note)) for name, note in payload)
             return '<div class="s-pillars">%s</div>' % cards
         return ""
@@ -638,9 +638,9 @@ def slides_view():
     return ('<section class="view" id="view-slides" role="tabpanel" aria-labelledby="nav-slides">'
             '<div class="wrap deck">'
             '<h2 class="deck-h">Slides</h2>'
-            '<p class="deck-sub">The story of Tillandsias in three slides, for a live talk: '
-            'the thesis, the three pillars, and the mechanism that keeps the region '
-            'conflict-free. One slide at a time — move with the buttons or the arrow keys.</p>'
+            '<p class="deck-sub">The workflow, its boundaries and the methodology, for a live talk. '
+            'One slide at a time — move with the buttons or the arrow keys. Each slide '
+            'links to the explanation that carries its evidence.</p>'
             '<div class="deck-frame">%s</div>'
             '<div class="deck-nav" role="group" aria-label="Slides">'
             '<button class="s-prev" id="slide-prev" type="button" disabled>&#8592; Prev</button>'

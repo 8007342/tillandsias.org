@@ -1,6 +1,6 @@
 ---
 name: update-website
-description: Re-verify the five tillandsias.org explanation levels against the newest Tillandsias release, fix what drifted, move the pins, and publish. Run weekly or after a release.
+description: Re-verify tillandsias.org against the stable Tillandsias release, including its explanation levels, Home, Progress and Slides; correct drift, move verified pins, and publish. Run weekly or after a release.
 ---
 
 # Update the website against the latest release
@@ -31,6 +31,23 @@ acknowledged ("fixed in the daily channel on <date>; not yet promoted"), and
 the drift report shows exactly which cited files a daily has changed so those
 PATH lines can be written from evidence rather than hope.
 
+## Inventory before editing
+
+Read the current renderer and its inputs, not just the five Markdown files.
+Manually added surfaces are part of the website: Home and its positioning text,
+Progress (`issues.d/` and `scripts/issues.py`), Slides (`scripts/slides.py`),
+shared figures and their captions (`scripts/figures.py`), install commands and
+navigation in `scripts/build-matrix.py`. Preserve their sections, slide order,
+and deep links; fill placeholders only with evidence the owning level supports.
+Do not replace the site with an older template.
+
+The methodology's core principle is reduction of uncertainty under verifiable
+constraints. For this site that means preserving useful content and history,
+correcting unsupported claims, and separating code inspection from live testing.
+More green flags or a higher resolved percentage is not itself improvement.
+When retracting a published claim, append a reasoned `retracted` event using
+[`file-issue`](../file-issue/SKILL.md). Never rewrite old ledger fragments.
+
 ## The loop
 
 Every step's script prints a verdict on its last line.
@@ -55,7 +72,9 @@ Every step's script prints a verdict on its last line.
    information, how many cited files the newest daily has changed. If every
    level already pins the stable tag and nothing is broken it prints
    `ok:up-to-date`; the daily-channel counts still tell you whether any PATH
-   lines can be updated. Nothing is edited.
+   lines can be updated. Nothing is edited. The report is a mechanical aid, not a completed audit: it
+   currently counts changed paths without accounting for citation overrides, and
+   skips the trial when pins already match. Run the checked build even then.
 5. **Re-verify and fix, one level at a time.** Follow
    [`audit-site-claims`](../audit-site-claims/SKILL.md) for each level whose
    report is not empty: every broken footnote, every footnote whose cited file
@@ -73,9 +92,17 @@ Every step's script prints a verdict on its last line.
 7. **Checked build must pass.** `skills/update-website/scripts/checked-build.sh`
    → exit 0 and `ok:checked-build`. It fails on any unresolved target or drifted
    quote of any level whose checkout is present.
-8. **Record and file.** Write `docs/audit/<YYYY-MM-DD>-<tag>.md` (see
-   `docs/audit/README.md`) and follow [`file-findings`](../file-findings/SKILL.md)
-   for anything that belongs to the runtime project.
+8. **Review non-level pages and record.** Check Home and Slides against the
+   newly verified levels; a summary cannot strengthen their claims. Review
+   Progress wording and append evidence for findings actually resolved; historical
+   findings are not automatically current defects. Keep an unmeasured score
+   explicitly unmeasured. Check navigation, slide count, fragment links and
+   generated HTML identifiers. Run `python3 scripts/issues.py validate` and
+   confirm a second checked build is byte-identical at the same git HEAD.
+   **Record and file.** Write `docs/audit/<YYYY-MM-DD>-<tag>.md` (see
+   `docs/audit/README.md`) and use [`file-issue`](../file-issue/SKILL.md) for ledger entries and
+   [`file-findings`](../file-findings/SKILL.md) for runtime issue drafts. Do not
+   claim upstream filing or live deployment verification without evidence.
 9. **Commit per level, then push.** One commit per level so the change trail
    reads. A push to `main` is a deploy: Cloudflare publishes `var/html` on
    commit. Confirm with `git log origin/main..main` empty before you exit; the
@@ -85,7 +112,8 @@ Every step's script prints a verdict on its last line.
 
 The audit's product is a table per level: footnotes total, re-verified, drifted
 and corrected, flags confirmed, flags flipped (with evidence), and the pin
-moved. The spec-versus-code question the operator actually asks — how much of
+moved. Include the non-level surface inventory, changes, verification limits and
+retractions; keep older dated audits as history. The spec-versus-code question the operator actually asks — how much of
 what the pages advertise is implemented at this release — is answered by the
 feature and security tables in the dated audit record, one row per capability
 with `implemented | partial | spec-only | absent` and a citation.
