@@ -94,24 +94,13 @@ if PIN_OVERRIDE:
 SITE_REF = max((lvl[4] for lvl in LEVELS), key=version_key)
 
 def build_stamp():
-    # "website last updated": the date the checkout that produced this page was
-    # last committed. It MUST NOT be derived from SOURCE_DATE_EPOCH: that pin
-    # exists to make rebuilds byte-identical and so is constant by force, so it
-    # can never mean "when the page changed." git HEAD is the one identity that
-    # is constant within a release (byte-identical rebuilds still hold) and yet
-    # advances on every update. Falls back to the pinned epoch's date only when
-    # git is absent (a tarball build), where no better identity exists.
-    try:
-        out = subprocess.run(["git", "-C", str(ROOT), "log", "-1", "--format=%cI"],
-                             capture_output=True, text=True, check=True)
-        commit_at = out.stdout.strip()
-        if commit_at and commit_at[:4].isdigit():
-            return f"{int(commit_at[:4]) - 1970}.{int(commit_at[5:7])}.{int(commit_at[8:10])}"
-    except (OSError, subprocess.SubprocessError):
-        pass
-    fallback = datetime.datetime.fromtimestamp(
-        int(os.environ.get("SOURCE_DATE_EPOCH", time.time())), tz=datetime.timezone.utc)
-    return f"{fallback.year - 1970}.{fallback.month}.{fallback.day}"
+    """The UTC calendar date this generated page was built.
+
+    This is deliberately a reader-facing date, not an epoch-relative runtime
+    version and not the previous commit's timestamp. A pre-commit rebuild keeps
+    the checked-in page synchronized with the source that deploys it.
+    """
+    return datetime.datetime.now(datetime.timezone.utc).date().isoformat()
 
 
 BUILD_STAMP = build_stamp()
