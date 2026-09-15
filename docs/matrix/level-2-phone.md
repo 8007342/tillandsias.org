@@ -61,6 +61,9 @@ journey reaches perfection.[^8][^9]
 > NOTE: A built-in "expert" feature once gave confident answers with no sources at all: it described a careful research procedure, did not run it, returned an empty citation list, and stamped its own output verified anyway.[^14]
 > GREEN: It was switched off and replaced: the shipped configuration now points the assistant at a grounded service that either cites the sources it actually used or plainly refuses.[^28] The replacement was checked live on 2026-09-02 and is now in the stable release.[^29] One limit remains below.
 
+> RED: After installing, you cannot tell from the program what was installed. It prints a version number that was baked in when it was compiled, and nothing on it records which snapshot of the code it was built from.[^34] So "this is the stable release, which trails the newest code on purpose" and "this download was stale" look exactly the same from the outside, and neither the person who installed it nor the people who built it can tell which happened.[^35]
+> PATH: The project has written the shortcoming down and is tracking it, including what a fix would have to record; it has not yet reached a released build, so the tracking entry is linked here on the development branch rather than in the release this page describes.[^35]
+
 > RED: Portability evidence for the replacement’s small scripting layer is still missing from the Mac and Windows build lanes.[^15]
 > PATH: Run that layer on those hosts and record the evidence; the task explicitly remains open until then.[^15]
 
@@ -137,3 +140,7 @@ Two install problems and one feature that once promised more than it delivered a
 [^33]: The upstream token is read by the git service and never enters a workspace container | openspec/specs/git-mirror-service/spec.md#L15-L16
     > The git service reads the GitHub token from Vault at
     > push time via Vault CLI; the token never crosses into a forge container.
+
+[^34]: The version shown is the version file as it stood when the program was compiled | crates/tillandsias-headless/src/main.rs#L121-L121
+    > pub(crate) const VERSION: &str = include_str!("../../../VERSION");
+[^35]: The tracking entry for this shortcoming, on the development branch | https://github.com/8007342/tillandsias/blob/linux-next/plan/index.d/20260914t185710z-1188-mm9y-installed-launcher-has-no-provenance-lenovinha.yaml

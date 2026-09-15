@@ -818,6 +818,9 @@ h1 .dim{color:var(--ink-faint);font-weight:400}
 .ins-row{display:contents}
 .ins-os{font:600 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
   color:var(--ink-faint);white-space:nowrap}
+.ins-note{grid-column:1/-1;margin:8px 0 0;max-width:72ch;font-size:13px;
+  line-height:1.55;color:var(--ink-faint)}
+.ins-note a{color:inherit}
 .ins-box{display:flex;align-items:stretch;min-width:0;border:1px solid var(--line);
   border-radius:7px;background:#0b1016;overflow:hidden}
 .ins-box:focus-within{border-color:var(--leaf-dim)}
@@ -1147,6 +1150,12 @@ __HOME__
   <div class="wrap">
     <div class="install" aria-label="Install">
 __INSTALL__
+      <p class="ins-note">Each line fetches a short script from this site, which
+      resolves the <strong>latest stable release</strong> on GitHub and runs that
+      release&#8217;s own installer. Stable moves only when a daily build is
+      promoted, so it normally trails the newest code. The scripts here are not
+      rebuilt when the app releases; they look the release up every time they
+      run.</p>
     </div>
   </div>
 </div>
