@@ -354,6 +354,47 @@ AGGREGATE_TRACES = _wrap(
     <text x="300" y="325" class="s-lbl" text-anchor="middle">combine only aligned identities, scope and weights — this is a picture, not a proof</text>
     """)
 
+NESTING = _wrap(
+    "600 268", "Containers inside a virtual machine inside a host, on two platforms",
+    "Containerization is not one layer. Every layer between your hardware and the app is a box, "
+    "and Mac and Windows carry one box more than Linux does.",
+    """
+    <text x="8" y="14" class="s-lbl">Linux</text>
+    <rect x="8" y="20" width="282" height="240" rx="12" class="s-line" fill="none"/>
+    <text x="22" y="40" class="s-lbl">your computer</text>
+    <rect x="22" y="52" width="254" height="196" rx="10" class="s-line s-fill1"/>
+    <text x="36" y="72" class="s-lbl s-accent">the enclave &#8212; one private network</text>
+    <rect x="34" y="84" width="230" height="152" rx="9" class="s-line s-fill2"/>
+    <text x="48" y="104" class="s-lbl">rootless containers, sharing the host kernel</text>
+    <g class="s-box">
+      <rect x="44" y="116" width="102" height="52" rx="7"/>
+      <rect x="154" y="116" width="100" height="52" rx="7"/>
+      <rect x="44" y="178" width="210" height="48" rx="7"/>
+    </g>
+    <g class="s-txt">
+      <text x="95" y="146">app</text><text x="204" y="146">app</text>
+      <text x="149" y="207">shared services &#183; proxy &#183; mirror</text>
+    </g>
+    <text x="306" y="14" class="s-lbl">macOS and Windows</text>
+    <rect x="306" y="20" width="286" height="240" rx="12" class="s-line" fill="none"/>
+    <text x="320" y="40" class="s-lbl">your computer</text>
+    <rect x="320" y="52" width="258" height="196" rx="10" class="s-line s-gate"/>
+    <text x="334" y="72" class="s-lbl s-amber">a Linux machine, made for you</text>
+    <rect x="332" y="84" width="234" height="152" rx="10" class="s-line s-fill1"/>
+    <text x="346" y="104" class="s-lbl s-accent">the enclave &#8212; one private network</text>
+    <rect x="344" y="116" width="210" height="108" rx="9" class="s-line s-fill2"/>
+    <text x="358" y="136" class="s-lbl">rootless containers</text>
+    <g class="s-box">
+      <rect x="354" y="148" width="94" height="30" rx="6"/>
+      <rect x="456" y="148" width="90" height="30" rx="6"/>
+      <rect x="354" y="186" width="192" height="28" rx="6"/>
+    </g>
+    <g class="s-txt">
+      <text x="401" y="168">app</text><text x="501" y="168">app</text>
+      <text x="450" y="205">shared services</text>
+    </g>
+    """)
+
 HASSE = _wrap(
     "600 250", "A product lattice as a Hasse diagram",
     "Two obligations, each a chain of three states, give a nine-element product lattice ordered "
@@ -381,6 +422,7 @@ FIGURES = {
     "aggregate-traces": AGGREGATE_TRACES,
     "lattice": LATTICE, "crdt": CRDT, "gate": GATE, "ephemeral": EPHEMERAL,
     "fixpoint": FIXPOINT, "galois": GALOIS, "hasse": HASSE,
+    "nesting": NESTING,
 }
 
 DEFS = """<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>

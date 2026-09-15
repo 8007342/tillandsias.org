@@ -46,6 +46,38 @@ measurement; the shared repository is the coordination point, not evidence that
 their measurements are already comparable. The relay makes an accepted push atomic,[^62][^63]
 which preserves the record of what was accepted, not the truth of the patch.
 
+**Why this is built rather than borrowed.** The mirror has to satisfy two
+requirements at the same time. The credential for the upstream must stay on the
+server side, so a workspace can publish its own work without ever holding a token
+that could publish anything else — the git service reads that token when it pushes
+and it never crosses into a workspace container.[^152] And the push must be
+*synchronously durable*: the hook relays the proposed ref transaction upstream
+before accepting it locally, so a client's success means the upstream has durably
+accepted the same atomic ref set.[^153] The live relay performs that as a single
+atomic push.[^154]
+
+Tools in general offer one of those or the other. A managed push mirror holds the
+credential for you and copies asynchronously, reporting success before the copy
+lands — which is precisely the false success that strands an agent's work. A
+caching or redirecting git proxy relays synchronously but forwards the client's
+credentials, which is the isolation being bought in the first place. Needing both
+at once is the unusual requirement, and it is what the pre-receive relay exists to
+provide.
+
+> NOTE: The pairing is the argument, not novelty. The pattern of relaying a push
+> onward from a hook is documented elsewhere; what is specific here is refusing to
+> report success before the upstream has it, while the credential stays outside the
+> workspace.
+
+> PLAUSIBLE: That no off-the-shelf component satisfies both requirements together.
+> The comparison is recorded in the repository as a survey rather than as a
+> benchmark, and a reader should treat it as the reason a decision was taken, not
+> as a proof that no such tool exists.
+
+Rolling the decision back is deliberately cheap: the relay is a bare repository
+plus a pre-receive hook, so undoing it means pointing the daemon back at the bare
+repository.
+
 Git needs nothing from you inside a forge. A read-only global gitconfig redirects the project's GitHub URL to a bare mirror in its own named volume, so `git remote -v` still says github.com while clone, fetch and push hit the enclave.[^61][^6] A push is not acknowledged until the mirror's hook has relayed exactly those refs upstream with one atomic push.[^62][^63] The token authorising that relay is read from the vault inside the git service at push time and never enters the forge.[^64][^65] Deletions and branch rewinds land nowhere;[^66] a project with no upstream keeps its pushes in the mirror.[^67]
 
 > GREEN: Works out of the box once GitHub Login has run on the host; without a stored token the relay refuses the push and says so.[^68]
@@ -469,3 +501,13 @@ Second, the gate on your machine is the only gate there is.
 
 [^151]: Ready inference alone does not provide the project index with a synthesis tier | images/default/config-overlay/mcp/project-info.sh#L726-L733
     > no synthesis tier is wired into project_answer yet
+
+[^152]: The upstream token is read by the git service at push time and never enters a workspace container | openspec/specs/git-mirror-service/spec.md#L15-L16
+    > The git service reads the GitHub token from Vault at
+    > push time via Vault CLI; the token never crosses into a forge container.
+[^153]: The relay is synchronous: local acceptance follows upstream acceptance | images/git/pre-receive-hook.sh#L6-L8
+    > Validates ledger YAML, then synchronously relays the proposed ref transaction
+    > upstream before accepting it locally. A client success therefore means the
+    > configured upstream has durably accepted the same atomic ref set.
+[^154]: The live relay pushes the refs as one atomic transaction | images/git/relay-refs.sh#L266-L266
+    > if OUTPUT="$(GIT_TERMINAL_PROMPT=0 git push --atomic "$PUSH_URL" "$@" 2>&1)"; then

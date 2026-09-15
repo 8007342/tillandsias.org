@@ -24,6 +24,8 @@ Turning it off is the expected motion, not an interruption. Anything you saved i
 
 > GREEN: That is written down as a required behaviour with named cases — the unclean shutdown among them — not left to the habits of whoever wrote the code.[^5]
 
+Publishing your work has a rule that fits the same idea. Inside the sealed room you push to a mirror that lives on your own machine, not to the internet. The mirror passes the push onward and waits: it reports success only once the copy outside has durably accepted the same set of changes, so a success you can see is one that survives the room being thrown away.[^32] The mirror is also the only part that holds the credential for the outside service — it reads it when it pushes, and it never hands it to the room where your tools run.[^33]
+
 As for damage: a misbehaving tool inside the sealed room sees only the folder you gave it.[^1] Wiping the installation and rebuilding is documented and supported, not a last resort.[^6] The cost you do pay is ordinary and reversible — it is a real virtual machine, so it holds real memory while running and gives it back when it stops. The system image it downloaded stays cached on your disk so the next start is quick; uninstalling clears it, though on a Mac you have to ask for that explicitly.[^20][^30]
 
 ## Sharpening one thing you were told
@@ -127,3 +129,11 @@ Two install problems and one feature that once promised more than it delivered a
 
 [^31]: A failed upstream push is refused without partially updating refs | openspec/specs/git-mirror-service/spec.md#L225-L230
     > the forge's `git push` SHALL return non-zero
+
+[^32]: A client's success means the upstream durably accepted the same refs | images/git/pre-receive-hook.sh#L6-L8
+    > Validates ledger YAML, then synchronously relays the proposed ref transaction
+    > upstream before accepting it locally. A client success therefore means the
+    > configured upstream has durably accepted the same atomic ref set.
+[^33]: The upstream token is read by the git service and never enters a workspace container | openspec/specs/git-mirror-service/spec.md#L15-L16
+    > The git service reads the GitHub token from Vault at
+    > push time via Vault CLI; the token never crosses into a forge container.

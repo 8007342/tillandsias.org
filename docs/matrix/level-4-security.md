@@ -56,6 +56,27 @@ The GitHub token never enters the agent container: the mirror holds short-lived 
 > RED: The write path the agent pushes to is an anonymous `git daemon` receive-pack listener. The spec is blunt: network placement SHALL NOT be described as client authentication — any process on the enclave network can write to any mirror.[^14]
 > PATH: The spec labels it *interim* and constrains what may be built on it, but records no dated authenticated replacement.[^14] That replacement is built and dark: an SSH-CA push lane exists in the mirror image and the launcher, behind an environment variable that defaults off and that nothing in shipped packaging sets.[^46][^47]
 
+**Why the relay is bespoke, in security terms.** The design needs the upstream
+credential to stay server-side *and* the push to be synchronously durable, and those
+two requirements pull against the available tools. A managed push mirror holds the
+credential and copies asynchronously, so it reports success before the copy lands; a
+caching or redirecting git proxy relays synchronously but forwards the client's
+credentials, dissolving the separation this section is about. The hook takes the
+third option: it relays the proposed ref transaction upstream before accepting it
+locally, so a client's success means the upstream durably accepted the same atomic
+ref set.[^107]
+
+That is a security property and not only a convenience. A false success is
+indistinguishable, to the agent that received it, from work that is safely
+published — so an asynchronous mirror would put unpublished work behind a
+green light, on exactly the disposable machine the design expects to be thrown
+away.
+
+> NOTE: This says what the relay refuses to report, not that the credential
+> boundary is complete. The RED above about the anonymous receive-pack listener is
+> the live gap on the agent-facing side of the same path, and it is not closed by
+> anything in this paragraph.
+
 The host↔guest control channel now uses a Noise handshake by default. Its key is derived through HKDF from the guest binary's SHA-256, separated by build version, wire version and hop.[^15][^103] This binds compatibility to known release material; it is not remote attestation that the peer runs unmodified code.
 
 > GREEN: An absent secure-wire setting now selects encryption, blank or invalid values are refused, and the Windows tray uses the same parser as the other callers.[^16][^66][^67][^69] The earlier listener-only flip was reverted before the shared decision landed; a source scanner now allows zero independent readers.[^68] The macOS host writes the resulting value into the guest unit.[^93] Windows and the VM image need no explicit environment line to obtain the new default from the listener.[^70][^71]
@@ -328,3 +349,8 @@ fails.[^25][^26]
 
 [^106]: Windows handshake negative control rejects a different guest digest | crates/tillandsias-windows-tray/src/hvsocket.rs#L525-L610
     > a_guest_digest_mismatch_is_refused_not_carried
+
+[^107]: Local acceptance follows upstream acceptance, so a reported success is a durable one | images/git/pre-receive-hook.sh#L6-L8
+    > Validates ledger YAML, then synchronously relays the proposed ref transaction
+    > upstream before accepting it locally. A client success therefore means the
+    > configured upstream has durably accepted the same atomic ref set.

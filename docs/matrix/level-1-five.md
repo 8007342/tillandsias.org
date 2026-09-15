@@ -28,6 +28,8 @@ If a room breaks, nobody glues it. It goes in the bin and Tillandsias builds a f
 
 Your real work lives outside the doll house and never gets swept.[^12]
 
+Getting it outside has its own rule. The doll house has a post box, and it does not say *done* until the shelf far away really has your parcel. If it cannot reach the shelf, it says so, instead of saying *done* and quietly keeping the parcel in a drawer.[^26]
+
 ## How the grown-ups keep getting better at it
 
 First they write down what a thing should do, so clearly nobody could argue whether it came true. Then a machine presses the promise: green light or red.
@@ -113,3 +115,8 @@ Anyone may have it, read it and change it, free.[^14]
 
 [^25]: The CA folder is created before key generation without an owner-only directory mode | crates/tillandsias-headless/src/main.rs#L3132-L3140
     > std::fs::create_dir_all(&certs_dir)
+
+[^26]: The post box only reports success once the faraway copy really has the work | images/git/pre-receive-hook.sh#L6-L8
+    > Validates ledger YAML, then synchronously relays the proposed ref transaction
+    > upstream before accepting it locally. A client success therefore means the
+    > configured upstream has durably accepted the same atomic ref set.

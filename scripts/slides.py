@@ -41,6 +41,64 @@ SLIDES = [
         "draws_on": ("level-3-power", "level-4-security", "level-2-phone"),
     },
     {
+        "label": "Boxes in boxes",
+        "eyebrow": "tillandsias \u00b7 the shape",
+        "title": "Containerization is not one layer.",
+        "blocks": [
+            ("fig", "nesting"),
+            ("p", "An app runs in a container. The containers run beside each "
+                  "other on one private network. On Mac and Windows that whole "
+                  "arrangement runs inside a Linux machine made for you, which "
+                  "itself runs on your hardware \u2014 one box more than Linux "
+                  "needs, doing the same job at a different level."),
+            ("p", "Every layer in between is boxed too, not just the outermost "
+                  "one and not just the app. That is what makes a workspace "
+                  "disposable: you can throw away any box and rebuild it "
+                  "without touching the ones around it."),
+        ],
+        "draws_on": ("level-2-phone", "level-3-power", "level-4-security"),
+    },
+    {
+        "label": "The enclave",
+        "eyebrow": "tillandsias \u00b7 the boundary",
+        "title": "One private network, and one guarded door.",
+        "blocks": [
+            ("fig", "layers"),
+            ("p", "The services an agent needs \u2014 the proxy, the git mirror, "
+                  "secrets, local inference \u2014 sit on a network with no route "
+                  "to the internet. Traffic that leaves goes through a single "
+                  "checked exit; everything else is refused rather than "
+                  "silently allowed."),
+            ("p", "Read the security level before trusting that sentence: it "
+                  "records what the boundary does not yet cover, and a refused "
+                  "path is only as good as the check that refuses it."),
+        ],
+        "draws_on": ("level-3-power", "level-4-security"),
+    },
+    {
+        "label": "The git mirror",
+        "eyebrow": "tillandsias \u00b7 the decision",
+        "title": "Your push is not finished until the copy outside has it.",
+        "blocks": [
+            ("p", "Inside the enclave your work pushes to a local mirror, not "
+                  "to the internet. The mirror holds the upstream credential; "
+                  "the workspace never sees it. So an agent can publish work "
+                  "without ever holding a token that could publish anything "
+                  "else."),
+            ("p", "The mirror relays the push onward and waits. Your push "
+                  "succeeds only once the upstream has durably accepted the "
+                  "same set of refs \u2014 so a success you can see is a "
+                  "success that survived the machine being thrown away."),
+            ("p", "That pairing is why this is built rather than borrowed. "
+                  "Managed mirrors hold the credential for you and copy "
+                  "asynchronously, reporting success before the copy lands. "
+                  "Caching proxies relay synchronously and forward your "
+                  "credentials, which is the isolation we are buying. Needing "
+                  "both at once is the unusual requirement."),
+        ],
+        "draws_on": ("level-3-power", "level-4-security"),
+    },
+    {
         "label": "Mechanism",
         "eyebrow": "tillandsias · the how",
         "title": "Keep the target fixed while checking the next step.",
