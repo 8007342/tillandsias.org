@@ -105,14 +105,22 @@ def build_stamp():
 BUILD_STAMP = build_stamp()
 
 
-# Rolling stable installers. These deliberately point at GitHub's
-# /releases/latest/ rather than anything hosted here: this site is static HTML
-# and redeploys on commit, while the release channel moves on its own.
+# Rolling stable installers. The short URLs are served from this site's own
+# var/html as STATIC SHIMS: each one resolves the current installer from
+# GitHub's /releases/latest/ at run time and executes that. The shims never
+# need rebuilding when the app releases, so the property the long URLs had —
+# this site redeploys on commit while the release channel moves on its own —
+# is preserved rather than traded away for a shorter line.
+#
+# The shims also fix two things a bare `curl … | bash` cannot: they refuse a
+# download that is not a script (a 404 or captive-portal page piped into a
+# shell), and they run the installer from a file so it keeps a usable stdin.
 DL = "https://github.com/8007342/tillandsias/releases/latest/download"
+SITE = "https://tillandsias.org"
 INSTALL = [
-    ("Linux",   "curl -fsSL %s/install.sh | bash" % DL),
-    ("macOS",   "curl -fsSL %s/install-macos.sh | bash" % DL),
-    ("Windows", "irm %s/install-windows.ps1 | iex" % DL),
+    ("Linux",   "curl -fSsL %s/install.sh | bash" % SITE),
+    ("macOS",   "curl -fSsL %s/install-macos.sh | bash" % SITE),
+    ("Windows", "irm %s/install.ps1 | iex" % SITE),
 ]
 
 # kind -> (css class, glyph, visible label). GREEN/RED say what the *thing*
