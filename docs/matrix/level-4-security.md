@@ -128,6 +128,8 @@ other target. The useful engineering loop is narrower: make the claimed boundary
 explicit, try to break it, retain the evidence and record the counterexample when it
 fails.[^25][^26]
 
+> NOTE: Several shortcomings on this page carry the line *No path to green is recorded in the repo.* That sentence is written after looking, and it means what it says: the defect is described here and no remedy is written down anywhere in the project's plan. Those cases are now collected and tracked as a single entry, so a reader who wants to argue with one — or report it — has something to attach it to.[^108]
+
 ## Footnotes
 
 [^1]: Podman the only host dependency on Linux; macOS/Windows provision a VM | README.md#L52-L53
@@ -354,3 +356,4 @@ fails.[^25][^26]
     > Validates ledger YAML, then synchronously relays the proposed ref transaction
     > upstream before accepting it locally. A client success therefore means the
     > configured upstream has durably accepted the same atomic ref set.
+[^108]: The entry tracking every shortcoming here for which no remedy is recorded | https://github.com/8007342/tillandsias/blob/linux-next/plan/index.d/20260915t215254z-1213-rbt9-website-found-fourteen-shortcomings-the-ledger-does-not-track-macuahuitl.yaml

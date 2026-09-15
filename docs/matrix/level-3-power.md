@@ -193,6 +193,8 @@ First, read a green gate with care. Eleven litmus files sit on disk and have nev
 
 Second, the gate on your machine is the only gate there is.
 
+> NOTE: Where a shortcoming below says *No path to green is recorded in the repo*, that is literal: the defect is described and no remedy exists in the plan. Those are collected into one tracking entry so an outside report has somewhere to land, rather than being rediscovered independently.[^155]
+
 > RED: There is no push CI and no PR CI. Actions runs exactly one workflow, the release, because the signing keys exist only in the cloud. Nothing server-side validates a push; the local gate is the sole trunk protection — made load-bearing after an agent pushed unparseable code and every developer inherited the red build.[^15]
 > PATH: Not restoration. This is a deliberate budget trade, carrying a standing obligation to run the local gate before every push and an explicit instruction not to add a workflow to catch what a local gate should have caught.[^15]
 
@@ -511,3 +513,4 @@ Second, the gate on your machine is the only gate there is.
     > configured upstream has durably accepted the same atomic ref set.
 [^154]: The live relay pushes the refs as one atomic transaction | images/git/relay-refs.sh#L266-L266
     > if OUTPUT="$(GIT_TERMINAL_PROMPT=0 git push --atomic "$PUSH_URL" "$@" 2>&1)"; then
+[^155]: The entry tracking every shortcoming here for which no remedy is recorded | https://github.com/8007342/tillandsias/blob/linux-next/plan/index.d/20260915t215254z-1213-rbt9-website-found-fourteen-shortcomings-the-ledger-does-not-track-macuahuitl.yaml
