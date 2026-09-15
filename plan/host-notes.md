@@ -233,6 +233,31 @@ resolves to **10.0.42.7** (Caddy; :8080 answers; admin API :2019 closed). Every
 `tillandsias-router: no route for …`. The 09-01 sibling + its routes are gone
 (or were never carried onto this stack).
 
+### 2026-09-15 — `forge-tillandsias-org` (OpenCode, in-forge)
+
+*Measured, not assumed, from a session asked to start a sibling web server and
+a chromium container. Both sit behind the same blocked channel, unchanged.*
+
+- **The control socket is still not bound — same verdict as 09-06, reopened
+  for a clean re-test.** `TILLANDSIAS_CONTROL_SOCKET` unset; `/run/host` and
+  `/run/host/tillandsias-mcp/` absent; the only `.sock` on the rootfs is the
+  OpenCode client's own `/tmp/cc-socks/<n>.sock`. `host-browser.sh` exits at
+  initialize with `TILLANDSIAS_CONTROL_SOCKET not set`, so `publish_local` /
+  `service_status` / `service_stop` — **and the browser methods that launch
+  chromium** — never initialize. Zero successful observations, 14 days after
+  the `19057a9e3` fix.
+- **Router now at `tillandsias-router` = 10.0.42.90** (Caddy; :8080 up, admin
+  API :2019 closed). `GET /var/html/index.html` with
+  `Host: www.tillandsias.org.localhost` → **404 `tillandsias-router: no route
+  for …`**. No sibling is serving; no routes are registered.
+- No podman/docker in the forge (by design), so there is no in-forge path to
+  create the sibling or register the route — this is host work, as on 09-01/09-06.
+- Requested action blocked on the host: bind the lane socket at
+  `/run/host/tillandsias-mcp/mcp.sock` and export
+  `TILLANDSIAS_CONTROL_SOCKET`, **then** `publish_local {"category":"WEB"}`
+  (expect `http://www.tillandsias.org.localhost:8080/var/html/index.html`) and
+  a chromium sibling via the same server's browser methods.
+
 **Both flatten as host work, as on 09-01.** To serve again, replay the proxy:
 host-side `publish_local {"category":"WEB"}` (mints `tillandsias-tillandsias.org-web`,
 bind-mounts the host worktree `~/src/tillandsias.org`, registers
