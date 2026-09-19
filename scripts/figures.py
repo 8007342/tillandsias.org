@@ -5,6 +5,8 @@ properties the page already defines, so nothing here needs a second palette.
 Figures are deliberately small and diagrammatic — they carry one idea each.
 """
 
+import random
+
 _HEAD = ('<figure class="fig"><svg viewBox="0 0 {vb}" role="img" '
          'aria-label="{alt}" preserveAspectRatio="xMidYMid meet">')
 _FOOT = '</svg><figcaption>{cap}</figcaption></figure>'
@@ -711,6 +713,152 @@ def _refinement_cloud():
 
 REFINEMENT_CLOUD = _refinement_cloud()
 
+
+def _tree_variant(seed):
+    """One refinement tree whose branch geometry differs slightly per seed.
+
+    The differences stay inside the same bounding envelope (x in [-240, 240],
+    y from the +90 trunk drop up to -188), so every variant fits the shared
+    frame. The seed makes the whole field reproducible: the same index always
+    draws the same outline.
+    """
+    rng = random.Random(seed)
+
+    def j(c, s):
+        return c + rng.uniform(-s, s)
+
+    def p(x, y):
+        return "{0:.0f} {1:.0f}".format(x, y)
+
+    hang = j(90.0, 6.0)
+    w_l, w_r = j(130.0, 9.0), j(130.0, 9.0)
+    h_mid = j(95.0, 9.0)
+    fold = j(48.0, 10.0)
+    t_l = (j(-100.0, 15.0), j(-48.0, 10.0))
+    t_r = (j(100.0, 15.0), j(-48.0, 10.0))
+    n_l, n_r = rng.randint(1, 3), rng.randint(1, 3)
+    h_out_l, h_out_r = j(165.0, 12.0), j(165.0, 12.0)
+    w_in_l, h_in_l = j(45.0, 15.0), j(175.0, 13.0)
+    w_in_r, h_in_r = j(45.0, 15.0), j(175.0, 13.0)
+    top_h, top_x = j(150.0, 13.0), j(0.0, 8.0)
+
+    def leaves(ax, ay, n, flip):
+        """n leaves hanging off a shelf arm pointed at (ax, ay)."""
+        segs = []
+        for k in range(n):
+            tip_x = flip * 240.0
+            tip_y = -(h_out_l if flip < 0 else h_out_r)
+            c1 = (ax + flip * j(35.0, 8.0), ay - j(45.0, 10.0))
+            c2 = (ax + flip * j(75.0, 12.0), ay - j(28.0, 10.0))
+            if k == 1:
+                tip_x = flip * (w_in_l if flip < 0 else w_in_r)
+                tip_y = -(h_in_l if flip < 0 else h_in_r)
+                c1 = (ax + flip * j(30.0, 8.0), ay - j(45.0, 10.0))
+                c2 = (ax + flip * j(60.0, 10.0), ay - j(38.0, 10.0))
+            elif k == 2:
+                tip_x = ax + flip * j(64.0, 10.0)
+                tip_y = ay - j(48.0, 12.0)
+                c1 = (ax + flip * j(24.0, 8.0), ay - j(28.0, 8.0))
+                c2 = (ax + flip * j(44.0, 8.0), ay - j(40.0, 10.0))
+            segs.append("C{c1} {c2} {tip}".format(
+                c1=p(*c1), c2=p(*c2), tip=p(tip_x, tip_y)))
+        return segs
+
+    arm_l = leaves(-w_l, -h_mid, n_l, -1.0)
+    arm_r = leaves(w_r, -h_mid, n_r, 1.0)
+    segs = [
+        "M0 {0:.0f} C{c1} {c2} 0 0".format(
+            hang, c1=p(j(0.0, 14.0), hang * 0.66), c2=p(j(0.0, 14.0), hang * 0.34)),
+        "M0 0 C0 {f:.0f} {c1} {tip}".format(
+            f=-fold, c1=p(*t_l), tip=p(-w_l, -h_mid)),
+        "M0 0 C0 {f:.0f} {c1} {tip}".format(
+            f=-fold, c1=p(*t_r), tip=p(w_r, -h_mid)),
+        "M{ax:.0f} {ay:.0f} {body}".format(ax=-w_l, ay=-h_mid, body=" ".join(arm_l)),
+        "M{ax:.0f} {ay:.0f} {body}".format(ax=w_r, ay=-h_mid, body=" ".join(arm_r)),
+    ]
+    if rng.random() < 0.5:
+        segs.append("M0 0 C{c1} {c2} {tip}".format(
+            c1=p(j(0.0, 6.0), -j(45.0, 12.0)),
+            c2=p(top_x + j(-6.0, 6.0), -j(95.0, 14.0)),
+            tip=p(top_x, -top_h)))
+    else:
+        segs += [
+            "M0 0 C{c1} {c2} {tip}".format(
+                c1=p(j(0.0, 6.0), -j(45.0, 12.0)),
+                c2=p(top_x - 14.0, -j(100.0, 14.0)),
+                tip=p(top_x - 14.0, -(top_h + 10.0))),
+            "M0 0 C{c1} {c2} {tip}".format(
+                c1=p(j(0.0, 6.0), -j(35.0, 12.0)),
+                c2=p(top_x + 14.0, -j(90.0, 12.0)),
+                tip=p(top_x + 14.0, -(top_h - 8.0))),
+        ]
+    return " ".join(segs)
+
+
+def _refinement_field():
+    """The merged finale: many overlapping refinement trees, one hue each.
+
+    The tree figure's fixed scope and checked joins survive as the dashed frame
+    and the bright central node; the cloud's overlap survives as a field of
+    trees, each drawn with its own seeded geometry and its own hue of the
+    site's cool ramp, so a region where several trees cross shows the mixed
+    colours instead of one saturated blur.
+    """
+    # (x, y, scale, opacity, ramp index) — the tree base is centred so that
+    # (x, y) is where its checked joins sit, scaled around that point. The
+    # opacities are kept high enough that each hue reads on its own; where two
+    # trees cross, the neighbouring ramp colours visibly mix. The seed for each
+    # tree is just its index, so the outlines stay fixed across rebuilds.
+    field = [
+        (468.0, 300.0, 0.95, 0.30, 0), (462.7, 311.7, 0.95, 0.30, 1),
+        (450.0, 316.6, 0.95, 0.30, 2), (437.3, 311.7, 0.95, 0.30, 3),
+        (432.0, 300.0, 0.95, 0.30, 4), (437.3, 288.3, 0.95, 0.30, 5),
+        (450.0, 283.4, 0.95, 0.30, 6), (462.7, 288.3, 0.95, 0.30, 7),
+        (501.3, 318.3, 0.82, 0.23, 1), (399.7, 320.4, 0.82, 0.23, 4),
+        (398.7, 281.7, 0.82, 0.23, 5), (427.8, 253.7, 0.82, 0.23, 6),
+        (469.9, 252.8, 0.82, 0.23, 7), (500.3, 279.6, 0.82, 0.23, 0),
+        (363.1, 345.4, 0.72, 0.17, 6), (350.6, 289.7, 0.72, 0.17, 7),
+        (376.2, 238.0, 0.72, 0.17, 0), (429.9, 209.9, 0.72, 0.17, 1),
+        (491.3, 216.2, 0.72, 0.17, 2), (536.9, 254.6, 0.72, 0.17, 3),
+        (549.4, 310.3, 0.72, 0.17, 4),
+        (312.6, 257.5, 0.62, 0.13, 0), (385.5, 180.5, 0.62, 0.13, 1),
+        (496.2, 173.6, 0.62, 0.13, 2), (579.9, 240.7, 0.62, 0.13, 3),
+        (587.4, 342.5, 0.62, 0.13, 4),
+    ]
+    trees = ""
+    for i, (x, y, s, o, c) in enumerate(field):
+        trees += (
+            '<g transform="translate({x} {y}) scale({s})" opacity="{o}">'
+            '<path d="{d}" fill="none" stroke="var(--rg-{c})" '
+            'stroke-width="7" stroke-linecap="round"/></g>\n'.format(
+                x=x, y=y, s=s, o=o, c=c, d=_tree_variant(i)))
+    return _wrap(
+        "900 470",
+        "Many refinement trees, each with its own shape and one hue, overlap toward a bright shared node inside a fixed-scope frame",
+        "A diagrammatic model, not a measurement: each shape and hue is one "
+        "illustrative specification or artifact path, and where the trees cross "
+        "the record is more heavily checked. Git histories with merges are "
+        "directed acyclic graphs; the monotonicity bound applies to evidence "
+        "states, not to effort or elapsed time.",
+        """
+    <rect x="110" y="50" width="680" height="360" rx="22" fill="none"
+          stroke="var(--ink-dim)" stroke-opacity=".38" stroke-dasharray="7 7"/>
+    <text x="450" y="28" class="s-lbl" text-anchor="middle"
+          style="fill:var(--ink-dim)">MANY SPECIFICATIONS &#183; ONE FIXED SCOPE &#183; FINITE EVIDENCE RANKS</text>
+    <path d="M60 96 V394" class="s-arrow" marker-end="url(#ah)"/>
+    <text x="48" y="252" class="s-lbl" transform="rotate(-90 48 252)"
+          text-anchor="middle">iterations over time</text>
+    <ellipse cx="450" cy="300" rx="130" ry="76" fill="var(--ink)" opacity=".05"/>
+    {trees}
+    <circle cx="450" cy="300" r="12" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+    <circle cx="450" cy="300" r="4" fill="var(--ink)"/>
+    <text x="450" y="384" class="s-lbl s-accent" text-anchor="middle">checked joins</text>
+    <text x="450" y="432" class="s-lbl" text-anchor="middle">the shared record, at the overlap</text>
+    """.format(trees=trees))
+
+
+REFINEMENT_FIELD = _refinement_field()
+
 PROJECT_ORCHESTRATION = _wrap(
     "1440 778",
     "Intended my-project.com development topology: a forge agent debugs containerized Chromium against an httpd container. "
@@ -838,6 +986,7 @@ PROJECT_ORCHESTRATION = _wrap(
 FIGURES = {
     "project-orchestration": PROJECT_ORCHESTRATION,
     "methodology-bridge": METHODOLOGY_BRIDGE, "refinement-cloud": REFINEMENT_CLOUD,
+    "refinement-field": REFINEMENT_FIELD,
     "artifact-vectors": ARTIFACT_VECTORS, "iteration-history": ITERATION_HISTORY,
     "finite-boundary": FINITE_BOUNDARY, "refinement-tree": REFINEMENT_TREE,
     "local-region": LOCAL_REGION, "push-journey": PUSH_JOURNEY,

@@ -230,34 +230,23 @@ SLIDES = [
     },
     {
         "label": "Tree of refinement",
-        "eyebrow": "tillandsias · one bounded refinement tree",
-        "title": "A tree of refinement.",
+        "eyebrow": "tillandsias · many histories, one bounded record",
+        "title": "Many trees overlap toward a shared, bounded record.",
         "layout": "finale",
         "lede": "Many branches of effort. One increasingly evidenced project.",
         "blocks": [
-            ("fig", "refinement-tree"),
+            ("fig", "refinement-field"),
             ("p", "Fix N requirements, each with seven evidence ranks. Inflationary "
                   "steps keep or raise every rank; a monotone rule preserves their ordering. "
-                  "A fixed rule with both properties stabilizes within 6N strict increases."),
-            ("p", "The bound is on evidence states, not commits, effort or elapsed time. "
-                  "New scope or falsification opens an explicit new comparison."),
-        ],
-        "draws_on": ("level-5-phd",),
-    },
-    {
-        "label": "Tree of refinement",
-        "eyebrow": "tillandsias · many histories, shared direction",
-        "title": "Many trees overlap toward a shared direction.",
-        "layout": "finale",
-        "lede": "Many branches of effort. One increasingly evidenced project.",
-        "blocks": [
-            ("fig", "refinement-cloud"),
-            ("p", "Each small Git history brings a different kind of evidence. "
-                  "Checked joins connect them into a shared refinement history, "
-                  "within a fixed scope and finite evidence ranks."),
-            ("p", "Tillandsias aims to approximate this ideal through repeated effort: "
-                  "preserve checked gains, expose counterexamples, and reduce the remaining gaps. "
-                  "Monotonic convergence is conditional; its limit need not be perfection."),
+                  "A fixed rule with both properties stabilizes within 6N strict increases "
+                  "\u2014 a bound on evidence states, not on commits, effort or elapsed time."),
+            ("p", "Each small Git history brings a different kind of evidence. Checked "
+                  "joins connect them into a shared refinement history within a fixed scope "
+                  "and finite evidence ranks; new scope or falsification opens an explicit "
+                  "new comparison. Tillandsias approximates this ideal through repeated "
+                  "effort: preserve checked gains, expose counterexamples, and reduce the "
+                  "remaining gaps. Monotonic convergence is conditional; its limit need not "
+                  "be perfection."),
         ],
         "draws_on": ("level-5-phd",),
     },

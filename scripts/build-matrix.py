@@ -784,6 +784,8 @@ TEMPLATE = """<!doctype html>
   --bg:#07090c; --bg-2:#0c1015; --panel:#0f141b; --line:#1c2531; --line-2:#243044;
   --ink:#dfe7ef; --ink-dim:#93a1b1; --ink-faint:#616e7d;
   --leaf:#5fd6a4; --leaf-dim:#2e7f61; --sky:#69a9ff; --sky-dim:#274d7d; --violet:#a48bf0; --amber:#e6b45e; --rose:#f0798a;
+  /* A cool ramp, leaf-to-violet, one stop per refinement tree in the finale. */
+  --rg-0:#5fd6a4; --rg-1:#47d2a8; --rg-2:#3bcbb8; --rg-3:#41bccb; --rg-4:#54a4d9; --rg-5:#6b8ce4; --rg-6:#8b7bea; --rg-7:#a678ea;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --sans:ui-sans-serif,-apple-system,"Segoe UI",Inter,Roboto,sans-serif;
 }
