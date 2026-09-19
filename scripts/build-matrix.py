@@ -586,10 +586,8 @@ def centicolon_note():
 def slides_view():
     """The deck behind the menu, one visible at a time.
 
-    The deck restates only what the levels establish, so a slide names the
-    level it draws on and everything un-written is a labelled placeholder that
-    makes no claim."""
-    titles = {lvl[0]: lvl[1] for lvl in LEVELS}
+    Editorial provenance stays in slides.py; presentation slides stand alone.
+    Figures and copy reflow together, then scale to fit the available frame."""
 
     def blk(kind, payload):
         if kind == "p":
@@ -612,31 +610,32 @@ def slides_view():
 
     slides_html = []
     for i, s in enumerate(slides.SLIDES, 1):
-        draws = " &middot; ".join(
-            '<a href="#%s">%s</a>' % (slug, html.escape(titles.get(slug, slug)))
-            for slug in s["draws_on"])
-        cite = ""
-        if draws:
-            cite = ('<p class="s-cite"><span>drawing on</span> %s</p>' % draws)
-        body = "".join(blk(*b) for b in s["blocks"])
+        artwork = "".join(blk(*b) for b in s["blocks"] if b[0] == "fig")
+        copy = "".join(blk(*b) for b in s["blocks"] if b[0] != "fig")
+        body = artwork + '<div class="s-copy">%s</div>' % copy
+        layout = ' has-art' if artwork else ''
+        if s.get("layout") == "finale":
+            layout += ' slide-finale'
+        if s.get("layout") == "diagram":
+            layout += ' slide-diagram'
+        if s.get("layout") == "method":
+            layout += ' slide-method'
         lede = ('<p class="s-lede">%s</p>' % html.escape(s["lede"])) if s.get("lede") else ""
         slides_html.append(
-            '<section class="slide%s" data-slide="%d" aria-hidden="%s">'
+            '<section class="slide%s%s" data-slide="%d" aria-hidden="%s">'
+            '<div class="slide-content">'
             '<p class="s-eyebrow">%s</p>'
             '<h3 class="s-title">%s</h3>'
             '%s'
             '<div class="s-body">%s</div>'
-            '%s</section>'
-            % (" is-on" if i == 1 else "", i, "false" if i == 1 else "true",
+            '</div></section>'
+            % (" is-on" if i == 1 else "", layout, i, "false" if i == 1 else "true",
                html.escape(s["eyebrow"]), html.escape(s["title"]),
-               lede, body, cite))
+               lede, body))
 
     return ('<section class="view" id="view-slides" role="tabpanel" aria-labelledby="nav-slides">'
             '<div class="wrap deck">'
-            '<h2 class="deck-h">Slides</h2>'
-            '<p class="deck-sub">The workflow, its boundaries and the methodology, for a live talk. '
-            'One slide at a time — move with the buttons or the arrow keys. Each slide '
-            'links to the explanation that carries its evidence.</p>'
+            '<h2 class="deck-h">Tillandsias <span> / Slides</span></h2>'
             '<div class="deck-frame">%s</div>'
             '<div class="deck-nav" role="group" aria-label="Slides">'
             '<button class="s-prev" id="slide-prev" type="button" disabled>&#8592; Prev</button>'
@@ -784,7 +783,7 @@ TEMPLATE = """<!doctype html>
 :root{
   --bg:#07090c; --bg-2:#0c1015; --panel:#0f141b; --line:#1c2531; --line-2:#243044;
   --ink:#dfe7ef; --ink-dim:#93a1b1; --ink-faint:#616e7d;
-  --leaf:#5fd6a4; --leaf-dim:#2e7f61; --violet:#a48bf0; --amber:#e6b45e; --rose:#f0798a;
+  --leaf:#5fd6a4; --leaf-dim:#2e7f61; --sky:#69a9ff; --sky-dim:#274d7d; --violet:#a48bf0; --amber:#e6b45e; --rose:#f0798a;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --sans:ui-sans-serif,-apple-system,"Segoe UI",Inter,Roboto,sans-serif;
 }
@@ -1054,19 +1053,49 @@ footer a:hover{color:var(--leaf)}
 .cc p{margin:0 0 14px;max-width:78ch;font-size:14px;line-height:1.6;color:var(--ink-dim)}
 .cc-open{font:500 12px var(--mono);color:var(--ink-faint)}
 /* --- the slides deck --- */
+body.is-presenting{overflow:hidden}
+body.is-presenting main{padding:0}
+body.is-presenting footer{display:none}
+.is-presenting .deck{height:100dvh;width:100%;max-width:none;display:flex;flex-direction:column;
+  padding:14px clamp(12px,2.5vw,48px) 12px;gap:0}
+.is-presenting .deck-h{flex-shrink:0;margin:0 0 14px;padding-left:46px;
+  font:600 14px/34px var(--sans);letter-spacing:.02em}
+.deck-h span{font-weight:400;color:var(--ink-faint)}
+.is-presenting .deck-frame{flex:1;min-height:0;overflow:clip;position:relative}
+.is-presenting .deck-nav{flex-shrink:0;margin:10px 0 8px}
+.is-presenting .s-rail{flex-shrink:0;margin:0}
 .deck-h{margin:76px 0 8px;font-size:clamp(28px,4vw,40px);letter-spacing:-.026em;font-weight:650}
-.deck-sub{margin:0 0 22px;color:var(--ink-dim);font-size:15.5px;line-height:1.6;max-width:74ch}
 .deck-frame{border:1px solid var(--line);border-radius:14px;overflow:hidden;
   background:linear-gradient(180deg,#0c1119,#080b10)}
-.slide{display:none;padding:38px 40px 32px;animation:fade .28s ease both;min-height:280px}
+.slide{display:none;position:absolute;inset:0;overflow:clip}
 .slide.is-on{display:block}
-.s-eyebrow{margin:0 0 18px;font:600 11.5px/1 var(--mono);letter-spacing:.18em;
+.slide-content{position:absolute;left:50%;top:50%;width:100%;padding:clamp(18px,3vw,48px);
+  transform:translate(-50%,-50%) scale(var(--fit,1));transform-origin:center}
+.s-eyebrow{margin:0 0 16px;font:600 clamp(10px,1vw,13px)/1.4 var(--mono);letter-spacing:.16em;
   text-transform:uppercase;color:var(--leaf)}
-.s-title{margin:0 0 12px;font-size:clamp(22px,3.4vw,34px);line-height:1.12;
-  letter-spacing:-.02em;font-weight:650;max-width:30ch}
-.s-lede{margin:0;color:var(--ink-dim);font-size:17px;line-height:1.6;max-width:64ch}
-.s-body{margin-top:20px}
-.s-body>p{margin:0 0 14px;color:#c9d4e0;font-size:16px;line-height:1.65;max-width:74ch}
+.s-title{margin:0 0 12px;font-size:clamp(24px,3.4vw,56px);line-height:1.12;
+  letter-spacing:-.025em;font-weight:650;max-width:40ch;text-wrap:balance}
+.s-lede{margin:0;color:var(--ink-dim);font-size:clamp(15px,1.6vw,23px);line-height:1.5}
+.s-body{margin-top:clamp(14px,2vw,30px)}
+.has-art .s-body{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+  align-items:center;gap:clamp(20px,3.5vw,56px)}
+.slide-finale .s-body{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)}
+.slide-diagram .slide-content{padding:12px 20px}
+.slide-diagram .s-title{font-size:clamp(22px,2vw,32px);max-width:none}
+.slide-diagram .s-eyebrow{display:none}
+.slide-diagram .s-body{display:block;margin-top:12px}
+.slide-diagram .s-copy:empty{display:none}
+.slide-diagram .s-body .fig{padding:8px 12px;border:0;background:none}
+.slide-diagram .s-body .fig figcaption{font-size:11px;line-height:1.4}
+.slide-method .s-title{max-width:none}
+.slide-method .s-body{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.65fr);align-items:center;gap:clamp(18px,3vw,48px)}
+.s-body .fig{margin:0;padding:clamp(10px,1.5vw,22px);min-width:0}
+.s-body .fig svg{width:100%;height:auto;max-height:none}
+.s-body .fig figcaption{max-width:none;margin-top:10px;padding-top:10px;
+  font-size:clamp(10px,1vw,14px);line-height:1.5}
+.s-copy{min-width:0}
+.s-copy>p{margin:0 0 1em;color:#c9d4e0;font-size:clamp(16px,1.65vw,25px);line-height:1.55}
+.s-copy>p:last-child{margin-bottom:0}
 .s-ph{display:flex;flex-direction:column;gap:4px;max-width:74ch;margin:0 0 12px;
   padding:14px 16px;border:1px dashed var(--line-2);border-radius:9px;
   background:rgba(255,255,255,.015);color:var(--ink-faint);font-size:14px;line-height:1.55}
@@ -1076,12 +1105,9 @@ footer a:hover{color:var(--leaf)}
 .s-pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0 4px}
 .s-pillar{border:1px solid var(--line);border-radius:10px;background:var(--bg-2);
   padding:14px 14px 12px;display:flex;flex-direction:column;gap:8px}
-.s-pillar h3{margin:0;font-size:16px;line-height:1.4;font-weight:640;color:var(--ink)}
+.s-pillar h3{margin:0;font-size:clamp(17px,1.8vw,28px);line-height:1.3;font-weight:640;color:var(--ink)}
+.s-pillar p{margin:0;font-size:clamp(15px,1.45vw,23px);line-height:1.55;color:var(--ink-dim)}
 .s-pillar .s-ph{margin:0;flex:1}
-.s-cite{margin:28px 0 0;padding-top:14px;border-top:1px solid var(--line);
-  font:500 12px/1.7 var(--mono);color:var(--ink-faint)}
-.s-cite a{color:var(--leaf-dim);text-decoration:none;margin:0 2px}
-.s-cite a:hover{color:var(--leaf);text-decoration:underline}
 .deck-nav{display:flex;align-items:center;justify-content:space-between;gap:14px;
   margin:16px 0 10px}
 .s-prev,.s-next{cursor:pointer;background:transparent;border:1px solid var(--line-2);
@@ -1092,9 +1118,11 @@ footer a:hover{color:var(--leaf)}
 .s-prev:disabled,.s-next:disabled{opacity:.4;cursor:default}
 .s-count{font:500 13px var(--mono);color:var(--ink-faint);letter-spacing:.05em}
 .s-count b{color:var(--ink)}
-.s-rail{height:4px;margin:0 0 40px;border-radius:2px;background:#141b24;overflow:hidden}
-.s-rail-fill{display:block;height:100%;width:33.33%;background:var(--leaf);
+.s-rail{height:5px;margin:0 0 40px;border-radius:3px;overflow:hidden;background:
+  linear-gradient(to right,var(--leaf-dim) 0 var(--how-start,35.3%),var(--sky-dim) var(--how-start,35.3%) 100%)}
+.s-rail-fill{display:block;height:100%;width:5.88%;background:var(--leaf);
   border-radius:2px;transition:width .25s ease}
+.s-rail.is-how .s-rail-fill{background:var(--sky)}
 @media (max-width:900px){.cols{grid-template-columns:1fr}}
 @media (max-width:760px){
   header.hero{padding:48px 0 24px}
@@ -1105,8 +1133,23 @@ footer a:hover{color:var(--leaf)}
   .ins-row{display:block}
   .ins-os{display:block;margin:7px 0 3px}
   .flag-path{margin-left:8px}
-  .slide{padding:24px 20px 20px;min-height:0}
   .s-pillars{grid-template-columns:1fr}
+}
+@media (max-aspect-ratio:1/1){
+  .has-art .s-body{grid-template-columns:1fr;gap:18px}
+  .s-title{font-size:clamp(24px,5vw,46px)}
+  .s-copy>p{font-size:clamp(16px,2.4vw,23px)}
+  .s-body .fig{max-width:100%}
+}
+@media (max-height:480px) and (min-aspect-ratio:1/1){
+  .is-presenting .deck{padding-top:6px;padding-bottom:6px}
+  .is-presenting .deck-h{margin-bottom:6px;line-height:30px}
+  .slide-content{padding:16px 24px}
+  .s-eyebrow{margin-bottom:8px}
+  .s-title{font-size:24px}
+  .s-body{margin-top:12px}
+  .s-copy>p{font-size:15px;line-height:1.45}
+  .s-pillars{grid-template-columns:repeat(3,1fr)}
 }
 </style>
 </head>
@@ -1281,6 +1324,7 @@ __SLIDES__
       navs  = [].slice.call(document.querySelectorAll('.nav'));
   function go(id, push){
     if (!document.getElementById(id)) return;
+    document.body.classList.toggle('is-presenting', id === 'view-slides');
     views.forEach(function(v){ v.classList.toggle('is-active', v.id === id); });
     navs.forEach(function(n){ n.classList.toggle('is-on', n.dataset.go === id); });
     setMenu(false);
@@ -1308,7 +1352,6 @@ __SLIDES__
   }
   window.addEventListener('hashchange', fromHash);
   fromHash();
-})();
 // The deck: one slide at a time. Moving a slide is a real history step, so the
 // back button undoes it; a deep link (#slides-2) opens the view on that slide,
 // and a number past either end is clamped and the URL corrected.
@@ -1323,6 +1366,29 @@ __SLIDES__
       prev = document.getElementById('slide-prev'),
       next = document.getElementById('slide-next');
   var current = 1;
+  var frame = view.querySelector('.deck-frame');
+  function fitSlide(){
+    if (!view.classList.contains('is-active') || !frame.clientHeight) return;
+    var content = slides[current - 1].querySelector('.slide-content');
+    if (slides[current - 1].classList.contains('slide-diagram')) {
+      // Give a diagram-only slide the remaining height directly. SVG's own
+      // viewBox scales its labels and geometry together, without a nested
+      // CSS scale (which can mispaint inherited SVG text in Chromium).
+      content.style.setProperty('--fit', 1);
+      var svg = content.querySelector('svg');
+      svg.style.height = '0px';
+      svg.style.height = Math.max(0, frame.clientHeight - content.offsetHeight - 4) + 'px';
+      return;
+    }
+    // Reflow at the viewport width first. Scale only if the complete content
+    // still exceeds the frame; never truncate copy or introduce a scroll pane.
+    var scale = Math.min(1, (frame.clientHeight - 4) / content.offsetHeight,
+                         (frame.clientWidth - 4) / content.scrollWidth);
+    content.style.setProperty('--fit', scale);
+  }
+  new ResizeObserver(fitSlide).observe(frame);
+  window.addEventListener('resize', fitSlide);
+  if (document.fonts) document.fonts.ready.then(fitSlide);
   function set(n, push){
     current = Math.min(Math.max(1, n), count);
     slides.forEach(function(s){
@@ -1330,8 +1396,11 @@ __SLIDES__
       s.classList.toggle('is-on', on);
       s.setAttribute('aria-hidden', on ? 'false' : 'true');
     });
+    fitSlide();
     if (num) num.textContent = current;
     if (fill) fill.style.width = (100 * current / count) + '%';
+    if (rail) rail.style.setProperty('--how-start', (100 * 6 / count) + '%');
+    if (rail) rail.classList.toggle('is-how', current >= 7);
     if (rail) rail.setAttribute('aria-valuenow', current);
     if (prev) prev.disabled = current === 1;
     if (next) next.disabled = current === count;
@@ -1364,6 +1433,7 @@ function fromDeckHash(){
   }
   window.addEventListener('hashchange', fromDeckHash);
   fromDeckHash();
+})();
 })();
 (function(){
   var tabs = [].slice.call(document.querySelectorAll('.tab'));

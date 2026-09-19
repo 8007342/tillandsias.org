@@ -416,7 +416,433 @@ HASSE = _wrap(
     <text x="524" y="146" class="s-lbl" text-anchor="start">joins</text>
     """)
 
+# Presentation illustrations keep the detailed figures on the level pages intact.
+LOCAL_REGION = _wrap(
+    "720 230", "A laptop contains workspaces and shared services; pushed work lives upstream",
+    "Your tools live together locally. Commit and push the work you want to keep.",
+    """
+    <ellipse cx="260" cy="206" rx="230" ry="16" fill="var(--leaf)" opacity=".06"/>
+    <rect x="46" y="18" width="408" height="176" rx="16" class="s-line s-fill2"/>
+    <text x="70" y="45" class="s-lbl s-accent">YOUR COMPUTER</text>
+    <g class="s-box"><rect x="70" y="63" width="166" height="64" rx="12"/>
+      <rect x="250" y="63" width="180" height="64" rx="12"/>
+      <rect x="70" y="139" width="360" height="34" rx="9"/></g>
+    <g class="s-txt"><text x="153" y="91">AI assistants</text>
+      <text x="153" y="112" class="s-lbl">disposable workspaces</text>
+      <text x="340" y="100">Apps + tools</text>
+      <text x="250" y="161">Shared services · one local region</text></g>
+    <path d="M28 196 H472 L452 209 H48 Z" class="s-line s-fill1"/>
+    <path d="M465 108 H526" class="s-arrow" marker-end="url(#ah)"/>
+    <text x="496" y="91" class="s-lbl" text-anchor="middle">push</text>
+    <rect x="542" y="57" width="154" height="103" rx="18" class="s-line s-gate"/>
+    <path d="M600 85 L614 72 H636 V104 H600 Z M614 72 V85 H600" class="s-line" style="stroke:var(--amber)"/>
+    <text x="619" y="128" class="s-txt">Durable work</text>
+    <text x="619" y="146" class="s-lbl" text-anchor="middle">upstream repository</text>
+    """)
+
+PUSH_JOURNEY = _wrap(
+    "720 215", "Workspace pushes to the credential-holding mirror, which relays upstream before reporting success",
+    "With an upstream: push → relay → acceptance → success.",
+    """
+    <rect x="14" y="16" width="450" height="127" rx="18" class="s-line s-fill2"/>
+    <text x="34" y="39" class="s-lbl s-accent">INSIDE YOUR REGION</text>
+    <g class="s-box"><rect x="34" y="57" width="164" height="65" rx="12"/>
+      <rect x="278" y="57" width="164" height="65" rx="12"/>
+      <rect x="526" y="57" width="178" height="65" rx="12"/></g>
+    <g class="s-txt"><text x="116" y="84">Workspace</text><text x="360" y="84">Git mirror</text>
+      <text x="615" y="84">Upstream</text></g>
+    <g class="s-lbl" text-anchor="middle"><text x="116" y="105">your commits</text>
+      <text x="360" y="105" class="s-amber">credential stays here</text>
+      <text x="615" y="105">copy outside</text></g>
+    <g class="s-arrow" fill="none"><path d="M202 84 H270" marker-end="url(#ah)"/>
+      <path d="M446 84 H518" marker-end="url(#ah)"/></g>
+    <path d="M615 132 V173 H116 V132" fill="none" stroke="var(--leaf)" stroke-width="2"/>
+    <circle cx="116" cy="173" r="12" fill="var(--leaf)"/>
+    <path d="M110 173 l4 4 8 -9" fill="none" stroke="var(--bg)" stroke-width="2"/>
+    <text x="365" y="198" class="s-txt s-accent">Success comes back after upstream accepts</text>
+    """)
+
+
+def _progress_figure(combined=False):
+    """The same illustrative gap counts, first by workstream, then as a sum."""
+    rows = [("Accessibility", "leaf", (6, 3, 1)),
+            ("Product copy", "violet", (6, 4, 2)),
+            ("Dashboards", "amber", (6, 5, 3))]
+    body = '<g class="s-lbl" text-anchor="middle">'
+    for x, title in zip((265, 435, 605), ("Start", "Check again", "Check again")):
+        body += f'<text x="{x}" y="24">{title}</text>'
+    body += '</g>'
+    if not combined:
+        for row, (name, color, counts) in enumerate(rows):
+            y = 65 + row * 59
+            body += f'<text x="18" y="{y + 5}" class="s-txt" style="text-anchor:start">{name}</text>'
+            body += f'<path d="M230 {y} H636" stroke="var(--{color})" opacity=".25" stroke-width="3"/>'
+            for x, count in zip((265, 435, 605), counts):
+                body += (f'<circle cx="{x}" cy="{y}" r="22" fill="var(--{color})" fill-opacity=".12" '
+                         f'stroke="var(--{color})"/><text x="{x}" y="{y + 5}" class="s-txt">{count}</text>')
+        body += '<text x="435" y="229" class="s-lbl" text-anchor="middle">gaps remaining in each part →</text>'
+        alt = 'Illustrative remaining gaps: accessibility 6 to 3 to 1; copy 6 to 4 to 2; dashboards 6 to 5 to 3'
+    else:
+        for row, (name, color, _) in enumerate(rows):
+            y = 70 + row * 30
+            body += f'<circle cx="24" cy="{y}" r="5" fill="var(--{color})"/>'
+            body += f'<text x="39" y="{y + 5}" class="s-txt" style="text-anchor:start">{name}</text>'
+        for col, x in enumerate((265, 435, 605)):
+            y = 191
+            for _, color, counts in rows:
+                height = counts[col] * 7
+                y -= height
+                body += f'<rect x="{x - 37}" y="{y}" width="74" height="{height - 2}" rx="3" fill="var(--{color})" opacity=".8"/>'
+            total = sum(counts[col] for _, _, counts in rows)
+            body += f'<text x="{x}" y="{y - 10}" class="s-txt">{total} gaps</text>'
+        body += '<path d="M215 198 H663" class="s-axis"/>'
+        body += '<text x="435" y="229" class="s-lbl" text-anchor="middle">same parts · same weights · fewer gaps →</text>'
+        alt = 'The same three workstreams stack into totals of 18, 12, then 6 remaining gaps; none has reached zero'
+    return _wrap("720 246", alt,
+                 "Illustrative counts, not project measurements. Same requirements; each gap has equal weight.", body)
+
+
+SMALL_STEPS = _progress_figure()
+SHARED_PROGRESS = _progress_figure(combined=True)
+
+EVIDENCE_RECORD = _wrap(
+    "720 225", "A passing check and a counterexample both join the shared evidence record",
+    "Keep distinct events, including corrections. Re-delivering the same event does not add it twice.",
+    """
+    <g class="s-box"><rect x="18" y="24" width="206" height="69" rx="13"/>
+      <rect x="18" y="127" width="206" height="69" rx="13"/>
+      <rect x="318" y="24" width="384" height="172" rx="16"/></g>
+    <g class="s-txt"><text x="121" y="52" class="s-accent">Contributor A</text>
+      <text x="121" y="76">Adds a passing check</text>
+      <text x="121" y="155" class="s-amber">Contributor B</text>
+      <text x="121" y="179">Adds a counterexample</text>
+      <text x="510" y="53">One shared record</text></g>
+    <g class="s-arrow" fill="none"><path d="M231 59 C270 59 270 87 305 87" marker-end="url(#ah)"/>
+      <path d="M231 160 C270 160 270 135 305 135" marker-end="url(#ah)"/></g>
+    <rect x="342" y="72" width="336" height="38" rx="8" fill="var(--leaf)" opacity=".1"/>
+    <rect x="342" y="118" width="336" height="38" rx="8" fill="var(--amber)" opacity=".1"/>
+    <g class="s-txt"><text x="510" y="96">Check retained</text>
+      <text x="510" y="142">Counterexample retained</text></g>
+    <text x="510" y="178" class="s-lbl" text-anchor="middle">review the claim with both in view</text>
+    """)
+
+GIT_RECORD = _wrap(
+    "720 235", "Two Git branches add distinct ledger events, merge and fold into a tagged shared record",
+    "A collaboration pattern: Git exchanges versioned files; the ledger fold applies the data’s merge rules.",
+    """
+    <path d="M48 103 C108 103 108 55 158 55 H290 C341 55 341 103 385 103 H468" fill="none" stroke="var(--leaf)" stroke-width="3"/>
+    <path d="M48 103 C108 103 108 151 158 151 H290 C341 151 341 103 385 103" fill="none" stroke="var(--violet)" stroke-width="3"/>
+    <g fill="var(--panel)" stroke-width="3"><circle cx="48" cy="103" r="8" stroke="var(--ink-dim)"/>
+      <circle cx="175" cy="55" r="8" stroke="var(--leaf)"/><circle cx="175" cy="151" r="8" stroke="var(--violet)"/>
+      <circle cx="385" cy="103" r="8" stroke="var(--leaf)"/></g>
+    <g class="s-txt"><text x="206" y="29">Branch A · event A</text>
+      <text x="206" y="184">Branch B · event B</text>
+      <text x="392" y="81">Merge</text></g>
+    <rect x="490" y="54" width="210" height="99" rx="15" class="s-line s-fill2"/>
+    <g class="s-txt"><text x="595" y="83">Fold the events</text>
+      <text x="595" y="108" class="s-accent">A + B</text></g>
+    <text x="595" y="134" class="s-lbl" text-anchor="middle">same inputs, same view</text>
+    <path d="M475 103 H486" class="s-arrow" marker-end="url(#ah)"/>
+    <text x="385" y="220" class="s-lbl" text-anchor="middle">commit + release tag → a state you can revisit</text>
+    """)
+
+ARTIFACT_VECTORS = _wrap(
+    "720 365", "Files, specifications, artifacts and documentation contribute identified evidence to a shared record",
+    "A modeling pattern: event sets can merge by union; artifact contents retain their own validation rules.",
+    """
+    <g class="s-lbl"><text x="28" y="27">VERSIONED ARTIFACT</text>
+      <text x="292" y="27">EVIDENCE TO PRESERVE</text></g>
+    <g class="s-box"><rect x="18" y="45" width="226" height="59" rx="12"/>
+      <rect x="18" y="119" width="226" height="59" rx="12"/>
+      <rect x="18" y="193" width="226" height="59" rx="12"/>
+      <rect x="18" y="267" width="226" height="59" rx="12"/></g>
+    <g class="s-txt"><text x="131" y="80" class="s-accent">Files / code</text>
+      <text x="131" y="154" style="fill:var(--violet)">Specifications</text>
+      <text x="131" y="228" class="s-amber">Build artifacts</text>
+      <text x="131" y="302" style="fill:var(--rose)">Documentation</text></g>
+    <g class="s-txt" style="text-anchor:start"><text x="292" y="80">Test results + commit IDs</text>
+      <text x="292" y="154">Requirement IDs + checks</text>
+      <text x="292" y="228">Digests + build provenance</text>
+      <text x="292" y="302">Claims + supporting sources</text></g>
+    <g class="s-arrow" fill="none"><path d="M250 75 H280" marker-end="url(#ah)"/>
+      <path d="M250 149 H280" marker-end="url(#ah)"/>
+      <path d="M250 223 H280" marker-end="url(#ah)"/>
+      <path d="M250 297 H280" marker-end="url(#ah)"/>
+      <path d="M590 75 H618 V297 H590 M618 186 H661" marker-end="url(#ah)"/></g>
+    <circle cx="683" cy="186" r="20" fill="var(--leaf)" fill-opacity=".12" stroke="var(--leaf)"/>
+    <text x="683" y="191" class="s-txt">∪</text>
+    <text x="360" y="353" class="s-lbl" text-anchor="middle">stable event IDs · set union · deterministic field rules</text>
+    """)
+
+ITERATION_HISTORY = _wrap(
+    "720 325", "Three iterations retain previous evidence while adding tests and a later correction",
+    "Illustration: A and B remain in the record when correction C changes how a claim is interpreted.",
+    """
+    <path d="M106 81 H615" class="s-arrow" fill="none" marker-end="url(#ah)"/>
+    <path d="M120 81 C150 81 150 38 199 38 H243 C290 38 290 81 340 81
+             M350 81 C390 81 390 38 437 38 H475 C520 38 520 81 570 81"
+          fill="none" stroke="var(--violet)" stroke-width="2"/>
+    <g fill="var(--panel)" stroke="var(--leaf)" stroke-width="3">
+      <circle cx="110" cy="81" r="9"/><circle cx="355" cy="81" r="9"/><circle cx="610" cy="81" r="9"/></g>
+    <g class="s-lbl" text-anchor="middle"><text x="224" y="25">change + check</text>
+      <text x="456" y="25">challenge + check</text>
+      <text x="110" y="116">commit 1</text><text x="355" y="116">commit 2</text>
+      <text x="610" y="116">commit 3</text></g>
+    <g class="s-box"><rect x="20" y="140" width="182" height="118" rx="14"/>
+      <rect x="264" y="140" width="182" height="118" rx="14"/>
+      <rect x="518" y="140" width="182" height="118" rx="14"/></g>
+    <g class="s-txt"><text x="111" y="174">Evidence A</text>
+      <text x="355" y="174">Evidence A + B</text>
+      <text x="609" y="174">Evidence A + B + C</text></g>
+    <g fill="var(--leaf)"><rect x="50" y="196" width="122" height="8" rx="4"/>
+      <rect x="294" y="196" width="122" height="8" rx="4"/>
+      <rect x="548" y="196" width="122" height="8" rx="4"/></g>
+    <g fill="var(--violet)"><rect x="294" y="211" width="122" height="8" rx="4"/>
+      <rect x="548" y="211" width="122" height="8" rx="4"/></g>
+    <rect x="548" y="226" width="122" height="8" rx="4" fill="var(--amber)"/>
+    <text x="360" y="297" class="s-txt">History accumulates. The current interpretation can change.</text>
+    """)
+
+FINITE_BOUNDARY = _wrap(
+    "720 330", "A bounded staircase within fixed requirements climbs to a stable state below the maximum evidence rank",
+    "Finite-height model: at most 6N strict increases for N fixed requirements with seven ranks each.",
+    """
+    <rect x="24" y="22" width="672" height="251" rx="18" fill="var(--leaf)" fill-opacity=".025"
+          stroke="var(--leaf)" stroke-dasharray="6 6" opacity=".8"/>
+    <text x="48" y="50" class="s-lbl s-accent">FIXED REQUIREMENTS · FIXED VALIDATION RULE</text>
+    <path d="M56 81 H665" class="s-floor"/>
+    <text x="664" y="73" class="s-lbl s-amber" text-anchor="end">highest modeled evidence</text>
+    <path d="M64 233 H161 V206 H255 V171 H349 V142 H443 V124 H628"
+          fill="none" stroke="var(--leaf)" stroke-width="4" stroke-linejoin="round"/>
+    <g fill="var(--leaf)"><circle cx="161" cy="206" r="5"/><circle cx="255" cy="171" r="5"/>
+      <circle cx="349" cy="142" r="5"/><circle cx="443" cy="124" r="5"/>
+      <circle cx="530" cy="124" r="5"/><circle cx="628" cy="124" r="5"/></g>
+    <text x="540" y="155" class="s-txt">stable under this rule</text>
+    <text x="540" y="175" class="s-lbl" text-anchor="middle">a gap may remain</text>
+    <text x="71" y="256" class="s-lbl">keep or raise each evidence rank →</text>
+    <text x="360" y="310" class="s-txt">Scope change or falsification → explicitly reconsider the boundary</text>
+    """)
+
+
+def _refinement_tree():
+    # Four small branch-and-merge histories become roots of one checked record.
+    body = '''
+    <ellipse cx="430" cy="180" rx="285" ry="150" fill="var(--leaf)" opacity=".035"/>
+    <rect x="58" y="30" width="756" height="342" rx="24" fill="none"
+          stroke="var(--leaf)" stroke-opacity=".35" stroke-dasharray="7 7"/>
+    <text x="436" y="54" class="s-lbl s-accent" text-anchor="middle">ONE FIXED SCOPE · FINITE EVIDENCE RANKS</text>
+    <path d="M28 372 V83" class="s-arrow" marker-end="url(#ah)"/>
+    <text x="23" y="240" class="s-lbl" transform="rotate(-90 23 240)" text-anchor="middle">iterations over time</text>
+    <path d="M436 285 V229 C436 184 336 188 304 139 M436 229 C436 184 537 188 569 139
+             M436 229 V116 M304 139 C279 106 229 126 204 90
+             M304 139 C326 104 354 114 366 82
+             M569 139 C542 106 518 114 507 82 M569 139 C597 106 646 126 669 90"
+          fill="none" stroke="var(--leaf)" stroke-width="5" stroke-linecap="round"/>
+    <g fill="var(--panel)" stroke="var(--leaf)" stroke-width="2.5">
+      <circle cx="436" cy="229" r="9"/><circle cx="304" cy="139" r="7"/>
+      <circle cx="569" cy="139" r="7"/><circle cx="436" cy="116" r="7"/></g>
+    <g fill="var(--leaf)"><ellipse cx="204" cy="90" rx="13" ry="6" transform="rotate(35 204 90)"/>
+      <ellipse cx="366" cy="82" rx="13" ry="6" transform="rotate(-48 366 82)"/>
+      <ellipse cx="507" cy="82" rx="13" ry="6" transform="rotate(48 507 82)"/>
+      <ellipse cx="669" cy="90" rx="13" ry="6" transform="rotate(-35 669 90)"/></g>
+    <text x="436" y="201" class="s-lbl" text-anchor="middle">checked joins</text>
+    '''.strip()
+    for x, color, name in [(139, "leaf", "Files"), (337, "leaf", "Specs"),
+                           (535, "leaf", "Artifacts"), (733, "leaf", "Docs")]:
+        body += f'''
+        <g fill="none" stroke="var(--{color})" stroke-width="2.5" stroke-linecap="round">
+          <path d="M{x} 423 V397 C{x} 379 {x-33} 384 {x-33} 357 V341
+                   M{x} 397 C{x} 379 {x+33} 384 {x+33} 357 V341
+                   M{x-33} 341 Q{x-33} 319 {x} 310 Q{x+33} 319 {x+33} 341
+                   M{x} 310 C{x} 273 436 330 436 285"/>
+        </g>
+        <g fill="var(--panel)" stroke="var(--{color})" stroke-width="2">
+          <circle cx="{x}" cy="410" r="5"/><circle cx="{x-33}" cy="351" r="5"/>
+          <circle cx="{x+33}" cy="351" r="5"/><circle cx="{x}" cy="310" r="6"/></g>
+        '''.strip()
+    body += '<circle cx="436" cy="285" r="10" fill="var(--leaf)"/>'
+    return _wrap("870 470",
+                 "Four colored Git branch histories for files, specs, artifacts and docs join into a growing refinement tree; a dashed boundary marks fixed scope and finite evidence ranks",
+                 "The tree is a methodology metaphor. Git histories with merges are directed acyclic graphs; the finite bound applies to evidence states.", body)
+
+
+REFINEMENT_TREE = _refinement_tree()
+
+METHODOLOGY_BRIDGE = _wrap(
+    "900 260", "A fixed constraint is refined through small checked changes and retained evidence",
+    "A prompt ends when its residual is close enough for the current specification; the next prompt inherits the record.",
+    """
+    <g class="s-box"><rect x="20" y="82" width="170" height="70" rx="12"/>
+      <rect x="260" y="82" width="170" height="70" rx="12"/>
+      <rect x="500" y="82" width="170" height="70" rx="12"/>
+      <rect x="740" y="82" width="140" height="70" rx="12"/></g>
+    <g class="s-txt"><text x="105" y="112">constraint</text><text x="105" y="134">fixed scope</text>
+      <text x="345" y="112">small prompt</text><text x="345" y="134">propose a delta</text>
+      <text x="585" y="112">check</text><text x="585" y="134">test + counterexample</text>
+      <text x="810" y="112" class="s-accent">record</text><text x="810" y="134">keep evidence</text></g>
+    <g class="s-arrow" fill="none"><path d="M194 117 H252" marker-end="url(#ah)"/>
+      <path d="M434 117 H492" marker-end="url(#ah)"/><path d="M674 117 H732" marker-end="url(#ah)"/>
+      <path d="M810 160 V205 H105 V160" marker-end="url(#ah)"/></g>
+    <text x="450" y="238" class="s-lbl" text-anchor="middle">each accepted event adds refinement; each correction remains visible</text>
+    """)
+
+
+def _refinement_cloud():
+    paths = []
+    for i in range(34):
+        dx = ((i * 37) % 120) - 60
+        dy = ((i * 53) % 90) - 45
+        scale = 0.82 + ((i * 11) % 20) / 100
+        opacity = 0.07 + (i % 5) * 0.012
+        paths.append(
+            f'<g transform="translate({dx} {dy}) scale({scale})" opacity="{opacity:.3f}">'
+            '<path d="M450 390 V300 C450 250 350 255 320 205 M450 300 C450 250 550 255 580 205 '
+            'M450 300 V150 M320 205 C285 160 245 180 210 135 M320 205 C350 160 380 170 405 125 '
+            'M580 205 C545 160 520 170 495 125 M580 205 C615 160 655 180 690 135" '
+            'fill="none" stroke="var(--sky)" stroke-width="7" stroke-linecap="round"/>'
+            '</g>')
+    body = ''.join(paths) + '''
+    <rect x="106" y="30" width="688" height="402" rx="24" fill="none" stroke="var(--sky)" stroke-opacity=".38" stroke-dasharray="7 7"/>
+    <text x="450" y="59" class="s-lbl" style="fill:var(--sky)" text-anchor="middle">MANY SPECIFICATIONS · MANY SMALL REFINEMENTS</text>
+    <circle cx="450" cy="300" r="13" fill="var(--sky)"/>
+    '''
+    return _wrap("900 490", "Dozens of translucent refinement trees for different specifications overlap into a bright convergence region", "Each translucent tree is one illustrative specification path. Similar paths overlap; the glow is a metaphor for accumulated effort.", body)
+
+
+REFINEMENT_CLOUD = _refinement_cloud()
+
+PROJECT_ORCHESTRATION = _wrap(
+    "1440 778",
+    "Intended my-project.com development topology: a forge agent debugs containerized Chromium against an httpd container. "
+    "The forge clones and pushes through a Git mirror, which reads its GitHub credential from Vault and relays through the proxy. "
+    "The host keychain holds the unseal key; the host orchestrator manages the runtime. Personal browser, Office and other apps "
+    "sit outside the container workspace. macOS uses a Linux VM, Windows uses WSL2, and Linux containers share the host kernel.",
+    "Intended container-browser workflow, not a full-isolation guarantee: current tooling also uses host Chrome, "
+    "egress has gaps, and the unseal key has guest/cache copies. Enclave membership is not authentication.",
+    """
+    <g font-family="var(--sans)">
+      <!-- Shared topology, with the three actual runtime boundaries below. -->
+      <g font-size="16" fill="var(--ink-dim)">
+        <path d="M28 36 H64" stroke="var(--ink-dim)" stroke-width="2"/>
+        <text x="74" y="42">host</text>
+        <path d="M158 36 H194" stroke="var(--amber)" stroke-width="3"/>
+        <text x="204" y="42">runtime boundary</text>
+        <path d="M388 36 H424" stroke="var(--leaf)" stroke-width="2"/>
+        <text x="434" y="42">shared enclave</text>
+        <rect x="607" y="25" width="29" height="23" rx="5" fill="var(--panel)" stroke="var(--violet)"/>
+        <text x="648" y="42">container boundary</text>
+      </g>
+      <rect x="1050" y="8" width="366" height="66" rx="13" class="s-line s-fill1"/>
+      <text x="1233" y="33" text-anchor="middle" fill="var(--ink)" font-size="19" font-weight="600">GitHub · example upstream</text>
+      <text x="1233" y="58" text-anchor="middle" fill="var(--ink-dim)" font-size="17">github.com/you/my-project.com</text>
+
+      <rect x="12" y="96" width="1416" height="548" rx="22" fill="none" stroke="var(--ink-dim)" stroke-opacity=".55" stroke-width="2"/>
+      <text x="33" y="127" fill="var(--ink-dim)" font-size="17" font-weight="600">YOUR HOST COMPUTER</text>
+      <rect x="32" y="164" width="258" height="144" rx="14" class="s-line s-fill1"/>
+      <g fill="var(--ink)" font-size="18" font-weight="600">
+        <text x="84" y="199">BROWSER</text><text x="84" y="238">OFFICE</text><text x="84" y="277">OTHER APPS</text>
+      </g>
+      <g stroke="var(--ink-dim)" stroke-width="1.5" fill="none">
+        <rect x="50" y="181" width="22" height="18" rx="3"/><path d="M50 186 H72"/>
+        <path d="M52 219 H66 L72 225 V242 H52 Z M66 219 V225 H72 M57 231 H66 M57 236 H66"/>
+        <rect x="51" y="259" width="8" height="8" rx="2"/><rect x="64" y="259" width="8" height="8" rx="2"/>
+        <rect x="51" y="272" width="8" height="8" rx="2"/><rect x="64" y="272" width="8" height="8" rx="2"/>
+      </g>
+      <text x="161" y="331" text-anchor="middle" fill="var(--ink-dim)" font-size="15">outside the container workspace</text>
+
+      <rect x="32" y="353" width="258" height="87" rx="14" fill="var(--amber)" fill-opacity=".07" stroke="var(--amber)"/>
+      <g stroke="var(--amber)" stroke-width="2" fill="none"><circle cx="59" cy="379" r="7"/>
+        <path d="M66 379 H84 M77 379 V386 M83 379 V384"/></g>
+      <text x="100" y="386" fill="var(--amber)" font-size="20" font-weight="600">HOST KEYCHAIN</text>
+      <text x="161" y="416" text-anchor="middle" fill="var(--ink)" font-size="18">Vault unlock / unseal key</text>
+      <rect x="32" y="487" width="258" height="94" rx="14" class="s-line s-fill1"/>
+      <text x="161" y="520" text-anchor="middle" fill="var(--ink)" font-size="19" font-weight="600">Tillandsias orchestrator</text>
+      <text x="161" y="550" text-anchor="middle" fill="var(--ink-dim)" font-size="17">launch · stop · publish · route</text>
+
+      <rect x="320" y="142" width="1088" height="484" rx="18" fill="var(--amber)" fill-opacity=".025" stroke="var(--amber)" stroke-width="2.5"/>
+      <text x="344" y="172" fill="var(--amber)" font-size="18" font-weight="600">LINUX RUNTIME</text>
+      <text x="555" y="172" fill="var(--ink-dim)" font-size="17">VM on macOS / Windows · shared host kernel on Linux</text>
+      <rect x="344" y="194" width="1042" height="410" rx="17" fill="var(--leaf)" fill-opacity=".03" stroke="var(--leaf)" stroke-width="2"/>
+      <text x="368" y="224" fill="var(--leaf)" font-size="18" font-weight="600">ENCLAVE</text>
+      <text x="496" y="224" fill="var(--ink-dim)" font-size="17">shared private network · peers can communicate</text>
+
+      <!-- Each rounded purple box is a separate rootless container. -->
+      <g fill="var(--panel)" stroke="var(--violet)" stroke-opacity=".65" stroke-width="1.5">
+        <rect x="378" y="259" width="274" height="113" rx="13"/>
+        <rect x="728" y="259" width="240" height="113" rx="13"/>
+        <rect x="1060" y="259" width="270" height="113" rx="13"/>
+        <rect x="378" y="462" width="244" height="94" rx="13"/>
+        <rect x="726" y="462" width="242" height="94" rx="13"/>
+        <rect x="1070" y="462" width="260" height="94" rx="13"/>
+      </g>
+      <g text-anchor="middle" fill="var(--ink)" font-size="22" font-weight="600">
+        <text x="515" y="289">FORGE</text><text x="848" y="289">DEV CHROMIUM</text>
+        <text x="1195" y="289">HTTPD</text><text x="500" y="497">GIT MIRROR</text>
+        <text x="847" y="497" fill="var(--amber)">VAULT</text><text x="1200" y="497">EGRESS PROXY</text>
+      </g>
+      <g text-anchor="middle" fill="var(--ink-dim)" font-size="17">
+        <text x="515" y="317">agent + tools</text><text x="515" y="346" fill="var(--leaf)">my-project.com checkout</text>
+        <text x="848" y="317">Playwright / debugging</text><text x="848" y="346">separate browser profile</text>
+        <text x="1195" y="317">my-project.com website</text><text x="1195" y="346">read-only published files</text>
+        <text x="500" y="530">clone · push · relay</text>
+        <text x="847" y="530" fill="var(--amber)">GitHub credential</text><text x="1200" y="530">controlled upstream route</text>
+      </g>
+
+      <!-- Development traffic and artifact publication. -->
+      <g class="s-arrow" fill="none" stroke-width="2">
+        <path d="M657 316 H722" marker-end="url(#ah)"/>
+        <path d="M973 316 H1054" marker-end="url(#ah)"/>
+        <path d="M420 377 V455" marker-start="url(#ah)" marker-end="url(#ah)"/>
+        <path d="M515 373 V402 H1195 V378" marker-end="url(#ah)"/>
+        <path d="M500 558 V582 H1200 V561" marker-end="url(#ah)"/>
+        <path d="M1332 509 H1364 V85 H1233 V78" marker-end="url(#ah)"/>
+      </g>
+      <g fill="var(--ink-dim)" font-size="15" text-anchor="middle">
+        <text x="690" y="302">debug</text><text x="1014" y="302">HTTP</text>
+        <text x="859" y="393">publish site via orchestrator</text>
+        <text x="445" y="445" text-anchor="start">clone / push</text>
+        <text x="862" y="599">upstream relay → proxy → GitHub</text>
+      </g>
+      <!-- Secrets remain on their authorized paths. -->
+      <path d="M290 397 H305 V432 H408 Q420 418 432 432 H847 V456" fill="none" stroke="var(--amber)" stroke-width="2"/>
+      <path d="M841 449 L847 458 L853 449" fill="none" stroke="var(--amber)" stroke-width="2"/>
+      <text x="639" y="425" fill="var(--amber)" font-size="15" text-anchor="middle">host-managed unseal</text>
+      <path d="M722 508 H630 M637 502 L627 508 L637 514" fill="none" stroke="var(--amber)" stroke-width="2"/>
+      <text x="674" y="491" text-anchor="middle" fill="var(--amber)" font-size="15">token</text>
+      <text x="674" y="535" text-anchor="middle" fill="var(--amber)" font-size="14">not in forge</text>
+      <!-- Host control is an explicit integration across the runtime boundary. -->
+      <path d="M290 539 H331 V616 H1358" fill="none" stroke="var(--ink-dim)" stroke-width="1.5" stroke-dasharray="5 5"/>
+      <text x="161" y="609" text-anchor="middle" fill="var(--ink-dim)" font-size="14">dashed line = lifecycle control</text>
+
+      <g fill="var(--panel)" stroke="var(--line-2)">
+        <rect x="12" y="660" width="452" height="104" rx="13"/>
+        <rect x="486" y="660" width="452" height="104" rx="13"/>
+        <rect x="960" y="660" width="468" height="104" rx="13"/>
+      </g>
+      <g fill="var(--ink)" font-size="20" font-weight="600">
+        <text x="32" y="688">macOS</text><text x="506" y="688">WINDOWS</text><text x="980" y="688">LINUX</text>
+      </g>
+      <g font-size="18" fill="var(--amber)">
+        <text x="32" y="719">Host → hypervisor → Linux VM</text>
+        <text x="506" y="719">Host → hypervisor → WSL2</text>
+      </g>
+      <text x="980" y="719" font-size="18" fill="var(--leaf)">Host kernel → rootless containers</text>
+      <g fill="var(--ink-dim)" font-size="16">
+        <text x="32" y="746">Separate guest kernel → enclave</text>
+        <text x="506" y="746">Linux guest kernel → enclave</text>
+        <text x="980" y="746">Namespace boundary · no hypervisor</text>
+      </g>
+    </g>
+    """)
+
 FIGURES = {
+    "project-orchestration": PROJECT_ORCHESTRATION,
+    "methodology-bridge": METHODOLOGY_BRIDGE, "refinement-cloud": REFINEMENT_CLOUD,
+    "artifact-vectors": ARTIFACT_VECTORS, "iteration-history": ITERATION_HISTORY,
+    "finite-boundary": FINITE_BOUNDARY, "refinement-tree": REFINEMENT_TREE,
+    "local-region": LOCAL_REGION, "push-journey": PUSH_JOURNEY,
+    "small-steps": SMALL_STEPS, "shared-progress": SHARED_PROGRESS,
+    "evidence-record": EVIDENCE_RECORD, "git-record": GIT_RECORD,
     "layers": LAYERS, "loop": LOOP, "staircase": STAIRCASE, "lln": LLN,
     "refinement-mesh": REFINEMENT_MESH,
     "aggregate-traces": AGGREGATE_TRACES,

@@ -85,7 +85,7 @@ slide change. An empty input (no slide number) MUST mean the first slide.
   corrected, never left pointing at nothing
 
 ### Requirement: The deck ships inside the page
-The three slides MUST ship in the page markup, chosen and laid out by the build
+All slides MUST ship in the page markup, chosen and laid out by the build
 from a source beside the generator, and MUST NOT be fetched, drawn or animated
 from a third party. The site loads no external images; the deck inherits that
 rule — no external image, no external script, no CDN content in the deck. The
@@ -102,19 +102,17 @@ same slide markup in the same order.
 - **WHEN** the same sources are built twice
 - **THEN** the two pages carry identical slide markup, in the same order
 
-### Requirement: Every slide names the level it draws on
-A slide that states anything substantive about the software MUST carry a visible
-**drawing on** line naming the level page whose established claim is being
-restated, linked to that level (e.g. "drawing on the power-user level"). The
-wording on the slide MUST be no stronger than that level's own wording. This is
-the deck's counterpart to a footnote — a short pointer, not a machinery-heavy
-citation — and it MUST NOT carry a footnoted claim that the named level does not
-make.
+### Requirement: Editorial provenance stays outside the presentation
+Slides MUST NOT display links back to the five explanation levels or a
+"drawing on" footer. The source MAY retain `draws_on` metadata for editorial
+review. Software claims MUST remain no stronger than their supporting evidence;
+illustrations and proposed modeling patterns MUST be distinguishable from
+measured behavior.
 
 #### Scenario: A slide restates a level claim
 - **WHEN** a slide says something about what Tillandsias does
-- **THEN** the level named on its drawing-on line carries the same statement
-  with a footnote, and the slide's words are no stronger
+- **THEN** its source records the supporting level, its words are no stronger,
+  and no reference footer is rendered
 
 #### Scenario: A slide borrows nothing
 - **WHEN** a slide states only presentation furniture — the deck's own labels,
@@ -163,12 +161,11 @@ its content with labelled placeholders where the content is not yet written.
 The deck MUST render without causing a scrollbar on the page itself: while the
 deck is the active view, the page MUST NOT acquire a scrollbar from the deck's
 frame, so the deck displays cleanly in a fullscreen presentation. The deck
-frame MUST size itself to the available viewport; a slide whose content would
-exceed that room MUST still be reached in full — the frame scrolls its own slide
-body rather than letting tall content escape the frame and push the page. A
-reader on a slide MUST always be able to read every line that slide carries; the
-deck MUST NOT clip a line to fit the room, and MUST NOT trade a page scrollbar
-for a silently truncated slide.
+frame MUST use the available viewport width and height. Slides MUST reflow their
+figures and text for the screen shape, then scale the complete content if needed.
+Neither the page, slide body nor an embedded figure may introduce a vertical or
+horizontal scroll pane. The deck MUST NOT hide overflow as a substitute for
+fitting every line and figure inside the frame. Navigation MUST remain visible.
 
 #### Scenario: A talk is projected fullscreen
 - **WHEN** the deck is the active view and the browser is fullscreen
@@ -177,25 +174,26 @@ for a silently truncated slide.
 
 #### Scenario: A slide has more text than the frame holds
 - **WHEN** a slide's content is taller than the deck frame
-- **THEN** the slide's own body scrolls inside the frame, and the page itself
-  does not scroll
+- **THEN** the complete slide reflows and scales to fit, without clipping or
+  either axis of scrolling
+
+#### Scenario: The viewport changes during a talk
+- **WHEN** the browser is resized or the device rotates
+- **THEN** the current slide is fitted again without changing its content,
+  fragment or position in the deck
 
 ### Requirement: A slide may embed the site's own figure
 A slide MAY embed one of the site's own figures by name. An embedded figure MUST
-come from the site's own figure registry — the same SVG the level pages already
-ship, drawn by the site's own code — so the deck never imports a foreign image,
-a third-party script or a CDN. The figure MUST restate only what its owning
-level establishes, exactly as the level page's figureline states it: the slide
-embeds the registry figure with its own caption, and MUST NOT redraw, reword or
-strengthen it. The slide still carries its drawing-on line naming the level that
-owns that figure.
+come from the site's own figure registry, drawn by the site's own code, so the
+deck never imports a foreign image, a third-party script or a CDN. Figures MAY
+be designed specifically for slides. Their captions MUST distinguish illustrative
+models from measurements and retain the assumptions behind convergence claims.
 
 #### Scenario: A slide wants the staircase
 - **WHEN** an editor wants a slide to show the methodology's staircases or
   convergence
-- **THEN** the slide embeds the registry figure `staircase` or `lln` — the page
-  ships that figure on the level that owns it — and the slide's drawing-on line
-  names that level
+- **THEN** the slide embeds a registry figure with its assumptions intact,
+  retaining editorial provenance in the source
 
 #### Scenario: A slide wants a foreign diagram
 - **WHEN** an editor wants to drop in a diagram the site did not draw
@@ -203,14 +201,19 @@ owns that figure.
   nothing from a third party
 
 ### Requirement: The CRDT slides tell the story the methodology establishes
-The deck's CRDT slides MUST restate the methodology exactly as the level that
-owns it establishes the story: that the project's fastest path to truth is many
-small fast prompts whose individual struggles are visibleable, not one big
-prompt whose distance to the point cannot be seen from outside; and how keeping
-the plan ledger convergent through replicated data types helps the region reduce
-uncertainty monotonically — each slide drawing on the methodology level and
-saying nothing that level's claim does not carry, with the same floor and the
-same asserted-versus-proved honesty the level footnotes.
+The deck MUST explain the role of small checked iterations and a convergent
+evidence record. It MUST distinguish Git's file histories from CRDT event-set
+and field merge rules: arbitrary source files, specs and prose do not acquire
+conflict-free semantic merges merely by being versioned in Git.
+
+The closing sequence MUST cover artifact evidence vectors, iterative history,
+finite evidence bounds, and a combined tree-of-refinement illustration. The
+tree MUST be identified as a methodology metaphor for histories that are DAGs.
+Finite stabilization MUST be conditional on fixed finite requirements and a
+fixed monotone, inflationary refinement rule. The bound is on strict increases
+in modeled evidence, not on history size, execution time or real-world truth.
+The methodology's approximation of this ideal MUST remain an aim, not an
+unconditional convergence or zero-residual guarantee.
 
 #### Scenario: The great graph is wanted on a slide
 - **WHEN** an editor wants the deck to show the many-small-prompts graph

@@ -1,4 +1,4 @@
-"""Presentation summaries; each slide links to the levels carrying its evidence.
+"""Presentation summaries; draws_on keeps editorial provenance out of the deck.
 
 Keep the five-part story and its deep links. Add claims to an owning level with
 citations before summarising them here. Diagrams illustrate an argument, not
@@ -12,9 +12,9 @@ SLIDES = [
         "title": "A small cloud region on your own computer.",
         "lede": "Disposable workspaces. Durable work. Boundaries you can inspect.",
         "blocks": [
-            ("p", "Tillandsias brings the tools, network services and AI assistants "
-                  "into a local region. Recreating a broken workspace is part of "
-                  "the design; keeping your work means committing and pushing it."),
+            ("fig", "local-region"),
+            ("p", "Tools, services and AI assistants share one local region. "
+                  "Rebuild a workspace when needed; commit and push to keep your work."),
             ("p", "The software is free. Your hardware, electricity and any paid "
                   "AI service you choose still have costs."),
         ],
@@ -31,8 +31,7 @@ SLIDES = [
                  "the proxy, git mirror, secrets and local inference."),
                 ("Linux security",
                  "Rootless containers and launch checks restrict the workspace. "
-                 "Read the security level for the remaining egress, credential "
-                 "and supply-chain gaps."),
+                 "Egress, credential and supply-chain gaps remain."),
                 ("Portable cloud region",
                  "macOS and Windows add a Linux virtual machine. Linux runs "
                  "rootless containers on the host, sharing its kernel."),
@@ -46,15 +45,11 @@ SLIDES = [
         "title": "Containerization is not one layer.",
         "blocks": [
             ("fig", "nesting"),
-            ("p", "An app runs in a container. The containers run beside each "
-                  "other on one private network. On Mac and Windows that whole "
-                  "arrangement runs inside a Linux machine made for you, which "
-                  "itself runs on your hardware \u2014 one box more than Linux "
-                  "needs, doing the same job at a different level."),
-            ("p", "Every layer in between is boxed too, not just the outermost "
-                  "one and not just the app. That is what makes a workspace "
-                  "disposable: you can throw away any box and rebuild it "
-                  "without touching the ones around it."),
+            ("p", "Apps share a private network. On Mac and Windows, their "
+                  "containers run inside a Linux virtual machine; on Linux, "
+                  "they share the host kernel."),
+            ("p", "Each layer has its own job and lifecycle. Rebuild a workspace "
+                  "while keeping shared services and pushed work."),
         ],
         "draws_on": ("level-2-phone", "level-3-power", "level-4-security"),
     },
@@ -69,34 +64,48 @@ SLIDES = [
                   "to the internet. Traffic that leaves goes through a single "
                   "checked exit; everything else is refused rather than "
                   "silently allowed."),
-            ("p", "Read the security level before trusting that sentence: it "
-                  "records what the boundary does not yet cover, and a refused "
-                  "path is only as good as the check that refuses it."),
+            ("p", "This is the intended boundary. Egress and credential gaps remain; "
+                  "its protection depends on the checks actually enforcing it."),
         ],
         "draws_on": ("level-3-power", "level-4-security"),
     },
     {
         "label": "The git mirror",
         "eyebrow": "tillandsias \u00b7 the decision",
-        "title": "Your push is not finished until the copy outside has it.",
+        "title": "Push once. Keep a copy beyond your computer.",
         "blocks": [
-            ("p", "Inside the enclave your work pushes to a local mirror, not "
-                  "to the internet. The mirror holds the upstream credential; "
-                  "the workspace never sees it. So an agent can publish work "
-                  "without ever holding a token that could publish anything "
-                  "else."),
-            ("p", "The mirror relays the push onward and waits. Your push "
-                  "succeeds only once the upstream has durably accepted the "
-                  "same set of refs \u2014 so a success you can see is a "
-                  "success that survived the machine being thrown away."),
-            ("p", "That pairing is why this is built rather than borrowed. "
-                  "Managed mirrors hold the credential for you and copy "
-                  "asynchronously, reporting success before the copy lands. "
-                  "Caching proxies relay synchronously and forward your "
-                  "credentials, which is the isolation we are buying. Needing "
-                  "both at once is the unusual requirement."),
+            ("fig", "push-journey"),
+            ("p", "The mirror holds the upstream credential; your workspace never sees it. "
+                  "With an upstream configured, success means that upstream accepted the same refs."),
+            ("p", "No upstream? The push stays in the local mirror."),
         ],
         "draws_on": ("level-3-power", "level-4-security"),
+    },
+    {
+        "label": "The orchestrated workspace",
+        "eyebrow": "tillandsias · the whole workspace",
+        "title": "One project. An orchestrated enclave.",
+        "layout": "diagram",
+        "blocks": [
+            ("fig", "project-orchestration"),
+        ],
+        "draws_on": ("level-2-phone", "level-3-power", "level-4-security"),
+    },
+    {
+        "label": "The methodology",
+        "eyebrow": "tillandsias · from what it is to how it improves",
+        "title": "Turn every change into a checked refinement.",
+        "layout": "method",
+        "blocks": [
+            ("fig", "methodology-bridge"),
+            ("p", "The same loop works for code, specs, artifacts and documentation: "
+                  "state a constraint, make a small change, check it, and keep the evidence."),
+            ("p", "A prompt stops when it is close enough for this scope. More checked "
+                  "events increase refinement effort; they can reduce a non-zero skew "
+                  "in the remaining uncertainty, but this is an analogy to a weak law "
+                  "of large numbers, not a theorem about dependent prompts."),
+        ],
+        "draws_on": ("level-5-phd",),
     },
     {
         "label": "Mechanism",
@@ -119,11 +128,11 @@ SLIDES = [
         "title": "Short iterations, explicit evidence, room to be wrong.",
         "blocks": [
             ("fig", "lln"),
-            ("p", "Each run reads what earlier runs learned. Those dependent "
-                  "iterations do not inherit an independent-sample convergence "
-                  "theorem, and bounded bias alone cannot make an average true."),
-            ("p", "The methodology withdrew its strong-law claim. The practical "
-                  "loop remains: make a small change, check it, seek a "
+            ("p", "Each run reads what earlier runs learned. Think of more events as a "
+                  "larger sample that may reduce a non-zero skew in the residual, while "
+                  "remembering that the prompts are dependent."),
+            ("p", "The weak-law picture is a useful intuition, not a convergence proof. "
+                  "The practical loop remains: make a small change, check it, seek a "
                   "counterexample, and keep the correction in the record."),
         ],
         "draws_on": ("level-5-phd",),
@@ -131,18 +140,13 @@ SLIDES = [
     {
         "label": "Refinement",
         "eyebrow": "tillandsias · the working model",
-        "title": "Many local changes, one shared record.",
+        "title": "Small steps bring each part closer.",
         "blocks": [
-            ("fig", "refinement-mesh"),
-            ("p", "Treat the repository and prompt as selected context for a "
-                  "refinement, not as literal vector sets stored by Git. The "
-                  "model proposes a delta; tests, review and a commit decide "
-                  "whether it joins the record."),
-            ("p", "Accessibility, product copy and dashboards can each have a local "
-                  "target. Their residuals are meaningful only against their "
-                  "own fixed specifications. The shared line is useful "
-                  "engineering telemetry after scope is aligned, not a proof "
-                  "that any sequence converges to truth."),
+            ("fig", "small-steps"),
+            ("p", "Accessibility, copy and dashboards each have a target. A small change, "
+                  "a check, then a recorded result: repeat that loop within each workstream."),
+            ("p", "Keep the checked gains and investigate setbacks. Each path can get "
+                  "closer at its own pace without being finished."),
         ],
         "draws_on": ("level-1-five", "level-2-phone", "level-3-power",
                      "level-4-security", "level-5-phd"),
@@ -150,18 +154,15 @@ SLIDES = [
     {
         "label": "Aggregation",
         "eyebrow": "tillandsias · the working model",
-        "title": "Local truths can compose into one accountable picture.",
+        "title": "Progress in the parts adds up across the project.",
         "blocks": [
-            ("fig", "aggregate-traces"),
-            ("p", "Each coloured trace is a product job with its own target "
-                  "and start time: accessibility and language, marketing, "
-                  "dashboards, or customer support. The dots can wobble while "
-                  "they move nearer their own dotted line; one trace must not "
-                  "borrow certainty from another."),
-            ("p", "The lower line aggregates only comparable work: the same "
-                  "identities, scope and weights. It is a compact record of "
-                  "what the project measured across workstreams, not a claim "
-                  "that all targets share one probability law."),
+            ("fig", "shared-progress"),
+            ("p", "With a fixed set of requirements and fixed weights, fewer gaps in "
+                  "each part means fewer gaps overall. Earlier gains remain while "
+                  "another workstream takes its next step."),
+            ("p", "If every local gap settles toward a limit, their fixed weighted "
+                  "total does too. That limit may still be above zero. Changed scope "
+                  "needs a new baseline; a better total never erases a local failure."),
         ],
         "draws_on": ("level-2-phone", "level-3-power", "level-4-security",
                      "level-5-phd"),
@@ -179,6 +180,84 @@ SLIDES = [
                   "operation with the stated algebraic properties. It does "
                   "not guarantee delivery, eliminate all git conflicts, or "
                   "prove that a recorded claim is true."),
+        ],
+        "draws_on": ("level-5-phd",),
+    },
+    {
+        "label": "CRDTs and the method",
+        "eyebrow": "tillandsias · keep what you learn",
+        "title": "Many contributors. One accumulating evidence record.",
+        "blocks": [
+            ("fig", "evidence-record"),
+            ("p", "Conflict-free replicated data types (CRDTs) let contributors add "
+                  "distinct evidence events independently. Once everyone has the same "
+                  "events, merging them produces the same record, even after retries."),
+            ("p", "That supports the method: preserve what was learned, then check the "
+                  "next step. A failed check adds a correction or falsification; "
+                  "agreement on the record does not make its claims true."),
+        ],
+        "draws_on": ("level-5-phd",),
+    },
+    {
+        "label": "CRDTs, Git and versions",
+        "eyebrow": "tillandsias · collaborate and remember",
+        "title": "Git carries the history. CRDT rules combine the record.",
+        "blocks": [
+            ("fig", "git-record"),
+            ("p", "Commit distinct ledger fragments on each branch. Exchange and merge "
+                  "them through Git, then fold the delivered events into a shared view. "
+                  "Code and competing scalar edits still need their own merge rules and review."),
+            ("p", "Commits and tags let you revisit a recorded state. Mergeable version "
+                  "coordinates use a different rule: (2, 1) and (1, 3) join to (2, 3), "
+                  "taking each coordinate’s maximum. This illustrative join does not "
+                  "select a Git commit or prove release compatibility."),
+        ],
+        "draws_on": ("level-3-power", "level-5-phd"),
+    },
+    {
+        "label": "The refinement vectors",
+        "eyebrow": "tillandsias · one project, many coordinates",
+        "title": "Every artifact contributes a vector of evidence.",
+        "blocks": [
+            ("fig", "artifact-vectors"),
+            ("p", "Files, specs, build artifacts and documentation evolve together. "
+                  "Here, a “vector” means their named requirements and evidence states."),
+            ("p", "Give evidence events stable IDs and merge them as a set. "
+                  "That record can follow CRDT rules across every artifact type. "
+                  "Git versions the files; ordinary file edits still need semantic review."),
+        ],
+        "draws_on": ("level-3-power", "level-5-phd"),
+    },
+    {
+        "label": "Tree of refinement",
+        "eyebrow": "tillandsias · one bounded refinement tree",
+        "title": "A tree of refinement.",
+        "layout": "finale",
+        "lede": "Many branches of effort. One increasingly evidenced project.",
+        "blocks": [
+            ("fig", "refinement-tree"),
+            ("p", "Fix N requirements, each with seven evidence ranks. Inflationary "
+                  "steps keep or raise every rank; a monotone rule preserves their ordering. "
+                  "A fixed rule with both properties stabilizes within 6N strict increases."),
+            ("p", "The bound is on evidence states, not commits, effort or elapsed time. "
+                  "New scope or falsification opens an explicit new comparison."),
+        ],
+        "draws_on": ("level-5-phd",),
+    },
+    {
+        "label": "Tree of refinement",
+        "eyebrow": "tillandsias · many histories, shared direction",
+        "title": "Many trees overlap toward a shared direction.",
+        "layout": "finale",
+        "lede": "Many branches of effort. One increasingly evidenced project.",
+        "blocks": [
+            ("fig", "refinement-cloud"),
+            ("p", "Each small Git history brings a different kind of evidence. "
+                  "Checked joins connect them into a shared refinement history, "
+                  "within a fixed scope and finite evidence ranks."),
+            ("p", "Tillandsias aims to approximate this ideal through repeated effort: "
+                  "preserve checked gains, expose counterexamples, and reduce the remaining gaps. "
+                  "Monotonic convergence is conditional; its limit need not be perfection."),
         ],
         "draws_on": ("level-5-phd",),
     },
