@@ -54,7 +54,7 @@ LEVELS = [
     ("level-2-phone",    "I barely understand my phone",
      "Straight answers to what you are actually wondering: privacy, cost, and what breaks.",
      "Picks up where “like I’m 5” left off.",
-     "v56.9.12.2",
+     "v56.9.21.1",
      ("bulbosa",
       "A tillandsia is an epiphyte, not a parasite: it rests on its tree and takes nothing from it.")),
     ("level-3-power",    "I'm a power user",
@@ -1200,7 +1200,9 @@ __INSTALL__
       release&#8217;s own installer. Stable moves only when a daily build is
       promoted, so it normally trails the newest code. The scripts here are not
       rebuilt when the app releases; they look the release up every time they
-      run.</p>
+      run. Current installers reset local application state and reprovision by
+      default; set <code>TILLANDSIAS_DESTRUCTIVE_RESET_OK=0</code> before running
+      one to skip the destructive reset.</p>
     </div>
   </div>
 </div>
