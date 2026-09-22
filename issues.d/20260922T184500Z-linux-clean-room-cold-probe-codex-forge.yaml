@@ -1,0 +1,25 @@
+issues:
+  - id: 4aea5a83
+    repo: tillandsias
+    title: Linux clean-room step continues after a failed credential-cold probe
+    area: scripts/e2e-step2-linux.sh
+    class: defect
+    severity: medium
+    tag: v56.9.21.1
+    commit: 2f5f2a90a7b43ecdee766e38561b8e5790c603aa
+    claim: The Linux clean-room run is meant to exercise first-time Vault initialization with no retained host credentials.
+    code: scripts/e2e-step2-linux.sh#L34-L38 logs both the host-credential clear and the cold-state probe but allows either to fail and continues.
+    why: A later green smoke result does not establish a credential-cold starting state unless its logged probe result is inspected separately.
+    fix: Stop the clean-room run when the clear or cold-state probe fails, or make the final verdict explicitly conditional on the recorded cold-state result.
+    evidence:
+      - path: scripts/e2e-step2-linux.sh#L34
+        quote: '"$SCRIPT_DIR/clear-vault-host-credentials.sh" 2>&1 | tee "$LOG_DIR/02-clear-credentials.log" || true'
+      - path: scripts/e2e-step2-linux.sh#L38
+        quote: '"$SCRIPT_DIR/probe-credential-cold-state.sh" 2>&1 | tee "$LOG_DIR/02-credential-state.txt" || true'
+    upstream: ""
+events:
+  - id: 4aea5a83
+    ts: "2026-09-22T18:45:00Z"
+    host: codex-forge
+    type: found
+    note: Observed in stable v56.9.21.1 by source inspection; no live Linux clean-room run was performed by this audit.

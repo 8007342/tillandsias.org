@@ -1,0 +1,31 @@
+events:
+  - id: 9f823c95
+    ts: "2026-09-22T18:42:55Z"
+    host: codex-forge
+    type: resolved
+    note: "At stable v56.9.21.1, scripts/run-forge-project.sh#L130 and scripts/diagnose-proxy.sh#L97 both pass --internal. scripts/check-enclave-network-internal.sh#L130-L181 now discovers tracked shell and Rust sources and checks shell network-create invocations. Its Rust verdict remains explicitly file-scoped."
+  - id: 6cd2f616
+    ts: "2026-09-22T18:42:55Z"
+    host: codex-forge
+    type: resolved
+    note: "At stable v56.9.21.1, images/proxy/squid.conf#L75 binds the permissive listener to 127.0.0.1:3129 inside the proxy container. The permissive access rule still exists for processes in that container; the reported enclave-peer bypass is closed by the bind."
+  - id: 6e61831e
+    ts: "2026-09-22T18:42:55Z"
+    host: codex-forge
+    type: resolved
+    note: "At stable v56.9.21.1, images/git/git-credential-tillandsias.sh#L58-L83 refuses non-HTTPS requests and host values other than exact github.com or api.github.com before returning a token."
+  - id: 572f7388
+    ts: "2026-09-22T18:42:55Z"
+    host: codex-forge
+    type: resolved
+    note: "At stable v56.9.21.1, scripts/launch-chromium.sh#L93-L98 defaults the browser network to the enclave, with an explicit operator override still available. This closes the reported host-network default; no live egress test was run in this site audit."
+  - id: 0fdb0cb3
+    ts: "2026-09-22T18:42:55Z"
+    host: codex-forge
+    type: resolved
+    note: "At stable v56.9.21.1, crates/tillandsias-browser-mcp/src/allowlist.rs#L250-L257 accepts at least three labels, rejoins the middle labels as the project name, and checks exact equality. A dotted project name is no longer rejected by host shape."
+  - id: f664ad4a
+    ts: "2026-09-22T18:42:55Z"
+    host: codex-forge
+    type: resolved
+    note: "At stable v56.9.21.1, images/inference/entrypoint.sh#L329-L335 pins Ollama v0.34.0 with per-architecture SHA-256 values; entrypoint.sh#L371-L383 refuses an absent verifier or digest mismatch before extraction and execution."
