@@ -395,7 +395,7 @@ or a dashboard snapshot into release evidence.
     > Define the refinement operator over a finite artifact snapshot and check idempotence: refine(refine(state)) == refine(state).
 [^6]: Tarski, *A lattice-theoretical fixpoint theorem and its applications*, Pacific J. Math. 5 (1955) — the Knaster–Tarski theorem, generalising Knaster's 1928 powerset case | https://doi.org/10.2140/pjm.1955.5.285
 [^7]: Kleene, *Introduction to Metamathematics* (1952), cited for the iterative least-fixed-point construction | https://archive.org/details/introductiontome00klee
-[^8]: Bar-raise governance — the bar is fixed within a release, rises only by operator decision, and the automation must not self-escalate | methodology/convergence.yaml#L410-L432
+[^8]: Bar-raise governance — the bar is fixed within a release, rises only by operator decision, and the automation must not self-escalate | methodology/convergence.yaml#L413-L437
     > is a one-off scope expansion that The Tlatoāni MUST approve every time. Recurring automation (the meta-orchestration loop) MUST NOT self-escalate the bar.
 [^9]: The staged validation program: the monotonicity property tests and the denominator scope-change check | methodology/math-foundations.yaml#L175-L198
     > - allowed_evidence_transitions_are_monotone - tombstone_and_scope_change_transitions_are_explicitly_non_monotone
@@ -424,13 +424,13 @@ or a dashboard snapshot into release evidence.
     > Evidence bundles and CentiColon scores should not be interpreted as probabilities. If probabilistic or belief-function confidence is later added, it must be a separate layer from obligation closure.
 [^25]: Shafer, *A Mathematical Theory of Evidence* (1976), cited as a possible separate confidence layer | https://press.princeton.edu/books/paperback/9780691100425/a-mathematical-theory-of-evidence
 [^26]: Walley, *Statistical Reasoning with Imprecise Probabilities* (1991) | https://doi.org/10.1007/978-1-4899-3472-7
-[^27]: The shell still supplies weights over CI check names | scripts/local-ci.sh#L384-L403
+[^27]: The shell still supplies weights over CI check names | scripts/local-ci.sh#L390-L414
     > check_weight() { case "$1" in spec-cheatsheet-binding) echo 100 ;; spec-code-drift) echo 120 ;; spec-trace-coverage) echo 90 ;; version-monotonicity) echo 40 ;;
 [^28]: The committed dashboard's earned and total figures | docs/convergence/centicolon-dashboard.json#L75-L76
     > "total_cc": 990, "earned_cc": 890,
 [^29]: The framework specification names its intended scoring implementation | methodology/litmus-framework.yaml#L88-L96
     > files: - crates/tillandsias-litmus/src/convergence/mod.rs - crates/tillandsias-litmus/src/convergence/centicolon.rs
-[^30]: The uninstrumented complexity constraint and its 5000-line red flag | methodology/convergence.yaml#L329-L342
+[^30]: The uninstrumented complexity constraint and its 5000-line red flag | methodology/convergence.yaml#L340-L357
     > ratio_constraint: "methodology_complexity / codebase_complexity < 0.15" anti_pattern: > A validation system that requires more code to understand than the code being validated. Red flag: CI validators exceed 5000 lines or require specialized training to understand.
 [^31]: The three CRDT primitives, and why each field uses the one it does | crates/tillandsias-plan/src/fragments.rs#L28-L39
     > Applying LWW to a LIST would silently discard the loser's entries, which is why events are a set and not a register.
@@ -438,15 +438,15 @@ or a dashboard snapshot into release evidence.
     > Calling a lossy semantic cache a CRDT without stable IDs, tombstones, deterministic merge, and property tests creates false convergence claims.
 [^33]: Determinism rules: fold order and idempotence | crates/tillandsias-plan/src/fragments.rs#L41-L49
     > Fragments fold in `(ts, filename)` order, never directory order — the filesystem does not promise an order, and two hosts folding differently would compute different states from identical inputs, which presents as corruption rather than as a sorting bug.
-[^34]: Commutativity and idempotence of the fold pinned as named tests | crates/tillandsias-plan/src/fragments.rs#L2853-L2886
+[^34]: Commutativity and idempotence of the fold pinned as named tests | crates/tillandsias-plan/src/fragments.rs#L2971-L3005
     > fn the_fold_is_commutative_the_defining_crdt_property() { Order of arrival must not change the result.
-[^35]: Rank-aware status join with a falsification escape hatch | crates/tillandsias-plan/src/fragments.rs#L307-L320
+[^35]: Rank-aware status join with a falsification escape hatch | crates/tillandsias-plan/src/fragments.rs#L339-L353
     > The closure ladder implemented<completed<verified<done is a monotone lattice: you climb UP freely and move DOWN only through a `falsified` event.
 [^36]: A retracted CRDT claim, with the failed property named | crates/tillandsias-plan/lua/collect.lua#L7-L11
     > This is a SEEN-SET DEDUP, not a CRDT — the earlier header's CRDT claim (commutativity in particular) was false: first-wins keeps whichever duplicate arrives first, so order matters.
 [^37]: The join-semilattice argument for the version scheme, and the SemVer critique | methodology/versioning.yaml#L104-L124
     > SemVer (Major.Minor.Patch) allows arbitrary resets: Patch can go 1→2→1 if someone hotfixes a branch. There is no natural total order.
-[^38]: CRDT preconditions filed at claim strength "external analogy" | methodology/provenance.yaml#L179-L192
+[^38]: CRDT preconditions filed at claim strength "external analogy" | methodology/provenance.yaml#L167-L180
     > claim_strength: external_analogy
 [^39]: The documented component semantics the project retired | methodology/versioning.yaml#L9-L20
     > Major: meaning: "Contract version — breaking changes only"
@@ -456,10 +456,10 @@ or a dashboard snapshot into release evidence.
     > fn refine_is_monotone_on_the_real_rules((x, y) in comparable_pair()) {
 [^42]: The gate that refuses a missing or duplicated requirement identifier, and states what it cannot check | scripts/check-requirement-ids.sh#L5-L6
     > Every spec requirement carries a stable identifier, and no two carry the same one.
-[^43]: The shell scorer hands its weights to the model instead of summing them itself | scripts/local-ci.sh#L542-L544
+[^43]: The shell scorer hands its weights to the model instead of summing them itself | scripts/local-ci.sh#L565-L569
     > What LEFT is the arithmetic: earned/denominator/residual are now computed by `tillandsias-plan score-checks`, which runs obligation::centicolon_function over a SpecState.
 [^44]: The ranking function in code names which side of the monotone band a score is on | crates/tillandsias-plan/src/obligation.rs#L675-L708
     > Regime::Broken("denominator scope changed: an obligation was tombstoned")
 
-[^45]: The shell prints non-comparability when the scorer reports a broken regime | scripts/local-ci.sh#L591-L599
+[^45]: The shell prints non-comparability when the scorer reports a broken regime | scripts/local-ci.sh#L612-L620
     > this score is NOT comparable with the previous run
