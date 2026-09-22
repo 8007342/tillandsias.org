@@ -20,6 +20,8 @@ import facts  # noqa: E402
 import figures  # noqa: E402
 import issues  # noqa: E402
 import slides  # noqa: E402
+import progress  # noqa: E402
+import big_graph  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "docs" / "matrix"
@@ -455,17 +457,6 @@ def parse(path, level):
     return body, {n: tuple(v) for n, v in notes.items()}
 
 
-SEVERITY_ORDER = {"high": 0, "medium": 1, "low": 2}
-COLUMN_TITLE = {
-    "red": ("Found, not yet tracked",
-            "Newly found, undocumented or untracked, and still carrying real uncertainty."),
-    "yellow": ("Tracked, with a plan",
-               "Documented and being worked or actively followed, uncertainty low enough to act on."),
-    "green": ("Done, and holding",
-              "Complete, and the thing it was about now meets its own written criteria."),
-}
-
-
 def home_view():
     """The landing placeholder: a wordmark, and one fact drawn in the browser."""
     pool = "".join('<li>%s</li>' % html.escape(f) for f in facts.FACTS)
@@ -484,103 +475,6 @@ def home_view():
             '<button class="gobtn" data-go="view-slides">Slides</button></p>'
             '</div></section>'
             % (figures.PLANTS["xerographica"], html.escape(facts.FACTS[0]), pool))
-
-
-def progress_view():
-    """Three columns, straight off the ledger's own ladder. Every finding is in
-    exactly one of them, because the ladder puts it there."""
-    try:
-        state = issues.fold()
-    except Exception as exc:                       # a malformed fragment must not
-        print("  ! issues ledger did not fold: %s" % exc)   # take the whole page down
-        state = {}
-
-    cols = {"red": [], "yellow": [], "green": []}
-    for f in state.values():
-        cols.get(f.get("column", "red"), cols["red"]).append(f)
-    for rows in cols.values():
-        rows.sort(key=lambda f: (SEVERITY_ORDER.get(f.get("severity"), 3), f["id"]))
-
-    total = len(state) or 1
-    done = len(cols["green"])
-    tracked = len(cols["yellow"])
-
-    def card(f):
-        ev = f.get("events", [])
-        first = ev[0].get("ts", "")[:10] if ev else ""
-        last = ev[-1].get("ts", "")[:10] if ev else ""
-        dep = "".join('<span class="dep">%s</span>' % html.escape(d)
-                      for d in f.get("depends_on", []))
-        # A runtime finding this project cannot file itself says so, so the gap
-        # between "recorded here" and "in front of the people who can fix it"
-        # is visible rather than quietly forgotten.
-        if f.get("upstream"):
-            up = ('<a class="up" href="%s" target="_blank" rel="noopener">filed &#8599;</a>'
-                  % html.escape(f["upstream"], quote=True))
-        elif f.get("repo") == "tillandsias":
-            up = '<span class="up unfiled">not filed upstream</span>'
-        else:
-            up = ""
-        when = ((" &middot; found %s" % first) if first else " &middot; no dated event") + \
-               ((" &middot; moved %s" % last) if last and last != first else "")
-        return ('<li class="card sev-%s"><div class="card-h"><code>%s</code>'
-                '<span class="repo">%s</span><span class="sev">%s</span></div>'
-                '<p class="card-t">%s</p><p class="card-m">%s%s</p>%s%s</li>'
-                % (html.escape(f.get("severity", "low")), html.escape(f["id"]),
-                   html.escape(f.get("repo", "")), html.escape(f.get("severity", "")),
-                   html.escape(f.get("title", "(untitled)")),
-                   html.escape(f.get("area", "")), when,
-                   ('<p class="card-d">needs %s</p>' % dep) if dep else "",
-                   ('<p class="card-u">%s</p>' % up) if up else ""))
-
-    def column(key):
-        title, blurb = COLUMN_TITLE[key]
-        rows = cols[key]
-        return ('<section class="col col-%s"><h3>%s <span class="n">%d</span></h3>'
-                '<p class="col-b">%s</p><ul class="cards">%s</ul></section>'
-                % (key, title, len(rows), blurb,
-                   "".join(card(f) for f in rows) or '<li class="card empty">nothing here yet</li>'))
-
-    bar = ('<div class="bar" role="img" aria-label="%d of %d findings resolved, %d tracked">'
-           '<span class="bar-g" style="width:%.1f%%"></span>'
-           '<span class="bar-y" style="width:%.1f%%"></span></div>'
-           % (done, len(state), tracked, 100.0 * done / total, 100.0 * tracked / total))
-
-    return ('<section class="view" id="view-progress" role="tabpanel" aria-labelledby="nav-progress">'
-            '<div class="wrap">'
-            '<h2 class="view-h">Live progress</h2>'
-            '<p class="view-lede">Findings recorded by this website, as of this build. These columns '
-            'show our audit record, not live telemetry or an inventory of every app defect. '
-            'A finding advances when evidence supports it; a correction records why an earlier '
-            'claim was wrong. Earlier events remain in the history.</p>'
-            '%s'
-            '<p class="tally"><b>%d</b> findings &middot; <b>%d</b> done &middot; <b>%d</b> tracked '
-            '&middot; <b>%d</b> waiting &middot; <b>%d</b> filed upstream</p>'
-            '<div class="cols">%s%s%s</div>'
-            '%s'
-            '</div></section>'
-            % (bar, len(state), done, tracked, len(cols["red"]),
-               sum(1 for f in state.values() if f.get("upstream")),
-               column("red"), column("yellow"), column("green"),
-               centicolon_note()))
-
-
-def centicolon_note():
-    """Distinguish the website's measured counts from the runtime's scorer."""
-    return ('<section class="cc"><h3>What this progress measures</h3>'
-            '<p>The bar counts findings recorded here. A resolved finding means its stated '
-            'remedy was checked; it does not mean the entire application is complete or that '
-            'every installed copy has been repaired. Adding a newly discovered defect can '
-            'lower the completed percentage while improving what we know.</p>'
-            '<p>The runtime now delegates scoring to an obligation model, but coverage of '
-            'the methodology’s full scoring rules remains partial. '
-            '<a href="#level-5-phd">The methodology level explains the implemented model '
-            'and its limits, with release-pinned evidence.</a> This website has no CentiColon '
-            'scorer or comparable score history of its own, so no convergence curve is shown.</p>'
-            '<p>We preserve findings, append evidence and record retractions. Monotonic '
-            'improvement means a more accurate, reviewable record; it does not require the '
-            'number of green flags to rise at every update.</p>'
-            '</section>')
 
 
 def slides_view():
@@ -612,6 +506,8 @@ def slides_view():
     for i, s in enumerate(slides.SLIDES, 1):
         artwork = "".join(blk(*b) for b in s["blocks"] if b[0] == "fig")
         copy = "".join(blk(*b) for b in s["blocks"] if b[0] != "fig")
+        if s.get("layout") == "diagram":
+            copy += '<p><button type="button" class="gobtn" data-go="view-big-graph">Explore Big Graph →</button></p>'
         body = artwork + '<div class="s-copy">%s</div>' % copy
         layout = ' has-art' if artwork else ''
         if s.get("layout") == "finale":
@@ -739,7 +635,10 @@ def build():
            .replace("__FAVICON__", favicon)
            .replace("__DEFS__", figures.DEFS)
            .replace("__HOME__", home_view())
-           .replace("__PROGRESS__", progress_view())
+           .replace("__PROGRESS__", progress.render(SITE_REF))
+           .replace("__BIG_GRAPH__", big_graph.render(SITE_REF))
+           .replace("__BIG_GRAPH_CSS__", big_graph.CSS)
+           .replace("__BIG_GRAPH_JS__", big_graph.JS)
            .replace("__SLIDES__", slides_view())
            .replace("__TABS__", "\n".join(tabs))
            .replace("__PANELS__", "\n".join(panels))
@@ -1054,6 +953,38 @@ footer a:hover{color:var(--leaf)}
 .cc h3{margin:0 0 10px;font-size:16px;font-weight:640}
 .cc p{margin:0 0 14px;max-width:78ch;font-size:14px;line-height:1.6;color:var(--ink-dim)}
 .cc-open{font:500 12px var(--mono);color:var(--ink-faint)}
+/* --- accountability ledger --- */
+.ledger{max-width:1180px}
+.ledger-stats{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
+.ledger-stats span{padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:12px;color:var(--ink-dim)}
+.ledger-stats b{color:var(--leaf);font:600 15px var(--mono)}
+.ledger-note{max-width:95ch;padding:12px 16px;border-left:3px solid var(--amber);background:var(--bg-2);color:var(--ink-dim);font-size:13px}
+.ledger-note a,.ledger-detail a{color:var(--leaf)}
+.ledger-search-label{display:block;margin:22px 0 7px;font:600 12px var(--mono);color:var(--ink-dim)}
+.ledger-search{width:min(100%,650px);padding:12px 14px;border:1px solid var(--line-2);border-radius:8px;background:var(--panel);color:var(--ink);font:14px var(--sans)}
+.ledger-search:focus{outline:2px solid var(--leaf-dim)}
+.ledger-results{min-height:1.3em;margin:6px 0 25px;color:var(--ink-faint);font:11px var(--mono)}
+.ledger-group{margin:32px 0 48px}.ledger-group h3{display:flex;align-items:center;gap:9px;margin:0;font-size:19px}
+.ledger-group h3 span{padding:2px 8px;border-radius:20px;background:var(--line-2);color:var(--ink-dim);font:600 11px var(--mono)}
+.ledger-group>p{margin:4px 0 14px;color:var(--ink-faint);font-size:13px}
+.ledger-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;align-items:start}
+.ledger-card{min-width:0;border:1px solid var(--line);border-left:3px solid var(--line-2);border-radius:9px;background:var(--panel)}
+.ledger-card.finding.sev-high{border-left-color:var(--rose)}.ledger-card.finding.sev-medium{border-left-color:var(--amber)}
+.ledger-card.spec.current,.ledger-card.change.complete{border-left-color:var(--leaf-dim)}
+.ledger-card.spec.retired,.ledger-card.spec.draft,.ledger-card.change.partial{border-left-style:dashed;opacity:.82}
+.ledger-card summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 8px;padding:13px 13px 12px;cursor:pointer;list-style:none}
+.ledger-card summary::-webkit-details-marker{display:none}
+.ledger-card summary:after{content:'+';order:3;margin-left:auto;color:var(--leaf);font:600 17px var(--mono)}
+.ledger-card[open] summary:after{content:'−'}
+.ledger-code{color:var(--leaf-dim);font:600 10px var(--mono);text-transform:uppercase}
+.ledger-title{flex:1 1 75%;font-size:13px;line-height:1.4;color:var(--ink)}
+.ledger-badge{border:1px solid var(--line-2);border-radius:4px;padding:1px 5px;color:var(--ink-faint);font:600 10px var(--mono)}
+.ledger-meta{flex:1 1 100%;color:var(--ink-faint);font:11px var(--mono)}
+.ledger-detail{padding:0 14px 13px;border-top:1px solid var(--line);overflow-wrap:anywhere}
+.ledger-detail p,.ledger-detail li{font-size:12.5px;line-height:1.55;color:var(--ink-dim)}
+.ledger-detail ul,.ledger-detail ol{padding-left:20px}.ledger-detail .muted{color:var(--ink-faint)}
+.ledger-field h5{margin:15px 0 4px;color:var(--leaf);font:600 10px var(--mono);text-transform:uppercase;letter-spacing:.11em}
+.ledger-field p{margin:0 0 7px}
 /* --- the slides deck --- */
 body.is-presenting{overflow:hidden}
 body.is-presenting main{padding:0}
@@ -1153,6 +1084,7 @@ body.is-presenting footer{display:none}
   .s-copy>p{font-size:15px;line-height:1.45}
   .s-pillars{grid-template-columns:repeat(3,1fr)}
 }
+__BIG_GRAPH_CSS__
 </style>
 </head>
 <body>
@@ -1166,6 +1098,7 @@ __DEFS__
   <button class="nav is-on" id="nav-what" data-go="view-what"><span class="nav-i">&#63;</span>What is it?</button>
   <button class="nav" id="nav-progress" data-go="view-progress"><span class="nav-i">&#9673;</span>Live progress</button>
   <button class="nav" id="nav-slides" data-go="view-slides"><span class="nav-i">&#9654;</span>Slides</button>
+  <button class="nav" id="nav-big-graph" data-go="view-big-graph"><span class="nav-i">&#9638;</span>Big Graph</button>
   <p class="drawer-f">Checked against release <code>__SITE_REF__</code>.</p>
 </nav>
 <div class="scrim" id="scrim" hidden></div>
@@ -1223,6 +1156,8 @@ __PANELS__
 </section>
 
 __PROGRESS__
+
+__BIG_GRAPH__
 
 __SLIDES__
 
@@ -1306,7 +1241,7 @@ __SLIDES__
   document.addEventListener('focusout', hide);
   window.addEventListener('scroll', function(){ tip.classList.remove('on'); }, {passive:true});
 })();
-// The menu, the three views, and one fact chosen per visit.
+// The menu, the five views, and one fact chosen per visit.
 (function(){
   var burger = document.getElementById('burger'),
       drawer = document.getElementById('drawer'),
@@ -1347,11 +1282,11 @@ __SLIDES__
     if (lines.length) out.textContent = lines[Math.floor(Math.random() * lines.length)].textContent;
   }
 
-  // A deep link opens its view: #home, #progress, #slides, or a level such as #level-3-power.
+  // A deep link opens its view: #home, #progress, #slides, #big-graph, or a level.
   function fromHash(){
     var h = location.hash.slice(1);
     if (!h) return;
-    if (h === 'home' || h === 'progress' || h === 'slides') return go('view-' + h, false);
+    if (h === 'home' || h === 'progress' || h === 'slides' || h === 'big-graph') return go('view-' + h, false);
     if (document.getElementById('panel-' + h)) go('view-what', false);
   }
   window.addEventListener('hashchange', fromHash);
@@ -1467,6 +1402,21 @@ function fromDeckHash(){
   var h = location.hash.slice(1);
   if (h && document.getElementById('panel-' + h)) show(h);
 })();
+// Search only filters the rendered entries; the complete snapshot remains in the HTML.
+(function(){
+  var input=document.getElementById('ledger-search'),out=document.getElementById('ledger-results');
+  if(!input)return;
+  var cards=[].slice.call(document.querySelectorAll('[data-ledger-item]'));
+  function filter(){var q=input.value.trim().toLowerCase(),shown=0;
+    cards.forEach(function(card){var yes=!q||card.dataset.search.toLowerCase().indexOf(q)!==-1;
+      card.hidden=!yes;if(yes)shown++;});
+    document.querySelectorAll('[data-ledger-group]').forEach(function(group){
+      group.hidden=!!q&&!group.querySelector('[data-ledger-item]:not([hidden])');});
+    out.textContent=q?shown+' matching entries':'All '+cards.length+' entries shown';
+  }
+  input.addEventListener('input',filter);filter();
+})();
+__BIG_GRAPH_JS__
 </script>
 </body>
 </html>
