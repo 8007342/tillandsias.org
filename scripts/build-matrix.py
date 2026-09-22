@@ -1264,6 +1264,7 @@ __SLIDES__
   function go(id, push){
     if (!document.getElementById(id)) return;
     document.body.classList.toggle('is-presenting', id === 'view-slides');
+    document.body.classList.toggle('is-graphing', id === 'view-big-graph');
     views.forEach(function(v){ v.classList.toggle('is-active', v.id === id); });
     navs.forEach(function(n){ n.classList.toggle('is-on', n.dataset.go === id); });
     setMenu(false);

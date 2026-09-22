@@ -8,7 +8,7 @@ Live progress currently renders only findings and gives each finding a short fac
 
 - Capture all canonical runtime specs and archived changes, including changes with no task record, at the site's release pin in a committed, deterministic snapshot.
 - Render findings, specs, archived runtime changes and local website changes as collapsed, searchable records with full details and explicit status semantics.
-- Add Big Graph as a fifth menu page and link to it from slide 6. Its map shows desired interactions and current implementation limits separately, with scroll, fixed-text-size spacing zoom, layer toggles and an inspector.
+- Add Big Graph as a fifth menu page and link to it from slide 6. Its full-screen map shows desired interactions and current implementation limits separately, with left-to-right journeys, two-axis scrolling, layer toggles and an overlay inspector.
 - Keep a plain Python and browser-native implementation so the generated site remains static and portable.
 
 ## Scope and limits
