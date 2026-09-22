@@ -30,3 +30,21 @@ Implemented, partial and goal-only components MUST have distinct styles. The pag
 
 - **WHEN** the reader selects the component
 - **THEN** its goal-only status and implementation limit remain visible beside its target spec
+
+### Requirement: Inspection distinguishes evidence from aspiration
+
+Each component inspector MUST separate its goal-state role, behavior observed at the pinned release, and incomplete work or scope limits. It MUST link concrete source or archived work records where available, while stating that a checked checklist is historical work evidence rather than current runtime proof. Selecting an already selected component MUST close its inspector; the close control and Escape MUST also close it. If a category hides the selected component, the inspector MUST close.
+
+#### Scenario: A reader clicks the same node twice
+
+- **WHEN** a reader opens a component and then selects that same component again
+- **THEN** the panel closes and the node's expanded state returns to false
+
+### Requirement: Filtered layers compact the map
+
+When a category is hidden, its nodes MUST fade before the surviving nodes move to close vacant columns and rows. Connections MUST be redrawn to the new positions. Primary journeys MAY show dotted shortcut connectors across hidden intermediate steps, but the page MUST explain that these shortcuts do not claim a direct connection. A reader who prefers reduced motion MUST receive the same final layout without animation. Restoring a category MUST restore its nodes and layout.
+
+#### Scenario: A reader hides forge components
+
+- **WHEN** the forge category is deselected
+- **THEN** forge nodes fade out, the remaining top-row nodes move together, and any shortcut across the hidden stages is labelled as such
