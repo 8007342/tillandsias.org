@@ -227,6 +227,19 @@ footer a:hover{color:var(--leaf)}
 .nav.is-on{color:var(--ink);background:var(--panel);border-color:var(--line)}
 .nav-i{width:1.2em;text-align:center;color:var(--leaf-dim);font-size:13px}
 .nav.is-on .nav-i{color:var(--leaf)}
+.acc{display:flex;align-items:center;gap:10px;width:100%;text-align:left;cursor:pointer;
+  background:transparent;border:1px solid transparent;border-radius:8px;color:var(--ink-dim);
+  font:500 14.5px/1 var(--sans);padding:11px 10px;transition:.15s}
+.acc:hover{color:var(--ink);background:rgba(255,255,255,.04)}
+.acc[aria-checked="true"]{color:var(--ink);background:var(--panel);border-color:var(--line)}
+.acc .acc-label{margin-right:auto}
+.acc-track{position:relative;flex:0 0 auto;width:40px;height:23px;border:1px solid var(--line-2);
+  border-radius:12px;background:var(--bg-2);transition:.18s}
+.acc-track::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;
+  border-radius:50%;background:var(--ink-faint);transition:.18s}
+.acc[aria-checked="true"] .acc-track{background:var(--leaf-dim);border-color:var(--leaf)}
+.acc[aria-checked="true"] .acc-track::after{left:19px;background:var(--leaf)}
+.acc:focus-visible{outline:2px solid var(--leaf);outline-offset:2px}
 .scrim{position:fixed;inset:0;z-index:38;background:rgba(4,6,9,.55)}
 /* --- home --- */
 .homecard{max-width:760px;margin:0 auto;padding:96px 24px 80px;text-align:center}
@@ -415,6 +428,71 @@ body.is-presenting footer{display:none}
   .s-copy>p{font-size:15px;line-height:1.45}
   .s-pillars{grid-template-columns:repeat(3,1fr)}
 }
+/* OpenDyslexic arrives via Fontsource on jsDelivr. The faces are declared
+   unconditionally, but the default page never names the family, so the font
+   files are only fetched once the accessibility switch turns the mode on. */
+@font-face{font-family:'OpenDyslexic';font-style:normal;font-weight:400;font-display:swap;
+  src:url(https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/files/opendyslexic-latin-400-normal.woff2) format('woff2'),
+      url(https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/files/opendyslexic-latin-400-normal.woff) format('woff')}
+@font-face{font-family:'OpenDyslexic';font-style:italic;font-weight:400;font-display:swap;
+  src:url(https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/files/opendyslexic-latin-400-italic.woff2) format('woff2'),
+      url(https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/files/opendyslexic-latin-400-italic.woff) format('woff')}
+@font-face{font-family:'OpenDyslexic';font-style:normal;font-weight:700;font-display:swap;
+  src:url(https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/files/opendyslexic-latin-700-normal.woff2) format('woff2'),
+      url(https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/files/opendyslexic-latin-700-normal.woff) format('woff')}
+@font-face{font-family:'OpenDyslexic';font-style:italic;font-weight:700;font-display:swap;
+  src:url(https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/files/opendyslexic-latin-700-italic.woff2) format('woff2'),
+      url(https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.3.0/files/opendyslexic-latin-700-italic.woff) format('woff')}
+/* --- accessibility mode: high contrast, dyslexia-friendly type, no motion --- */
+html:has(body.is-accessible){scroll-behavior:auto}
+body.is-accessible{
+  --bg:#050607; --bg-2:#0d0f11; --panel:#121518; --line:#3f464e; --line-2:#5a636d;
+  --ink:#ffffff; --ink-dim:#f3f6fa; --ink-faint:#d2d9e1;
+  --leaf:#7dffbc; --leaf-dim:#3ee08b; --sky:#9cc5ff; --sky-dim:#6fa0ee;
+  --violet:#cdbcff; --amber:#ffd27a; --rose:#ff9fb0;
+  --rg-0:#6dffb0; --rg-1:#55f4ba; --rg-2:#4ce8c8; --rg-3:#57d6dd; --rg-4:#69b8ec;
+  --rg-5:#82a5ef; --rg-6:#a395ee; --rg-7:#bb8cf2;
+  --sans:"OpenDyslexic",ui-sans-serif,-apple-system,"Segoe UI",Inter,Roboto,sans-serif;
+  --mono:"OpenDyslexic",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  background:#000;background-image:none;color:#fff;font-size:18px;line-height:1.78}
+body.is-accessible .prose p,body.is-accessible .lede,body.is-accessible .view-lede,
+body.is-accessible .homelead,body.is-accessible .fact,body.is-accessible .ins-note,
+body.is-accessible .drawer-f,body.is-accessible .card-t,body.is-accessible .card-m,
+body.is-accessible .card-d,body.is-accessible .ledger-detail,body.is-accessible .blurb,
+body.is-accessible footer,body.is-accessible .fn-note,
+body.is-accessible .s-lede,body.is-accessible .s-copy>p
+{color:#fff}
+body.is-accessible .prose,body.is-accessible .lede,body.is-accessible .view-lede,
+body.is-accessible .homelead,body.is-accessible .fact,body.is-accessible .ins-note,
+body.is-accessible .drawer-f,body.is-accessible .card-t,body.is-accessible .card-m,
+body.is-accessible .ledger-detail,body.is-accessible .s-lede,body.is-accessible .s-copy>p
+{letter-spacing:.018em;word-spacing:.05em;line-height:1.72}
+body.is-accessible .nav,body.is-accessible .acc{font-size:16px;line-height:1.2}
+body.is-accessible .blurb,body.is-accessible .card-t{font-size:15px}
+body.is-accessible a{text-decoration:underline;text-underline-offset:3px}
+body.is-accessible :focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+body.is-accessible *,body.is-accessible *::before,body.is-accessible *::after{
+  animation:none!important;transition:none!important}
+body.is-accessible .eyebrow .updated{opacity:1}
+body.is-accessible .ext{opacity:1}
+body.is-accessible .homeart svg{opacity:1}
+body.is-accessible .graph-lane-toggle[aria-pressed="false"]{opacity:.75}
+body.is-accessible .s-prev:disabled,body.is-accessible .s-next:disabled{opacity:.65}
+body.is-accessible code{background:#11151a;border-color:#5a636d;color:#ffd27a}
+body.is-accessible .ins-box{background:#050607}
+body.is-accessible .ins-box input:focus{color:#ffe9b0}
+body.is-accessible .sticky{background:#000;backdrop-filter:none}
+body.is-accessible .burger{background:#0d0f11}
+body.is-accessible .homeart,body.is-accessible .fig{background:#050607}
+body.is-accessible .deck-frame{background:#000}
+body.is-accessible #tip{background:#0b0d10}
+body.is-accessible #tip q{color:#fff}
+body.is-accessible .graph-head{background:#050607}
+body.is-accessible .graph-viewport{
+  background:radial-gradient(circle at 1px 1px,#4d5b68 1px,transparent 0) 0 0/24px 24px,#000}
+body.is-accessible .graph-node{background:#0c0e10;box-shadow:none}
+body.is-accessible #graph-lines path{stroke:#8fa8bd}
+body.is-accessible .graph-inspector{background:#0b0d10fa}
 
 /* --- Big Graph: a full-viewport, scrollable system map --- */
 body.is-graphing{overflow:hidden}
@@ -488,6 +566,10 @@ body.is-graphing footer{display:none}
   <button class="nav" id="nav-slides" data-go="view-slides"><span class="nav-i">&#9654;</span>Slides</button>
   <button class="nav" id="nav-big-graph" data-go="view-big-graph"><span class="nav-i">&#9638;</span>Big Graph</button>
   <p class="drawer-f">Checked against release <code>v56.9.21.1</code>.</p>
+  <button type="button" class="acc" id="acc-toggle" role="switch" aria-checked="false">
+    <span class="acc-label">Accessible</span>
+    <span class="acc-track" aria-hidden="true"></span>
+  </button>
 </nav>
 <div class="scrim" id="scrim" hidden></div>
 
@@ -2303,6 +2385,25 @@ in the record, and say what actually happened to both level-2 flags.</p></div><d
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape') setMenu(false);
   });
+
+  // The accessibility switch: one class on <body> gates every override, the
+  // choice is remembered per browser, and it starts off — today's styles.
+  var acc = document.getElementById('acc-toggle'),
+      KEY = 'tillandsias.org.accessibility';
+  function applyAcc(on){
+    document.body.classList.toggle('is-accessible', on);
+    acc.setAttribute('aria-checked', on ? 'true' : 'false');
+  }
+  if (acc) {
+    acc.addEventListener('click', function(){
+      var on = !document.body.classList.contains('is-accessible');
+      applyAcc(on);
+      try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) {}
+    });
+    var saved;
+    try { saved = localStorage.getItem(KEY); } catch (e) {}
+    applyAcc(saved === '1');
+  }
 
   var views = [].slice.call(document.querySelectorAll('.view')),
       navs  = [].slice.call(document.querySelectorAll('.nav'));
