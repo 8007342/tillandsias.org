@@ -1,0 +1,29 @@
+issues:
+  - id: c1223430
+    repo: tillandsias.org
+    title: Phone-level provenance claim exceeded its Linux source evidence
+    area: docs/matrix/level-2-phone.md
+    class: site
+    severity: low
+    tag: main
+    commit: d6e95bebe749e6077f375d21a503f16a0d6a00a6
+    claim: The published phone-level copy said no installed Tillandsias program records its build snapshot.
+    code: The cited runtime finding concerns the Linux launcher; the macOS tray embeds its build commit at crates/tillandsias-macos-tray/src/main.rs#L58-L64.
+    why: The universal wording hid the platform boundary and overstated what the Linux finding established.
+    fix: Scope the shortcoming and its path to the Linux launcher and cite the finding at the stable release.
+    evidence:
+      - path: docs/matrix/level-2-phone.md#L66
+        quote: '> RED: After installing, you cannot tell from the program what was installed. It prints a version number that was baked in when it was compiled, and nothing on it records which snapshot of the code it was built from.'
+        note: This was published as universal wording, while the linked finding names the Linux launcher only.
+    upstream: ""
+events:
+  - id: c1223430
+    ts: "2026-09-24T23:32:00Z"
+    host: codex-forge
+    type: found
+    note: Review against stable v56.9.21.1 showed the Linux-only finding did not support the page's claim about every platform.
+  - id: c1223430
+    ts: "2026-09-24T23:32:01Z"
+    host: codex-forge
+    type: retracted
+    note: The universal claim was withdrawn and replaced with wording scoped to the Linux launcher; the macOS tray's embedded build commit was confirmed in the stable source.

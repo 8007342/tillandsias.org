@@ -63,8 +63,8 @@ journey reaches perfection.[^8][^9]
 > NOTE: A built-in "expert" feature once gave confident answers with no sources at all: it described a careful research procedure, did not run it, returned an empty citation list, and stamped its own output verified anyway.[^14]
 > GREEN: It was switched off and replaced: the shipped configuration now points the assistant at a grounded service that either cites the sources it actually used or plainly refuses.[^28] The replacement was checked live on 2026-09-02 and is now in the stable release.[^29] One limit remains below.
 
-> RED: After installing, you cannot tell from the program what was installed. It prints a version number that was baked in when it was compiled, and nothing on it records which snapshot of the code it was built from.[^34] So "this is the stable release, which trails the newest code on purpose" and "this download was stale" look exactly the same from the outside, and neither the person who installed it nor the people who built it can tell which happened.[^35]
-> PATH: The project has written the shortcoming down and is tracking it, including what a fix would have to record; it has not yet reached a released build, so the tracking entry is linked here on the development branch rather than in the release this page describes.[^35]
+> RED: The Linux launcher prints a version number baked in when it was compiled, but carries no build commit to identify its exact source snapshot.[^34][^35]
+> PATH: The Linux launcher still has no build commit or dirty-tree marker; the runtime records that as an open item in the stable release.[^35]
 
 > GREEN: The replacement’s small scripting layer was rebuilt and tested on both the Mac and Windows build lanes on 17 September 2026.[^15] The Windows run used Visual Studio’s C toolchain; an MSYS host without it remains untested.
 
@@ -144,7 +144,8 @@ Two install problems and one feature that once promised more than it delivered a
 
 [^34]: The version shown is the version file as it stood when the program was compiled | crates/tillandsias-headless/src/main.rs#L121-L121
     > pub(crate) const VERSION: &str = include_str!("../../../VERSION");
-[^35]: The tracking entry for this shortcoming, on the development branch | https://github.com/8007342/tillandsias/blob/linux-next/plan/index.d/20260914t185710z-1188-mm9y-installed-launcher-has-no-provenance-lenovinha.yaml
+[^35]: The stable runtime finding is specifically about the Linux launcher | plan/index.d/20260914t185710z-1188-mm9y-installed-launcher-has-no-provenance-lenovinha.yaml#L27-L43
+    > the Linux launcher has no build.rs reading it.
 
 [^36]: Linux installer runs the reset command | scripts/install.sh#L313-L314
     > "$INSTALL_PATH" --reset-state --debug
