@@ -460,12 +460,15 @@ def parse(path, level):
 def home_view():
     """The landing placeholder: a wordmark, and one fact drawn in the browser."""
     pool = "".join('<li>%s</li>' % html.escape(f) for f in facts.FACTS)
-    return ('<section class="view" id="view-home" role="tabpanel" aria-labelledby="nav-home">'
+    return ('<section class="view is-active" id="view-home" role="tabpanel" aria-labelledby="nav-home">'
             '<div class="homecard">'
             '<div class="homeart" role="img" aria-label="Placeholder for an image of the Tlatoāni">'
             '%s<span class="homeart-note">image to come</span></div>'
             '<h1 class="wordmark">Tillandsias</h1>'
-            '<p class="byline">by Tlatoāni</p>'
+            '<p class="byline">by Tlatoāni '
+            '<a class="linkedin-badge" href="https://www.linkedin.com/in/luisdanielrangeltovar/" '
+            'target="_blank" rel="noopener noreferrer" aria-label="Tlatoāni on LinkedIn (opens in a new tab)">'
+            '<span class="linkedin-mark" aria-hidden="true">in</span>LinkedIn</a></p>'
             '<p class="fact" id="fact">%s</p>'
             '<ul class="factpool" id="factpool" hidden>%s</ul>'
             '<p class="homelead">A small cloud region on your own computer. Disposable workspaces, '
@@ -920,6 +923,11 @@ footer a:hover{color:var(--leaf)}
   letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
 .wordmark{margin:0;font-size:clamp(46px,10vw,96px);line-height:1;letter-spacing:-.04em;font-weight:660}
 .byline{margin:12px 0 0;font:400 17px/1 var(--sans);color:var(--ink-dim)}
+.linkedin-badge{display:inline-flex;align-items:center;gap:6px;margin-left:8px;padding:6px 9px;
+  border-radius:5px;background:#0a66c2;color:#fff;font:600 12px/1 var(--sans);text-decoration:none;vertical-align:middle}
+.linkedin-badge:hover{background:#004182;color:#fff}
+.linkedin-badge:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.linkedin-mark{font:bold 17px/1 var(--sans)}
 .fact{max-width:52ch;margin:34px auto 0;font:italic 400 15.5px/1.65 var(--sans);color:var(--ink-faint)}
 .factpool{display:none}
 .homelead{max-width:52ch;margin:26px auto 0;font-size:15px;color:var(--ink-dim)}
@@ -1172,8 +1180,8 @@ __DEFS__
         aria-controls="drawer"><span></span><span></span><span></span></button>
 <nav class="drawer" id="drawer" aria-label="Site">
   <p class="drawer-h">tillandsias.org</p>
-  <button class="nav" id="nav-home" data-go="view-home"><span class="nav-i">&#127968;</span>Home</button>
-  <button class="nav is-on" id="nav-what" data-go="view-what"><span class="nav-i">&#63;</span>What is it?</button>
+  <button class="nav is-on" id="nav-home" data-go="view-home"><span class="nav-i">&#127968;</span>Home</button>
+  <button class="nav" id="nav-what" data-go="view-what"><span class="nav-i">&#63;</span>What is it?</button>
   <button class="nav" id="nav-progress" data-go="view-progress"><span class="nav-i">&#9673;</span>Live progress</button>
   <button class="nav" id="nav-slides" data-go="view-slides"><span class="nav-i">&#9654;</span>Slides</button>
   <button class="nav" id="nav-big-graph" data-go="view-big-graph"><span class="nav-i">&#9638;</span>Big Graph</button>
@@ -1187,7 +1195,7 @@ __DEFS__
 
 __HOME__
 
-<section class="view is-active" id="view-what" role="tabpanel" aria-labelledby="nav-what">
+<section class="view" id="view-what" role="tabpanel" aria-labelledby="nav-what">
 <header class="hero">
   <div class="wrap">
     <p class="eyebrow"><span class="leaf-ico" aria-hidden="true">__LEAF__</span>tillandsias.org <span class="ver" title="The release of the source repository this page was last checked against">&middot; __SITE_REF__</span> <span class="updated">&middot; website last updated __BUILD_STAMP__</span></p>
@@ -1369,7 +1377,7 @@ __SLIDES__
     views.forEach(function(v){ v.classList.toggle('is-active', v.id === id); });
     navs.forEach(function(n){ n.classList.toggle('is-on', n.dataset.go === id); });
     setMenu(false);
-    if (push) history.replaceState(null, '', id === 'view-what' ? location.pathname : '#' + id.slice(5));
+    if (push) history.replaceState(null, '', id === 'view-home' ? location.pathname + location.search : '#' + id.slice(5));
     window.scrollTo(0, 0);
   }
   [].slice.call(document.querySelectorAll('[data-go]')).forEach(function(b){
@@ -1384,11 +1392,11 @@ __SLIDES__
     if (lines.length) out.textContent = lines[Math.floor(Math.random() * lines.length)].textContent;
   }
 
-  // A deep link opens its view: #home, #progress, #slides, #big-graph, or a level.
+  // A deep link opens its view: #home, #what, #progress, #slides, #big-graph, or a level.
   function fromHash(){
     var h = location.hash.slice(1);
-    if (!h) return;
-    if (h === 'home' || h === 'progress' || h === 'slides' || h === 'big-graph') return go('view-' + h, false);
+    if (!h) return go('view-home', false);
+    if (h === 'home' || h === 'what' || h === 'progress' || h === 'slides' || h === 'big-graph') return go('view-' + h, false);
     if (document.getElementById('panel-' + h)) go('view-what', false);
   }
   window.addEventListener('hashchange', fromHash);
