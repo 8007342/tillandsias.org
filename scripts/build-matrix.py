@@ -458,17 +458,19 @@ def parse(path, level):
 
 
 def home_view():
-    """The landing placeholder: a wordmark, and one fact drawn in the browser."""
+    """The landing portrait: a photo of the Tlatoāni, and one fact drawn in the browser."""
     pool = "".join('<li>%s</li>' % html.escape(f) for f in facts.FACTS)
+    art = ('<div class="homeart" role="img" aria-label="Tlatoāni at the monitor, stars above">'
+           '<img class="homeart-img" src="assets/fedora-up.png" alt="">'
+           '<span class="homeart-vignette" aria-hidden="true"></span></div>')
     return ('<section class="view is-active" id="view-home" role="tabpanel" aria-labelledby="nav-home">'
             '<div class="homecard">'
-            '<div class="homeart" role="img" aria-label="Placeholder for an image of the Tlatoāni">'
-            '%s<span class="homeart-note">image to come</span></div>'
+            '%s'
             '<h1 class="wordmark">Tillandsias</h1>'
             '<p class="byline">by Tlatoāni '
             '<a class="linkedin-badge" href="https://www.linkedin.com/in/luisdanielrangeltovar/" '
             'target="_blank" rel="noopener noreferrer" aria-label="Tlatoāni on LinkedIn (opens in a new tab)">'
-            '<span class="linkedin-mark" aria-hidden="true">in</span>LinkedIn</a></p>'
+            '<span class="linkedin-mark" aria-hidden="true">in</span></a></p>'
             '<p class="fact" id="fact">%s</p>'
             '<ul class="factpool" id="factpool" hidden>%s</ul>'
             '<p class="homelead">A small cloud region on your own computer. Disposable workspaces, '
@@ -477,7 +479,7 @@ def home_view():
             '<button class="gobtn" data-go="view-progress">Live progress</button>'
             '<button class="gobtn" data-go="view-slides">Slides</button></p>'
             '</div></section>'
-            % (figures.PLANTS["xerographica"], html.escape(facts.FACTS[0]), pool))
+            % (art, html.escape(facts.FACTS[0]), pool))
 
 
 def slides_view():
@@ -915,19 +917,22 @@ footer a:hover{color:var(--leaf)}
 .scrim{position:fixed;inset:0;z-index:38;background:rgba(4,6,9,.55)}
 /* --- home --- */
 .homecard{max-width:760px;margin:0 auto;padding:96px 24px 80px;text-align:center}
-.homeart{position:relative;display:flex;align-items:center;justify-content:center;
-  height:clamp(180px,30vh,300px);margin:0 0 34px;border:1px solid var(--line);border-radius:14px;
+.homeart{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  height:clamp(240px,42vh,460px);margin:0 0 34px;border:1px solid var(--line);border-radius:14px;
   background:linear-gradient(180deg,#0c1119,#080b10);color:var(--leaf-dim)}
-.homeart svg{width:74px;height:74px;opacity:.5}
+.homeart-img{width:100%;height:100%;object-fit:cover;display:block}
+.homeart-vignette{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(130% 130% at 50% 45%, transparent 50%, rgba(7,9,12,.55) 76%, rgba(7,9,12,.94) 100%),
+    linear-gradient(180deg, rgba(7,9,12,.6), transparent 20% 80%, rgba(7,9,12,.8))}
 .homeart-note{position:absolute;bottom:12px;right:14px;font:500 10.5px/1 var(--mono);
   letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
 .wordmark{margin:0;font-size:clamp(46px,10vw,96px);line-height:1;letter-spacing:-.04em;font-weight:660}
 .byline{margin:12px 0 0;font:400 17px/1 var(--sans);color:var(--ink-dim)}
-.linkedin-badge{display:inline-flex;align-items:center;gap:6px;margin-left:8px;padding:6px 9px;
-  border-radius:5px;background:#0a66c2;color:#fff;font:600 12px/1 var(--sans);text-decoration:none;vertical-align:middle}
+.linkedin-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+  margin-left:9px;border-radius:6px;background:#0a66c2;color:#fff;text-decoration:none;vertical-align:middle}
 .linkedin-badge:hover{background:#004182;color:#fff}
 .linkedin-badge:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-.linkedin-mark{font:bold 17px/1 var(--sans)}
+.linkedin-mark{font:bold 14px/1 var(--sans)}
 .fact{max-width:52ch;margin:34px auto 0;font:italic 400 15.5px/1.65 var(--sans);color:var(--ink-faint)}
 .factpool{display:none}
 .homelead{max-width:52ch;margin:26px auto 0;font-size:15px;color:var(--ink-dim)}
