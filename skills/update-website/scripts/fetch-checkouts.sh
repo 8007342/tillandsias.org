@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Ensure a checkout of the Tillandsias runtime exists for every tag the levels
-# pin, for the stable channel's tag, and for the newest daily, as
+# pin, for historical runtime evidence in the findings ledger, for the stable
+# channel's tag, and for the newest daily, as
 # `$TILLANDSIAS_CLONE_DIR/<tag>`. Extra tags may be passed as arguments.
 #
 # One shallow object store (`$TILLANDSIAS_CLONE_DIR/.repo`) with a worktree per
@@ -24,7 +25,26 @@ case "$daily" in blocked:*) echo "$daily"; exit 2;; esac
 # citations the gate would otherwise be unable to check.
 ROOT=$(cd "$HERE/../../.." && pwd)
 cited=$(grep -hoE '@v[0-9]+(\.[0-9]+){3}' "$ROOT"/docs/matrix/level-*.md 2>/dev/null | tr -d '@' | sort -u)
-tags=$(printf '%s\n%s\n%s\n%s\n%s\n' "$pins" "$stable" "$daily" "$cited" "$*" | tr ' ' '\n' | grep -E '^v[0-9]' | sort -u)
+# The checked build also validates historical findings. Their release tags
+# need not appear in a current level, so pins and footnotes alone leave a
+# fresh checkout unable to pass the ledger gate.
+ledger=$(python3 - "$ROOT" <<'PY'
+import pathlib
+import re
+import sys
+
+sys.path.insert(0, str(pathlib.Path(sys.argv[1]) / "scripts"))
+import issues
+
+for issue in issues.fold().values():
+    tag = issue.get("tag", "")
+    if issue.get("repo") == "tillandsias" and re.fullmatch(r"v\d+(?:\.\d+){3}", tag):
+        if any(ev.get("quote") and ev.get("path") for ev in issue.get("evidence", []) or []
+               if isinstance(ev, dict)):
+            print(tag)
+PY
+) || { echo "blocked:ledger-tags-unreadable"; exit 2; }
+tags=$(printf '%s\n%s\n%s\n%s\n%s\n%s\n' "$pins" "$stable" "$daily" "$cited" "$ledger" "$*" | tr ' ' '\n' | grep -E '^v[0-9]' | sort -u)
 
 mkdir -p "$CLONE_DIR"
 if [ ! -e "$BASE/.git" ]; then

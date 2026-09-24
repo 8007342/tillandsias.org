@@ -216,7 +216,7 @@ def render(tag):
             'Follow the main flows left to right; scroll to explore and select a component for its sources.</p></div>'
             '<p class="graph-honesty"><b>Reading key:</b> solid green = implemented at the pinned '
             'release; amber dashed = partial; gray dotted = goal only. These are editorial '
-            'assessments from the <a href="https://github.com/8007342/tillandsias.org/blob/main/docs/audit/2026-09-22-v56.9.21.1.md" '
+            'assessments from the <a href="https://github.com/8007342/tillandsias.org/blob/main/docs/audit/2026-09-24-v56.9.21.1.md" '
             'target="_blank" rel="noopener">stable audit</a>, not runtime telemetry. '
             'Edges show intended interactions; dotted shortcut edges pass through hidden layers and do not prove a direct connection or enforcement.</p>'
             '<div class="graph-lanes" role="group" aria-label="Show or hide system layers">%s</div>'

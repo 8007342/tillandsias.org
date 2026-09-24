@@ -180,7 +180,7 @@ def render(site_ref):
             '<p class="ledger-note">“Complete” means all tasks in that archived checklist are checked. '
             'It does not certify current runtime behavior. The canonical spec status (“active”, '
             '“obsolete”, etc.) describes document lifecycle. See the '
-            '<a href="https://github.com/8007342/tillandsias.org/blob/main/docs/audit/2026-09-22-v56.9.21.1.md" '
+            '<a href="https://github.com/8007342/tillandsias.org/blob/main/docs/audit/2026-09-24-v56.9.21.1.md" '
             'target="_blank" rel="noopener">stable audit</a> for checked capability limits.</p>'
             '<label class="ledger-search-label" for="ledger-search">Find a spec, change or finding</label>'
             '<input id="ledger-search" class="ledger-search" type="search" autocomplete="off" '

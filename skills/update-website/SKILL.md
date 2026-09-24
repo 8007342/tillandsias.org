@@ -61,7 +61,8 @@ Every step's script prints a verdict on its last line.
 2. **Read the pins.** `skills/update-website/scripts/pinned-refs.sh` → one line
    per level, `slug<TAB>tag`.
 3. **Fetch checkouts.** `skills/update-website/scripts/fetch-checkouts.sh [tags…]`
-   → creates `$TILLANDSIAS_CLONE_DIR/<tag>` for every pinned tag, the stable
+   → creates `$TILLANDSIAS_CLONE_DIR/<tag>` for every pinned tag, citation
+   override, historical runtime evidence tag in the findings ledger, the stable
    tag and the newest daily (shallow, one worktree per tag, shared object
    store so tags can be diffed). Default dir: `$HOME/.cache/tillandsias-org/clones`,
    on real disk; the forge's `/tmp` is a 256 MB tmpfs and fills at two checkouts.

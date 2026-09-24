@@ -1,0 +1,29 @@
+issues:
+  - id: 60a07324
+    repo: tillandsias.org
+    title: Checkout preparation omitted runtime evidence releases needed by ledger validation
+    area: skills/update-website/scripts/fetch-checkouts.sh
+    class: process
+    severity: low
+    tag: main
+    commit: d6e95bebe749e6077f375d21a503f16a0d6a00a6
+    claim: The update skill's checkout step prepares releases used by the checked build.
+    code: Before the fix, fetch-checkouts.sh gathered pins, stable, daily, daily footnote overrides, and explicit arguments, but not historical runtime tags carried only by issues.d findings.
+    why: A fresh checked build then left historical ledger evidence unchecked, so the required gate failed despite every page pin checkout being present.
+    fix: Include each folded runtime finding's cited release tag in the checkout set.
+    evidence:
+      - path: skills/update-website/scripts/fetch-checkouts.sh#L23
+        quote: 'Also every release a footnote names with an `@vTAG` suffix: those are the'
+        note: The pre-fix tag set omitted releases referenced only by runtime findings.
+    upstream: ""
+events:
+  - id: 60a07324
+    ts: "2026-09-24T23:33:00Z"
+    host: codex-forge
+    type: found
+    note: The first checked build named 67 historical quotes as unchecked because their tagged runtime worktrees had not been prepared by the checkout helper.
+  - id: 60a07324
+    ts: "2026-09-24T23:33:01Z"
+    host: codex-forge
+    type: resolved
+    note: The helper now discovers quoted evidence tags from folded runtime findings; a no-argument run prepared v56.9.5.1 and the checked build then verified all 67 historical quotes.
