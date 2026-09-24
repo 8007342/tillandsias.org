@@ -411,7 +411,6 @@ body.is-presenting footer{display:none}
 @media (max-width:900px){.cols{grid-template-columns:1fr}}
 @media (max-width:760px){
   header.hero{padding:48px 0 24px}
-  .tab-t{display:none}
   .tab{padding:12px}
   .install{grid-template-columns:1fr;gap:3px}
   .install-strip{padding:12px 0 2px}
@@ -425,6 +424,16 @@ body.is-presenting footer{display:none}
   .s-title{font-size:clamp(24px,5vw,46px)}
   .s-copy>p{font-size:clamp(16px,2.4vw,23px)}
   .s-body .fig{max-width:100%}
+  /* Collapse the level tabs to one title: only the active level names
+     itself, the rest stay clickable as number badges, and the fixed burger
+     tucks into the left of the sticky rail instead of covering tab one. */
+  .sticky .wrap{padding-left:64px}
+  .burger{top:9px}
+  .tabs{gap:5px}
+  .tab{padding:11px 7px;font-size:12.5px}
+  .tab .tab-t{display:none}
+  .tab.is-active .tab-t{display:inline}
+  .tab-n{padding:3px 4px;min-width:20px;text-align:center}
 }
 @media (max-height:480px) and (min-aspect-ratio:1/1){
   .is-presenting .deck{padding-top:6px;padding-bottom:6px}
