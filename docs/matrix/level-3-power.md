@@ -2,7 +2,7 @@
 
 ## What you get the moment a forge opens
 
-`tillandsias --headless /path/to/project --claude` starts a container with your project in it and an agent at the prompt. Nothing below is configured by you or by the agent: the context file the agent reads first lists the plumbing under the heading "all transparent — zero configuration needed".[^16] Every claim here is checked against the stable release, v56.9.12.2.
+`tillandsias --headless /path/to/project --claude` starts a container with your project in it and an agent at the prompt. Nothing below is configured by you or by the agent: the context file the agent reads first lists the plumbing under the heading "all transparent — zero configuration needed".[^16] Every claim here is checked against the stable release, v56.9.21.1.
 
 ### The forge container
 
