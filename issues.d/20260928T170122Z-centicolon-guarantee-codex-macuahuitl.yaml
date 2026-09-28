@@ -1,0 +1,26 @@
+issues:
+  - id: 1b27ef15
+    repo: tillandsias.org
+    title: CentiColon page overstates enforcement and fixed-point completion
+    area: CentiColons and Level 5
+    class: site
+    severity: medium
+    tag: main
+    commit: b3f3091cb6d21b47349e2b407c46981d9d34b515
+    claim: The site presents CentiColons as an enforceable metric, a validator fixed point as completion, and the Lua path as grading systemic invariants hermetically in milliseconds.
+    code: At runtime v56.9.27.2, scripts/check-centicolon-ratchet.sh#L4-L29 reports advisory results against an untracked local baseline. scripts/lua/centicolon-grade-observed.lua#L38-L105 selects observations by test/digest, not required platform, and counts positive-test credit. methodology/math-foundations.yaml#L200-L206 calls fixed points validator stability, not completion.
+    why: A measurable score does not prove evidence applies or that residuals strictly decrease; readers could infer an enforced convergence guarantee that the stable release does not provide.
+    fix: Distinguish the simplified example, shipped advisory measurement, proposed evidence contract and conditional finite-time progress theorem.
+    evidence:
+      - path: scripts/build-matrix.py#L510-L510
+        quote: 'That is what <b>CentiColons (cc)</b> are: an enforceable ranking metric inspired by Stockfish&rsquo;s'
+      - path: docs/matrix/level-5-phd.md#L74-L81
+        quote: 'So "done" is a computable predicate'
+        note: A validator fixed point does not exclude unmet obligations.
+    upstream: ""
+events:
+  - id: 1b27ef15
+    ts: "2026-09-28T17:01:22Z"
+    host: codex-macuahuitl
+    type: found
+    note: Scoped source review after BigPickle's stable refresh; not a new runtime execution.

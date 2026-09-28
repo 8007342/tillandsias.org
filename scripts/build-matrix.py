@@ -484,47 +484,56 @@ def home_view():
 
 
 def centicolons_view():
-    """The CentiColons page: the Stockfish analogy, then the actual arithmetic.
+    """The CentiColons page: Stockfish analogy, worked model and shipped limits.
 
     The analogy is only the door. What follows states the unit, the three
-    numbers the scorer returns, the one property that makes the number
+    numbers in the worked model, the conditions that make comparisons
     comparable, three worked moves against a five-obligation example spec, the
     spec-to-element arrow the validators run, and the four things the score
     does not say. The example weights are the methodology's declared base
     weights; the example spec is invented for the page and is labelled as one.
     """
     body = """
-<p>In chess, no computer can calculate every possible move to the end of the game&mdash;the decision
-tree is practically infinite. Yet chess engines like Stockfish reliably play superhuman moves.
-How? They don&rsquo;t attempt to prove a complete, checkmate-ending game tree from move one.
-Instead, they evaluate positions using an objective heuristic measured in <b>CentiPawns</b>
-(where 100 centipawns equals the nominal value of one pawn). Under optimal search, that number
-measures advantage and steadily guides the engine toward victory without needing infinite foresight.</p>
+<p>Chess engines like Stockfish combine bounded search with an evaluation of promising positions.
+They do not solve the whole game from move one. The familiar <b>centipawn</b> label is now a calibrated
+scale: Stockfish&rsquo;s <a href="https://github.com/official-stockfish/WDL_model">official WDL model</a>
+relates evaluation and remaining material to self-play outcomes under its test conditions. It is not
+a literal pawn count, a monotonically improving score, or a guarantee of victory.</p>
 
-<p>Software engineering under autonomous multi-agent iteration faces the exact same mathematical reality.
-Proving absolute semantic correctness of an entire distributed system from finite test runs is theoretically
-impossible. But measuring whether a codebase is <i>converging</i>&mdash;whether it is closer to release today
-than it was yesterday&mdash;does not require solving the halting problem. It only requires a well-founded,
-bounded ranking function over auditable obligations.</p>
+<p>Software engineering borrows the useful idea of an explicit evaluation, not chess&rsquo;s outcome model.
+Tests provide evidence about declared behavior; a score can make remaining obligations visible.
+Measuring that remainder is one task. Ensuring accepted changes do not regress is another.
+Guaranteeing that the remainder eventually reaches zero additionally requires progress.</p>
 
-<p>That is what <b>CentiColons (cc)</b> are: an enforceable ranking metric inspired by Stockfish&rsquo;s
-centipawns to measure progress under uncertainty. Instead of counting lines of code, test pass percentages,
-or subjective backlog estimates, we measure the <b>remainder of obligations (R)</b>. Each specification scenario
-is an auditable proposition. When an executable, hermetic test runs green against content-addressed code bytes,
-that obligation is satisfied. The residual obligation count <i>R</i> is simply the distance left to travel.
-When <i>R</i> descends, convergence occurs. When <i>R</i> hits zero, all declared obligations are satisfied.</p>
+<p><b>CentiColons (cc)</b> are evidence-based accounting for declared obligations. The intended contract
+binds each credited assertion to the obligation, implementation inputs and required platform it actually
+tested. A green test file alone is not enough. Under a fixed scope and scoring policy, the
+<b>residual (R)</b> records what has not reached its evidence bar. Zero means those declared bars are met,
+not that every possible defect is absent.</p>
+
+<p><b>At stable v56.9.27.2:</b> Lua extracts scenario/requirement obligations and grades recorded
+positive-test results. The <a href="https://github.com/8007342/tillandsias/blob/v56.9.27.2/scripts/lua/centicolon-grade-observed.lua#L38-L105">grader</a>
+still has assertion, implementation-provenance and platform-attribution gaps; its residual is a raw count,
+not the full weighted policy below. The
+<a href="https://github.com/8007342/tillandsias/blob/v56.9.27.2/scripts/check-centicolon-ratchet.sh#L4-L29">regression check is advisory</a>,
+not enforced. Lua makes the metric executable; it does not by itself complete the methodology&rsquo;s guarantee.</p>
 
 <h3>What a CentiColon counts</h3>
 
-<p>Take the analogy apart and there is an ordinary piece of bookkeeping underneath it. Every auditable
+<p>The following is a <b>simplified binary weighted model</b>, not a claim that the entire policy is shipped.
+Its base weights come from the
+<a href="https://github.com/8007342/tillandsias/blob/v56.9.27.2/methodology/proximity.yaml#L27-L135">methodology</a>,
+which also declares modifiers, partial evidence credits, caps and penalties omitted from this example.
+Every auditable
 thing the project commits to&mdash;a <code>must</code> requirement, a systemic invariant, a positive or
 negative litmus signal, a runtime trace, a provenance binding, an environment assumption&mdash;enters the
-ledger as a named obligation with a stable identifier and a weight. The weights are declared policy
+model as a named obligation with a stable identifier and a weight. The weights are declared policy
 rather than measurement: a <code>must</code> requirement is worth 100, a systemic invariant 120, a passing
 positive litmus 80, a passing negative litmus 100, a runtime trace 60, a <code>should</code> requirement 40.
-Add up every weight the spec declares and you have the <b>budget</b>. Nothing about doing work changes it.</p>
+Add up every weight in the fixed scope and you have the <b>budget</b>. New scope or changed policy
+starts a different comparison; ordinary evidence improvement does not change that budget.</p>
 
-<p>The scorer then walks the obligations once. An obligation whose evidence has reached its bar
+<p>In this binary model, an obligation whose applicable evidence has reached its bar
 contributes its weight to the earned column; one that has not contributes nothing. Three numbers come out,
 and they are always reported together:</p>
 
@@ -534,15 +543,14 @@ and they are always reported together:</p>
 <li><b>residual</b> &mdash; budget &minus; earned, the distance still to travel.</li>
 </ul>
 
-<p>That is the whole arithmetic, and it has one property worth saying out loud, because it is the
-property the chess analogy is really about: <b>closing an obligation moves the score by exactly that
+<p>This example has one property worth saying out loud: <b>closing an obligation moves the score by exactly that
 obligation&rsquo;s weight, and the residual by exactly the same amount.</b> Nothing is averaged, smoothed
 or estimated. Close the 80-point positive litmus and the score moves 80 and the residual moves 80, and a
-reader can check it by hand. Because the budget is fixed across a comparison, a rising score means
-obligations closed and nothing else &mdash; which is the same guarantee a centipawn number buys, that
-you can put two positions or two releases side by side and read the difference.</p>
+reader can check it by hand. But a rising total can hide a lost obligation behind another gain.
+Non-regression therefore compares <b>each retained obligation</b>, with the same policy and applicable
+evidence, not just the total. That accounting rule is not a property of Stockfish&rsquo;s evaluations.</p>
 
-<h3>Three moves, counted the way an engine counts them</h3>
+<h3>A worked example, with declared weights</h3>
 
 <p>Take a five-obligation example spec, invented for this page: a Submit button, an invariant about how
 its payload is serialised, a positive litmus, a negative litmus, and a runtime trace. All declared,
@@ -569,7 +577,9 @@ evaluation function invented on the spot.</p>
 
 <p>Which raises the only question that matters: what does it <i>mean</i> for &ldquo;the Submit button
 stays disabled until the form is valid&rdquo; to be closed? It means there is an arrow from that sentence
-to something that can actually be executed, and that the execution was recorded. The arrow is the
+to something that can actually be executed, and that applicable execution evidence was recorded.
+The assertion must discriminate the intended behavior; recording an unrelated pass cannot close it.
+The arrow is the
 validator, and it is the same shape every time: take the obligation the spec names, take the element the
 spec is about, and run the check that decides whether the clause holds.</p>
 
@@ -580,15 +590,33 @@ evidence for three different clauses &mdash; a <code>must</code> requirement at 
 100, a runtime trace at 60 &mdash; landing in one ledger, which is why the tactical move above is worth
 +260 and not an average of three opinions.</p>
 
-<p>This is what the <b>submetrics</b> are for, and the reason they exist is that systems engineering does
+<p>The proposed <b>submetrics</b> also cover work outside feature behavior. Systems engineering does
 not live in user-facing specifications alone. A large share of the real work is <b>systemic invariants</b>
 &mdash; deterministic JSON sorting, sandboxed execution, no fragile shell pipes &mdash; and <b>transient
 platform preconditions</b>, the Darwin <code>bash</code> quirks, the Windows CRLF line endings, the
 container tmpfs bounds. If the metric only measured feature specs, all of that would read as zero progress
-or get shoehorned into a product spec where it does not belong. Instead a spec scenario, an invariant and a
-platform precondition are the same kind of object to the scorer: a named obligation with a weight and a bar.
-The <code>./plan</code> ledger sits in the middle as the distillation layer, and the deterministic Lua
-Litmus runner executes the invariant and litmus side of it hermetically, in milliseconds.</p>
+or be omitted from the evidence contract. Internal invariants can live in specifications too.
+The proposed common model treats a scenario, invariant and platform precondition as a named obligation
+with applicable evidence and a bar, without counting the same obligation twice.
+The <code>./plan</code> ledger links a transient fix to the durable obligation and test that prevent recurrence;
+closing a packet is not itself correctness credit. Stable Lua extraction lists invariants separately,
+but the grading path does not yet consume them. Cacheable predicates restrict observation capabilities;
+observing predicates acquire external evidence. Neither label proves an assertion adequate or its cost negligible.</p>
+
+<h3>What would make the reduction monotonic?</h3>
+
+<p>Fix the obligation set, weights and evidence policy; bind results to the exact assertions, inputs and
+required platforms; keep a durable accepted baseline; and preserve every retained obligation&rsquo;s credit.
+Under those conditions the residual cannot increase across accepted implementation changes.
+A new counterexample must still invalidate bad credit: honest measurement can rise when we learn that
+an earlier claim was wrong. Retractions are disclosed breaks in that monotone comparison, not exceptions
+silently counted as non-regression. New scope and corrected knowledge must remain visible.</p>
+
+<p>Even perfect non-regression permits a plateau. To guarantee eventual zero, require a further progress
+premise: while a fixed nonnegative integer residual is positive, it decreases by at least one within
+every next <i>K</i> cycles. Then completion takes at most <i>K &times; R<sub>0</sub></i> cycles.
+That is a conditional bound, not a guarantee delivered by the current runtime.
+<a href="#level-5-phd">Level 5</a> states the assumptions and the remaining evidence gap.</p>
 
 <h3>What the number does not say</h3>
 
@@ -602,19 +630,17 @@ and two scores cannot be combined by Bayes. It orders states; it does not measur
 nobody wrote down is invisible to it, not free.</li>
 <li><b>Effort is not in it.</b> A hard obligation and an easy one are worth what their weights say they
 are worth. The score records closure, never the cost of getting there.</li>
-<li><b>A percentage can be improved by throwing obligations away.</b> When an obligation is tombstoned it
-leaves the numerator <i>and</i> the denominator, the scorer reports that the monotone regime is broken,
-and the two scores stop being comparable. That refusal is deliberate: without it, deleting the thing you
-were failing at would read as progress.</li>
+<li><b>A percentage can be improved by throwing obligations away.</b> The weighted Rust scorer reports
+a broken comparison regime when an obligation is tombstoned; removing an obligation changes the budget
+and may remove earned credit. This comparison warning prevents reading deletion as progress.
+The separate Lua advisory reports retirements without refusing the run.</li>
 </ul>
 
-<p>One more honesty, and it belongs on this page rather than in a footnote, because this page has none:
-the arithmetic above is the arithmetic the methodology <i>declares</i>. How much of it the shipped scorer
-actually runs at a given release is a separate question with a real answer, and
-<a href="#level-5-phd">level 5</a> gives it &mdash; along with the lattice, the fixed-point argument, the
-proof that this is a Floyd-style ranking function rather than a measure, and the objections we tried and
-could not answer. If you want to know how close the CentiColon closures bring us to the methodology&rsquo;s
-promise, that is the page that argues it.</p>
+<p>The worked arithmetic is deliberately simpler than the full declared policy, and the shipped
+measurements are narrower still. <a href="#level-5-phd">Level 5</a> separates those three layers.
+CentiColons help operationalize the promise: they make declared evidence debt inspectable.
+They do not yet complete an enforced non-regression guarantee, and a measurement alone cannot supply
+the strict-progress premise of a termination proof.</p>
 """
     for key, name in (("@@POS@@", "cc-positional"), ("@@TACT@@", "cc-tactical"),
                       ("@@BTN@@", "cc-spec-button")):

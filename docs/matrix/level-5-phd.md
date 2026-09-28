@@ -71,13 +71,14 @@ Scott-continuous. That is the first place a referee probes, and it survives.
 
 @fig:fixpoint
 
-So "done" is a computable predicate — $x$ is closed iff $\mathrm{refine}(x) = x$ —
-and governance supplies the hypothesis that makes it non-vacuous: the bar $B_v$ is
+So validator **stability** is a computable predicate: $\mathrm{refine}(x) = x$.
+It is not completion: the identity operator is stable even with unmet obligations.
+The methodology makes this distinction explicitly[^40]. The comparison bar $B_v$ is
 **fixed within a release**, rising only by explicit operator decision, with the
 automation forbidden from self-escalating it[^8]. A continuously rising bar makes
 $\mathrm{refine}$ a moving operator and destroys stabilisation; discrete,
 externally gated raises preserve it. That is the standing hypothesis of Theorem 3,
-not decoration.
+not a premise that forces every obligation to close.
 
 And now the gap. Theorem 3 needs **monotone and inflationary**; the repository
 asserts **idempotent**. These are the three axioms of a closure operator, and the
@@ -109,15 +110,50 @@ $$d_{v+1} \le d_v \;\text{ for all } v, \quad d_v \ge 0 \qquad\Longrightarrow\qq
 That is the whole result, and it is correct.
 
 What does **not** follow is $d_* = 0$, and the repository says so in those words[^11].
-The exact extra hypothesis is a uniform progress premise, in either of two forms:
+A sufficient extra hypothesis is a uniform progress premise, in either of two forms:
 
 $$\exists\,\varepsilon > 0 : \; d_v > 0 \implies d_{v+1} \le d_v - \varepsilon \qquad\text{or}\qquad \exists\,\theta < 1 : \; d_{v+1} \le \theta\, d_v$$
 
 Either excludes positive residual fixed points and forces $d_* = 0$ — the additive
 form in finitely many steps, the multiplicative one geometrically. The repository's
 phrase — "a validated progress premise that excludes positive residual fixed
-points"[^11] — is precisely this, asserted as a requirement on a future claim rather
-than as a fact.
+points"[^11] — can be discharged by either sufficient condition; neither is
+established here as a fact about the project.
+
+### What CentiColons make measurable
+
+A concrete residual can replace an unspecified distance without becoming a metric
+in the sense needed by Banach. Fix a finite obligation set $S$, positive integer
+weights $w_i$, and a versioned closure predicate $C_i(x) \in \{0,1\}$ requiring
+the declared evidence for obligation $i$. A proposed binary accounting contract is
+
+$$R_S(x) = \sum_{i \in S} w_i\bigl(1-C_i(x)\bigr).$$
+
+This is a measurable residual of **declared, unmet evidence obligations**, not
+all uncertainty about the program. Its unit, scope and evidence policy must stay
+fixed across a comparison. Preserving each retained obligation's credit implies
+non-increase of $R_S$; non-increase of the total does not imply preservation of
+each credit, because one gain can hide another loss. New obligations, retirements
+and evidence invalidation must be reported explicitly rather than called progress.
+
+The termination statement now has a precise price: if there is no regression and,
+whenever $R_S>0$, a decrease of at least one occurs within the next $K$ cycles,
+then $R_S=0$ within at most $K R_S(x_0)$ cycles. There are at most $R_S(x_0)$ such
+decreases to wait for. This is a conditional cycle bound, not a wall-clock bound
+or a proved property of the project. Non-increase alone permits $R_S=10$ forever.
+
+Lua makes extraction and grading executable. That closes part of the measurement
+gap, not the progress premise. At this release the Lua grader reports an unweighted
+count at the recorded positive-test bar[^47], while the methodology declares a
+richer weighted policy[^15]. The regression reporter is advisory and stores an
+untracked, per-checkout baseline, not a durable accepted-release baseline[^48].
+The capability split between cacheable and observing predicates[^46] also cannot
+prove that an assertion tests the intended behavior or that a pass belongs to the
+current implementation and every required platform. A pure grader can give the
+same wrong credit on every evaluation.
+
+> RED: CentiColons make declared residuals observable, but the stable release does not yet establish enforced monotonic reduction under a complete evidence contract. The observed grader selects results by test name and test digest, not required platform; its spec-digest check is conditional and it does not match implementation inputs[^47]. Scenario candidates are shared at requirement level[^49].
+> PATH: Fix assertion, subject and platform attribution; align the scoring policy; then pilot a durable per-obligation non-regression check before enabling enforcement. Invariant extraction is separate from the current grading loop[^50]. This is the proposed program, not a claim that it has shipped; strict progress remains a separate hypothesis even after these checks exist.
 
 @fig:staircase
 
@@ -285,24 +321,23 @@ Given the adjunction and a sound abstract operator ($\alpha \circ F \sqsubseteq 
 one gets $\alpha(\mathrm{lfp}\,F) \sqsubseteq \mathrm{lfp}\,F^\#$: a fixed point
 computed in the abstract over-approximates the concrete, so a property proved
 upstairs holds of every concrete execution downstairs. Without it, closure in the
-obligation lattice implies precisely nothing about the program. It is bookkeeping
-over evidence, and is labelled as such.
+obligation lattice does not inherit that transfer theorem. Tests can still provide
+empirical evidence about the executions they observe; they do not thereby establish
+a sound abstract interpretation of all program behavior.
 
-A closure is one column of that lattice reaching its top. Worth saying plainly
-what that does and does not buy, because the site's centicolon page reads a full
-set of them as how close the methodology's promise now sits: close on the
-coverage axis, every obligation carried to $\texttt{evidence\_bundled}$, and no
-closer on the truth axis, because the step from lattice height to program
-behaviour is the adjunction the repository declines to define[^22]. What stays
-unproven after a closure is what stayed unproven before it: that the chosen
-obligation set is the right one[^4].
+Credit means reaching an obligation's **configured evidence bar**, not necessarily
+the top of the lattice: a passing CI check does not imply runtime observation or
+bundled evidence[^51]. Applicable, discriminating tests add evidence about behavior;
+closure alone still proves neither that the obligation set is adequate[^4] nor
+that all concrete executions satisfy it[^22]. This is the distinction the
+CentiColon page's simplified example must preserve.
 
 **A ranking function, not a measure.** The CentiColon map $c: S_{\text{spec}} \to \mathbb{N}$
 is bounded, with separately reported denominator and residual, and monotone *only*
 for transitions preserving obligation IDs and introducing no penalties, ambiguity,
-or denominator scope change[^1]. That is a Floyd-style ranking function[^23]: a
-well-founded descent witness into a finite ordinal, of the kind that proves
-termination.
+or denominator scope change[^1]. Earned credit ascends; a residual derived from it
+can be a Floyd-style descent witness[^23] only with an additional strict-progress
+premise. Boundedness and non-increase alone do not prove termination.
 
 It is not a measure. There is no $\sigma$-algebra on
 $S_{\text{spec}}$; $c$ is not additive, because obligations overlap and sixteen
@@ -325,7 +360,7 @@ to today's scores is unlicensed. Building the layer that would license it is ope
 work, and the repository files it as such.
 
 > RED: The shell scorer now delegates arithmetic to the obligation model[^43], but still supplies weights over CI check names[^27]. A passing check earns its weight at the positive-test bar; it is not runtime observation or bundled evidence. This wiring does not implement the full methodology table of multipliers, evidence credits, caps and penalties[^15]. The committed dashboard remains a historical 890/990 snapshot[^28], not a measurement of this release.
-> PATH: The framework specification still names a separate scoring implementation[^29]. The shipped path centralises the arithmetic; completing and evidencing the richer scoring contract remains distinct work. With the upgraded deterministic Lua Litmus runtime (orders 1395-n7qd, 1395-88tp, 1395-ue3i), scoring grounds directly in spec scenarios and systemic invariants, treating the plan ledger as the distillation layer and measuring true residual obligations rather than coarse CI check counts.
+> PATH: The framework specification still names a separate scoring implementation[^29]. The shipped path centralises the arithmetic; completing and evidencing the richer scoring contract remains distinct work. Lua adds scenario/requirement extraction and recorded positive-test grading, not yet integrated invariant credit or full evidence attribution[^47][^49][^50]. The advisory residual and the weighted CI score are distinct projections, not interchangeable units.
 
 > RED: The methodology's own complexity constraint — methodology-to-codebase ratio below 0.15, with a red flag at 5000 lines of CI validators[^30] — has no enforcing check identified in this audit, while the script that computes the score dispatches a large shell validator corpus.
 > PATH: The rule names two measurement procedures[^30]; no enforcing implementation was found in the scripts searched.
@@ -378,9 +413,10 @@ monotonicity cannot force retention of a certainty later shown false.
 ## Verdict
 
 The formal core is a finite product lattice, a finite monotone-inflationary stabilisation under declared
-validators at an operator-gated bar, a Floyd-style ranking function, and a correctly
-stated moving-target result whose zero-floor corollary is declined for want of a
-metric. Contraction, Galois connections and probabilistic readings are named *absent*
+validators at an operator-gated bar, a candidate residual ranking function, and a
+moving-target result whose zero-floor corollary needs a progress premise.
+A metric is a separate missing hypothesis of the Banach argument.
+Contraction, Galois connections and probabilistic readings are named *absent*
 rather than assumed[^40]. As a thesis position that is defensible, and I did not
 expect to write that sentence.
 
@@ -389,7 +425,10 @@ not the semantic correctness of all live validators. And dependent iteration
 still lacks a convergence theorem, although the methodology now retracts the
 unsupported strong-law claim. Stable identifiers and centralised score arithmetic
 make the bookkeeping more concrete; they do not turn closure into probability
-or a dashboard snapshot into release evidence.
+or a dashboard snapshot into release evidence. CentiColons supply an executable
+accounting direction; complete attribution, an aligned scoring policy and an
+enforced durable comparison are still needed for the non-regression guarantee.
+The stated progress premise suffices for eventual zero and the cycle bound.
 
 ## Footnotes
 
@@ -472,3 +511,13 @@ or a dashboard snapshot into release evidence.
 
 [^45]: The shell prints non-comparability when the scorer reports a broken regime | scripts/local-ci.sh#L624-L624
     > this score is NOT comparable with the previous run
+
+[^46]: Cacheable and observing predicate capabilities | crates/tillandsias-plan/src/lua_predicate.rs#L69-L90
+    > Pure: no shell, no clock. Results MAY be cached.
+[^47]: Observed grading: latest test/digest record, conditional spec freshness and raw positive-test residual | scripts/lua/centicolon-grade-observed.lua#L38-L105
+[^48]: Advisory regression comparison and local snapshot, advanced even after a loss | scripts/check-centicolon-ratchet.sh#L4-L115
+    > ADVISORY (operator ruling 2026-09-26, recorded on 1395-ue3i): it WARNS and never refuses; it always exits 0.
+[^49]: Static grading assigns requirement-level candidates to each scenario | scripts/lua/centicolon-grade-static.lua#L180-L201
+[^50]: Invariants are emitted separately from scenario/requirement obligations | scripts/lua/centicolon-extract.lua#L258-L266
+[^51]: A configured positive-test bar does not witness the whole evidence chain | crates/tillandsias-plan/src/obligation.rs#L640-L646
+    > a CI check that passes establishes `PositivelyTested` and says nothing about `RuntimeObserved` or `EvidenceBundled`.
