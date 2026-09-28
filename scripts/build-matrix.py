@@ -50,33 +50,33 @@ PIN_OVERRIDE = os.environ.get("TILLANDSIAS_PIN_OVERRIDE", "").strip() or None
 LEVELS = [
     ("level-1-five",     "Like I'm 5",
      "The simplest way of putting it that is still true.", "",
-     "v56.9.21.1",
+     "v56.9.27.2",
      ("ionantha",
       "A real tillandsia needs no soil and no pot — it drinks from the air, and borrows nothing.")),
     ("level-2-phone",    "I barely understand my phone",
      "Straight answers to what you are actually wondering: privacy, cost, and what breaks.",
      "Picks up where “like I’m 5” left off.",
-     "v56.9.21.1",
+     "v56.9.27.2",
      ("bulbosa",
       "A tillandsia is an epiphyte, not a parasite: it rests on its tree and takes nothing from it.")),
     ("level-3-power",    "I'm a power user",
      "The anatomy: what runs where, what survives a teardown, and where the sharp edges are.",
      "Assumes the two levels before it.",
-     "v56.9.21.1",
+     "v56.9.27.2",
      ("xerographica",
       "Its roots only grip; the leaves do the drinking — a plant that runs rootless.")),
     ("level-4-security", "I'm a Cyber Security expert",
      "The architecture interrogated rather than described — boundaries, egress, provenance, "
      "and what the tests do not actually test.",
      "Assumes the three levels before it.",
-     "v56.9.21.1",
+     "v56.9.27.2",
      ("usneoides",
       "Silvery leaf scales open to take water in, then trap air to keep it: every exchange "
       "across one surface.")),
     ("level-5-phd",      "I'm a MathWiz / Hacker",
      "And you would like me to be condescending about it. Very well.",
      "Assumes everything before it. Mathematics from here down.",
-     "v56.9.21.1",
+     "v56.9.27.2",
      ("caput-medusae",
       "A monocot bromeliad flowers once and dies, leaving offsets behind — the pup is never "
       "the parent.")),
@@ -484,41 +484,147 @@ def home_view():
 
 
 def centicolons_view():
-    """Explains how Stockfish's CentiPawn evaluation inspired CentiColons,
-    the role of submetrics (invariants, platform preconditions, spec obligations),
-    and why measuring the remainder of obligations serves as the convergence metric."""
+    """The CentiColons page: the Stockfish analogy, then the actual arithmetic.
+
+    The analogy is only the door. What follows states the unit, the three
+    numbers the scorer returns, the one property that makes the number
+    comparable, three worked moves against a five-obligation example spec, the
+    spec-to-element arrow the validators run, and the four things the score
+    does not say. The example weights are the methodology's declared base
+    weights; the example spec is invented for the page and is labelled as one.
+    """
+    body = """
+<p>In chess, no computer can calculate every possible move to the end of the game&mdash;the decision
+tree is practically infinite. Yet chess engines like Stockfish reliably play superhuman moves.
+How? They don&rsquo;t attempt to prove a complete, checkmate-ending game tree from move one.
+Instead, they evaluate positions using an objective heuristic measured in <b>CentiPawns</b>
+(where 100 centipawns equals the nominal value of one pawn). Under optimal search, that number
+measures advantage and steadily guides the engine toward victory without needing infinite foresight.</p>
+
+<p>Software engineering under autonomous multi-agent iteration faces the exact same mathematical reality.
+Proving absolute semantic correctness of an entire distributed system from finite test runs is theoretically
+impossible. But measuring whether a codebase is <i>converging</i>&mdash;whether it is closer to release today
+than it was yesterday&mdash;does not require solving the halting problem. It only requires a well-founded,
+bounded ranking function over auditable obligations.</p>
+
+<p>That is what <b>CentiColons (cc)</b> are: an enforceable ranking metric inspired by Stockfish&rsquo;s
+centipawns to measure progress under uncertainty. Instead of counting lines of code, test pass percentages,
+or subjective backlog estimates, we measure the <b>remainder of obligations (R)</b>. Each specification scenario
+is an auditable proposition. When an executable, hermetic test runs green against content-addressed code bytes,
+that obligation is satisfied. The residual obligation count <i>R</i> is simply the distance left to travel.
+When <i>R</i> descends, convergence occurs. When <i>R</i> hits zero, all declared obligations are satisfied.</p>
+
+<h3>What a CentiColon counts</h3>
+
+<p>Take the analogy apart and there is an ordinary piece of bookkeeping underneath it. Every auditable
+thing the project commits to&mdash;a <code>must</code> requirement, a systemic invariant, a positive or
+negative litmus signal, a runtime trace, a provenance binding, an environment assumption&mdash;enters the
+ledger as a named obligation with a stable identifier and a weight. The weights are declared policy
+rather than measurement: a <code>must</code> requirement is worth 100, a systemic invariant 120, a passing
+positive litmus 80, a passing negative litmus 100, a runtime trace 60, a <code>should</code> requirement 40.
+Add up every weight the spec declares and you have the <b>budget</b>. Nothing about doing work changes it.</p>
+
+<p>The scorer then walks the obligations once. An obligation whose evidence has reached its bar
+contributes its weight to the earned column; one that has not contributes nothing. Three numbers come out,
+and they are always reported together:</p>
+
+<ul>
+<li><b>earned</b> &mdash; the weights that reached their bar;</li>
+<li><b>budget</b> &mdash; every weight the spec declared;</li>
+<li><b>residual</b> &mdash; budget &minus; earned, the distance still to travel.</li>
+</ul>
+
+<p>That is the whole arithmetic, and it has one property worth saying out loud, because it is the
+property the chess analogy is really about: <b>closing an obligation moves the score by exactly that
+obligation&rsquo;s weight, and the residual by exactly the same amount.</b> Nothing is averaged, smoothed
+or estimated. Close the 80-point positive litmus and the score moves 80 and the residual moves 80, and a
+reader can check it by hand. Because the budget is fixed across a comparison, a rising score means
+obligations closed and nothing else &mdash; which is the same guarantee a centipawn number buys, that
+you can put two positions or two releases side by side and read the difference.</p>
+
+<h3>Three moves, counted the way an engine counts them</h3>
+
+<p>Take a five-obligation example spec, invented for this page: a Submit button, an invariant about how
+its payload is serialised, a positive litmus, a negative litmus, and a runtime trace. All declared,
+none yet tested, the budget is 460 and the earned is 0. Now play the position.</p>
+
+@@POS@@
+
+<p>A quiet move. One positive litmus goes green and nothing else happens: no material changes hands,
+no feature ships. In chess terms it is Nb1&ndash;c3 &mdash; the piece simply got to a better square, and
+the number improved because the position improved. The score goes 0 &rarr; 80 of 460, the residual goes
+460 &rarr; 380, and the budget does not move, because closing a claim is not deleting one.</p>
+
+@@TACT@@
+
+<p>A combination. One change ships the button end to end: the requirement is positively tested, its
+negative case passes, and a runtime trace records the click. That is the knight fork &mdash; three things
+fall at once, and the number says so by the size of the jump. 80 &rarr; 340 of 460, residual
+380 &rarr; 120, +260 in a single move. Notice what the two moves share: the size of the jump is exactly
+the declared weight of what closed. An engine&rsquo;s number moves because the position changed; this one
+moves because evidence arrived, and by an amount somebody wrote down in advance rather than one an
+evaluation function invented on the spot.</p>
+
+<h3>From a sentence in a spec to a button on the screen</h3>
+
+<p>Which raises the only question that matters: what does it <i>mean</i> for &ldquo;the Submit button
+stays disabled until the form is valid&rdquo; to be closed? It means there is an arrow from that sentence
+to something that can actually be executed, and that the execution was recorded. The arrow is the
+validator, and it is the same shape every time: take the obligation the spec names, take the element the
+spec is about, and run the check that decides whether the clause holds.</p>
+
+@@BTN@@
+
+<p>Each row is a clause, an executable witness, and a price. The three rows are three different kinds of
+evidence for three different clauses &mdash; a <code>must</code> requirement at 100, a negative litmus at
+100, a runtime trace at 60 &mdash; landing in one ledger, which is why the tactical move above is worth
++260 and not an average of three opinions.</p>
+
+<p>This is what the <b>submetrics</b> are for, and the reason they exist is that systems engineering does
+not live in user-facing specifications alone. A large share of the real work is <b>systemic invariants</b>
+&mdash; deterministic JSON sorting, sandboxed execution, no fragile shell pipes &mdash; and <b>transient
+platform preconditions</b>, the Darwin <code>bash</code> quirks, the Windows CRLF line endings, the
+container tmpfs bounds. If the metric only measured feature specs, all of that would read as zero progress
+or get shoehorned into a product spec where it does not belong. Instead a spec scenario, an invariant and a
+platform precondition are the same kind of object to the scorer: a named obligation with a weight and a bar.
+The <code>./plan</code> ledger sits in the middle as the distillation layer, and the deterministic Lua
+Litmus runner executes the invariant and litmus side of it hermetically, in milliseconds.</p>
+
+<h3>What the number does not say</h3>
+
+<p>A number this clean is exactly the number people will over-read, so here are the four things it
+does not carry:</p>
+
+<ul>
+<li><b>It is a ranking, not a probability.</b> 340/460 is not a 74% chance the software is correct,
+and two scores cannot be combined by Bayes. It orders states; it does not measure belief.</li>
+<li><b>It answers the question it was asked.</b> Of what you declared, how much is closed. A requirement
+nobody wrote down is invisible to it, not free.</li>
+<li><b>Effort is not in it.</b> A hard obligation and an easy one are worth what their weights say they
+are worth. The score records closure, never the cost of getting there.</li>
+<li><b>A percentage can be improved by throwing obligations away.</b> When an obligation is tombstoned it
+leaves the numerator <i>and</i> the denominator, the scorer reports that the monotone regime is broken,
+and the two scores stop being comparable. That refusal is deliberate: without it, deleting the thing you
+were failing at would read as progress.</li>
+</ul>
+
+<p>One more honesty, and it belongs on this page rather than in a footnote, because this page has none:
+the arithmetic above is the arithmetic the methodology <i>declares</i>. How much of it the shipped scorer
+actually runs at a given release is a separate question with a real answer, and
+<a href="#level-5-phd">level 5</a> gives it &mdash; along with the lattice, the fixed-point argument, the
+proof that this is a Floyd-style ranking function rather than a measure, and the objections we tried and
+could not answer. If you want to know how close the CentiColon closures bring us to the methodology&rsquo;s
+promise, that is the page that argues it.</p>
+"""
+    for key, name in (("@@POS@@", "cc-positional"), ("@@TACT@@", "cc-tactical"),
+                      ("@@BTN@@", "cc-spec-button")):
+        body = body.replace(key, figures.FIGURES[name])
     return ('<section class="view" id="view-centicolons" role="tabpanel" aria-labelledby="nav-centicolons">'
             '<div class="wrap">'
             '<h2 class="view-h">...wait, WHAT?!</h2>'
             '<p class="view-lede">How measuring chess pawns inspired how we measure software convergence.</p>'
-            '<div class="prose" style="max-width:74ch;margin:28px 0 56px;">'
-            '<p>In chess, no computer can calculate every possible move to the end of the game&mdash;the decision '
-            'tree is practically infinite. Yet chess engines like Stockfish reliably play superhuman moves. '
-            'How? They don&rsquo;t attempt to prove a complete, checkmate-ending game tree from move one. '
-            'Instead, they evaluate positions using an objective heuristic measured in <b>CentiPawns</b> '
-            '(where 100 centipawns equals the nominal value of one pawn). Under optimal search, that number '
-            'measures advantage and steadily guides the engine toward victory without needing infinite foresight.</p>'
-            '<p>Software engineering under autonomous multi-agent iteration faces the exact same mathematical reality. '
-            'Proving absolute semantic correctness of an entire distributed system from finite test runs is theoretically '
-            'impossible. But measuring whether a codebase is <i>converging</i>&mdash;whether it is closer to release today '
-            'than it was yesterday&mdash;does not require solving the halting problem. It only requires a well-founded, '
-            'bounded ranking function over auditable obligations.</p>'
-            '<p>That is what <b>CentiColons (cc)</b> are: an enforceable ranking metric inspired by Stockfish&rsquo;s '
-            'centipawns to measure progress under uncertainty. Instead of counting lines of code, test pass percentages, '
-            'or subjective backlog estimates, we measure the <b>remainder of obligations (R)</b>. Each specification scenario '
-            'is an auditable proposition. When an executable, hermetic test runs green against content-addressed code bytes, '
-            'that obligation is satisfied. The residual obligation count <i>R</i> is simply the distance left to travel. '
-            'When <i>R</i> descends, convergence occurs. When <i>R</i> hits zero, all declared obligations are satisfied.</p>'
-            '<p>Crucially, systems engineering does not live in user-facing specifications alone. A massive share of '
-            'real-world engineering consists of <b>systemic invariants</b> (e.g. eliminating fragile shell pipes, enforcing '
-            'deterministic JSON sorting, sandboxing execution) and <b>transient platform adaptations</b> (handling macOS Darwin '
-            'bash quirks, Windows CRLF line endings, or container tmpfs bounds). If a metric only measures feature specs, '
-            'vital infrastructure work reads as zero progress or gets awkwardly shoehorned into product specs where it doesn&rsquo;t belong.</p>'
-            '<p>CentiColons solves this through <b>submetrics</b> that separate functional obligations from architectural '
-            'invariants and platform preconditions, mediated by the <code>./plan</code> ledger as an active distillation layer. '
-            'With our upgraded deterministic Lua Litmus test runner, these invariants execute hermetically in milliseconds. '
-            'We measure what is declared, what is traced, and what is positively tested&mdash;turning the fuzzy question of '
-            '&ldquo;is this software ready?&rdquo; into an objective, monotonic descent of remaining obligations to zero.</p>'
+            '<div class="prose" style="margin:28px 0 56px;">'
+            + body +
             '</div>'
             '</div></section>')
 
@@ -877,6 +983,27 @@ em{color:#dbe4ee}
 .s-mean{stroke:var(--leaf);stroke-width:2}
 .s-forbid{stroke:var(--rose);stroke-width:1.4;stroke-dasharray:4 4}
 .s-boundary{stroke:var(--leaf);stroke-width:2;stroke-dasharray:6 4}
+/* CentiColon figures: a board fragment, its readouts, and the spec-to-element
+   arrow. The board shades a1 dark and derives the rest, so the fragment cannot
+   disagree with a full board; pieces are discs with letters rather than
+   silhouettes, which stays legible at the small sizes the deck renders at. */
+.s-l{fill:var(--ink);font:500 13px var(--sans);text-anchor:start}
+.s-l.s-xs{font-size:11.5px}
+.s-l.s-c{text-anchor:middle}
+.s-big{fill:var(--ink);font:600 21px var(--mono);text-anchor:start}
+.s-code{fill:var(--amber);font:500 9.5px var(--mono);text-anchor:middle}
+.s-num{fill:var(--leaf);font:600 11.5px var(--mono);text-anchor:start}
+.cb-d{fill:#101720;stroke:var(--line-2);stroke-width:.7}
+.cb-l{fill:rgba(255,255,255,.055);stroke:var(--line-2);stroke-width:.7}
+.cb-c{fill:var(--ink-faint);font:500 9.5px var(--mono);text-anchor:middle}
+.pw{fill:#eef3f9;stroke:#0a0e14;stroke-width:1}
+.pb{fill:#212a35;stroke:#8fa2b6;stroke-width:1.1}
+.pl{fill:#0a0e14;font:700 12.5px var(--mono);text-anchor:middle}
+.pli{fill:#dfe8f2;font:700 12.5px var(--mono);text-anchor:middle}
+.cc-box{fill:#131a23;stroke:var(--line-2);stroke-width:1.2}
+.cc-move{stroke:var(--leaf);stroke-width:2.2;fill:none;color:var(--leaf)}
+.cc-atk{stroke:var(--amber);stroke-width:1.5;stroke-dasharray:4 4;fill:none;
+  color:var(--amber)}
 .math-block{margin:22px 0;padding:16px 18px;border:1px solid var(--line);border-radius:10px;
   background:var(--bg-2);overflow-x:auto}
 .math,.math-block{color:#e6eef7}
@@ -1564,9 +1691,12 @@ function fromDeckHash(){
     }
   });
   // A back-link from the footnote list must switch to that level before jumping.
+  // A plain cross-view link (#level-5-phd, from the CentiColons page) must
+  // select the tab too: switching views alone would land the reader on level 1.
   window.addEventListener('hashchange', function(){
-    var m = /^#(?:[rf])(level-[a-z0-9-]+)-\\d+$/.exec(location.hash);
-    if (m) show(m[1]);
+    var h = location.hash;
+    if (/^#[rf]level-[a-z0-9-]+-\\d+$/.test(h)) return show(h.replace(/^#[rf]/, '').replace(/-\\d+$/, ''));
+    if (/^#level-[a-z0-9-]+$/.test(h)) show(h.slice(1));
   });
   var h = location.hash.slice(1);
   if (h && document.getElementById('panel-' + h)) show(h);

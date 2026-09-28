@@ -983,6 +983,165 @@ PROJECT_ORCHESTRATION = _wrap(
     </g>
     """)
 
+# --- CentiColons: a fragment of a board, counted twice ----------------------
+#
+# The CentiColons page needs the same idea a chess diagram carries: one move,
+# one measurable change of number. So it draws a fragment of a board (files and
+# ranks named, a1 dark, which fixes the shading of every square), puts the
+# engine's CentiPawn readout beside it, and puts the obligation ledger's
+# CentiColon readout under the same arrow. The ledger numbers come from the
+# five-obligation example spec the page works through, not from a measurement.
+
+def _partial_board(x0, y0, sq, files, ranks, pieces, move=None, attacks=()):
+    """A fragment of a chessboard in SVG.
+
+    `files` runs left to right, `ranks` top to bottom (White's perspective),
+    and `pieces` is a sequence of (file, rank, side, letter). `move` is
+    (from, to, class) drawn as an arrow between the two square centres;
+    `attacks` is a sequence of (from, to) pairs drawn as dashed lines.
+    """
+
+    def centre(f, r):
+        return (x0 + files.index(f) * sq + sq / 2.0,
+                y0 + ranks.index(r) * sq + sq / 2.0)
+
+    out = []
+    for j, r in enumerate(ranks):
+        for i, f in enumerate(files):
+            dark = ((ord(f) - 97) + r) % 2 == 1
+            out.append('<rect x="%g" y="%g" width="%g" height="%g" class="%s"/>'
+                       % (x0 + i * sq, y0 + j * sq, sq, sq,
+                          "cb-d" if dark else "cb-l"))
+    for i, f in enumerate(files):
+        out.append('<text x="%g" y="%g" class="cb-c">%s</text>'
+                   % (x0 + i * sq + sq / 2.0, y0 + len(ranks) * sq + 13, f))
+    for j, r in enumerate(ranks):
+        out.append('<text x="%g" y="%g" class="cb-c" text-anchor="end">%d</text>'
+                   % (x0 - 7, y0 + j * sq + sq / 2.0 + 3.4, r))
+    for a, b in attacks:
+        ax, ay = centre(*a)
+        bx, by = centre(*b)
+        out.append('<line x1="%g" y1="%g" x2="%g" y2="%g" class="cc-atk"/>'
+                   % (ax, ay, bx, by))
+    for f, r, side, letter in pieces:
+        cx, cy = centre(f, r)
+        out.append('<circle cx="%g" cy="%g" r="%g" class="%s"/>'
+                   % (cx, cy, sq * 0.38, "pw" if side == "w" else "pb"))
+        out.append('<text x="%g" y="%g" class="%s" dy=".34em">%s</text>'
+                   % (cx, cy, "pl" if side == "w" else "pli", letter))
+    if move:
+        a, b, cls = move
+        ax, ay = centre(*a)
+        bx, by = centre(*b)
+        dx, dy = bx - ax, by - ay
+        d = (dx * dx + dy * dy) ** 0.5 or 1.0
+        ux, uy = dx / d, dy / d
+        pad = sq * 0.44
+        out.append('<path d="M%g %g L%g %g" class="%s" marker-end="url(#ah)"/>'
+                   % (ax + ux * pad, ay + uy * pad,
+                      bx - ux * pad, by - uy * pad, cls))
+    return "".join(out)
+
+
+CC_POSITIONAL = _wrap(
+    "600 244",
+    "A four-by-four board fragment where a white knight moves from b1 to c3, "
+    "beside the engine evaluation and the obligation score that move changes",
+    "A positional gain, counted twice. Left: files a&ndash;d, ranks 1&ndash;4, "
+    "Nb1&ndash;c3. The engine&rsquo;s number rises by 24 centipawns; the "
+    "ledger&rsquo;s number rises by 80 CentiColons because one positive litmus "
+    "reaches its bar. The example spec is the five-obligation one the page works "
+    "through; the board is a fragment, not a game.",
+    _partial_board(34, 44, 36, list("abcd"), [4, 3, 2, 1],
+                   [("b", 1, "w", "N"), ("d", 2, "w", "P"),
+                    ("a", 4, "b", "P"), ("c", 4, "b", "P")],
+                   move=(("b", 1), ("c", 3), "cc-move"))
+    + '<text x="106" y="222" class="s-lbl" text-anchor="middle">Nb1&#8211;c3</text>'
+    + """
+    <text x="214" y="50" class="s-lbl">A POSITIONAL MOVE &#183; one quiet developing step</text>
+    <text x="214" y="82" class="s-big">+0.18 &#8594; +0.42</text>
+    <text x="214" y="104" class="s-lbl">+24 centipawns &#183; the engine&rsquo;s own unit</text>
+    <line x1="214" y1="126" x2="584" y2="126" class="s-line"/>
+    <text x="214" y="154" class="s-lbl">THE SAME SHAPE OF MOVE, IN THE LEDGER</text>
+    <text x="214" y="186" class="s-big">0/460 &#8594; 80/460</text>
+    <text x="214" y="208" class="s-l">one positive litmus reaches its bar &#8594; +80 cc</text>
+    <text x="214" y="230" class="s-lbl">residual 460 &#8594; 380 &#183; denominator unchanged</text>
+    """)
+
+CC_TACTICAL = _wrap(
+    "600 244",
+    "A five-by-four board fragment where a white knight moves from e5 to f7, "
+    "forking the black king on d8 and the black rook on h8, beside the two "
+    "evaluations that move changes",
+    "A tactical gain, counted twice. Left: files d&ndash;h, ranks 8&ndash;5, "
+    "Nf7&#43;, with the two dashed lines showing what the knight attacks on "
+    "arrival. The fork is worth 505 centipawns; the same change closes three "
+    "obligations and is worth 260 CentiColons. The example spec is the "
+    "five-obligation one the page works through.",
+    _partial_board(30, 48, 34, list("defgh"), [8, 7, 6, 5],
+                   [("d", 8, "b", "K"), ("h", 8, "b", "R"), ("e", 5, "w", "N")],
+                   move=(("e", 5), ("f", 7), "cc-move"),
+                   attacks=((("f", 7), ("d", 8)), (("f", 7), ("h", 8))))
+    + '<text x="115" y="220" class="s-lbl" text-anchor="middle">Nf7&#43;</text>'
+    + """
+    <text x="214" y="50" class="s-lbl">A TACTICAL MOVE &#183; one blow that wins material</text>
+    <text x="214" y="82" class="s-big">+0.35 &#8594; +5.40</text>
+    <text x="214" y="104" class="s-lbl">+505 centipawns &#183; the knight forks king and rook</text>
+    <line x1="214" y1="126" x2="584" y2="126" class="s-line"/>
+    <text x="214" y="154" class="s-lbl">THE SAME SHAPE OF MOVE, IN THE LEDGER</text>
+    <text x="214" y="186" class="s-big">80/460 &#8594; 340/460</text>
+    <text x="214" y="208" class="s-l">one change closes three obligations &#8594; +260 cc</text>
+    <text x="214" y="230" class="s-lbl">residual 380 &#8594; 120 &#183; denominator unchanged</text>
+    """)
+
+_SPEC_BUTTON_ROWS = (
+    (("spec: the Submit button stays", "disabled until the form is valid"),
+     "form.button()", "enabled &#8646; disabled", "+100 cc", "must requirement"),
+    (("spec: a duplicate submit is", "refused while one is in flight"),
+     "form.button()", "second click ignored", "+100 cc", "negative litmus"),
+    (("spec: an accepted click is", "recorded as a runtime trace"),
+     "trace: submit@click", "seen at runtime", "+60 cc", "runtime trace"),
+)
+
+
+def _spec_button_rows():
+    out = []
+    for n, (spec, seen, effect, cc, kind) in enumerate(_SPEC_BUTTON_ROWS):
+        y = 28 + n * 92
+        out.append(
+            '<rect x="6" y="%d" width="216" height="50" rx="8" class="cc-box"/>'
+            '<text x="18" y="%d" class="s-l s-xs">%s</text>'
+            '<text x="18" y="%d" class="s-l s-xs">%s</text>'
+            '<path d="M236 %d H390" class="cc-move" marker-end="url(#ah)"/>'
+            '<text x="313" y="%d" class="s-code">validate(spec, form.button())</text>'
+            '<rect x="404" y="%d" width="190" height="50" rx="8" class="cc-box"/>'
+            '<text x="499" y="%d" class="s-l s-xs s-c">%s</text>'
+            '<text x="499" y="%d" class="s-l s-xs s-c">%s</text>'
+            '<text x="404" y="%d" class="s-num">%s</text>'
+            '<text x="466" y="%d" class="s-lbl">%s</text>'
+            % (y, y + 21, spec[0], y + 39, spec[1],
+               y + 25, y + 17,
+               y, y + 21, seen, y + 39, effect,
+               y + 70, cc, y + 70, kind))
+    return "".join(out)
+
+
+CC_SPEC_BUTTON = _wrap(
+    "600 344",
+    "Three specification clauses, each joined by an arrow labelled "
+    "validate(spec, form.button()) to the element or trace that witnesses it, "
+    "and each carrying the CentiColons it is worth",
+    "The arrow is the validator. Each row is one obligation of the "
+    "five-obligation example spec: a clause on the left, the thing that can "
+    "actually be executed in the middle, and the CentiColons the ledger gains "
+    "when that execution is recorded. The three rows together are the tactical "
+    "move above: +260 cc, residual 380 to 120.",
+    _spec_button_rows()
+    + """
+    <text x="6" y="312" class="s-l">three arrows, one change &#8594; +260 cc, residual 380 &#8594; 120</text>
+    <text x="6" y="332" class="s-lbl">the denominator moves only when the obligation set changes, not when one closes</text>
+    """)
+
 FIGURES = {
     "project-orchestration": PROJECT_ORCHESTRATION,
     "methodology-bridge": METHODOLOGY_BRIDGE, "refinement-cloud": REFINEMENT_CLOUD,
@@ -998,6 +1157,8 @@ FIGURES = {
     "lattice": LATTICE, "crdt": CRDT, "gate": GATE, "ephemeral": EPHEMERAL,
     "fixpoint": FIXPOINT, "galois": GALOIS, "hasse": HASSE,
     "nesting": NESTING,
+    "cc-positional": CC_POSITIONAL, "cc-tactical": CC_TACTICAL,
+    "cc-spec-button": CC_SPEC_BUTTON,
 }
 
 DEFS = """<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>

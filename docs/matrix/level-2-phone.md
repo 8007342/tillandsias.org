@@ -98,37 +98,37 @@ Two install problems and one feature that once promised more than it delivered a
     > **Consequence for the pending signing decision.** The unsigned MSIX (`0x800B0100`, packet 722-w7a2) blocks the **GitHub-release** channel only. It does not block the Store channel at all.
 [^13]: The chosen signing route for the Windows release channel | plan/issues/windows-signing-research-2026-08-16.md#L1-L25
     > **SignPath Foundation is the signing path for the GitHub-release channel.** Packet 722-w7a2 is reshaped, not closed: its deliverable changes from "an Azure Trusted Signing account" to the SignPath Foundation chain, with Azure **Artifact Signing** as the recorded fallback.
-[^14]: Audit of the shipped "local expert" facade: answers stamped valid with no retrieval and no citations | openspec/changes/expert-serve-grounded-pipeline/proposal.md#L1-L24
+[^14]: Audit of the shipped "local expert" facade: answers stamped valid with no retrieval and no citations | openspec/changes/archive/expert-serve-grounded-pipeline-completed-2026-09-22/proposal.md#L9-L10
     > The `pipeline` CLI arm did no retrieval and no validation, yet stamped every response `validated: true` with `confidence: 0.5` and `citations: []`
-[^15]: Mac and Windows portability runs, and the remaining toolchain limit | openspec/changes/expert-serve-grounded-pipeline/tasks.md#L52-L60
+[^15]: Mac and Windows portability runs, and the remaining toolchain limit | openspec/changes/archive/expert-serve-grounded-pipeline-completed-2026-09-22/tasks.md#L53-L55
     > BOTH LANES REPORTED 2026-09-17, 7/7 lua_runtime each, both from a forced `cargo clean -p mlua-sys` rebuild rather than a cached artifact.
-[^16]: Where no OS keyring is available, the key that unlocks the local vault falls back to a local file | crates/tillandsias-headless/src/vault_bootstrap.rs#L1438-L1439
+[^16]: Where no OS keyring is available, the key that unlocks the local vault falls back to a local file | crates/tillandsias-headless/src/vault_bootstrap.rs#L1883-L1883
     > Fallback: file (populated by keychain_set_blocking when keyring unavailable,
 [^17]: Software sources — package repositories and release downloads, reached at your direction | PRIVACY.md#L51-L56
     > **Software sources** — package repositories and release downloads (for example GitHub, Linux distribution mirrors, and language package registries) to fetch the software it runs.
 [^18]: AI providers only if you configure one; language models can run entirely on your own machine | PRIVACY.md#L60-L63
     > **AI providers, only if you configure one.** Tillandsias can run language models entirely on your own machine. If you instead configure a remote provider, the content you send is transmitted to that provider under their terms.
-[^20]: The downloaded system image is cached on the host between runs | openspec/specs/vm-provisioning-lifecycle/spec.md#L42-L49
+[^20]: The downloaded system image is cached on the host between runs | openspec/specs/vm-provisioning-lifecycle/spec.md#L48-L51
     > cached at `~/.local/share/tillandsias/rootfs-fedora-44-<sha256>.tar.xz` (on macOS: `~/Library/Application Support/tillandsias/rootfs-…`; on Windows: `%LOCALAPPDATA%\tillandsias\rootfs-…`).
 [^21]: The rule that convergence is monotonic: once achieved, divergence must be detectable | methodology/convergence.yaml#L56-L58
     > - Convergence is monotonic under normal operation: once achieved, divergence must be detectable
-[^22]: The build's trace ratchet: a new reference to a specification that does not exist fails the build | build.sh#L1169-L1177
+[^22]: The build's trace ratchet: a new reference to a specification that does not exist fails the build | build.sh#L1393-L1393
     > The ratchet fails in BOTH directions: a new ghost, or a baseline entry
-[^23]: The build's test verdict is a ratchet: a failure not on the known list is a new regression | build.sh#L1800-L1805
+[^23]: The build's test verdict is a ratchet: a failure not on the known list is a new regression | build.sh#L2043-L2043
     > THE VERDICT IS A RATCHET, NOT CARGO'S EXIT CODE.
 [^24]: The build script notarizes and staples when given a signing identity and the notary credentials | scripts/build-macos-tray.sh#L255-L278
     > say "notarize: submitting (this waits for Apple's verdict)"
-[^25]: The release workflow runs the macOS build script with no credentials handed to it | .github/workflows/release.yml#L468-L469
+[^25]: The release workflow runs the macOS build script with no credentials handed to it | .github/workflows/release.yml#L518-L518
     > run: scripts/build-macos-tray.sh
-[^26]: The unsigned Windows installer package is withheld from a release rather than shipped uninstallable | .github/workflows/release.yml#L661-L672
+[^26]: The unsigned Windows installer package is withheld from a release rather than shipped uninstallable | .github/workflows/release.yml#L737-L737
     > ::warning::withholding unsigned MSIX from release assets: $($_.Name) (uninstallable without a signature; set TILLANDSIAS_SIGNING_ACCOUNT to publish it)
-[^27]: The other Windows downloads still publish unsigned, with a warning in the build log | .github/workflows/release.yml#L656-L661
+[^27]: The other Windows downloads still publish unsigned, with a warning in the build log | .github/workflows/release.yml#L726-L726
     > ::warning::TILLANDSIAS_SIGNING_ACCOUNT is unset — publishing UNSIGNED Windows artifacts (plan packet 722-w7a2)
 [^28]: The shipped assistant configuration points at the grounded expert service: citations kept only if used, typed refusals otherwise | images/default/config-overlay/opencode/config.json#L18-L30
     > "description": "Grounded local experts: retrieval from the published spec index, citations kept only if used, typed unsupported: refusals — served by tillandsias-plan expert-serve beside the MCP servers (order 920-pxg6).",
-[^29]: The live end-to-end check of the replacement, recorded 2026-09-02 in the daily channel | openspec/changes/expert-serve-grounded-pipeline/tasks.md#L86-L98
+[^29]: The live end-to-end check of the replacement, recorded 2026-09-02 in the daily channel | openspec/changes/archive/expert-serve-grounded-pipeline-completed-2026-09-22/tasks.md#L93-L94
     > 5.10 Live OpenCode session verification against a running expert-serve — DONE on macuahuitl-tillandsias-forge 2026-09-02
-[^30]: Uninstalling removes the cached image, except on macOS where it is preserved unless you ask for a full wipe | scripts/uninstall.sh#L131-L135
+[^30]: Uninstalling removes the cached image, except on macOS where it is preserved unless you ask for a full wipe | scripts/uninstall.sh#L150-L150
     > Preserving the VM image in $DATA_DIR (use --wipe to remove it).
 
 [^31]: A failed upstream push is refused without partially updating refs | openspec/specs/git-mirror-service/spec.md#L225-L230
@@ -142,14 +142,14 @@ Two install problems and one feature that once promised more than it delivered a
     > The git service reads the GitHub token from Vault at
     > push time via Vault CLI; the token never crosses into a forge container.
 
-[^34]: The version shown is the version file as it stood when the program was compiled | crates/tillandsias-headless/src/main.rs#L121-L121
+[^34]: The version shown is the version file as it stood when the program was compiled | crates/tillandsias-headless/src/main.rs#L126-L126
     > pub(crate) const VERSION: &str = include_str!("../../../VERSION");
 [^35]: The stable runtime finding is specifically about the Linux launcher | plan/index.d/20260914t185710z-1188-mm9y-installed-launcher-has-no-provenance-lenovinha.yaml#L27-L43
     > the Linux launcher has no build.rs reading it.
 
-[^36]: Linux installer runs the reset command | scripts/install.sh#L313-L314
+[^36]: Linux installer runs the reset command | scripts/install.sh#L335-L335
     > "$INSTALL_PATH" --reset-state --debug
-[^37]: Mac installer runs reset and documents the opt-out | scripts/install-macos.sh#L240-L248
+[^37]: Mac installer runs reset and documents the opt-out | scripts/install-macos.sh#L265-L265
     > TILLANDSIAS_DESTRUCTIVE_RESET_OK=0 is the one
-[^38]: Windows installer runs reset and documents the opt-out | scripts/install-windows.ps1#L561-L566
+[^38]: Windows installer runs reset and documents the opt-out | scripts/install-windows.ps1#L889-L889
     > set TILLANDSIAS_DESTRUCTIVE_RESET_OK=0 to skip the destructive half
