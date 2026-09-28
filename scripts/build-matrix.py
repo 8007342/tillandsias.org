@@ -645,10 +645,14 @@ the strict-progress premise of a termination proof.</p>
     for key, name in (("@@POS@@", "cc-positional"), ("@@TACT@@", "cc-tactical"),
                       ("@@BTN@@", "cc-spec-button")):
         body = body.replace(key, figures.FIGURES[name])
+    art = ('<div class="pageart" role="img" aria-label="A chess game: Tlatoāni facing Mācron across the board">'
+           '<img class="pageart-img" src="assets/chess-tlatoni-vs-macron.png" alt="">'
+           '<span class="pageart-vignette" aria-hidden="true"></span></div>')
     return ('<section class="view" id="view-centicolons" role="tabpanel" aria-labelledby="nav-centicolons">'
             '<div class="wrap">'
             '<h2 class="view-h">...wait, WHAT?!</h2>'
             '<p class="view-lede">How measuring chess pawns inspired how we measure software convergence.</p>'
+            + art +
             '<div class="prose" style="margin:28px 0 56px;">'
             + body +
             '</div>'
@@ -1112,11 +1116,13 @@ footer a:hover{color:var(--leaf)}
 .scrim{position:fixed;inset:0;z-index:38;background:rgba(4,6,9,.55)}
 /* --- home --- */
 .homecard{max-width:760px;margin:0 auto;padding:96px 24px 80px;text-align:center}
-.homeart{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;
-  height:clamp(240px,42vh,460px);margin:0 0 34px;border:1px solid var(--line);border-radius:14px;
+.homeart,.pageart{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:14px;
   background:linear-gradient(180deg,#0c1119,#080b10);color:var(--leaf-dim)}
-.homeart-img{width:100%;height:100%;object-fit:cover;display:block}
-.homeart-vignette{position:absolute;inset:0;pointer-events:none;
+.homeart{height:clamp(240px,42vh,460px);margin:0 0 34px}
+.pageart{height:clamp(210px,30vh,340px);margin:0 0 26px}
+.homeart-img,.pageart-img{width:100%;height:100%;object-fit:cover;display:block}
+.homeart-vignette,.pageart-vignette{position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(130% 130% at 50% 45%, transparent 50%, rgba(7,9,12,.55) 76%, rgba(7,9,12,.94) 100%),
     linear-gradient(180deg, rgba(7,9,12,.6), transparent 20% 80%, rgba(7,9,12,.8))}
 .homeart-note{position:absolute;bottom:12px;right:14px;font:500 10.5px/1 var(--mono);
@@ -1369,7 +1375,7 @@ body.is-accessible .ins-box{background:#050607}
 body.is-accessible .ins-box input:focus{color:#ffe9b0}
 body.is-accessible .sticky{background:#000;backdrop-filter:none}
 body.is-accessible .burger{background:#0d0f11}
-body.is-accessible .homeart,body.is-accessible .fig{background:#050607}
+body.is-accessible .homeart,body.is-accessible .pageart,body.is-accessible .fig{background:#050607}
 body.is-accessible .deck-frame{background:#000}
 body.is-accessible #tip{background:#0b0d10}
 body.is-accessible #tip q{color:#fff}
