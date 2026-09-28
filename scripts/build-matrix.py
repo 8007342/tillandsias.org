@@ -477,9 +477,50 @@ def home_view():
             'with work preserved through your git remote.</p>'
             '<p class="homego"><button class="gobtn" data-go="view-what">What is it?</button>'
             '<button class="gobtn" data-go="view-progress">Live progress</button>'
+            '<button class="gobtn" data-go="view-centicolons">CentiColons</button>'
             '<button class="gobtn" data-go="view-slides">Slides</button></p>'
             '</div></section>'
             % (art, html.escape(facts.FACTS[0]), pool))
+
+
+def centicolons_view():
+    """Explains how Stockfish's CentiPawn evaluation inspired CentiColons,
+    the role of submetrics (invariants, platform preconditions, spec obligations),
+    and why measuring the remainder of obligations serves as the convergence metric."""
+    return ('<section class="view" id="view-centicolons" role="tabpanel" aria-labelledby="nav-centicolons">'
+            '<div class="wrap">'
+            '<h2 class="view-h">...wait, WHAT?!</h2>'
+            '<p class="view-lede">How measuring chess pawns inspired how we measure software convergence.</p>'
+            '<div class="prose" style="max-width:74ch;margin:28px 0 56px;">'
+            '<p>In chess, no computer can calculate every possible move to the end of the game&mdash;the decision '
+            'tree is practically infinite. Yet chess engines like Stockfish reliably play superhuman moves. '
+            'How? They don&rsquo;t attempt to prove a complete, checkmate-ending game tree from move one. '
+            'Instead, they evaluate positions using an objective heuristic measured in <b>CentiPawns</b> '
+            '(where 100 centipawns equals the nominal value of one pawn). Under optimal search, that number '
+            'measures advantage and steadily guides the engine toward victory without needing infinite foresight.</p>'
+            '<p>Software engineering under autonomous multi-agent iteration faces the exact same mathematical reality. '
+            'Proving absolute semantic correctness of an entire distributed system from finite test runs is theoretically '
+            'impossible. But measuring whether a codebase is <i>converging</i>&mdash;whether it is closer to release today '
+            'than it was yesterday&mdash;does not require solving the halting problem. It only requires a well-founded, '
+            'bounded ranking function over auditable obligations.</p>'
+            '<p>That is what <b>CentiColons (cc)</b> are: an enforceable ranking metric inspired by Stockfish&rsquo;s '
+            'centipawns to measure progress under uncertainty. Instead of counting lines of code, test pass percentages, '
+            'or subjective backlog estimates, we measure the <b>remainder of obligations (R)</b>. Each specification scenario '
+            'is an auditable proposition. When an executable, hermetic test runs green against content-addressed code bytes, '
+            'that obligation is satisfied. The residual obligation count <i>R</i> is simply the distance left to travel. '
+            'When <i>R</i> descends, convergence occurs. When <i>R</i> hits zero, all declared obligations are satisfied.</p>'
+            '<p>Crucially, systems engineering does not live in user-facing specifications alone. A massive share of '
+            'real-world engineering consists of <b>systemic invariants</b> (e.g. eliminating fragile shell pipes, enforcing '
+            'deterministic JSON sorting, sandboxing execution) and <b>transient platform adaptations</b> (handling macOS Darwin '
+            'bash quirks, Windows CRLF line endings, or container tmpfs bounds). If a metric only measures feature specs, '
+            'vital infrastructure work reads as zero progress or gets awkwardly shoehorned into product specs where it doesn&rsquo;t belong.</p>'
+            '<p>CentiColons solves this through <b>submetrics</b> that separate functional obligations from architectural '
+            'invariants and platform preconditions, mediated by the <code>./plan</code> ledger as an active distillation layer. '
+            'With our upgraded deterministic Lua Litmus test runner, these invariants execute hermetically in milliseconds. '
+            'We measure what is declared, what is traced, and what is positively tested&mdash;turning the fuzzy question of '
+            '&ldquo;is this software ready?&rdquo; into an objective, monotonic descent of remaining obligations to zero.</p>'
+            '</div>'
+            '</div></section>')
 
 
 def slides_view():
@@ -641,6 +682,7 @@ def build():
            .replace("__DEFS__", figures.DEFS)
            .replace("__HOME__", home_view())
            .replace("__PROGRESS__", progress.render(SITE_REF))
+           .replace("__CENTICOLONS__", centicolons_view())
            .replace("__BIG_GRAPH__", big_graph.render(SITE_REF))
            .replace("__BIG_GRAPH_CSS__", big_graph.CSS)
            .replace("__BIG_GRAPH_JS__", big_graph.JS)
@@ -1197,6 +1239,7 @@ __DEFS__
   <button class="nav is-on" id="nav-home" data-go="view-home"><span class="nav-i">&#127968;</span>Home</button>
   <button class="nav" id="nav-what" data-go="view-what"><span class="nav-i">&#63;</span>What is it?</button>
   <button class="nav" id="nav-progress" data-go="view-progress"><span class="nav-i">&#9673;</span>Live progress</button>
+  <button class="nav" id="nav-centicolons" data-go="view-centicolons"><span class="nav-i">&#9823;</span>CentiColons</button>
   <button class="nav" id="nav-slides" data-go="view-slides"><span class="nav-i">&#9654;</span>Slides</button>
   <button class="nav" id="nav-big-graph" data-go="view-big-graph"><span class="nav-i">&#9638;</span>Big Graph</button>
   <p class="drawer-f">Checked against release <code>__SITE_REF__</code>.</p>
@@ -1260,6 +1303,8 @@ __PANELS__
 </section>
 
 __PROGRESS__
+
+__CENTICOLONS__
 
 __BIG_GRAPH__
 
@@ -1410,7 +1455,7 @@ __SLIDES__
   function fromHash(){
     var h = location.hash.slice(1);
     if (!h) return go('view-home', false);
-    if (h === 'home' || h === 'what' || h === 'progress' || h === 'slides' || h === 'big-graph') return go('view-' + h, false);
+    if (h === 'home' || h === 'what' || h === 'progress' || h === 'slides' || h === 'centicolons' || h === 'big-graph') return go('view-' + h, false);
     if (document.getElementById('panel-' + h)) go('view-what', false);
   }
   window.addEventListener('hashchange', fromHash);

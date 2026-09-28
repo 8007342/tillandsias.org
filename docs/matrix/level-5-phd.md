@@ -316,7 +316,7 @@ to today's scores is unlicensed. Building the layer that would license it is ope
 work, and the repository files it as such.
 
 > RED: The shell scorer now delegates arithmetic to the obligation model[^43], but still supplies weights over CI check names[^27]. A passing check earns its weight at the positive-test bar; it is not runtime observation or bundled evidence. This wiring does not implement the full methodology table of multipliers, evidence credits, caps and penalties[^15]. The committed dashboard remains a historical 890/990 snapshot[^28], not a measurement of this release.
-> PATH: The framework specification still names a separate scoring implementation[^29]. The shipped path centralises the arithmetic; completing and evidencing the richer scoring contract remains distinct work.
+> PATH: The framework specification still names a separate scoring implementation[^29]. The shipped path centralises the arithmetic; completing and evidencing the richer scoring contract remains distinct work. With the upgraded deterministic Lua Litmus runtime (orders 1395-n7qd, 1395-88tp, 1395-ue3i), scoring grounds directly in spec scenarios and systemic invariants, treating the plan ledger as the distillation layer and measuring true residual obligations rather than coarse CI check counts.
 
 > RED: The methodology's own complexity constraint — methodology-to-codebase ratio below 0.15, with a red flag at 5000 lines of CI validators[^30] — has no enforcing check identified in this audit, while the script that computes the score dispatches a large shell validator corpus.
 > PATH: The rule names two measurement procedures[^30]; no enforcing implementation was found in the scripts searched.
