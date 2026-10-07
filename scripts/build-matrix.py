@@ -119,10 +119,12 @@ BUILD_STAMP = build_stamp()
 # shell), and they run the installer from a file so it keeps a usable stdin.
 DL = "https://github.com/8007342/tillandsias/releases/latest/download"
 SITE = "https://tillandsias.org"
+# (slug, label, command). The slug keys the row to the OS switcher on the
+# I want it! page (see QUICKSTART_OS), so both share one vocabulary.
 INSTALL = [
-    ("Linux",   "curl -fSsL %s/install.sh | bash" % SITE),
-    ("macOS",   "curl -fSsL %s/install-macos.sh | bash" % SITE),
-    ("Windows", "irm %s/install.ps1 | iex" % SITE),
+    ("linux",   "Linux",   "curl -fSsL %s/install.sh | bash" % SITE),
+    ("macos",   "macOS",   "curl -fSsL %s/install-macos.sh | bash" % SITE),
+    ("windows", "Windows", "irm %s/install.ps1 | iex" % SITE),
 ]
 
 # kind -> (css class, glyph, visible label). GREEN/RED say what the *thing*
@@ -492,6 +494,56 @@ SCREENSHOTS = [
     ("cosmic",  "Linux &#183; COSMIC"),
 ]
 SHOTS = ROOT / "var" / "html" / "assets" / "screenshots"
+SHOT_EXTS = ("png", "webp", "jpg")
+
+# The quickstart storyboard: three steps, one picture each, per system. Pictures
+# are read from QUICKSTART_DIR as <os>-<step>.<ext>; an absent one renders a
+# labelled placeholder (allowed live: it says what it is and claims nothing).
+# Each step's last element cites where the sentence rests in the stable pin; it
+# is never rendered, it is there for the update-website re-verification.
+QUICKSTART_OS = [("linux", "Linux"), ("macos", "macOS"), ("windows", "Windows")]
+QUICKSTART = [
+    # step, headline, sentence, {os: scene label}, source (not rendered)
+    ("install", "Paste",
+     "Run the line above. When it finishes, a Tillandsias icon sits in your tray.",
+     {"linux":   "Linux top bar with the Tillandsias icon",
+      "macos":   "macOS menu bar with the Tillandsias icon",
+      "windows": "Windows notification area with the Tillandsias icon"},
+     "v56.9.27.2 README.md:154-156"),
+    ("scan", "Scan",
+     "Choose GitHub login from that icon and point your phone at the QR code it shows.",
+     {"linux":   "Phone over the QR code on Linux",
+      "macos":   "Phone over the QR code on macOS",
+      "windows": "Phone over the QR code on Windows"},
+     "v56.9.27.2 tray-ux/spec.md:92; headless main.rs:10832; "
+     "windows-tray main.rs:848; macos-tray diagnose.rs:1918-1926"),
+    ("prompt", "Prompt",
+     "Pick a project from the same icon and start typing.",
+     {"linux":   "Prompt in a project opened from the Linux tray",
+      "macos":   "Prompt in a project opened from the macOS menu bar",
+      "windows": "Prompt in a project opened from the Windows tray"},
+     "v56.9.27.2 simplified-tray-ux/spec.md:108; README.md:175"),
+]
+QUICKSTART_DIR = SHOTS / "quickstart"
+# A browser cannot tell a Linux desktop apart, so a desktop-specific shot
+# stands in for the generic Linux one; `any-<step>` serves every system.
+QUICKSTART_FALLBACK = {"linux": ("gnome", "kde", "cosmic")}
+QUICKSTART_ANY = "any"
+
+
+def quickstart_shot(os_, step):
+    """Resolve the storyboard picture for (os, step) to (src, alt), or None.
+
+    Order: <os>-<step>, then the Linux desktop stand-ins (Linux only), then
+    any-<step>; each tried as png, webp, jpg. None means "render the placeholder".
+    """
+    scene = next(s[3][os_] for s in QUICKSTART if s[0] == step)
+    for prefix in (os_,) + QUICKSTART_FALLBACK.get(os_, ()) + (QUICKSTART_ANY,):
+        for ext in SHOT_EXTS:
+            if (QUICKSTART_DIR / ("%s-%s.%s" % (prefix, step, ext))).exists():
+                return ("assets/screenshots/quickstart/%s-%s.%s" % (prefix, step, ext), scene)
+    return None
+
 
 INSTALL_NOTE = """\
 Each line fetches a short script from this site, which
@@ -504,11 +556,43 @@ default; set <code>TILLANDSIAS_DESTRUCTIVE_RESET_OK=0</code> before running
 one to skip the destructive reset."""
 
 
+def quickstart_steps():
+    """The three-step storyboard: per step one headline, one sentence, and one
+    figure per system (hidden/shown by the OS radios' CSS), image or placeholder."""
+    steps = []
+    for n, (step, head, text, scenes, _source) in enumerate(QUICKSTART, 1):
+        figs = []
+        for os_, _label in QUICKSTART_OS:
+            shot = quickstart_shot(os_, step)
+            if shot:
+                body = ('<img src="%s" alt="%s" loading="lazy">'
+                        % (html.escape(shot[0], quote=True), html.escape(shot[1], quote=True)))
+            else:
+                body = ('<div class="qs-ph" role="img" aria-label="Screenshot to come: %s">'
+                        '<span class="qs-ph-k">screenshot to come</span>'
+                        '<span class="qs-ph-t">%s</span></div>'
+                        % (html.escape(scenes[os_], quote=True), html.escape(scenes[os_])))
+            figs.append('<figure class="qs-shot" data-os="%s">%s</figure>' % (os_, body))
+        steps.append('<li class="qs-step"><h3 class="qs-h"><span class="qs-n" aria-hidden="true">%d</span>%s</h3>'
+                     '<p class="qs-t">%s</p>%s</li>'
+                     % (n, html.escape(head), html.escape(text), "".join(figs)))
+    return '<ol class="qs-steps">%s</ol>' % "".join(steps)
+
+
 def install_view(install):
-    """The "I want it!" page: the install commands, then screenshots by platform."""
+    """The "I want it!" page: OS switcher, install commands, the three-step
+    storyboard, then screenshots by platform."""
+    # The radios are direct children of .qs so `:checked ~` reaches both the
+    # install rows and the storyboard figures; no script is needed to switch.
+    radios = "".join('<input class="sr" type="radio" name="qs-os" id="qs-%s" value="%s"%s>'
+                     % (slug, slug, " checked" if slug == QUICKSTART_OS[0][0] else "")
+                     for slug, _label in QUICKSTART_OS)
+    switch = ('<div class="qs-os" role="group" aria-label="Your system">%s</div>'
+              % "".join('<label for="qs-%s">%s</label>' % (slug, html.escape(label))
+                        for slug, label in QUICKSTART_OS))
     shots = []
     for slug, label in SCREENSHOTS:
-        for ext in ("png", "webp", "jpg"):
+        for ext in SHOT_EXTS:
             if (SHOTS / ("%s.%s" % (slug, ext))).exists():
                 shots.append('<figure class="shot"><img src="assets/screenshots/%s.%s" alt="Tillandsias '
                              'running on %s" loading="lazy"><figcaption>%s</figcaption></figure>'
@@ -518,10 +602,11 @@ def install_view(install):
                if shots else "")
     return ('<section class="view" id="view-install" role="tabpanel" aria-labelledby="nav-install">'
             '<div class="wrap"><h2 class="view-h">I want it!</h2>'
-            '<p class="view-lede">One line in a terminal. Pick your platform, copy, paste.</p>'
+            '<p class="view-lede">One line in a terminal, one photo, one prompt.</p>'
+            '<div class="qs" id="quickstart">%s%s'
             '<div class="install-strip"><div class="install" aria-label="Install">%s'
-            '<p class="ins-note">%s</p></div></div>%s</div></section>'
-            % (install, INSTALL_NOTE, gallery))
+            '<p class="ins-note">%s</p></div></div>%s</div>%s</div></section>'
+            % (radios, switch, install, INSTALL_NOTE, quickstart_steps(), gallery))
 
 
 def centicolons_view():
@@ -843,12 +928,12 @@ def build():
                ('<span class="cont">%s</span>' % html.escape(cont)) if cont else "",
                content, fn_html))
 
-    install = "".join('<div class="ins-row"><span class="ins-os">%s</span>'
+    install = "".join('<div class="ins-row" data-os="%s"><span class="ins-os">%s</span>'
                       '<span class="ins-box"><input readonly value="%s" '
                       'aria-label="%s install command" spellcheck="false">'
                       '<button class="ins-copy" type="button" title="Copy">Copy</button>'
                       '</span></div>'
-                      % (os_, html.escape(cmd, quote=True), os_) for os_, cmd in INSTALL)
+                      % (slug, os_, html.escape(cmd, quote=True), os_) for slug, os_, cmd in INSTALL)
     # The tab icon is the same glyph the header carries, inlined as a data URI:
     # nothing to fetch, and the CSP has no image host to allow.
     favicon = "data:image/svg+xml," + urllib.parse.quote(
@@ -955,6 +1040,45 @@ h1 .dim{color:var(--ink-faint);font-weight:400}
   padding:0 12px;cursor:pointer;transition:.15s}
 .ins-copy:hover{background:rgba(255,255,255,.04);color:var(--ink)}
 .ins-copy.done{color:var(--leaf)}
+/* Quickstart: the OS radios sit first inside .qs, so `:checked ~` picks the
+   emphasised install row and the visible storyboard figure without script. */
+.qs-os{display:inline-flex;flex-wrap:wrap;gap:4px;margin:4px 0 8px;padding:3px;
+  border:1px solid var(--line);border-radius:7px;background:var(--bg-2)}
+.qs-os label{cursor:pointer;padding:7px 12px;border-radius:5px;border:1px solid transparent;
+  font:600 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-faint);transition:.15s}
+.qs-os label:hover{color:var(--ink)}
+#qs-linux:checked ~ .qs-os label[for=qs-linux],
+#qs-macos:checked ~ .qs-os label[for=qs-macos],
+#qs-windows:checked ~ .qs-os label[for=qs-windows]{color:var(--ink);border-color:var(--leaf-dim)}
+#qs-linux:focus-visible ~ .qs-os label[for=qs-linux],
+#qs-macos:focus-visible ~ .qs-os label[for=qs-macos],
+#qs-windows:focus-visible ~ .qs-os label[for=qs-windows]{outline:2px solid var(--leaf);outline-offset:2px}
+#qs-linux:checked ~ .install-strip .ins-row[data-os=linux] .ins-box,
+#qs-macos:checked ~ .install-strip .ins-row[data-os=macos] .ins-box,
+#qs-windows:checked ~ .install-strip .ins-row[data-os=windows] .ins-box{border-color:var(--leaf-dim)}
+#qs-linux:checked ~ .install-strip .ins-row[data-os=linux] .ins-os,
+#qs-macos:checked ~ .install-strip .ins-row[data-os=macos] .ins-os,
+#qs-windows:checked ~ .install-strip .ins-row[data-os=windows] .ins-os{color:var(--leaf)}
+.qs-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:28px 0 8px;
+  padding:0;list-style:none}
+.qs-step{min-width:0}
+.qs-h{margin:0;font-size:15px;font-weight:600;line-height:1.3}
+.qs-n{display:inline-block;margin-right:8px;font:600 12px/1 var(--mono);color:var(--leaf)}
+.qs-t{margin:6px 0 0;max-width:36ch;font-size:14px;line-height:1.5;color:var(--ink-dim)}
+.qs-shot{margin:10px 0 0;display:none}
+#qs-linux:checked ~ .qs-steps .qs-shot[data-os=linux],
+#qs-macos:checked ~ .qs-steps .qs-shot[data-os=macos],
+#qs-windows:checked ~ .qs-steps .qs-shot[data-os=windows]{display:block}
+.qs-shot img{display:block;width:100%;height:auto;border:1px solid var(--line);
+  border-radius:9px;background:var(--bg-2)}
+.qs-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  aspect-ratio:16/10;padding:14px 16px;border:1px dashed var(--line-2);border-radius:9px;
+  background:rgba(255,255,255,.015);color:var(--ink-faint);font-size:13px;line-height:1.5;
+  text-align:center}
+.qs-ph-k{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-faint)}
+.qs-ph-t{margin-top:4px}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0 0;margin:0 0 -1px;
   /* The rail still scrolls on narrow screens; only the bar itself is hidden. */
   scrollbar-width:none;-ms-overflow-style:none}
@@ -1331,6 +1455,8 @@ body.is-presenting footer{display:none}
   .install-strip{padding:12px 0 2px}
   .ins-row{display:block}
   .ins-os{display:block;margin:7px 0 3px}
+  .qs-steps{grid-template-columns:1fr}
+  .qs-os{display:flex}
   .flag-path{margin-left:8px}
   .s-pillars{grid-template-columns:1fr}
 }
@@ -1391,14 +1517,17 @@ body.is-accessible .prose p,body.is-accessible .lede,body.is-accessible .view-le
 body.is-accessible .homelead,body.is-accessible .fact,body.is-accessible .ins-note,
 body.is-accessible .drawer-f,body.is-accessible .card-t,body.is-accessible .card-m,
 body.is-accessible .card-d,body.is-accessible .ledger-detail,body.is-accessible .blurb,
-body.is-accessible footer,body.is-accessible .fn-note,
+body.is-accessible footer,body.is-accessible .fn-note,body.is-accessible .qs-t,
 body.is-accessible .s-lede,body.is-accessible .s-copy>p
 {color:#fff}
 body.is-accessible .prose,body.is-accessible .lede,body.is-accessible .view-lede,
 body.is-accessible .homelead,body.is-accessible .fact,body.is-accessible .ins-note,
 body.is-accessible .drawer-f,body.is-accessible .card-t,body.is-accessible .card-m,
-body.is-accessible .ledger-detail,body.is-accessible .s-lede,body.is-accessible .s-copy>p
+body.is-accessible .ledger-detail,body.is-accessible .s-lede,body.is-accessible .s-copy>p,
+body.is-accessible .qs-t
 {letter-spacing:.018em;word-spacing:.05em;line-height:1.72}
+body.is-accessible .qs-t{font-size:16px;max-width:44ch}
+body.is-accessible .qs-ph{color:#d7dde4;border-color:#5a636d}
 body.is-accessible .nav,body.is-accessible .acc{font-size:16px;line-height:1.2}
 body.is-accessible .blurb,body.is-accessible .card-t{font-size:15px}
 body.is-accessible a{text-decoration:underline;text-underline-offset:3px}
@@ -1528,6 +1657,17 @@ __SLIDES__
       }
     });
   });
+})();
+// Quickstart: tick the visitor's system so the install row and the storyboard
+// pictures match it. Client hints first, the UA string otherwise; an unknown
+// platform leaves the markup default (Linux). Nothing is stored.
+(function(){
+  var p = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.userAgent || '').toLowerCase();
+  var os = /mac|iphone|ipad|ipod/.test(p) ? 'macos'
+         : /win/.test(p) ? 'windows'
+         : /linux|android|x11|cros/.test(p) ? 'linux' : null;
+  var r = os && document.getElementById('qs-' + os);
+  if (r) r.checked = true;
 })();
 // Footnote tooltips: label, the quoted lines when recorded, and the target.
 // Shown on hover and on keyboard focus, positioned inside the viewport so a

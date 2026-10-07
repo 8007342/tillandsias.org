@@ -1,9 +1,11 @@
 # Workstream: the "I want it!" page and its quickstart storyboard
 
-**Status:** 🟡 **DESIGNED, NOT IMPLEMENTED** — OpenSpec change
+**Status:** 🟢 **IMPLEMENTED, AWAITING SCREENSHOTS AND A BROWSER PASS** —
+OpenSpec change
 [`openspec/changes/i-want-it-quickstart/`](../openspec/changes/i-want-it-quickstart/)
-written 2026-10-07 on branch `work/site-tweaks`; implementation tasks open
-(see its `tasks.md` §2–§8).
+designed and implemented 2026-10-07 on branch `work/site-tweaks`; the nine
+storyboard frames are placeholders until the owner captures the files in §4;
+the browser smoke tests (`tasks.md` §7.5–7.9) still need a real browser.
 **Opened:** 2026-10-07
 **Owner:** operator (`bulloncito`); design by a forge session, 2026-10-07
 
@@ -87,3 +89,20 @@ first one lands.
   `quickstart/<os>-<step>.<ext>` naming with Linux-desktop and `any-` fallbacks;
   placeholders allowed live. Nothing implemented; committed on
   `work/site-tweaks`, not pushed.
+- **2026-10-07** — Implementation session. Built the change as designed:
+  `INSTALL` rows keyed by slug (`data-os`), `QUICKSTART`/`QUICKSTART_OS`
+  tables with the non-rendered `source` citations, `quickstart_shot()`
+  resolver (`<os>-<step>` → `gnome/kde/cosmic-<step>` for Linux → `any-<step>`
+  → placeholder; png, webp, jpg), the radio-group switcher and `<ol
+  class="qs-steps">` storyboard in `install_view()`, ~45 lines of `.qs-*` CSS
+  (reusing the `.s-ph` placeholder recipe, `aspect-ratio:16/10`), the
+  10-line detection IIFE, and `var/html/assets/screenshots/quickstart/.gitkeep`.
+  Lede now "One line in a terminal, one photo, one prompt." Verified:
+  `checked-build.sh` ok, deterministic rebuild, placeholder/fallback paths
+  exercised with temporary copies of `fedora-up.png` under each naming
+  variant (exact beats desktop stand-in beats `any-`, png beats webp), inline
+  JS passes `node --check`, detection regexes checked against sample UA
+  strings. Not visually checked: no headless browser on the host. Open for the
+  owner: capture the files in §4, run `tasks.md` §7.5–7.9 in a browser.
+  Noted: `navigator.userAgentData.platform` reports "Chrome OS" (not "cros"),
+  which the regex misses; the outcome is the Linux default either way.
