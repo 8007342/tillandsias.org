@@ -119,10 +119,12 @@ BUILD_STAMP = build_stamp()
 # shell), and they run the installer from a file so it keeps a usable stdin.
 DL = "https://github.com/8007342/tillandsias/releases/latest/download"
 SITE = "https://tillandsias.org"
+# (slug, label, command). The slug keys the row to the OS switcher on the
+# I want it! page (see QUICKSTART_OS), so both share one vocabulary.
 INSTALL = [
-    ("Linux",   "curl -fSsL %s/install.sh | bash" % SITE),
-    ("macOS",   "curl -fSsL %s/install-macos.sh | bash" % SITE),
-    ("Windows", "irm %s/install.ps1 | iex" % SITE),
+    ("linux",   "Linux",   "curl -fSsL %s/install.sh | bash" % SITE),
+    ("macos",   "macOS",   "curl -fSsL %s/install-macos.sh | bash" % SITE),
+    ("windows", "Windows", "irm %s/install.ps1 | iex" % SITE),
 ]
 
 # kind -> (css class, glyph, visible label). GREEN/RED say what the *thing*
@@ -475,12 +477,159 @@ def home_view():
             '<ul class="factpool" id="factpool" hidden>%s</ul>'
             '<p class="homelead">A small cloud region on your own computer. Disposable workspaces, '
             'with work preserved through your git remote.</p>'
-            '<p class="homego"><button class="gobtn" data-go="view-what">What is it?</button>'
-            '<button class="gobtn" data-go="view-progress">Live progress</button>'
-            '<button class="gobtn" data-go="view-centicolons">CentiColons</button>'
-            '<button class="gobtn" data-go="view-slides">Slides</button></p>'
+            '<p class="homego"><button class="gobtn" data-go="view-what">What is it?</button></p>'
             '</div></section>'
             % (art, html.escape(facts.FACTS[0]), pool))
+
+
+# Screenshots for the "I want it!" page. Drop a file named <slug>.png (or .webp,
+# .jpg) into var/html/assets/screenshots/ and rebuild: it appears in this order,
+# captioned with its label. Missing ones are skipped, so the section is absent
+# until the first screenshot lands.
+SCREENSHOTS = [
+    ("windows", "Windows"),
+    ("macos",   "macOS"),
+    ("gnome",   "Linux &#183; GNOME"),
+    ("kde",     "Linux &#183; KDE Plasma"),
+    ("cosmic",  "Linux &#183; COSMIC"),
+]
+SHOTS = ROOT / "var" / "html" / "assets" / "screenshots"
+SHOT_EXTS = ("png", "webp", "jpg")
+
+# The quickstart storyboard: four steps, one picture each, per system. Pictures
+# are read from QUICKSTART_DIR as <os>-<step>.<ext>; an absent one renders a
+# labelled placeholder (allowed live: it says what it is and claims nothing).
+# Each step's last element cites where the sentence rests in the stable pin; it
+# is never rendered, it is there for the update-website re-verification. A
+# sentence may carry one link as [label](https://url); see qs_text().
+QUICKSTART_OS = [("linux", "Linux"), ("macos", "macOS"), ("windows", "Windows")]
+QUICKSTART = [
+    # step, headline, sentence, {os: scene label}, source (not rendered)
+    ("install", "Paste",
+     "Run the line above. When it finishes, a Tillandsias icon sits in your tray.",
+     {"linux":   "Linux top bar with the Tillandsias icon",
+      "macos":   "macOS menu bar with the Tillandsias icon",
+      "windows": "Windows notification area with the Tillandsias icon"},
+     "v56.9.27.2 README.md:154-156"),
+    ("scan", "Scan",
+     "Choose GitHub login from that icon, point your phone at the QR code in the "
+     "terminal and confirm the code at github.com/login/device.",
+     {"linux":   "Phone over the QR code in a Linux terminal",
+      "macos":   "Phone over the QR code in a macOS terminal",
+      "windows": "Phone over the QR code in a Windows terminal"},
+     "v56.9.27.2 tray-ux/spec.md:92; headless main.rs:10829-10836 (QR of "
+     "https://github.com/login/device?user_code=..., printed in the terminal); "
+     "gh-auth-script/spec.md:152; windows-tray main.rs:848; macos-tray diagnose.rs:1918-1926"),
+    ("authorize", "Authorize",
+     "Install the [Tillandsias GitHub App](https://github.com/apps/tillandsias) and "
+     "choose which repositories it can use.",
+     {"linux":   "GitHub's install page for the Tillandsias app, choosing repositories",
+      "macos":   "GitHub's install page for the Tillandsias app, choosing repositories",
+      "windows": "GitHub's install page for the Tillandsias app, choosing repositories"},
+     "owner decision 2026-10-07 (design.md): the device flow logs in but does not "
+     "install the App or pick repositories; v56.9.27.2 headless main.rs:10591-10592 "
+     "(GitHub App, App ID 5081125) names the App the flow belongs to; the install "
+     "page itself is GitHub's, not in the release"),
+    ("prompt", "Prompt",
+     "Pick a project from the same icon and start typing.",
+     {"linux":   "Prompt in a project opened from the Linux tray",
+      "macos":   "Prompt in a project opened from the macOS menu bar",
+      "windows": "Prompt in a project opened from the Windows tray"},
+     "v56.9.27.2 simplified-tray-ux/spec.md:108; README.md:175"),
+]
+QUICKSTART_DIR = SHOTS / "quickstart"
+# A browser cannot tell a Linux desktop apart, so a desktop-specific shot
+# stands in for the generic Linux one; `any-<step>` serves every system.
+QUICKSTART_FALLBACK = {"linux": ("gnome", "kde", "cosmic")}
+QUICKSTART_ANY = "any"
+
+
+def qs_text(text):
+    """Escape a storyboard sentence, rendering its one optional [label](url) link."""
+    m = re.fullmatch(r"(.*?)\[([^\]]+)\]\((https://[^)\s]+)\)(.*)", text, re.S)
+    if not m:
+        return html.escape(text)
+    pre, label, url, post = m.groups()
+    return '%s<a href="%s" target="_blank" rel="noopener">%s</a>%s' % (
+        html.escape(pre), html.escape(url, quote=True), html.escape(label), html.escape(post))
+
+
+def quickstart_shot(os_, step):
+    """Resolve the storyboard picture for (os, step) to (src, alt), or None.
+
+    Order: <os>-<step>, then the Linux desktop stand-ins (Linux only), then
+    any-<step>; each tried as png, webp, jpg. None means "render the placeholder".
+    """
+    scene = next(s[3][os_] for s in QUICKSTART if s[0] == step)
+    for prefix in (os_,) + QUICKSTART_FALLBACK.get(os_, ()) + (QUICKSTART_ANY,):
+        for ext in SHOT_EXTS:
+            if (QUICKSTART_DIR / ("%s-%s.%s" % (prefix, step, ext))).exists():
+                return ("assets/screenshots/quickstart/%s-%s.%s" % (prefix, step, ext), scene)
+    return None
+
+
+INSTALL_NOTE = """\
+Each line fetches a short script from this site, which
+resolves the <strong>latest stable release</strong> on GitHub and runs that
+release&#8217;s own installer. Stable moves only when a daily build is
+promoted, so it normally trails the newest code. The scripts here are not
+rebuilt when the app releases; they look the release up every time they
+run. Current installers reset local application state and reprovision by
+default; set <code>TILLANDSIAS_DESTRUCTIVE_RESET_OK=0</code> before running
+one to skip the destructive reset."""
+
+
+def quickstart_steps():
+    """The four-step storyboard: per step one headline, one sentence, and one
+    figure per system (hidden/shown by the OS radios' CSS), image or placeholder."""
+    steps = []
+    for n, (step, head, text, scenes, _source) in enumerate(QUICKSTART, 1):
+        figs = []
+        for os_, _label in QUICKSTART_OS:
+            shot = quickstart_shot(os_, step)
+            if shot:
+                body = ('<img src="%s" alt="%s" loading="lazy">'
+                        % (html.escape(shot[0], quote=True), html.escape(shot[1], quote=True)))
+            else:
+                body = ('<div class="qs-ph" role="img" aria-label="Screenshot to come: %s">'
+                        '<span class="qs-ph-k">screenshot to come</span>'
+                        '<span class="qs-ph-t">%s</span></div>'
+                        % (html.escape(scenes[os_], quote=True), html.escape(scenes[os_])))
+            figs.append('<figure class="qs-shot" data-os="%s">%s</figure>' % (os_, body))
+        steps.append('<li class="qs-step"><h3 class="qs-h"><span class="qs-n" aria-hidden="true">%d</span>%s</h3>'
+                     '<p class="qs-t">%s</p>%s</li>'
+                     % (n, html.escape(head), qs_text(text), "".join(figs)))
+    return '<ol class="qs-steps">%s</ol>' % "".join(steps)
+
+
+def install_view(install):
+    """The "I want it!" page: OS switcher, install commands, the four-step
+    storyboard, then screenshots by platform."""
+    # The radios are direct children of .qs so `:checked ~` reaches both the
+    # install rows and the storyboard figures; no script is needed to switch.
+    radios = "".join('<input class="sr" type="radio" name="qs-os" id="qs-%s" value="%s"%s>'
+                     % (slug, slug, " checked" if slug == QUICKSTART_OS[0][0] else "")
+                     for slug, _label in QUICKSTART_OS)
+    switch = ('<div class="qs-os" role="group" aria-label="Your system">%s</div>'
+              % "".join('<label for="qs-%s">%s</label>' % (slug, html.escape(label))
+                        for slug, label in QUICKSTART_OS))
+    shots = []
+    for slug, label in SCREENSHOTS:
+        for ext in SHOT_EXTS:
+            if (SHOTS / ("%s.%s" % (slug, ext))).exists():
+                shots.append('<figure class="shot"><img src="assets/screenshots/%s.%s" alt="Tillandsias '
+                             'running on %s" loading="lazy"><figcaption>%s</figcaption></figure>'
+                             % (slug, ext, label.replace("&#183;", "-"), label))
+                break
+    gallery = ('<h3 class="shots-h">On your desktop</h3><div class="shots">%s</div>' % "".join(shots)
+               if shots else "")
+    return ('<section class="view" id="view-install" role="tabpanel" aria-labelledby="nav-install">'
+            '<div class="wrap"><h2 class="view-h">I want it!</h2>'
+            '<p class="view-lede">One line in a terminal, one photo, one GitHub app, one prompt.</p>'
+            '<div class="qs" id="quickstart">%s%s'
+            '<div class="install-strip"><div class="install" aria-label="Install">%s'
+            '<p class="ins-note">%s</p></div></div>%s</div>%s</div></section>'
+            % (radios, switch, install, INSTALL_NOTE, quickstart_steps(), gallery))
 
 
 def centicolons_view():
@@ -802,17 +951,17 @@ def build():
                ('<span class="cont">%s</span>' % html.escape(cont)) if cont else "",
                content, fn_html))
 
-    install = "".join('<div class="ins-row"><span class="ins-os">%s</span>'
+    install = "".join('<div class="ins-row" data-os="%s"><span class="ins-os">%s</span>'
                       '<span class="ins-box"><input readonly value="%s" '
                       'aria-label="%s install command" spellcheck="false">'
                       '<button class="ins-copy" type="button" title="Copy">Copy</button>'
                       '</span></div>'
-                      % (os_, html.escape(cmd, quote=True), os_) for os_, cmd in INSTALL)
+                      % (slug, os_, html.escape(cmd, quote=True), os_) for slug, os_, cmd in INSTALL)
     # The tab icon is the same glyph the header carries, inlined as a data URI:
     # nothing to fetch, and the CSP has no image host to allow.
     favicon = "data:image/svg+xml," + urllib.parse.quote(
         figures.PLANTS["ionantha"].replace('stroke="currentColor"', 'stroke="#5fd6a4"'), safe="")
-    doc = (TEMPLATE.replace("__INSTALL__", install)
+    doc = (TEMPLATE.replace("__INSTALL_VIEW__", install_view(install))
            .replace("__LEAF__", figures.PLANTS["ionantha"])
            .replace("__FAVICON__", favicon)
            .replace("__DEFS__", figures.DEFS)
@@ -889,14 +1038,13 @@ h1{margin:0;font-size:clamp(32px,5vw,56px);line-height:1.07;letter-spacing:-.026
 h1 .dim{color:var(--ink-faint);font-weight:400}
 .lede{max-width:64ch;margin:22px 0 0;font-size:19px;color:var(--ink-dim)}
 .lede strong{color:var(--ink);font-weight:600}
-.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:26px 0 0;padding:12px 16px;
-  border:1px solid var(--line);border-radius:11px;background:var(--bg-2);
-  font-size:12.5px;line-height:1.5;color:var(--ink-faint)}
-.legend b{color:var(--ink-dim);font-weight:600}
-.legend .lg{display:inline-block;width:1.1em;font:600 11px/1 var(--mono);font-style:normal;text-align:center}
-.lg-green,.lg-proven{color:var(--leaf)} .lg-red,.lg-refuted{color:var(--rose)}
-.lg-path,.lg-plausible{color:var(--amber)}
 .install-strip{padding:18px 0 4px}
+.shots-h{margin:48px 0 16px;font-size:18px;font-weight:600}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin:0 0 56px}
+.shot{margin:0;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--bg-2)}
+.shot img{display:block;width:100%;height:auto}
+.shot figcaption{padding:9px 12px;font:600 11px/1.3 var(--mono);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-faint)}
 .install{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center}
 .ins-row{display:contents}
 .ins-os{font:600 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
@@ -915,6 +1063,46 @@ h1 .dim{color:var(--ink-faint);font-weight:400}
   padding:0 12px;cursor:pointer;transition:.15s}
 .ins-copy:hover{background:rgba(255,255,255,.04);color:var(--ink)}
 .ins-copy.done{color:var(--leaf)}
+/* Quickstart: the OS radios sit first inside .qs, so `:checked ~` picks the
+   emphasised install row and the visible storyboard figure without script. */
+.qs-os{display:inline-flex;flex-wrap:wrap;gap:4px;margin:4px 0 8px;padding:3px;
+  border:1px solid var(--line);border-radius:7px;background:var(--bg-2)}
+.qs-os label{cursor:pointer;padding:7px 12px;border-radius:5px;border:1px solid transparent;
+  font:600 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-faint);transition:.15s}
+.qs-os label:hover{color:var(--ink)}
+#qs-linux:checked ~ .qs-os label[for=qs-linux],
+#qs-macos:checked ~ .qs-os label[for=qs-macos],
+#qs-windows:checked ~ .qs-os label[for=qs-windows]{color:var(--ink);border-color:var(--leaf-dim)}
+#qs-linux:focus-visible ~ .qs-os label[for=qs-linux],
+#qs-macos:focus-visible ~ .qs-os label[for=qs-macos],
+#qs-windows:focus-visible ~ .qs-os label[for=qs-windows]{outline:2px solid var(--leaf);outline-offset:2px}
+#qs-linux:checked ~ .install-strip .ins-row[data-os=linux] .ins-box,
+#qs-macos:checked ~ .install-strip .ins-row[data-os=macos] .ins-box,
+#qs-windows:checked ~ .install-strip .ins-row[data-os=windows] .ins-box{border-color:var(--leaf-dim)}
+#qs-linux:checked ~ .install-strip .ins-row[data-os=linux] .ins-os,
+#qs-macos:checked ~ .install-strip .ins-row[data-os=macos] .ins-os,
+#qs-windows:checked ~ .install-strip .ins-row[data-os=windows] .ins-os{color:var(--leaf)}
+.qs-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:28px 0 8px;
+  padding:0;list-style:none}
+.qs-step{min-width:0}
+.qs-h{margin:0;font-size:15px;font-weight:600;line-height:1.3}
+.qs-n{display:inline-block;margin-right:8px;font:600 12px/1 var(--mono);color:var(--leaf)}
+.qs-t{margin:6px 0 0;max-width:36ch;font-size:14px;line-height:1.5;color:var(--ink-dim)}
+.qs-t a{color:inherit}
+.qs-shot{margin:10px 0 0;display:none}
+#qs-linux:checked ~ .qs-steps .qs-shot[data-os=linux],
+#qs-macos:checked ~ .qs-steps .qs-shot[data-os=macos],
+#qs-windows:checked ~ .qs-steps .qs-shot[data-os=windows]{display:block}
+.qs-shot img{display:block;width:100%;height:auto;border:1px solid var(--line);
+  border-radius:9px;background:var(--bg-2)}
+.qs-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  aspect-ratio:16/10;padding:14px 16px;border:1px dashed var(--line-2);border-radius:9px;
+  background:rgba(255,255,255,.015);color:var(--ink-faint);font-size:13px;line-height:1.5;
+  text-align:center}
+.qs-ph-k{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-faint)}
+.qs-ph-t{margin-top:4px}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0 0;margin:0 0 -1px;
   /* The rail still scrolls on narrow screens; only the bar itself is hidden. */
   scrollbar-width:none;-ms-overflow-style:none}
@@ -927,7 +1115,7 @@ h1 .dim{color:var(--ink-faint);font-weight:400}
 .tab-n{font:600 11px/1 var(--mono);color:var(--leaf-dim);border:1px solid var(--line);
   border-radius:5px;padding:4px 6px}
 .tab.is-active .tab-n{color:var(--bg);background:var(--leaf);border-color:var(--leaf)}
-/* Only the level rail is sticky; the install commands scroll away with the header. */
+/* Only the level rail is sticky; the hero scrolls away above it. */
 .sticky{position:sticky;top:0;z-index:10;background:rgba(7,9,12,.88);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 main{padding:0 0 96px}
@@ -1283,7 +1471,7 @@ body.is-presenting footer{display:none}
 .s-rail-fill{display:block;height:100%;width:5.88%;background:var(--leaf);
   border-radius:2px;transition:width .25s ease}
 .s-rail.is-how .s-rail-fill{background:var(--sky)}
-@media (max-width:900px){.cols{grid-template-columns:1fr}}
+@media (max-width:900px){.cols{grid-template-columns:1fr}.qs-steps{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:760px){
   header.hero{padding:48px 0 24px}
   .tab{padding:12px}
@@ -1291,6 +1479,8 @@ body.is-presenting footer{display:none}
   .install-strip{padding:12px 0 2px}
   .ins-row{display:block}
   .ins-os{display:block;margin:7px 0 3px}
+  .qs-steps{grid-template-columns:1fr}
+  .qs-os{display:flex}
   .flag-path{margin-left:8px}
   .s-pillars{grid-template-columns:1fr}
 }
@@ -1351,14 +1541,17 @@ body.is-accessible .prose p,body.is-accessible .lede,body.is-accessible .view-le
 body.is-accessible .homelead,body.is-accessible .fact,body.is-accessible .ins-note,
 body.is-accessible .drawer-f,body.is-accessible .card-t,body.is-accessible .card-m,
 body.is-accessible .card-d,body.is-accessible .ledger-detail,body.is-accessible .blurb,
-body.is-accessible footer,body.is-accessible .fn-note,
+body.is-accessible footer,body.is-accessible .fn-note,body.is-accessible .qs-t,
 body.is-accessible .s-lede,body.is-accessible .s-copy>p
 {color:#fff}
 body.is-accessible .prose,body.is-accessible .lede,body.is-accessible .view-lede,
 body.is-accessible .homelead,body.is-accessible .fact,body.is-accessible .ins-note,
 body.is-accessible .drawer-f,body.is-accessible .card-t,body.is-accessible .card-m,
-body.is-accessible .ledger-detail,body.is-accessible .s-lede,body.is-accessible .s-copy>p
+body.is-accessible .ledger-detail,body.is-accessible .s-lede,body.is-accessible .s-copy>p,
+body.is-accessible .qs-t
 {letter-spacing:.018em;word-spacing:.05em;line-height:1.72}
+body.is-accessible .qs-t{font-size:16px;max-width:44ch}
+body.is-accessible .qs-ph{color:#d7dde4;border-color:#5a636d}
 body.is-accessible .nav,body.is-accessible .acc{font-size:16px;line-height:1.2}
 body.is-accessible .blurb,body.is-accessible .card-t{font-size:15px}
 body.is-accessible a{text-decoration:underline;text-underline-offset:3px}
@@ -1397,6 +1590,7 @@ __DEFS__
   <p class="drawer-h">tillandsias.org</p>
   <button class="nav is-on" id="nav-home" data-go="view-home"><span class="nav-i">&#127968;</span>Home</button>
   <button class="nav" id="nav-what" data-go="view-what"><span class="nav-i">&#63;</span>What is it?</button>
+  <button class="nav" id="nav-install" data-go="view-install"><span class="nav-i">&#8595;</span>I want it!</button>
   <button class="nav" id="nav-progress" data-go="view-progress"><span class="nav-i">&#9673;</span>Live progress</button>
   <button class="nav" id="nav-centicolons" data-go="view-centicolons"><span class="nav-i">&#9823;</span>CentiColons</button>
   <button class="nav" id="nav-slides" data-go="view-slides"><span class="nav-i">&#9654;</span>Slides</button>
@@ -1419,32 +1613,8 @@ __HOME__
     <p class="lede">Local hardware. Free software. Nothing rented, nothing metered, nothing left
       behind. Below is <strong>what it is and how it works</strong>, told five times over — pick
       the version that fits the person reading.</p>
-    <div class="legend">
-      <span><i class="lg lg-green">&#x25CF;</i> <b>Verified</b> — checked against the source, and working.</span>
-      <span><i class="lg lg-red">&#x25CF;</i> <b>Shortcoming</b> — incomplete, pending, or overclaimed.</span>
-      <span><i class="lg lg-path">&#8594;</i> <b>Path</b> — what the plan records as the fix, or that it records none.</span>
-      <span><i class="lg lg-proven">&#x2713;</i> <b>Shown</b> — an argument we can point at the code or a test for.</span>
-      <span><i class="lg lg-plausible">&#x223C;</i> <b>Plausible</b> — sounds right; not yet demonstrated.</span>
-      <span><i class="lg lg-refuted">&#x2717;</i> <b>Does not hold</b> — an argument we tried, and it failed.</span>
-    </div>
   </div>
 </header>
-
-<div class="install-strip">
-  <div class="wrap">
-    <div class="install" aria-label="Install">
-__INSTALL__
-      <p class="ins-note">Each line fetches a short script from this site, which
-      resolves the <strong>latest stable release</strong> on GitHub and runs that
-      release&#8217;s own installer. Stable moves only when a daily build is
-      promoted, so it normally trails the newest code. The scripts here are not
-      rebuilt when the app releases; they look the release up every time they
-      run. Current installers reset local application state and reprovision by
-      default; set <code>TILLANDSIAS_DESTRUCTIVE_RESET_OK=0</code> before running
-      one to skip the destructive reset.</p>
-    </div>
-  </div>
-</div>
 
 <div class="sticky">
   <div class="wrap">
@@ -1460,6 +1630,8 @@ __PANELS__
   </div>
 </main>
 </section>
+
+__INSTALL_VIEW__
 
 __PROGRESS__
 
@@ -1509,6 +1681,17 @@ __SLIDES__
       }
     });
   });
+})();
+// Quickstart: tick the visitor's system so the install row and the storyboard
+// pictures match it. Client hints first, the UA string otherwise; an unknown
+// platform leaves the markup default (Linux). Nothing is stored.
+(function(){
+  var p = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.userAgent || '').toLowerCase();
+  var os = /mac|iphone|ipad|ipod/.test(p) ? 'macos'
+         : /win/.test(p) ? 'windows'
+         : /linux|android|x11|cros/.test(p) ? 'linux' : null;
+  var r = os && document.getElementById('qs-' + os);
+  if (r) r.checked = true;
 })();
 // Footnote tooltips: label, the quoted lines when recorded, and the target.
 // Shown on hover and on keyboard focus, positioned inside the viewport so a
@@ -1610,11 +1793,11 @@ __SLIDES__
     if (lines.length) out.textContent = lines[Math.floor(Math.random() * lines.length)].textContent;
   }
 
-  // A deep link opens its view: #home, #what, #progress, #slides, #big-graph, or a level.
+  // A deep link opens its view: #home, #what, #install, #progress, #slides, #big-graph, or a level.
   function fromHash(){
     var h = location.hash.slice(1);
     if (!h) return go('view-home', false);
-    if (h === 'home' || h === 'what' || h === 'progress' || h === 'slides' || h === 'centicolons' || h === 'big-graph') return go('view-' + h, false);
+    if (h === 'home' || h === 'what' || h === 'install' || h === 'progress' || h === 'slides' || h === 'centicolons' || h === 'big-graph') return go('view-' + h, false);
     if (document.getElementById('panel-' + h)) go('view-what', false);
   }
   window.addEventListener('hashchange', fromHash);

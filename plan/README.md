@@ -26,6 +26,10 @@ Two kinds of reader are expected, and the documents here are written for both:
   Tillandsias state should live inside a repo it does not own, and how to
   bootstrap it into a project that has none of this structure. Research in
   flight; **no decision yet, do not implement**.
+- **[`i-want-it-page.md`](i-want-it-page.md)** — the **I want it!** page and
+  its three-step quickstart storyboard (Paste → Scan → Prompt, per-OS pictures,
+  placeholders). Designed in `openspec/changes/i-want-it-quickstart/`; open
+  questions and the screenshot checklist the owner needs to capture.
 
 ## Conventions
 
