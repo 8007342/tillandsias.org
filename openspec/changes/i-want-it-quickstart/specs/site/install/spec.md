@@ -1,7 +1,7 @@
 ## Purpose
 
 **I want it!** is the page a visitor opens when they want Tillandsias on their
-own machine. It carries the three one-line installers, a three-step storyboard
+own machine. It carries the three one-line installers, a four-step storyboard
 showing how little comes after the line, and a gallery of the desktop once
 screenshots exist. Its job is to make the ramp-up look as small as it is: the
 page is a storyboard, not a manual. Thoroughness belongs on the levels; here a
@@ -49,18 +49,25 @@ about the visitor.
 - **THEN** the page follows that choice for the rest of the view and does not
   revert
 
-### Requirement: Three steps, one picture each, almost no words
-The page MUST show the ramp-up as an ordered storyboard of exactly three steps,
-**Paste**, **Scan**, **Prompt**, in that order. Each step MUST carry a headline
-of one word, at most one sentence, and exactly one picture for the selected
-system. The sentences MUST be instructions, MUST NOT use internals vocabulary
-(virtual machine, WSL, container, vault, forge, enclave), and MUST NOT state a
-planned capability in the present tense. The storyboard MUST NOT grow a fourth
-step, a troubleshooting note or a sub-list without a change to this spec.
+### Requirement: Four steps, one picture each, almost no words
+The page MUST show the ramp-up as an ordered storyboard of exactly four steps,
+**Paste**, **Scan**, **Authorize**, **Prompt**, in that order: paste the
+install line; scan the QR code the GitHub login shows in the terminal, which
+leads to `https://github.com/login/device`; install the Tillandsias GitHub App
+(`https://github.com/apps/tillandsias`) and choose the repositories it may use,
+since the device flow alone does not do that; prompt. Each step MUST carry a
+headline of one word, at most one sentence, and exactly one picture for the
+selected system. Only the Authorize sentence MAY carry a link, and only to the
+App's page on GitHub. The sentences MUST be instructions, MUST NOT use
+internals vocabulary (virtual machine, WSL, container, vault, forge, enclave),
+MUST NOT state a planned capability in the present tense, and MUST NOT describe
+the App's permissions beyond that repositories are chosen. The storyboard MUST
+NOT grow a fifth step, a troubleshooting note or a sub-list without a change to
+this spec.
 
 #### Scenario: A reader scans the page
 - **WHEN** the page is shown on a desktop width
-- **THEN** the three steps sit side by side under the install strip, each with
+- **THEN** the four steps sit side by side under the install strip, each with
   its number, its one word, its one sentence and one picture or placeholder
 
 #### Scenario: A reader is on a phone
@@ -75,8 +82,9 @@ step, a troubleshooting note or a sub-list without a change to this spec.
 
 ### Requirement: Every storyboard sentence is backed by the stable release
 Each step's sentence MUST rest on a cited location in the Tillandsias release
-the site currently pins, and that citation MUST be recorded in the generator's
-step data (not rendered). A sentence whose citation no longer holds at a pin
+the site currently pins, or, where the fact lives outside the release (GitHub's
+own App install page), on a decision recorded in the change's design, and that
+citation MUST be recorded in the generator's step data (not rendered). A sentence whose citation no longer holds at a pin
 bump MUST be weakened or removed with the bump. The storyboard MUST NOT carry
 footnote machinery; the citation lives in the source.
 
@@ -89,8 +97,8 @@ footnote machinery; the citation lives in the source.
 ### Requirement: Pictures are files, placeholders are labelled
 The storyboard's pictures MUST be read at build time from
 `var/html/assets/screenshots/quickstart/<os>-<step>.<ext>` (`<os>` one of
-`linux`, `macos`, `windows`; `<step>` one of `install`, `scan`, `prompt`;
-`<ext>` tried as `png`, `webp`, `jpg` in that order). When the exact file is
+`linux`, `macos`, `windows`; `<step>` one of `install`, `scan`, `authorize`,
+`prompt`; `<ext>` tried as `png`, `webp`, `jpg` in that order). When the exact file is
 absent the build MUST try, in order, a Linux desktop-specific file
 (`gnome-`, `kde-`, `cosmic-<step>`, Linux only), then a system-neutral
 `any-<step>`, and otherwise MUST render a placeholder frame that says it is a

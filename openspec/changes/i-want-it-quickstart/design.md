@@ -20,15 +20,22 @@ var/html/assets/screenshots/quickstart/   NEW dir — <os>-<step>.<ext>
 
 ## The story, and what it rests on
 
-Three steps, fixed by the owner's brief. Each sentence is an instruction, and
-every runtime fact inside it was checked against the stable pin
-(`~/.cache/tillandsias-org/clones/v56.9.27.2`) on 2026-10-07:
+Four steps, fixed by the owner's brief (three in the first brief; the owner
+added **Authorize** on 2026-10-07 after the first implementation landed in
+c80c0a1). Each sentence is an instruction, and every runtime fact inside it was
+checked against the stable pin (`~/.cache/tillandsias-org/clones/v56.9.27.2`)
+on 2026-10-07:
 
 | # | Headline | Sentence (max one) | Rests on (v56.9.27.2) |
 |---|---|---|---|
 | 1 | **Paste** | Run the line above. When it finishes, a Tillandsias icon sits in your tray. | Runtime `README.md:154-156`: "The installer launches the tray automatically. A tray icon appears in your system menu bar / notification area." |
-| 2 | **Scan** | Choose *GitHub login* from that icon and point your phone at the QR code it shows. | `openspec/specs/tray-ux/spec.md:92` lists the `GitHub login` item when not authenticated; `crates/tillandsias-headless/src/main.rs:10832` prints "Scan this QR code with your mobile phone to complete GitHub login" (device flow, `render_terminal_qr` at `:10600`); the Windows tray's wrapper launches `tillandsias-headless --github-login` (`crates/tillandsias-windows-tray/src/main.rs:848`); macOS drives the same guest flow via `tillandsias-tray --github-login` (`crates/tillandsias-macos-tray/src/diagnose.rs:1918-1926`, "scan the QR code, answer the prompts"). |
-| 3 | **Prompt** | Pick a project from the same icon and start typing. | `openspec/specs/simplified-tray-ux/spec.md:108`: OpenCode "opens an interactive session inside the forge container" from a project's submenu; runtime `README.md:175` shows `--prompt`. |
+| 2 | **Scan** | Choose GitHub login from that icon, point your phone at the QR code in the terminal and confirm the code at github.com/login/device. | `openspec/specs/tray-ux/spec.md:92` lists the `GitHub login` item when not authenticated; `crates/tillandsias-headless/src/main.rs:10829-10836` renders a terminal QR of `{verification_uri}?user_code={code}` and prints "Scan this QR code with your mobile phone to complete GitHub login" / "Or in any browser, visit: …" (`render_terminal_qr` at `:10600`); `openspec/specs/gh-auth-script/spec.md:152` requires the QR to contain `https://github.com/login/device?user_code=<user_code>`; the Windows tray's wrapper launches `tillandsias-headless --github-login` (`crates/tillandsias-windows-tray/src/main.rs:848`); macOS drives the same guest flow via `tillandsias-tray --github-login` (`crates/tillandsias-macos-tray/src/diagnose.rs:1918-1926`). "Confirm the code" is chosen because the URL already carries it: the visitor confirms on GitHub's page rather than types. |
+| 3 | **Authorize** | Install the [Tillandsias GitHub App](https://github.com/apps/tillandsias) and choose which repositories it can use. | Owner's decision (2026-10-07): the device flow logs the person in as the App but does not install the App or pick repositories, so that is the step the page must show. `crates/tillandsias-headless/src/main.rs:10591-10592` names the App the flow belongs to ("GitHub App Client ID for Tillandsias … App ID: 5081125"). The install page is GitHub's own, not in the release, so the sentence says only what GitHub's App install page offers (choose repositories) and nothing about the App's permissions. |
+| 4 | **Prompt** | Pick a project from the same icon and start typing. | `openspec/specs/simplified-tray-ux/spec.md:108`: OpenCode "opens an interactive session inside the forge container" from a project's submenu; runtime `README.md:175` shows `--prompt`. |
+
+Step 3 is the one sentence allowed a link (to the App's page on GitHub); it is
+rendered by `qs_text()` from a single `[label](https://…)` in the step data, so
+the sentence stays a string and the escaping stays in one place.
 
 Wording rules the copy obeys (from the brief and the site's own rules): no
 internals vocabulary (VM, WSL, container, vault, forge) in the visitor-facing
@@ -45,6 +52,9 @@ instructions whose facts are cited above and in the source, which is the
 weakest form of claim the page can make while still being useful; the spec for
 `site/install` writes that rule down explicitly rather than borrowing the level
 machinery (footnote lists would defeat the "look how small this is" purpose).
+Step 3 is the one sentence whose fact lives outside the release (GitHub's App
+install page); it rests on the owner's recorded decision and claims nothing
+about permissions, only that repositories are chosen there.
 
 ## Markup
 
@@ -74,7 +84,7 @@ Inside `view-install`'s `.wrap`, after the `view-h`/`view-lede`:
       <figure class="qs-shot" data-os="macos"><div class="qs-ph" role="img" aria-label="Screenshot to come: macOS menu bar with the Tillandsias icon"><span class="qs-ph-k">screenshot to come</span><span class="qs-ph-t">macOS menu bar</span></div></figure>
       <figure class="qs-shot" data-os="windows">…</figure>
     </li>
-    …steps 2 and 3…
+    …steps 2, 3 and 4 (step 3's sentence carries the one <a> to github.com/apps/tillandsias)…
   </ol>
 </div>
 …existing gallery (<h3 class="shots-h">On your desktop</h3> …) unchanged…
@@ -92,10 +102,10 @@ Why this shape:
   and the labels are the visible segmented control. Focus is drawn on the
   label: `.qs > input:focus-visible ~ .qs-os label[for=<id>]`, three one-line
   rules.
-- Steps are an `<ol>` so a screen reader announces "list, three items" and the
+- Steps are an `<ol>` so a screen reader announces "list, four items" and the
   numbers are real; the visible `.qs-n` numeral is `aria-hidden`.
 - Hidden variants are `display:none`, so assistive tech reads exactly one image
-  or placeholder per step. `loading="lazy"` on every `<img>` keeps the nine
+  or placeholder per step. `loading="lazy"` on every `<img>` keeps the twelve
   possible images from loading eagerly.
 - The install rows gain `data-os` and nothing else changes about them; the copy
   buttons keep working unmodified.
@@ -116,11 +126,11 @@ New rules, kept near the `ins-*` block (~40 lines):
 - Install row emphasis: the matching row's `.ins-box` gets
   `border-color:var(--leaf-dim)` and its `.ins-os` gets `color:var(--leaf)`; the
   other rows are left as they are (not dimmed, all three remain readable).
-- `.qs-steps`: `display:grid; grid-template-columns:repeat(3,1fr); gap:18px;
-  margin:28px 0 8px; padding:0; list-style:none` — stacking to one column under
-  the existing `@media (max-width:760px)` block.
+- `.qs-steps`: `display:grid; grid-template-columns:repeat(4,1fr); gap:18px;
+  margin:28px 0 8px; padding:0; list-style:none` — two columns in the existing
+  `@media (max-width:900px)` block, one column under `@media (max-width:760px)`.
 - `.qs-h`: 15px/600 with the numeral in `var(--leaf)` mono; `.qs-t`: 14px
-  `var(--ink-dim)`, `max-width:36ch`.
+  `var(--ink-dim)`, `max-width:36ch`; `.qs-t a{color:inherit}` like `.ins-note a`.
 - `.qs-shot`: `margin:10px 0 0; display:none`, shown by the radio rule; `img`
   `display:block;width:100%;height:auto;border:1px solid var(--line);
   border-radius:9px;background:var(--bg-2)`.
@@ -160,8 +170,9 @@ runs if the elements are absent, so other views are unaffected.
 
 Directory: `var/html/assets/screenshots/quickstart/`. File name:
 `<os>-<step>.<ext>`, with `<os>` ∈ `linux | macos | windows`, `<step>` ∈
-`install | scan | prompt`, `<ext>` tried in the order `png, webp, jpg` (the same
-order the gallery uses).
+`install | scan | authorize | prompt`, `<ext>` tried in the order `png, webp,
+jpg` (the same order the gallery uses). The `authorize` scene is GitHub's page
+in a browser and so OS-independent; `any-authorize.<ext>` is its expected form.
 
 Resolution at build time, per (os, step), first hit wins:
 
@@ -170,8 +181,9 @@ Resolution at build time, per (os, step), first hit wins:
    desktop-specific Linux shot stands in for the generic one, since a browser
    cannot tell the visitor's desktop environment. The gallery below the
    storyboard still shows all three desktops.
-3. `any-<step>` — a system-neutral shot (steps 2 and 3 may genuinely look the
-   same everywhere: a phone over a QR code, a prompt being typed).
+3. `any-<step>` — a system-neutral shot (steps 2 to 4 may genuinely look the
+   same everywhere: a phone over a QR code, GitHub's install page, a prompt
+   being typed).
 4. The labelled placeholder.
 
 The resolver is a small function, `quickstart_shot(os, step) -> (src, alt) |
@@ -185,7 +197,7 @@ for them, they are labelled as placeholders in the site's own placeholder idiom
 (`.s-ph` on Slides already does this in production), and they make no claim.
 The gallery's hide-when-empty rule is unchanged; the storyboard is the one
 place a frame is shown before its picture exists, because the frame itself
-carries the point (three beats).
+carries the point (four beats).
 
 ## Data in the generator
 
@@ -200,8 +212,13 @@ QUICKSTART = [
       "windows": "Windows notification area with the Tillandsias icon"},
      "v56.9.27.2 README.md:154-156"),
     ("scan", "Scan",
-     "Choose GitHub login from that icon and point your phone at the QR code it shows.",
-     {...}, "v56.9.27.2 tray-ux/spec.md:92; headless main.rs:10832"),
+     "Choose GitHub login from that icon, point your phone at the QR code in the "
+     "terminal and confirm the code at github.com/login/device.",
+     {...}, "v56.9.27.2 tray-ux/spec.md:92; headless main.rs:10829-10836; gh-auth-script/spec.md:152"),
+    ("authorize", "Authorize",
+     "Install the [Tillandsias GitHub App](https://github.com/apps/tillandsias) and "
+     "choose which repositories it can use.",
+     {...}, "owner decision 2026-10-07; headless main.rs:10591-10592 (App ID 5081125)"),
     ("prompt", "Prompt",
      "Pick a project from the same icon and start typing.",
      {...}, "v56.9.27.2 simplified-tray-ux/spec.md:108; README.md:175"),
@@ -221,12 +238,14 @@ implementer commits the generator and the page together.
 
 ## Open questions (recorded, not blocking)
 
-1. **Where the QR code appears on each OS.** The code says a terminal: the
-   headless binary prints it, the Windows wrapper and the macOS CLI drive that
-   same output. `simplified-tray-ux/spec.md:191` says the menu item "opens the
-   GitHub OAuth flow in the system's default browser". The screenshots will
-   settle which it is per OS; the step-2 sentence says "the QR code it shows"
-   on purpose, naming neither a terminal nor a browser.
+1. **Where the QR code appears on each OS.** RESOLVED 2026-10-07 by the owner:
+   the QR code is shown in a terminal and points at
+   `https://github.com/login/device` (GitHub device flow), on every OS. The
+   step-2 sentence and scene labels name the terminal; the code agrees
+   (`main.rs:10829-10836`, `gh-auth-script/spec.md:152`).
+   `simplified-tray-ux/spec.md:191` ("opens the GitHub OAuth flow in the
+   system's default browser") describes a different surface and is not what
+   the page shows.
 2. **Does the stable installer always leave the tray running** (step 1's
    sentence)? Cited from the runtime README, not from a level page; the
    `update-website` pass should confirm against the installer source at the

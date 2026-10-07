@@ -4,7 +4,7 @@
 OpenSpec change
 [`openspec/changes/i-want-it-quickstart/`](../openspec/changes/i-want-it-quickstart/)
 designed and implemented 2026-10-07 on branch `work/site-tweaks`; the nine
-storyboard frames are placeholders until the owner captures the files in §4;
+twelve storyboard frames are placeholders until the owner captures the files in §4;
 the browser smoke tests (`tasks.md` §7.5–7.9) still need a real browser.
 **Opened:** 2026-10-07
 **Owner:** operator (`bulloncito`); design by a forge session, 2026-10-07
@@ -17,18 +17,30 @@ The page at `#install` (menu entry **I want it!**, `install_view()` in
 `scripts/build-matrix.py`) landed in d73d0e5 with the three installer lines and
 a file-driven desktop gallery. The owner then asked for bare, minimalistic
 instructions that *show how small the ramp-up is*: after the curl line, someone
-photographs a QR code, then prompts. Three steps, placeholders, and per-OS
-variants chosen by the visitor's browser.
+photographs a QR code in the terminal, installs the Tillandsias GitHub App on
+the repositories it may use, then prompts. Four steps (the owner added
+Authorize on 2026-10-07), placeholders, and per-OS variants chosen by the
+visitor's browser.
 
 The design is in the change's `design.md`; this file holds what must survive a
 session: status, open questions, and the asset checklist for the owner.
 
 ## 2. Verified facts (how each was checked)
 
-- The QR code is real in the stable pin. `crates/tillandsias-headless/src/main.rs:10832`
-  in `~/.cache/tillandsias-org/clones/v56.9.27.2` prints "Scan this QR code
-  with your mobile phone to complete GitHub login" (GitHub device flow;
-  `render_terminal_qr` at `:10600`). Read 2026-10-07.
+- The QR code is real in the stable pin and is printed in the terminal.
+  `crates/tillandsias-headless/src/main.rs:10829-10836` in
+  `~/.cache/tillandsias-org/clones/v56.9.27.2` renders a terminal QR of
+  `{verification_uri}?user_code={code}` and prints "Scan this QR code with your
+  mobile phone to complete GitHub login" / "Or in any browser, visit: …"
+  (GitHub device flow; `render_terminal_qr` at `:10600`);
+  `openspec/specs/gh-auth-script/spec.md:152` requires the QR to contain
+  `https://github.com/login/device?user_code=<user_code>`. Read 2026-10-07.
+- The device flow is the GitHub App's: `main.rs:10591-10592` ("GitHub App
+  Client ID for Tillandsias … App ID: 5081125"). Installing the App and
+  choosing its repositories happens on GitHub's page
+  (https://github.com/apps/tillandsias), which is not in the release; that
+  step is on the page by the owner's decision (2026-10-07), worded without
+  any claim about the App's permissions.
 - The tray exposes it: `openspec/specs/tray-ux/spec.md:92` (`GitHub login` item
   when not authenticated); Windows wrapper launches
   `tillandsias-headless --github-login` (`crates/tillandsias-windows-tray/src/main.rs:848`);
@@ -43,10 +55,11 @@ session: status, open questions, and the asset checklist for the owner.
 
 ## 3. Open questions
 
-1. **Which surface shows the QR code on each OS?** Code says a terminal;
-   `simplified-tray-ux/spec.md:191` says a browser. The step-2 sentence avoids
-   naming either. The screenshots below settle it; adjust the alt text and scene
-   labels in `QUICKSTART` once known.
+1. **Which surface shows the QR code on each OS?** RESOLVED 2026-10-07 by
+   the owner: a terminal, on every OS, pointing at
+   `https://github.com/login/device`. Step 2 and its scene labels say so.
+   (`simplified-tray-ux/spec.md:191`'s browser-opening item is a different
+   surface.)
 2. **Does the stable installer always leave the tray running?** Cited from the
    runtime README only. Confirm against the installer source at the next
    `update-website` pass; weaken step 1 to "open Tillandsias" if not.
@@ -65,10 +78,11 @@ the live site (decided in the design).
 | Step | Scene to capture | linux | macos | windows |
 |---|---|---|---|---|
 | 1 `install` | Terminal right after the installer finished, with the Tillandsias icon visible in the tray / menu bar / notification area | `linux-install` (or `gnome-`/`kde-`/`cosmic-install`) | `macos-install` | `windows-install` |
-| 2 `scan` | A phone held up to the screen, camera on the QR code the GitHub login shows | `linux-scan` | `macos-scan` | `windows-scan` |
-| 3 `prompt` | A project opened from the tray, a prompt being typed | `linux-prompt` | `macos-prompt` | `windows-prompt` |
+| 2 `scan` | A phone held up to the screen, camera on the QR code the GitHub login prints in the terminal | `linux-scan` | `macos-scan` | `windows-scan` |
+| 3 `authorize` | GitHub's install page for the Tillandsias App (https://github.com/apps/tillandsias), choosing repositories — OS-independent, so one `any-authorize` file is enough | `linux-authorize` | `macos-authorize` | `windows-authorize` |
+| 4 `prompt` | A project opened from the tray, a prompt being typed | `linux-prompt` | `macos-prompt` | `windows-prompt` |
 
-Shortcuts: `any-scan.png` / `any-prompt.png` serve all three systems when the
+Shortcuts: `any-scan.png` / `any-authorize.png` / `any-prompt.png` serve all three systems when the
 scene is not OS-specific; a desktop-specific Linux shot (`gnome-…`, `kde-…`,
 `cosmic-…`) stands in for `linux-…` when that is absent. Landscape, roughly
 16:10, under ~400 KB each (the page is one file; the existing gallery images
@@ -106,3 +120,13 @@ first one lands.
   owner: capture the files in §4, run `tasks.md` §7.5–7.9 in a browser.
   Noted: `navigator.userAgentData.platform` reports "Chrome OS" (not "cros"),
   which the regex misses; the outcome is the Linux default either way.
+- **2026-10-07** — Revision, same day. The owner decided the QR code is shown
+  in a terminal and points at `https://github.com/login/device`, and that the
+  device flow does not install the Tillandsias GitHub App or pick repositories,
+  so the storyboard grew a third step, **Authorize**
+  (https://github.com/apps/tillandsias, "choose which repositories it can
+  use"), with Prompt now fourth. Updated proposal, design (open question 1
+  resolved), the `site/install` spec, tasks (§9), this note, and the
+  generator (`authorize` slot, `qs_text()` for the one link, four-column
+  grid, two columns under 900px). Verified the same way as the first pass;
+  still no browser on the host.

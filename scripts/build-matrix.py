@@ -496,11 +496,12 @@ SCREENSHOTS = [
 SHOTS = ROOT / "var" / "html" / "assets" / "screenshots"
 SHOT_EXTS = ("png", "webp", "jpg")
 
-# The quickstart storyboard: three steps, one picture each, per system. Pictures
+# The quickstart storyboard: four steps, one picture each, per system. Pictures
 # are read from QUICKSTART_DIR as <os>-<step>.<ext>; an absent one renders a
 # labelled placeholder (allowed live: it says what it is and claims nothing).
 # Each step's last element cites where the sentence rests in the stable pin; it
-# is never rendered, it is there for the update-website re-verification.
+# is never rendered, it is there for the update-website re-verification. A
+# sentence may carry one link as [label](https://url); see qs_text().
 QUICKSTART_OS = [("linux", "Linux"), ("macos", "macOS"), ("windows", "Windows")]
 QUICKSTART = [
     # step, headline, sentence, {os: scene label}, source (not rendered)
@@ -511,12 +512,24 @@ QUICKSTART = [
       "windows": "Windows notification area with the Tillandsias icon"},
      "v56.9.27.2 README.md:154-156"),
     ("scan", "Scan",
-     "Choose GitHub login from that icon and point your phone at the QR code it shows.",
-     {"linux":   "Phone over the QR code on Linux",
-      "macos":   "Phone over the QR code on macOS",
-      "windows": "Phone over the QR code on Windows"},
-     "v56.9.27.2 tray-ux/spec.md:92; headless main.rs:10832; "
-     "windows-tray main.rs:848; macos-tray diagnose.rs:1918-1926"),
+     "Choose GitHub login from that icon, point your phone at the QR code in the "
+     "terminal and confirm the code at github.com/login/device.",
+     {"linux":   "Phone over the QR code in a Linux terminal",
+      "macos":   "Phone over the QR code in a macOS terminal",
+      "windows": "Phone over the QR code in a Windows terminal"},
+     "v56.9.27.2 tray-ux/spec.md:92; headless main.rs:10829-10836 (QR of "
+     "https://github.com/login/device?user_code=..., printed in the terminal); "
+     "gh-auth-script/spec.md:152; windows-tray main.rs:848; macos-tray diagnose.rs:1918-1926"),
+    ("authorize", "Authorize",
+     "Install the [Tillandsias GitHub App](https://github.com/apps/tillandsias) and "
+     "choose which repositories it can use.",
+     {"linux":   "GitHub's install page for the Tillandsias app, choosing repositories",
+      "macos":   "GitHub's install page for the Tillandsias app, choosing repositories",
+      "windows": "GitHub's install page for the Tillandsias app, choosing repositories"},
+     "owner decision 2026-10-07 (design.md): the device flow logs in but does not "
+     "install the App or pick repositories; v56.9.27.2 headless main.rs:10591-10592 "
+     "(GitHub App, App ID 5081125) names the App the flow belongs to; the install "
+     "page itself is GitHub's, not in the release"),
     ("prompt", "Prompt",
      "Pick a project from the same icon and start typing.",
      {"linux":   "Prompt in a project opened from the Linux tray",
@@ -529,6 +542,16 @@ QUICKSTART_DIR = SHOTS / "quickstart"
 # stands in for the generic Linux one; `any-<step>` serves every system.
 QUICKSTART_FALLBACK = {"linux": ("gnome", "kde", "cosmic")}
 QUICKSTART_ANY = "any"
+
+
+def qs_text(text):
+    """Escape a storyboard sentence, rendering its one optional [label](url) link."""
+    m = re.fullmatch(r"(.*?)\[([^\]]+)\]\((https://[^)\s]+)\)(.*)", text, re.S)
+    if not m:
+        return html.escape(text)
+    pre, label, url, post = m.groups()
+    return '%s<a href="%s" target="_blank" rel="noopener">%s</a>%s' % (
+        html.escape(pre), html.escape(url, quote=True), html.escape(label), html.escape(post))
 
 
 def quickstart_shot(os_, step):
@@ -557,7 +580,7 @@ one to skip the destructive reset."""
 
 
 def quickstart_steps():
-    """The three-step storyboard: per step one headline, one sentence, and one
+    """The four-step storyboard: per step one headline, one sentence, and one
     figure per system (hidden/shown by the OS radios' CSS), image or placeholder."""
     steps = []
     for n, (step, head, text, scenes, _source) in enumerate(QUICKSTART, 1):
@@ -575,12 +598,12 @@ def quickstart_steps():
             figs.append('<figure class="qs-shot" data-os="%s">%s</figure>' % (os_, body))
         steps.append('<li class="qs-step"><h3 class="qs-h"><span class="qs-n" aria-hidden="true">%d</span>%s</h3>'
                      '<p class="qs-t">%s</p>%s</li>'
-                     % (n, html.escape(head), html.escape(text), "".join(figs)))
+                     % (n, html.escape(head), qs_text(text), "".join(figs)))
     return '<ol class="qs-steps">%s</ol>' % "".join(steps)
 
 
 def install_view(install):
-    """The "I want it!" page: OS switcher, install commands, the three-step
+    """The "I want it!" page: OS switcher, install commands, the four-step
     storyboard, then screenshots by platform."""
     # The radios are direct children of .qs so `:checked ~` reaches both the
     # install rows and the storyboard figures; no script is needed to switch.
@@ -602,7 +625,7 @@ def install_view(install):
                if shots else "")
     return ('<section class="view" id="view-install" role="tabpanel" aria-labelledby="nav-install">'
             '<div class="wrap"><h2 class="view-h">I want it!</h2>'
-            '<p class="view-lede">One line in a terminal, one photo, one prompt.</p>'
+            '<p class="view-lede">One line in a terminal, one photo, one GitHub app, one prompt.</p>'
             '<div class="qs" id="quickstart">%s%s'
             '<div class="install-strip"><div class="install" aria-label="Install">%s'
             '<p class="ins-note">%s</p></div></div>%s</div>%s</div></section>'
@@ -1060,12 +1083,13 @@ h1 .dim{color:var(--ink-faint);font-weight:400}
 #qs-linux:checked ~ .install-strip .ins-row[data-os=linux] .ins-os,
 #qs-macos:checked ~ .install-strip .ins-row[data-os=macos] .ins-os,
 #qs-windows:checked ~ .install-strip .ins-row[data-os=windows] .ins-os{color:var(--leaf)}
-.qs-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:28px 0 8px;
+.qs-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:28px 0 8px;
   padding:0;list-style:none}
 .qs-step{min-width:0}
 .qs-h{margin:0;font-size:15px;font-weight:600;line-height:1.3}
 .qs-n{display:inline-block;margin-right:8px;font:600 12px/1 var(--mono);color:var(--leaf)}
 .qs-t{margin:6px 0 0;max-width:36ch;font-size:14px;line-height:1.5;color:var(--ink-dim)}
+.qs-t a{color:inherit}
 .qs-shot{margin:10px 0 0;display:none}
 #qs-linux:checked ~ .qs-steps .qs-shot[data-os=linux],
 #qs-macos:checked ~ .qs-steps .qs-shot[data-os=macos],
@@ -1447,7 +1471,7 @@ body.is-presenting footer{display:none}
 .s-rail-fill{display:block;height:100%;width:5.88%;background:var(--leaf);
   border-radius:2px;transition:width .25s ease}
 .s-rail.is-how .s-rail-fill{background:var(--sky)}
-@media (max-width:900px){.cols{grid-template-columns:1fr}}
+@media (max-width:900px){.cols{grid-template-columns:1fr}.qs-steps{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:760px){
   header.hero{padding:48px 0 24px}
   .tab{padding:12px}

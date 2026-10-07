@@ -114,3 +114,20 @@ detection regexes exercised in node against sample UA strings, inline JS
       trailer block); the pre-commit hook's rebuild must leave the page unchanged
 - [x] 8.2 Tick the tasks above as they land and append a session-log line to
       `plan/i-want-it-page.md`
+
+## 9. Revision: four steps (owner, 2026-10-07, after c80c0a1)
+
+- [x] 9.1 Record the owner's decision in `proposal.md`, `design.md` (story
+      table, open question 1 resolved: QR in the terminal →
+      `https://github.com/login/device`), the `site/install` spec (four steps,
+      `authorize` slot, one link allowed in step 3, no permission claims) and
+      `plan/i-want-it-page.md`
+- [x] 9.2 `QUICKSTART`: step 2 names the terminal and github.com/login/device;
+      new step 3 `authorize`/Authorize linking
+      https://github.com/apps/tillandsias with neutral repository wording;
+      Prompt becomes step 4; `qs_text()` renders the single `[label](url)` link
+- [x] 9.3 CSS: `.qs-steps` four columns, two under 900px, one under 760px;
+      `.qs-t a{color:inherit}`
+- [x] 9.4 Lede names four beats; rebuild, checked build, determinism,
+      `any-authorize` fallback exercised; inline JS `node --check`
+- [x] 9.5 Follow-up commit on `work/site-tweaks`, same convention
