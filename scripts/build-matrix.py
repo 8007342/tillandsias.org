@@ -475,10 +475,7 @@ def home_view():
             '<ul class="factpool" id="factpool" hidden>%s</ul>'
             '<p class="homelead">A small cloud region on your own computer. Disposable workspaces, '
             'with work preserved through your git remote.</p>'
-            '<p class="homego"><button class="gobtn" data-go="view-what">What is it?</button>'
-            '<button class="gobtn" data-go="view-progress">Live progress</button>'
-            '<button class="gobtn" data-go="view-centicolons">CentiColons</button>'
-            '<button class="gobtn" data-go="view-slides">Slides</button></p>'
+            '<p class="homego"><button class="gobtn" data-go="view-what">What is it?</button></p>'
             '</div></section>'
             % (art, html.escape(facts.FACTS[0]), pool))
 
