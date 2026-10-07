@@ -1,0 +1,20 @@
+<!doctype html>
+<!-- A flat, hash-free address for the "I want it!" page. The Tillandsias
+     GitHub App allows one post-install redirect and GitHub rejects '#' in it,
+     so the App points here and this page forwards to /#install. GitHub's
+     query (installation_id, setup_action) is dropped on purpose: the page
+     does not use it and it need not linger in the address bar. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tillandsias &#183; I want it!</title>
+<link rel="canonical" href="https://tillandsias.org/#install">
+<meta http-equiv="refresh" content="0; url=/#install">
+<script>location.replace('/#install');</script>
+<style>body{background:#07090c;color:#c9d3dc;font:16px/1.5 system-ui,sans-serif;padding:48px 16px;text-align:center}a{color:#5fd6a4}</style>
+</head>
+<body>
+<p>Continue to the <a href="/#install">install instructions</a>.</p>
+</body>
+</html>

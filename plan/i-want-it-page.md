@@ -130,3 +130,12 @@ first one lands.
   generator (`authorize` slot, `qs_text()` for the one link, four-column
   grid, two columns under 900px). Verified the same way as the first pass;
   still no browser on the host.
+- **2026-10-07** — Added `https://tillandsias.org/instructions`, a flat alias
+  for the page. The Tillandsias GitHub App allows one post-install redirect
+  and GitHub rejects `#` in it, so the App's Setup URL should be
+  `https://tillandsias.org/instructions`. It is a static stub,
+  `var/html/instructions/index.html`, that forwards to `/#install` (JS
+  `location.replace`, meta refresh, and a plain link as fallbacks). A
+  directory index was chosen over a Cloudflare `_redirects` rule so the same
+  address also works in the local Apache container. Owner to set the App's
+  Setup URL.
