@@ -480,6 +480,50 @@ def home_view():
             % (art, html.escape(facts.FACTS[0]), pool))
 
 
+# Screenshots for the "I want it!" page. Drop a file named <slug>.png (or .webp,
+# .jpg) into var/html/assets/screenshots/ and rebuild: it appears in this order,
+# captioned with its label. Missing ones are skipped, so the section is absent
+# until the first screenshot lands.
+SCREENSHOTS = [
+    ("windows", "Windows"),
+    ("macos",   "macOS"),
+    ("gnome",   "Linux &#183; GNOME"),
+    ("kde",     "Linux &#183; KDE Plasma"),
+    ("cosmic",  "Linux &#183; COSMIC"),
+]
+SHOTS = ROOT / "var" / "html" / "assets" / "screenshots"
+
+INSTALL_NOTE = """\
+Each line fetches a short script from this site, which
+resolves the <strong>latest stable release</strong> on GitHub and runs that
+release&#8217;s own installer. Stable moves only when a daily build is
+promoted, so it normally trails the newest code. The scripts here are not
+rebuilt when the app releases; they look the release up every time they
+run. Current installers reset local application state and reprovision by
+default; set <code>TILLANDSIAS_DESTRUCTIVE_RESET_OK=0</code> before running
+one to skip the destructive reset."""
+
+
+def install_view(install):
+    """The "I want it!" page: the install commands, then screenshots by platform."""
+    shots = []
+    for slug, label in SCREENSHOTS:
+        for ext in ("png", "webp", "jpg"):
+            if (SHOTS / ("%s.%s" % (slug, ext))).exists():
+                shots.append('<figure class="shot"><img src="assets/screenshots/%s.%s" alt="Tillandsias '
+                             'running on %s" loading="lazy"><figcaption>%s</figcaption></figure>'
+                             % (slug, ext, label.replace("&#183;", "-"), label))
+                break
+    gallery = ('<h3 class="shots-h">On your desktop</h3><div class="shots">%s</div>' % "".join(shots)
+               if shots else "")
+    return ('<section class="view" id="view-install" role="tabpanel" aria-labelledby="nav-install">'
+            '<div class="wrap"><h2 class="view-h">I want it!</h2>'
+            '<p class="view-lede">One line in a terminal. Pick your platform, copy, paste.</p>'
+            '<div class="install-strip"><div class="install" aria-label="Install">%s'
+            '<p class="ins-note">%s</p></div></div>%s</div></section>'
+            % (install, INSTALL_NOTE, gallery))
+
+
 def centicolons_view():
     """The CentiColons page: Stockfish analogy, worked model and shipped limits.
 
@@ -809,7 +853,7 @@ def build():
     # nothing to fetch, and the CSP has no image host to allow.
     favicon = "data:image/svg+xml," + urllib.parse.quote(
         figures.PLANTS["ionantha"].replace('stroke="currentColor"', 'stroke="#5fd6a4"'), safe="")
-    doc = (TEMPLATE.replace("__INSTALL__", install)
+    doc = (TEMPLATE.replace("__INSTALL_VIEW__", install_view(install))
            .replace("__LEAF__", figures.PLANTS["ionantha"])
            .replace("__FAVICON__", favicon)
            .replace("__DEFS__", figures.DEFS)
@@ -886,14 +930,13 @@ h1{margin:0;font-size:clamp(32px,5vw,56px);line-height:1.07;letter-spacing:-.026
 h1 .dim{color:var(--ink-faint);font-weight:400}
 .lede{max-width:64ch;margin:22px 0 0;font-size:19px;color:var(--ink-dim)}
 .lede strong{color:var(--ink);font-weight:600}
-.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:26px 0 0;padding:12px 16px;
-  border:1px solid var(--line);border-radius:11px;background:var(--bg-2);
-  font-size:12.5px;line-height:1.5;color:var(--ink-faint)}
-.legend b{color:var(--ink-dim);font-weight:600}
-.legend .lg{display:inline-block;width:1.1em;font:600 11px/1 var(--mono);font-style:normal;text-align:center}
-.lg-green,.lg-proven{color:var(--leaf)} .lg-red,.lg-refuted{color:var(--rose)}
-.lg-path,.lg-plausible{color:var(--amber)}
 .install-strip{padding:18px 0 4px}
+.shots-h{margin:48px 0 16px;font-size:18px;font-weight:600}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin:0 0 56px}
+.shot{margin:0;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--bg-2)}
+.shot img{display:block;width:100%;height:auto}
+.shot figcaption{padding:9px 12px;font:600 11px/1.3 var(--mono);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-faint)}
 .install{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center}
 .ins-row{display:contents}
 .ins-os{font:600 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
@@ -924,7 +967,7 @@ h1 .dim{color:var(--ink-faint);font-weight:400}
 .tab-n{font:600 11px/1 var(--mono);color:var(--leaf-dim);border:1px solid var(--line);
   border-radius:5px;padding:4px 6px}
 .tab.is-active .tab-n{color:var(--bg);background:var(--leaf);border-color:var(--leaf)}
-/* Only the level rail is sticky; the install commands scroll away with the header. */
+/* Only the level rail is sticky; the hero scrolls away above it. */
 .sticky{position:sticky;top:0;z-index:10;background:rgba(7,9,12,.88);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 main{padding:0 0 96px}
@@ -1394,6 +1437,7 @@ __DEFS__
   <p class="drawer-h">tillandsias.org</p>
   <button class="nav is-on" id="nav-home" data-go="view-home"><span class="nav-i">&#127968;</span>Home</button>
   <button class="nav" id="nav-what" data-go="view-what"><span class="nav-i">&#63;</span>What is it?</button>
+  <button class="nav" id="nav-install" data-go="view-install"><span class="nav-i">&#8595;</span>I want it!</button>
   <button class="nav" id="nav-progress" data-go="view-progress"><span class="nav-i">&#9673;</span>Live progress</button>
   <button class="nav" id="nav-centicolons" data-go="view-centicolons"><span class="nav-i">&#9823;</span>CentiColons</button>
   <button class="nav" id="nav-slides" data-go="view-slides"><span class="nav-i">&#9654;</span>Slides</button>
@@ -1416,32 +1460,8 @@ __HOME__
     <p class="lede">Local hardware. Free software. Nothing rented, nothing metered, nothing left
       behind. Below is <strong>what it is and how it works</strong>, told five times over — pick
       the version that fits the person reading.</p>
-    <div class="legend">
-      <span><i class="lg lg-green">&#x25CF;</i> <b>Verified</b> — checked against the source, and working.</span>
-      <span><i class="lg lg-red">&#x25CF;</i> <b>Shortcoming</b> — incomplete, pending, or overclaimed.</span>
-      <span><i class="lg lg-path">&#8594;</i> <b>Path</b> — what the plan records as the fix, or that it records none.</span>
-      <span><i class="lg lg-proven">&#x2713;</i> <b>Shown</b> — an argument we can point at the code or a test for.</span>
-      <span><i class="lg lg-plausible">&#x223C;</i> <b>Plausible</b> — sounds right; not yet demonstrated.</span>
-      <span><i class="lg lg-refuted">&#x2717;</i> <b>Does not hold</b> — an argument we tried, and it failed.</span>
-    </div>
   </div>
 </header>
-
-<div class="install-strip">
-  <div class="wrap">
-    <div class="install" aria-label="Install">
-__INSTALL__
-      <p class="ins-note">Each line fetches a short script from this site, which
-      resolves the <strong>latest stable release</strong> on GitHub and runs that
-      release&#8217;s own installer. Stable moves only when a daily build is
-      promoted, so it normally trails the newest code. The scripts here are not
-      rebuilt when the app releases; they look the release up every time they
-      run. Current installers reset local application state and reprovision by
-      default; set <code>TILLANDSIAS_DESTRUCTIVE_RESET_OK=0</code> before running
-      one to skip the destructive reset.</p>
-    </div>
-  </div>
-</div>
 
 <div class="sticky">
   <div class="wrap">
@@ -1457,6 +1477,8 @@ __PANELS__
   </div>
 </main>
 </section>
+
+__INSTALL_VIEW__
 
 __PROGRESS__
 
@@ -1607,11 +1629,11 @@ __SLIDES__
     if (lines.length) out.textContent = lines[Math.floor(Math.random() * lines.length)].textContent;
   }
 
-  // A deep link opens its view: #home, #what, #progress, #slides, #big-graph, or a level.
+  // A deep link opens its view: #home, #what, #install, #progress, #slides, #big-graph, or a level.
   function fromHash(){
     var h = location.hash.slice(1);
     if (!h) return go('view-home', false);
-    if (h === 'home' || h === 'what' || h === 'progress' || h === 'slides' || h === 'centicolons' || h === 'big-graph') return go('view-' + h, false);
+    if (h === 'home' || h === 'what' || h === 'install' || h === 'progress' || h === 'slides' || h === 'centicolons' || h === 'big-graph') return go('view-' + h, false);
     if (document.getElementById('panel-' + h)) go('view-what', false);
   }
   window.addEventListener('hashchange', fromHash);
