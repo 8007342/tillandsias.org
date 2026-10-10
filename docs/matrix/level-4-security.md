@@ -6,16 +6,16 @@ The anatomy does not answer the security question: *when an agent does something
 
 First, a correction. The region was described as one Fedora guest — a VM, or WSL2 on Windows. True on two platforms, false on the third: **Linux provisions no VM**, and the orchestrator drives rootless containers directly on your host.[^1] The promise is that this costs nothing but Podman; the price is that the enclave is a hypervisor boundary on macOS and Windows and a namespace boundary on Linux — where an escape lands as your own uid, with your `$HOME`.[^2]
 
-> GREEN: The threat model is written down in the project's own voice, including the parts that make it look bad — the architecture notes state plainly that the allowlist is generous by design and that an attacker can encode data in DNS queries or headers to an allowed domain.[^3]
+> GREEN: The threat model is written down, including the parts that make the design look bad — the architecture notes state plainly that the allowlist is generous by design and that an attacker can encode data in DNS queries or headers to an allowed domain.[^3]
 
 Inside, every launch is meant to carry four flags — userns mapped to your uid, all capabilities dropped, no-new-privileges, and label-disable, which is to say **SELinux labelling off on every container** — audited by a policy module that rejects privileged mode, a non-identity userns, or a blanket capability add.[^4][^98] Why this envelope: keep-id makes an escape land as you rather than root, and a checker that never runs Podman is one small place to ask whether a launch still carries it. The compromise is the fourth flag, bought so bind mounts work on an SELinux-enforcing host.[^92][^94] Read the envelope as *defaults on a struct*, not an invariant — and not quite every container: the vault adds one capability back, omits `--rm`, and never passes the checker at all.[^53]
 
-> GREEN: Production hardening checks now survive release compilation: the checked serializer returns an error for a stripped envelope, and both attached and delegated forge launch paths refuse it.[^6][^55][^56][^57] The general capability-add escape hatch has also been removed from the typed container builder.[^27] Previously the check was only a debug assertion and the security litmus printed success on both branches; those defects are repaired in this stable release.[^7]
+> GREEN: Production hardening checks now survive release compilation: the checked serializer returns an error for a stripped envelope, and both attached and delegated forge launch paths refuse it.[^6][^55][^56][^57] The general capability-add escape hatch has also been removed from the typed container builder.[^27] Before this release the check was only a debug assertion, and the security litmus printed success on both branches.[^7]
 
 The litmus now derives its launch flags from the product's declared envelope.[^58] Its repaired user-namespace probe checks ownership of a host-owned mounted file, because inspecting the namespace label or comparing the process uid alone could give a misleading answer.[^100] That is evidence about the declared envelope and Podman on the tested host, not proof that every production launch uses it.
 
 > RED: Enforcement is still incomplete across launch paths: proxy, mirror, observatorium and a host-browser launch assemble or serialize arguments without the policy check, and the Podman client accepts raw arguments.[^64][^90][^95][^96][^97] The typed builder retains private boolean fields, although its public constructor turns all four on and exposes no setters to turn them off.[^63] A separate test defect remains: the capability probe treats empty output as success without checking whether the inspection ran, so a failed `podman exec` can still print `CAPABILITIES_DROPPED`.[^101]
-> PATH: The checked serializer and forge callers provide the existing enforcement mechanism; extending that mechanism to every launch remains unimplemented.[^55][^65] The build now rejects identical success/failure tokens across the litmus corpus,[^60][^61] but that narrow scanner does not catch the empty-output failure above.[^62] The older advisory scanner and diff-scoped quality rule also remain bounded instruments, not a clean bill of health for the existing corpus.[^8][^54]
+> PATH: The checked serializer and forge callers are the enforcement mechanism that exists; extending it to every launch is not implemented.[^55][^65] The project's build rejects a litmus test whose success and failure print the same thing,[^60][^61] but that check does not catch the empty-output failure above,[^62] and the project's other test-quality checks are partial too.[^8][^54]
 > REFUTED: "The litmus proves every launch is hardened." It launches a probe from declared flags, leaving production call-site coverage to other checks; even its cleanup step reports success unconditionally.[^58][^59]
 
 > RED: SELinux confinement is disabled on every forge, so on a Fedora or RHEL host the agent's container is *less* confined than a default one. The project does confine elsewhere — the vault carries a loadable policy module,[^50] the Windows guest embeds policies for the control daemon and the vault[^51] — but on a rootless Linux host the vault too runs unconfined.[^52]
@@ -31,7 +31,7 @@ The intended egress boundary is **network placement plus proxy environment varia
 > GREEN: This is **not** a blanket MITM. The proxy peeks at the handshake and then splices — passes through undecrypted — everything but one exact hostname, GitHub's release-asset CDN, bumped so large binaries can be cached. Registries, GitHub's APIs and every auth endpoint stay end-to-end encrypted.[^9]
 > PROVEN: The policy is three lines of a config file you can read, and the bump is scoped to one client-requested server name.[^9]
 
-> GREEN: Where it does terminate TLS it still verifies upstream against the system trust store, and the config carries a standing written order never to disable peer or domain verification — that would hide a real origin MITM behind a proxy-issued certificate.[^10]
+> GREEN: Where it does terminate TLS it still verifies upstream against the system trust store, and the config carries a written rule never to disable peer or domain verification — that would hide a real origin MITM behind a proxy-issued certificate.[^10]
 
 The cost of that restraint: with one host decrypted the proxy does **no payload inspection** — hostnames, not content — and its default-deny allowlist admits anyone-can-publish namespaces, so an allowlist hit is no evidence of a benign destination.[^3][^30] What it buys is a denial that looks like a network fault: a refused runtime request gets a TCP reset, not a page to negotiate with — the config's behaviour; the spec still promises a 403.[^37][^38]
 
@@ -39,11 +39,11 @@ The cost of that restraint: with one host decrypted the proxy does **no payload 
 
 > GREEN: The stable release now puts the CA bundle under per-user persistent state instead of `/tmp`, so reboot cleanup no longer removes its declared location.[^28][^43][^91] On Unix, new key material is clamped to owner-only before publication, and the existing-key path attempts the same repair; the non-Unix helper is a documented no-op.[^39][^40][^41] This addresses the code side of a defect whose earlier fix had not reached material already created on hosts.[^11]
 
-> RED: Moving the directory does not make its permissions private by construction. The launcher still uses ordinary recursive directory creation, and the repair script remains part of preflight.[^102][^44] Historical installation reports establish that two hosts received the earlier key fix, not that every current host's material has been inspected.[^42]
-> PATH: The recorded remedy is still to create the directory privately and retire or give a retirement condition to the repair script.[^45] The persistent-path change has landed; the stronger directory-permission guarantee has not. The script clamps the directory before the key to remove traversal by other users first.[^11]
+> RED: Moving the directory does not make its permissions private by construction: the launcher still creates it with ordinary recursive directory creation.[^102]
+> PATH: The planned fix is to create the directory privately before any key is written.[^45] It has not landed.
 
 > RED: The published proxy spec describes something the code does not do: a fresh two-level EC P-256 chain generated per launch, held only on tmpfs, no CA key ever touching disk.[^12] The shipped launcher generates one self-signed RSA-2048 certificate with a 30-day life, stored in persistent per-user state and reused until refresh is needed.[^13][^28][^102]
-> PATH: No path to green is recorded in the repo — the spec has not been marked stale, and no change proposal reconciles it with the implementation.
+> PATH: No fix is planned yet: the spec has not been marked stale, and nothing reconciles it with the code.
 
 ## Secrets, and the channel that guards them
 
@@ -78,7 +78,7 @@ away.
 
 The host↔guest control channel now uses a Noise handshake by default. Its key is derived through HKDF from the guest binary's SHA-256, separated by build version, wire version and hop.[^15][^103] This binds compatibility to known release material; it is not remote attestation that the peer runs unmodified code.
 
-> GREEN: An absent secure-wire setting now selects encryption, blank or invalid values are refused, and the Windows tray uses the same parser as the other callers.[^16][^66][^67][^69] The earlier listener-only flip was reverted before the shared decision landed; a source scanner now allows zero independent readers.[^16][^68] The macOS host writes the resulting value into the guest unit.[^93] Windows and the VM image need no explicit environment line to obtain the new default from the listener.[^70][^71]
+> GREEN: An absent secure-wire setting now selects encryption, blank or invalid values are refused, and the Windows tray uses the same parser as the other callers.[^16][^66][^67][^69] A build check refuses any caller that reads the setting on its own.[^68] The macOS host writes the resulting value into the guest unit.[^93] Windows and the VM image need no explicit environment line to obtain the new default from the listener.[^70][^71]
 
 A release exposed a second boundary: the tray and guest are different executables, so hashing each process's own binary produced different keys even at the same version. The host now derives its key from the guest digest embedded at build time, while the guest hashes itself.[^103][^104] The Windows caller refuses a missing embedded digest and includes tests for matching and mismatched guest digests.[^105][^106] A one-process round-trip test could never have detected the original two-binary mismatch; that limitation is now recorded beside the implementation.[^104]
 
@@ -93,26 +93,20 @@ A release exposed a second boundary: the tray and guest are different executable
 > PATH: Recorded only as research — a study of another distribution channel shows such provenance verifies with no verifier identity at all, and recommends shipping bundles plus a pinned root.[^21][^80] Nothing has been adopted here.
 
 > RED: The macOS lane is the exception: it signs an allow-list of three named assets and runs no integrity check, so its checksum manifest ships without a bundle[^73] — the allow-list shape the Windows lane's own comment blames for an installer once shipping bare.[^74]
-> PATH: No path to green is recorded in the repo.
+> PATH: No fix is planned yet.
 
 > RED: Nothing a user runs by default checks a signature; only the hand-run verifier does. The install scripts fetch the checksum manifest over the same channel as the binary and on Linux continue without it;[^75][^76][^77] no install path verifies a cosign bundle, and the updater's spec asks for no verification.[^79] The Windows installer verifies a SHA-256 taken from the manifest it fetched beside the zip and nothing else.[^76]
-> PATH: The ledger holds an open defect to make the Windows installer verify the manifest's cosign bundle before trusting it and refuse on a bad signature; it is not fixed in this release.[^115] A separate open row asks that the install entry point either verify its own bundle or state in writing that transport trust is the anchor.[^116] No path is recorded for the updater.
+> PATH: An open defect asks the Windows installer to verify the manifest's cosign bundle before trusting it and to refuse a bad signature; it is not fixed in this release.[^115] Another asks that the install entry point either verify its own bundle or state in writing that transport trust is the anchor.[^116] No fix is planned for the updater.
 
 ## Where ephemerality stops being a control
 
 Ephemerality resets *compute*, not *identity*. Of what survives teardown, the security-relevant item is the Vault unseal share, which lives in the **host OS keychain** — outside every boundary the enclave draws.[^22] The reason is fair — no passphrase prompt, never wipe a vault the host can still open — but destroying the region does not destroy the ability to open what it held.
 
-> RED: The application's Linux `--reset-state` no longer clears host-held Vault credentials. It asks the keyring first, announces what it keeps, and leaves the Vault store and both keyring entries in place under every outcome.[^81][^111] That is a deliberate ruling, so a reset renews compute and keeps identity; the only code that deletes the unseal material is a clearer reserved for an uninstall command that no code calls yet.[^110] A bare `podman system reset` still clears only Podman state. The macOS and Windows resets were not re-read for this release.
+> RED: The application's Linux `--reset-state` no longer clears host-held Vault credentials. It asks the keyring first, announces what it keeps, and leaves the Vault store and both keyring entries in place under every outcome.[^81][^111] That is deliberate: a reset renews compute and keeps identity; the only code that deletes the unseal material is a clearer reserved for an uninstall command that no code calls yet.[^110] A bare `podman system reset` still clears only Podman state. We have not re-checked the macOS and Windows resets for this release.
 > PATH: The clearer's own documentation names the uninstall command as its caller, and that command is not in the binary; until it lands, nothing shipped removes the share on request.[^110]
 
-> RED: The separate Linux clean-room script runs a credential clearer and probes the result, but treats failures from both as best effort; its logged evidence must be read before calling a run credential-cold.[^23]
-> PATH: Make a failed clear or failed cold-state probe stop the clean-room run, or narrow the runbook's claim to the state actually measured.
-
-> RED: The keychain is not the only copy. The vault spec now says the share lives only in an unlocking keyring and that there is no persisted fallback share file,[^109] yet where no OS keyring is available the launcher still writes the share to a plaintext file in its cache directory,[^83] and inside a VM guest it writes that file on initialization.[^84] Only the hand-run clean-room script clears those fallback files;[^23] the ordinary key lookup can still use a persistent file[^85][^86] while the spec says persistent on-disk copies are deleted immediately.[^87]
+> RED: The keychain is not the only copy. The vault spec now says the share lives only in an unlocking keyring and that there is no persisted fallback share file,[^109] yet where no OS keyring is available the launcher still writes the share to a plaintext file in its cache directory,[^83] and inside a VM guest it writes that file on initialization.[^84] Only a hand-run clean-room script clears those fallback files;[^23] the ordinary key lookup can still use a persistent file[^85][^86] while the spec says persistent on-disk copies are deleted immediately.[^87]
 > PATH: Replace the persistent fallback with the ephemeral handoff the spec now describes, or revise the spec to state the actual lifetime; no completed remedy for ordinary operation is recorded here.
-
-> RED: The Windows tray's own tests write scratch credential targets into the real Windows Credential Manager through the production write call and rely on a destructor to remove them,[^112][^113] so a test run that is killed or aborted leaves them behind in the operator's store.
-> PATH: The ledger holds an open defect to move those tests onto a scratch store and to add a guard that refuses a test touching the real one; it is not fixed in this release.[^114]
 
 ## Blast radius, autonomy, auditability
 
@@ -120,20 +114,12 @@ An agent's reach: its forge, every mirror on the enclave network, any allowliste
 
 > GREEN: The one MCP surface that lets a contained agent drive a *host* browser ships with arbitrary JavaScript evaluation **disabled** — the tool is advertised but returns an explicit refusal, so it is visible without being live.[^24]
 
-The audit trail is committed and unusually candid. It is also agent-self-reported and unsigned, with no commit signing evidenced: a tree once passed green while red, prompting the gate to bind a one-shot pass token to the tree it checked.[^99] With nothing in this repo evidencing server-side validation of a push, the record's provenance rests on the honesty of the process that wrote it.
+The project's record of what it checked is committed and candid. It is also written by its own agents and unsigned, with no commit signing in evidence; the local gate binds a one-shot pass token to the tree it checked.[^99] With nothing in the repository showing server-side validation of a push, that record's provenance rests on the honesty of the process that wrote it.
 
 ## What the assurance claim actually is
 
 The convergence argument you already have is not a security argument, and the project does not offer it as one. What carries the weight is a pair of invariants — verification claims must be falsifiable, and evidence is not proof[^25] — plus the methodology's refusal to read its completion score as a probability.[^26] So: a passing suite is a bounded signal over the defects someone thought to write a litmus test for, and, as the hardening case shows, only over those whose tests distinguish the relevant failure from success. Finite litmus coverage is not proof of absence of defects; the repo says so before you do.
 
-Security is one local target among several. An agent may add a check, a boundary or
-an audit record to the shared repository, but that does not make the next change
-independent, nor does it turn a passing security test into a statement about every
-other target. The useful engineering loop is narrower: make the claimed boundary
-explicit, try to break it, retain the evidence and record the counterexample when it
-fails.[^25][^26]
-
-> NOTE: Several shortcomings on this page carry the line *No path to green is recorded in the repo.* That sentence is written after looking, and it means what it says: the defect is described here and no remedy is written down anywhere in the project's plan. Those cases are now collected and tracked as a single entry, so a reader who wants to argue with one — or report it — has something to attach it to.[^108]
 
 ## Footnotes
 
@@ -155,7 +141,7 @@ fails.[^25][^26]
     > Advisory — no caller gates on it.
 [^9]: Peek at step 1, bump one exact hostname, splice everything else | images/proxy/squid.conf#L122-L139
     > ssl_bump peek ssl_bump_step1 ssl_bump bump github_release_assets ssl_bump splice all
-[^10]: Upstream verification retained; standing order against disabling it | images/proxy/squid.conf#L88-L97
+[^10]: Upstream verification is kept, with a written rule against disabling it | images/proxy/squid.conf#L88-L97
     > verification MUST remain enabled. Never add DONT_VERIFY_PEER or DONT_VERIFY_DOMAIN: doing so would hide an origin MITM behind a proxy-issued certificate that enclave clients trust.
 [^11]: Host-side CA re-clamp, with the reasoning for why a code fix was only half the job, and the two hosts found world-readable | scripts/clamp-ca-material.sh#L15-L43
     > Two hosts were found with a world-readable CA private key days after the packet closed
@@ -177,7 +163,7 @@ fails.[^25][^26]
     > --certificate-identity-regexp "https://github.com/.*/tillandsias/"
 [^20]: Base images pinned by mutable tag | images/git/Containerfile#L19-L21
     > FROM docker.io/hashicorp/vault:1.18 AS vault-agent FROM docker.io/library/alpine:3.20
-[^21]: The ledger's finding that such provenance verifies with no verifier identity, and its recommendation of bundles plus a pinned root — status ready, not adopted | plan/index.yaml#L12318-L12318
+[^21]: Research: such provenance verifies with no verifier identity; it recommends bundles plus a pinned root (not adopted) | plan/index.yaml#L12318-L12318
     > verifying a Sigstore/SLSA attestation requires NO identity from the verifier. Reproduced with no token, no gh config, and inside a network namespace with no interface at all: exit 0, real certificate chain, correct signer; one flipped byte gives exit 1.
 [^22]: Vault unseal share stored in the host OS keychain | openspec/specs/tillandsias-vault/spec.md#L115-L118
     > The unseal key (the single Shamir share generated by Vault during initialization) SHALL be stored directly in the host OS's native secure keychain (Secret Service/KWallet on Linux, Credential Manager on Windows, Keychain on macOS) under the versioned name `vault-shamir-share-v1`.
@@ -203,7 +189,7 @@ fails.[^25][^26]
     > http_access allow CONNECT SSL_ports build_port http_access allow build_port
 [^33]: Spec: on the permissive port domain filtering does not apply | openspec/specs/proxy-container/spec.md#L114-L114
     > - **AND** domain filtering SHALL NOT apply
-[^35]: The port is kept pending an operator decision, not deleted | images/proxy/squid.conf#L39-L44
+[^35]: The port is kept until a decision is made, not deleted | images/proxy/squid.conf#L39-L44
     > That is an operator decision, not a cleanup. Until it is taken, this comment is the honest state.
 [^36]: Network audit: the permissive-port decision still open | plan/issues/network-architecture-audit-2026-07-09.md#L531-L533
     > **STILL OPEN as a decision**, with the false claim removed and the agreement now enforced
@@ -217,14 +203,10 @@ fails.[^25][^26]
     > This is deliberately NOT a security regression on Windows: the key is not protected by mode bits there in the first place, and the enclave's Windows path receives it as a podman secret rather than through this file.
 [^41]: Pre-fix keys are healed down to owner-only on every pass | crates/tillandsias-headless/src/main.rs#L3612-L3614
     > Heal DOWN to 0600 every call so keys generated before this fix (deliberately world-readable 0644) are repaired without requiring a CA rotation.
-[^42]: Historical report that two hosts installed the earlier key fix | plan/archive/packets-2026-09.yaml#L10953-L10954
-    > esme and pirria just installed v56.9.2.1
 [^43]: State root is persistent and explicitly shared between consumers | images/default/ca-path.txt#L1-L83
     > ${HOME}/.local/state/tillandsias
-[^44]: The clamp script runs on every cycle preflight, best-effort | scripts/cycle-preflight.sh#L394-L394
-    > bash "$ROOT/scripts/clamp-ca-material.sh" --fix >/dev/null 2>&1 || true
-[^45]: Filed packet: make the CA directory private by construction and retire the clamp | plan/index.yaml#L26013-L26013
-    > scripts/clamp-ca-material.sh gains a retirement condition or is deleted
+[^45]: The planned fix: make the CA directory private by construction | plan/index.yaml#L26013-L26013
+    > CA material is created in a directory that is private by construction
 [^46]: The authenticated push lane is gated on an environment variable that defaults to off | crates/tillandsias-headless/src/main.rs#L13186-L13188
     > std::env::var("TILLANDSIAS_MIRROR_SSHD") .map(|v| v == "1") .unwrap_or(false)
 [^47]: The mirror's sshd starts only behind that flag | images/git/entrypoint.sh#L524-L525
@@ -241,7 +223,7 @@ fails.[^25][^26]
     > `label=disable` runs the vault container unconfined on the host
 [^53]: The vault launch adds a capability back and omits `--rm` | crates/tillandsias-headless/src/vault_bootstrap.rs#L4407-L4410
     > "--cap-drop".into(), "ALL".into(), "--cap-add".into(), "IPC_LOCK".into(),
-[^54]: The approved bar-raise on litmus quality is diff-scoped by construction | plan/index.yaml#L14455-L14455
+[^54]: A test-quality check that examines only new tests | plan/index.yaml#L14455-L14455
     > the check is DIFF-SCOPED BY CONSTRUCTION (examines added steps in the outgoing change only) and is structurally incapable of flagging the existing corpus
 [^55]: Serialising a launch now refuses an argv that violates the envelope, in every build profile | crates/tillandsias-podman/src/container_spec.rs#L424-L425
     > crate::policy::validate_launch_argv(&argv)?; Ok(argv)
@@ -269,7 +251,7 @@ fails.[^25][^26]
     > is set but empty. Blank does NOT mean
 [^67]: Windows tray uses shared mode reader and refuses bad values | crates/tillandsias-windows-tray/src/hvsocket.rs#L74-L87
     > let mode = match tillandsias_control_wire::secure_wire_mode::secure_wire_mode() { Ok(mode) => mode, Err(err) => return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, err)), };
-[^68]: Ratchet on readers of the secure-wire variable: baseline zero, every reader converted | scripts/lua/check-secure-wire-single-reader.lua#L6-L8
+[^68]: A build check allows no independent reader of the secure-wire setting | scripts/lua/check-secure-wire-single-reader.lua#L6-L8
     > BASELINE is 0 today: every reader was converted (972-umik commit B), so the ratchet is now effectively a refusal.
 [^69]: Test pins the encrypted default through the shared parser | crates/tillandsias-control-wire/src/secure_wire_mode.rs#L159-L165
     > parse_secure_wire_mode(Err(VarError::NotPresent)).unwrap(), SecureWireMode::On,
@@ -325,7 +307,7 @@ fails.[^25][^26]
     > fn build_git_run_args(
 [^98]: What the checker refuses beside a missing flag | crates/tillandsias-podman/src/policy.rs#L189-L193
     > if arg == "--privileged" || arg.starts_with("--privileged=") || flag_value(arg, next, "--userns").is_some_and(|value| value != "keep-id") || flag_value(arg, next, "--cap-add").is_some_and(|value| value == "ALL")
-[^99]: The archived gate repair records the tree-bound pass token | plan/archive/packets-2026-08.yaml#L48763
+[^99]: The gate's pass token names the tree it checked | plan/archive/packets-2026-08.yaml#L48763
     > a green gate now issues a one-shot pass token naming the tree it validated
 
 [^100]: Ownership probe distinguishes keep-id from misleading inspect labels | openspec/litmus-tests/litmus-podman-idiomatic-security-flags.yaml#L41-L64
@@ -353,22 +335,15 @@ fails.[^25][^26]
     > Validates ledger YAML, then synchronously relays the proposed ref transaction
     > upstream before accepting it locally. A client success therefore means the
     > configured upstream has durably accepted the same atomic ref set.
-[^108]: The entry tracking every shortcoming here for which no remedy is recorded | https://github.com/8007342/tillandsias/blob/linux-next/plan/index.d/20260915t215254z-1213-rbt9-website-found-fourteen-shortcomings-the-ledger-does-not-track-macuahuitl.yaml
 [^109]: Spec: the share lives only in an unlocking keyring, with no persisted fallback share file | openspec/specs/tillandsias-vault/spec.md#L425-L428
     > There is NO persisted fallback share file: where the keyring is unavailable the share stays in process memory or on tmpfs for the life of the process and is gone with it
 [^110]: The credential clearer is uninstall-only and has no caller yet | crates/tillandsias-headless/src/vault_bootstrap.rs#L3524-L3528
     > UNINSTALL-ONLY (order 1437-qza3, operator directive 2026-09-27). No reset may call this: the store and the unseal material are operator data that survive every destructive reset
 [^111]: The Linux soft reset runs no credential clearer and deletes no store | crates/tillandsias-headless/src/main.rs#L10522-L10524
     > No credential clearer and no store deletion: the store is a host directory the podman reset cannot reach.
-[^112]: Windows tray tests rely on a destructor to keep their credentials out of the real store | crates/tillandsias-windows-tray/src/installation_uuid.rs#L354-L356
-    > RAII cleanup so the test's unique target credential is removed even if an assertion panics mid-test — the test must never leak a credential into the operator's real Credential Manager store.
-[^113]: The production credential write is the real Win32 call | crates/tillandsias-windows-tray/src/installation_uuid.rs#L126-L126
-    > let result = unsafe { CredWriteW(&cred, 0) };
-[^114]: Open defect: the Windows tray tests write the operator's real Credential Manager | plan/index.d/20261008t234534z-1562-leaked-test-creds-and-installer-cosign-yolanda-windows.yaml#L16-L16
-    > The windows-tray tests write tillandsias-vm-uuid-test-* / vault-*-test-* targets into the operator's REAL Credential Manager
 [^115]: Open defect: the Windows installer never verifies a cosign signature | plan/index.d/20261008t234534z-1562-leaked-test-creds-and-installer-cosign-yolanda-windows.yaml#L66-L66
     > install-windows.ps1 checks the downloaded zip against SHA256SUMS-windows but never verifies a cosign signature
-[^116]: Open row: nothing verifies the install entry point itself | plan/index.d/20260922t152446z-1361-pwjz-the-entry-point-verifies-everything-but-itself-pirria.yaml#L23-L24
+[^116]: Open defect: nothing verifies the install entry point itself | plan/index.d/20260922t152446z-1361-pwjz-the-entry-point-verifies-everything-but-itself-pirria.yaml#L23-L24
     > (a) the install path verifies its own published cosign bundle before executing, or
 [^117]: The mirror hook can refuse pushes by a seed read from the integration branch, when the seed enforces | images/git/pre-receive-hook.sh#L169-L177
     > enforced the push is rejected BEFORE the relay, so nothing reaches upstream

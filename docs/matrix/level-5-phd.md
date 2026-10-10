@@ -329,8 +329,7 @@ Credit means reaching an obligation's **configured evidence bar**, not necessari
 the top of the lattice: a passing CI check does not imply runtime observation or
 bundled evidence[^51]. Applicable, discriminating tests add evidence about behavior;
 closure alone still proves neither that the obligation set is adequate[^4] nor
-that all concrete executions satisfy it[^22]. This is the distinction the
-CentiColon page's simplified example must preserve.
+that all concrete executions satisfy it[^22].
 
 **A ranking function, not a measure.** The CentiColon map $c: S_{\text{spec}} \to \mathbb{N}$
 is bounded, with separately reported denominator and residual, and monotone *only*
@@ -362,7 +361,7 @@ work, and the repository files it as such.
 > RED: The shell scorer now delegates arithmetic to the obligation model[^43], but still supplies weights over CI check names[^27]. A passing check earns its weight at the positive-test bar; it is not runtime observation or bundled evidence. This wiring does not implement the full methodology table of multipliers, evidence credits, caps and penalties[^15]. The committed dashboard remains a historical 890/990 snapshot[^28], not a measurement of this release.
 > PATH: The framework specification still names a separate scoring implementation[^29]. The shipped path centralises the arithmetic; completing and evidencing the richer scoring contract remains distinct work. Lua adds scenario/requirement extraction and recorded positive-test grading, not yet integrated invariant credit or full evidence attribution[^47][^49][^50]. The advisory residual and the weighted CI score are distinct projections, not interchangeable units.
 
-> RED: The methodology's own complexity constraint — methodology-to-codebase ratio below 0.15, with a red flag at 5000 lines of CI validators[^30] — has no enforcing check identified in this audit, while the script that computes the score dispatches a large shell validator corpus.
+> RED: The methodology's own complexity constraint — methodology-to-codebase ratio below 0.15, with a red flag at 5000 lines of CI validators[^30] — has no enforcing check that we found, while the script that computes the score dispatches a large shell validator corpus.
 > PATH: The rule names two measurement procedures[^30]; no enforcing implementation was found in the scripts searched.
 
 ## CRDTs as algebra
@@ -408,7 +407,7 @@ monotonicity cannot force retention of a certainty later shown false.
 > GREEN: Semantic merges are typed honestly as "semantic cache with CRDT preconditions" rather than as CRDTs, with the anti-pattern named: calling a lossy cache a CRDT manufactures false convergence claims[^32]. The claim registry holds the lineage at strength "external analogy" until generative property tests exist[^38].
 
 > RED: That same versioning document defines its two leading components as a contract version and a feature phase[^39]. The live scheme is a temporal anchor throughout — years since epoch, month, day, build. The join algebra survives untouched, since componentwise max does not care what the coordinates mean; the documented semantics of two of four components are false.
-> PATH: The drift was caught once at a release boundary and the shape test corrected; the doctrine file was not.
+> PATH: The release-shape test was corrected; the versioning document still gives the old meanings.
 
 ## Verdict
 

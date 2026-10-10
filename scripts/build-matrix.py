@@ -128,14 +128,16 @@ INSTALL = [
 ]
 
 # kind -> (css class, glyph, visible label). GREEN/RED say what the *thing*
-# does; PROVEN/PLAUSIBLE/REFUTED say how good *our argument* for it is.
+# does; PROVEN/PLAUSIBLE/REFUTED say how good *our argument* for it is. The
+# source keywords are editor vocabulary; the visible labels are the reader's,
+# so they say what the box means in plain words rather than naming a status.
 FLAGS = {
-    "GREEN":     ("flag-green",     "●", "verified"),
-    "RED":       ("flag-red",       "●", "shortcoming"),
-    "PATH":      ("flag-path",      "→", "path to green"),
+    "GREEN":     ("flag-green",     "●", "checked"),
+    "RED":       ("flag-red",       "●", "known limitation"),
+    "PATH":      ("flag-path",      "→", "what happens next"),
     "NOTE":      ("flag-note",      "•", "note"),
     "PROVEN":    ("flag-proven",    "✓", "shown"),
-    "PLAUSIBLE": ("flag-plausible", "∼", "plausible"),
+    "PLAUSIBLE": ("flag-plausible", "∼", "not yet shown"),
     "REFUTED":   ("flag-refuted",   "✗", "does not hold"),
 }
 
@@ -475,8 +477,8 @@ def home_view():
             '<span class="linkedin-mark" aria-hidden="true">in</span></a></p>'
             '<p class="fact" id="fact">%s</p>'
             '<ul class="factpool" id="factpool" hidden>%s</ul>'
-            '<p class="homelead">A small cloud region on your own computer. Disposable workspaces, '
-            'with work preserved through your git remote.</p>'
+            '<p class="homelead">A small private cloud on your own computer. Its workspaces are '
+            'thrown away and rebuilt; the work you push out of them is kept.</p>'
             '<p class="homego"><button class="gobtn" data-go="view-what">What is it?</button></p>'
             '</div></section>'
             % (art, html.escape(facts.FACTS[0]), pool))
@@ -1240,13 +1242,17 @@ def build():
                     'rel="noopener">%s<span class="ext" aria-hidden="true">&#8599;</span></a>%s%s</span></li>'
                     % (slug, n, slug, n, n, html.escape(label), url, html.escape(shown), tag, q))
             quoted = sum(1 for v in notes.values() if v[2])
-            fn_html = ('<section class="footnotes"><h3>Footnotes</h3>'
-                       '<p class="fn-note">Every link points at release <code>%s</code> of the '
-                       'source repository, so line numbers match the text above; a link marked '
-                       'with its own release tag points at that newer release instead. A footnote '
-                       'number in the text opens its source in a new tab; hover it for the '
-                       'quoted lines.</p>'
-                       '<ol class="fn-list">%s</ol></section>' % (ref, "".join(rows)))
+            # The sources are evidence the reader can use, not a wall the
+            # reader has to scroll past: collapsed under one plain question,
+            # still in the page, and each number in the text still opens its
+            # source directly.
+            fn_html = ('<details class="footnotes"><summary>How we know &#8212; %d sources</summary>'
+                       '<p class="fn-note">Each small number in the text opens the exact lines '
+                       'of the Tillandsias source that back that sentence, as they stand in '
+                       'release <code>%s</code>, the one the install commands give you. Hover '
+                       'a number to read the quoted lines without leaving the page. A source '
+                       'marked with its own release points at a newer one.</p>'
+                       '<ol class="fn-list">%s</ol></details>' % (len(notes), ref, "".join(rows)))
             cited = {ref} | {v[3] for v in notes.values() if v[3]}
             missing = sorted(r for r in cited if clone_for(r) is None)
             state = ("unchecked at " + ", ".join(sorted(cited)) if len(missing) == len(cited)
@@ -1561,8 +1567,10 @@ em{color:#dbe4ee}
 #tip span{display:block;margin-top:6px;font:500 11.5px var(--mono);color:var(--ink-faint);
   word-break:break-all}
 .footnotes{margin:56px 0 0;padding:26px 0 0;border-top:1px solid var(--line)}
-.footnotes h3{margin:0 0 6px;font:600 12px/1 var(--mono);letter-spacing:.2em;
-  text-transform:uppercase;color:var(--ink-dim)}
+.footnotes summary{margin:0 0 6px;font:600 12px/1.6 var(--mono);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink-dim);cursor:pointer;width:max-content;max-width:100%}
+.footnotes summary:hover{color:var(--leaf)}
+.footnotes[open] summary{margin-bottom:12px}
 .fn-note{margin:0 0 18px;font-size:13.5px;color:var(--ink-faint);max-width:74ch}
 .fn-list{list-style:none;margin:0;padding:0;counter-reset:none}
 .fn-list li{display:flex;gap:12px;margin:0 0 9px;font-size:14px;line-height:1.55}
@@ -1931,10 +1939,10 @@ __HOME__
 <header class="hero">
   <div class="wrap">
     <p class="eyebrow"><span class="leaf-ico" aria-hidden="true">__LEAF__</span>tillandsias.org <span class="ver" title="The release of the source repository this page was last checked against">&middot; __SITE_REF__</span> <span class="updated">&middot; website last updated __BUILD_STAMP__</span></p>
-    <h1>An idempotent, ephemeral cloud region,<br><span class="dim">folded through your hypervisor.</span></h1>
-    <p class="lede">Local hardware. Free software. Nothing rented, nothing metered, nothing left
-      behind. Below is <strong>what it is and how it works</strong>, told five times over — pick
-      the version that fits the person reading.</p>
+    <h1>A small cloud on your own computer,<br><span class="dim">built to be thrown away and rebuilt.</span></h1>
+    <p class="lede">Your own hardware. Free software. No account and no subscription. Below is
+      <strong>what it is and how it works</strong>, told five times over — pick the version that
+      fits the person reading.</p>
   </div>
 </header>
 
@@ -1970,8 +1978,9 @@ __SLIDES__
 <footer>
   <div class="wrap">
     <p>Source: <a href="https://github.com/8007342/tillandsias/">github.com/8007342/tillandsias</a>.
-    Each level's footnotes link into the release named at the foot of that level, so the
-    line numbers stay true even as the project moves on. Last checked against
+    The small numbers on each page open the lines of source that back each sentence, as they
+    stand in the release named under &#8220;How we know&#8221; at the foot of that page, so
+    they keep pointing at the right lines as the project moves on. Last checked against
     <code>__SITE_REF__</code>.</p>
   </div>
 </footer>
