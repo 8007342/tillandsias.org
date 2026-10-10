@@ -22,13 +22,16 @@ The internet is needed only for ordinary, visible reasons: fetching the program,
 
 Turning it off is the expected motion, not an interruption. Anything you saved is a real file on your real disk, untouched by the rebuild. Even the internal secrets the pieces use to talk to each other are re-registered at every start, so yesterday's messy shutdown cannot jam today's start.[^5]
 
-> NOTE: Installing a new release is a larger change than stopping the program. The current Linux, Mac and Windows installers run a local-state reset and reprovision by default.[^36][^37][^38] They announce the reset; set `TILLANDSIAS_DESTRUCTIVE_RESET_OK=0` before installing if you need to skip its destructive half.
+> NOTE: Installing a new release is a larger change than stopping the program. The current Linux, Mac and Windows installers run a local-state reset and reprovision by default.[^36][^37][^38] On Linux the reset is a soft one: it rebuilds the containers and images but deletes no stored data; your downloads survive, and so do your sign-ins as long as the keyring can still unlock them.[^39] The Windows installer runs the same soft reset without announcing it.[^38][^40] The Linux and Mac installers announce the reset; set `TILLANDSIAS_DESTRUCTIVE_RESET_OK=0` before installing if you need to skip its destructive half.[^37]
+
+> RED: The Mac is the exception to "soft". As the code reads at this release, the Mac reset still deletes the saved vault keys and the secret store, although the project's own specification says every platform's reset must keep them.[^41][^42]
+> PATH: No path to green is recorded in the repo.
 
 > GREEN: That is written down as a required behaviour with named cases — the unclean shutdown among them — not left to the habits of whoever wrote the code.[^5]
 
 Publishing your work has a rule that fits the same idea. Inside the sealed room you push to a mirror that lives on your own machine, not to the internet. The mirror passes the push onward and waits: it reports success only once the copy outside has durably accepted the same set of changes, so a success you can see is one that survives the room being thrown away.[^32] The mirror is also the only part that holds the credential for the outside service — it reads it when it pushes, and it never hands it to the room where your tools run.[^33]
 
-As for damage: a misbehaving tool inside the sealed room sees only the folder you gave it.[^1] Wiping the installation and rebuilding is documented and supported, not a last resort.[^6] The cost you do pay is ordinary and reversible — it is a real virtual machine, so it holds real memory while running and gives it back when it stops. The system image it downloaded stays cached on your disk so the next start is quick; uninstalling clears it, though on a Mac you have to ask for that explicitly.[^20][^30]
+As for damage: a misbehaving tool inside the sealed room sees only the folder you gave it.[^1] Wiping the installation and rebuilding is documented and supported, not a last resort.[^6] The cost you do pay is ordinary and reversible — it is a real virtual machine, so it holds real memory while running and gives it back when it stops. The system image it downloaded stays cached on your disk so the next start is quick; uninstalling clears it, though on a Mac you have to ask for that explicitly, and the uninstaller makes you type a confirmation first.[^20][^30][^43]
 
 ## Sharpening one thing you were told
 
@@ -102,7 +105,7 @@ Two install problems and one feature that once promised more than it delivered a
     > The `pipeline` CLI arm did no retrieval and no validation, yet stamped every response `validated: true` with `confidence: 0.5` and `citations: []`
 [^15]: Mac and Windows portability runs, and the remaining toolchain limit | openspec/changes/archive/expert-serve-grounded-pipeline-completed-2026-09-22/tasks.md#L53-L55
     > BOTH LANES REPORTED 2026-09-17, 7/7 lua_runtime each, both from a forced `cargo clean -p mlua-sys` rebuild rather than a cached artifact.
-[^16]: Where no OS keyring is available, the key that unlocks the local vault falls back to a local file | crates/tillandsias-headless/src/vault_bootstrap.rs#L1883-L1883
+[^16]: Where no OS keyring is available, the key that unlocks the local vault falls back to a local file | crates/tillandsias-headless/src/vault_bootstrap.rs#L2943-L2943
     > Fallback: file (populated by keychain_set_blocking when keyring unavailable,
 [^17]: Software sources — package repositories and release downloads, reached at your direction | PRIVACY.md#L51-L56
     > **Software sources** — package repositories and release downloads (for example GitHub, Linux distribution mirrors, and language package registries) to fetch the software it runs.
@@ -112,23 +115,23 @@ Two install problems and one feature that once promised more than it delivered a
     > cached at `~/.local/share/tillandsias/rootfs-fedora-44-<sha256>.tar.xz` (on macOS: `~/Library/Application Support/tillandsias/rootfs-…`; on Windows: `%LOCALAPPDATA%\tillandsias\rootfs-…`).
 [^21]: The rule that convergence is monotonic: once achieved, divergence must be detectable | methodology/convergence.yaml#L56-L58
     > - Convergence is monotonic under normal operation: once achieved, divergence must be detectable
-[^22]: The build's trace ratchet: a new reference to a specification that does not exist fails the build | build.sh#L1393-L1393
+[^22]: The build's trace ratchet: a new reference to a specification that does not exist fails the build | build.sh#L1639-L1639
     > The ratchet fails in BOTH directions: a new ghost, or a baseline entry
-[^23]: The build's test verdict is a ratchet: a failure not on the known list is a new regression | build.sh#L2043-L2043
+[^23]: The build's test verdict is a ratchet: a failure not on the known list is a new regression | build.sh#L2451-L2451
     > THE VERDICT IS A RATCHET, NOT CARGO'S EXIT CODE.
-[^24]: The build script notarizes and staples when given a signing identity and the notary credentials | scripts/build-macos-tray.sh#L255-L278
+[^24]: The build script notarizes and staples when given a signing identity and the notary credentials | scripts/build-macos-tray.sh#L267-L290
     > say "notarize: submitting (this waits for Apple's verdict)"
-[^25]: The release workflow runs the macOS build script with no credentials handed to it | .github/workflows/release.yml#L518-L518
+[^25]: The release workflow runs the macOS build script with no credentials handed to it | .github/workflows/release.yml#L521-L521
     > run: scripts/build-macos-tray.sh
-[^26]: The unsigned Windows installer package is withheld from a release rather than shipped uninstallable | .github/workflows/release.yml#L737-L737
+[^26]: The unsigned Windows installer package is withheld from a release rather than shipped uninstallable | .github/workflows/release.yml#L751-L751
     > ::warning::withholding unsigned MSIX from release assets: $($_.Name) (uninstallable without a signature; set TILLANDSIAS_SIGNING_ACCOUNT to publish it)
-[^27]: The other Windows downloads still publish unsigned, with a warning in the build log | .github/workflows/release.yml#L726-L726
+[^27]: The other Windows downloads still publish unsigned, with a warning in the build log | .github/workflows/release.yml#L740-L740
     > ::warning::TILLANDSIAS_SIGNING_ACCOUNT is unset — publishing UNSIGNED Windows artifacts (plan packet 722-w7a2)
 [^28]: The shipped assistant configuration points at the grounded expert service: citations kept only if used, typed refusals otherwise | images/default/config-overlay/opencode/config.json#L18-L30
     > "description": "Grounded local experts: retrieval from the published spec index, citations kept only if used, typed unsupported: refusals — served by tillandsias-plan expert-serve beside the MCP servers (order 920-pxg6).",
 [^29]: The live end-to-end check of the replacement, recorded 2026-09-02 in the daily channel | openspec/changes/archive/expert-serve-grounded-pipeline-completed-2026-09-22/tasks.md#L93-L94
     > 5.10 Live OpenCode session verification against a running expert-serve — DONE on macuahuitl-tillandsias-forge 2026-09-02
-[^30]: Uninstalling removes the cached image, except on macOS where it is preserved unless you ask for a full wipe | scripts/uninstall.sh#L150-L150
+[^30]: Uninstalling removes the cached image, except on macOS where it is preserved unless you ask for a full wipe | scripts/uninstall.sh#L228-L228
     > Preserving the VM image in $DATA_DIR (use --wipe to remove it).
 
 [^31]: A failed upstream push is refused without partially updating refs | openspec/specs/git-mirror-service/spec.md#L225-L230
@@ -142,14 +145,25 @@ Two install problems and one feature that once promised more than it delivered a
     > The git service reads the GitHub token from Vault at
     > push time via Vault CLI; the token never crosses into a forge container.
 
-[^34]: The version shown is the version file as it stood when the program was compiled | crates/tillandsias-headless/src/main.rs#L126-L126
+[^34]: The version shown is the version file as it stood when the program was compiled | crates/tillandsias-headless/src/main.rs#L161-L161
     > pub(crate) const VERSION: &str = include_str!("../../../VERSION");
 [^35]: The stable runtime finding is specifically about the Linux launcher | plan/index.d/20260914t185710z-1188-mm9y-installed-launcher-has-no-provenance-lenovinha.yaml#L27-L43
     > the Linux launcher has no build.rs reading it.
 
-[^36]: Linux installer runs the reset command | scripts/install.sh#L335-L335
+[^36]: Linux installer announces and runs the reset command | scripts/install.sh#L340-L340
     > "$INSTALL_PATH" --reset-state --debug
-[^37]: Mac installer runs reset and documents the opt-out | scripts/install-macos.sh#L265-L265
-    > TILLANDSIAS_DESTRUCTIVE_RESET_OK=0 is the one
-[^38]: Windows installer runs reset and documents the opt-out | scripts/install-windows.ps1#L889-L889
-    > set TILLANDSIAS_DESTRUCTIVE_RESET_OK=0 to skip the destructive half
+[^37]: Mac installer runs the reset and says the opt-out skips the destruction | scripts/install-macos.sh#L290-L290
+    > TILLANDSIAS_DESTRUCTIVE_RESET_OK=0 skips the destruction
+[^38]: Windows installer runs the reset quietly, with no announcement and no prompt | scripts/install-windows.ps1#L968-L968
+    > --reset-state < NUL
+
+[^39]: The Linux reset is a soft one: derived state only, no store deleted | crates/tillandsias-headless/src/main.rs#L10474-L10490
+    > A SOFT reset destroys DERIVED state only and deletes NO store under any
+[^40]: The Windows installer's rule: the soft reset is the default only, with no prompt | scripts/install-windows.ps1#L951-L952
+    > So SOFT reset is the default only and forever.
+[^41]: The Mac reset body deletes the saved vault keys and then the vault data | crates/tillandsias-macos-tray/src/reset_state.rs#L286-L292
+    > remove_path(&cache_root.join("vault-data"))?;
+[^42]: The specification: the reset on every platform must be soft and delete no operator data | openspec/specs/host-state-lifecycle/spec.md#L180-L182
+    > `--reset-state` on every platform SHALL be a SOFT reset: it destroys every item of derived state and SHALL NOT remove, move or rewrite any item of operator data.
+[^43]: The uninstaller asks for a typed confirmation and refuses without a terminal | scripts/uninstall.sh#L184-L185
+    > Type \"delete\" to uninstall, or press Enter to cancel:

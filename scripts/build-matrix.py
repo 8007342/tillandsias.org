@@ -56,7 +56,7 @@ LEVELS = [
     ("level-2-phone",    "I barely understand my phone",
      "Straight answers to what you are actually wondering: privacy, cost, and what breaks.",
      "Picks up where “like I’m 5” left off.",
-     "v56.9.27.2",
+     "v56.10.9.1",
      ("bulbosa",
       "A tillandsia is an epiphyte, not a parasite: it rests on its tree and takes nothing from it.")),
     ("level-3-power",    "I'm a power user",
