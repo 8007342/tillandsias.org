@@ -76,7 +76,7 @@ LEVELS = [
     ("level-5-phd",      "I'm a MathWiz / Hacker",
      "And you would like me to be condescending about it. Very well.",
      "Assumes everything before it. Mathematics from here down.",
-     "v56.9.27.2",
+     "v56.10.9.1",
      ("caput-medusae",
       "A monocot bromeliad flowers once and dies, leaving offsets behind — the pup is never "
       "the parent.")),
