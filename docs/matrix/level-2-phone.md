@@ -25,7 +25,7 @@ Turning it off is the expected motion, not an interruption. Anything you saved i
 > NOTE: Installing a new release is a larger change than stopping the program. The current Linux, Mac and Windows installers run a local-state reset and reprovision by default.[^36][^37][^38] On Linux the reset is a soft one: it rebuilds the containers and images but deletes no stored data; your downloads survive, and so do your sign-ins as long as the keyring can still unlock them.[^39] The Windows installer runs the same soft reset without announcing it.[^38][^40] The Linux and Mac installers announce the reset; set `TILLANDSIAS_DESTRUCTIVE_RESET_OK=0` before installing if you need to skip its destructive half.[^37]
 
 > RED: The Mac is the exception to "soft". As the code reads at this release, the Mac reset still deletes the saved vault keys and the secret store, although the project's own specification says every platform's reset must keep them.[^41][^42]
-> PATH: No path to green is recorded in the repo.
+> PATH: A rewrite that makes the Mac reset soft is in review as pull request #281 on GitHub. It is not in any release yet, so this stays red until a stable release carries it.
 
 > GREEN: That is written down as a required behaviour with named cases — the unclean shutdown among them — not left to the habits of whoever wrote the code.[^5]
 

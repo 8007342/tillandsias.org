@@ -510,16 +510,16 @@ QUICKSTART = [
      {"linux":   "Linux top bar with the Tillandsias icon",
       "macos":   "macOS menu bar with the Tillandsias icon",
       "windows": "Windows notification area with the Tillandsias icon"},
-     "v56.9.27.2 README.md:154-156"),
+     "v56.10.9.1 README.md:154-156"),
     ("scan", "Scan",
      "Choose GitHub login from that icon, point your phone at the QR code in the "
      "terminal and confirm the code at github.com/login/device.",
      {"linux":   "Phone over the QR code in a Linux terminal",
       "macos":   "Phone over the QR code in a macOS terminal",
       "windows": "Phone over the QR code in a Windows terminal"},
-     "v56.9.27.2 tray-ux/spec.md:92; headless main.rs:10829-10836 (QR of "
+     "v56.10.9.1 tray-ux/spec.md:92; headless main.rs:11657 (QR of "
      "https://github.com/login/device?user_code=..., printed in the terminal); "
-     "gh-auth-script/spec.md:152; windows-tray main.rs:848; macos-tray diagnose.rs:1918-1926"),
+     "gh-auth-script/spec.md:152; windows-tray main.rs:1135; macos-tray diagnose.rs:2054-2056"),
     ("authorize", "Authorize",
      "Install the [Tillandsias GitHub App](https://github.com/apps/tillandsias) and "
      "choose which repositories it can use.",
@@ -527,7 +527,7 @@ QUICKSTART = [
       "macos":   "GitHub's install page for the Tillandsias app, choosing repositories",
       "windows": "GitHub's install page for the Tillandsias app, choosing repositories"},
      "owner decision 2026-10-07 (design.md): the device flow logs in but does not "
-     "install the App or pick repositories; v56.9.27.2 headless main.rs:10591-10592 "
+     "install the App or pick repositories; v56.10.9.1 headless main.rs:11247 "
      "(GitHub App, App ID 5081125) names the App the flow belongs to; the install "
      "page itself is GitHub's, not in the release"),
     ("prompt", "Prompt",
@@ -535,7 +535,7 @@ QUICKSTART = [
      {"linux":   "Prompt in a project opened from the Linux tray",
       "macos":   "Prompt in a project opened from the macOS menu bar",
       "windows": "Prompt in a project opened from the Windows tray"},
-     "v56.9.27.2 simplified-tray-ux/spec.md:108; README.md:175"),
+     "v56.10.9.1 simplified-tray-ux/spec.md:108; README.md:175"),
 ]
 QUICKSTART_DIR = SHOTS / "quickstart"
 # A browser cannot tell a Linux desktop apart, so a desktop-specific shot
@@ -576,7 +576,9 @@ promoted, so it normally trails the newest code. The scripts here are not
 rebuilt when the app releases; they look the release up every time they
 run. Current installers reset local application state and reprovision by
 default; set <code>TILLANDSIAS_DESTRUCTIVE_RESET_OK=0</code> before running
-one to skip the destructive reset."""
+one to skip the destructive reset. On Linux and Windows that reset keeps your
+local vault and sign-ins; on macOS the stable release&#8217;s reset still
+clears them, and a fix is pending."""
 
 
 def quickstart_steps():
@@ -660,18 +662,18 @@ tested. A green test file alone is not enough. Under a fixed scope and scoring p
 <b>residual (R)</b> records what has not reached its evidence bar. Zero means those declared bars are met,
 not that every possible defect is absent.</p>
 
-<p><b>At stable v56.9.27.2:</b> Lua extracts scenario/requirement obligations and grades recorded
-positive-test results. The <a href="https://github.com/8007342/tillandsias/blob/v56.9.27.2/scripts/lua/centicolon-grade-observed.lua#L38-L105">grader</a>
+<p><b>At stable v56.10.9.1:</b> Lua extracts scenario/requirement obligations and grades recorded
+positive-test results. The <a href="https://github.com/8007342/tillandsias/blob/v56.10.9.1/scripts/lua/centicolon-grade-observed.lua#L38-L105">grader</a>
 still has assertion, implementation-provenance and platform-attribution gaps; its residual is a raw count,
 not the full weighted policy below. The
-<a href="https://github.com/8007342/tillandsias/blob/v56.9.27.2/scripts/check-centicolon-ratchet.sh#L4-L29">regression check is advisory</a>,
+<a href="https://github.com/8007342/tillandsias/blob/v56.10.9.1/scripts/lua/check-centicolon-ratchet.lua#L4-L138">regression check is advisory</a>,
 not enforced. Lua makes the metric executable; it does not by itself complete the methodology&rsquo;s guarantee.</p>
 
 <h3>What a CentiColon counts</h3>
 
 <p>The following is a <b>simplified binary weighted model</b>, not a claim that the entire policy is shipped.
 Its base weights come from the
-<a href="https://github.com/8007342/tillandsias/blob/v56.9.27.2/methodology/proximity.yaml#L27-L135">methodology</a>,
+<a href="https://github.com/8007342/tillandsias/blob/v56.10.9.1/methodology/proximity.yaml#L27-L135">methodology</a>,
 which also declares modifiers, partial evidence credits, caps and penalties omitted from this example.
 Every auditable
 thing the project commits to&mdash;a <code>must</code> requirement, a systemic invariant, a positive or
