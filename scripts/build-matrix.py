@@ -50,7 +50,7 @@ PIN_OVERRIDE = os.environ.get("TILLANDSIAS_PIN_OVERRIDE", "").strip() or None
 LEVELS = [
     ("level-1-five",     "Like I'm 5",
      "The simplest way of putting it that is still true.", "",
-     "v56.9.27.2",
+     "v56.10.9.1",
      ("ionantha",
       "A real tillandsia needs no soil and no pot — it drinks from the air, and borrows nothing.")),
     ("level-2-phone",    "I barely understand my phone",

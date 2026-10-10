@@ -79,7 +79,7 @@ Anyone may have it, read it and change it, free.[^14]
     > 1. Preferred: deliver the key as a podman secret (the entrypoint's secret branch already handles ownership correctly and becomes REACHABLE), or
 [^8]: The open plan to give both badges one shared word list, and why a person must sign it off | plan/issues/tray-string-parity-and-i18n-layer-2026-08-09.md#L104-L130
     > Reconciling existing drift **changes a user-visible string on whichever platform loses**. `spec:tray-ux` "UX curation governance" forbids that without recorded operator approval for the exact surface change.
-[^9]: The badge text that breaks the rule | crates/tillandsias-macos-tray/src/action_host.rs#L269-L280
+[^9]: The badge text that breaks the rule | crates/tillandsias-macos-tray/src/action_host.rs#L346-L359
     > VmPhase::Ready => "\u{1F7E1} Ready (podman starting\u{2026})".to_string(),
 [^10]: Why the hand-written resident list was replaced by a checking machine | openspec/specs/enclave-network/spec.md#L12-L12
     > A hand-maintained prose list went stale by SIX members between 2026-07 and 2026-08-30 (order 245 P8) — it still said "forge, git, inference, and proxy" after vault, the router, the nix cache, the catalog service, the observatorium web and the ssh-lane sidecar had all joined.
@@ -91,7 +91,7 @@ Anyone may have it, read it and change it, free.[^14]
     > CITATION WITHDRAWN (order 976-bd3n, external review 2026-09-03). This block previously claimed the STRONG LLN — almost-sure convergence — for the stream of iterations. INDEPENDENCE IS A HYPOTHESIS OF THAT THEOREM, NOT A STYLISTIC ASSUMPTION, and this system deliberately violates it
 [^14]: The licence: anyone may have it, read it and change it | LICENSE#L1-L16
     > the GNU General Public License is intended to guarantee your freedom to share and change all versions of a program
-[^15]: The fix: the key is locked to its owner, and reaches the doorman as a secret rather than through the file | crates/tillandsias-headless/src/main.rs#L3240-L3240
+[^15]: The fix: the key is locked to its owner, and reaches the doorman as a secret rather than through the file | crates/tillandsias-headless/src/main.rs#L3400-L3400
     > Clamp the CA private key to owner-only access (0600) — 755-qcxh.
 [^16]: The ledger closing the key fix on 16 August 2026 | plan/archive/packets-2026-08.yaml#L15094-L15133
     > order: 755-qcxh status: completed
@@ -107,13 +107,13 @@ Anyone may have it, read it and change it, free.[^14]
     > Internals vocabulary (VM, WSL, enclave, mirror, vault, container, podman, provisioning) MUST NOT appear in end-user-facing UX text.
 [^22]: The ledger closing the move on 4 September 2026 | plan/archive/packets-2026-09.yaml#L9010-L9011
     > - type: completed ts: "2026-09-04T09:17:37Z"
-[^23]: The written-down check after every fix: the list of already-broken tests may not grow, and anything on it that starts passing must be struck off | build.sh#L2046-L2048
+[^23]: The written-down check after every fix: the list of already-broken tests may not grow, and anything on it that starts passing must be struck off | build.sh#L2454-L2456
     > a failure not named in scripts/test-known-red.txt is a new regression, and a listed test that PASSED is a stale entry that must be deleted
 
 [^24]: A chosen remote AI provider receives the content sent to it | PRIVACY.md#L60-L63
     > If you instead configure a remote provider, the content you send is transmitted to that provider under their terms.
 
-[^25]: The CA folder is created before key generation without an owner-only directory mode | crates/tillandsias-headless/src/main.rs#L3305-L3305
+[^25]: The CA folder is created before key generation without an owner-only directory mode | crates/tillandsias-headless/src/main.rs#L3468-L3468
     > std::fs::create_dir_all(&certs_dir)
 
 [^26]: The post box only reports success once the faraway copy really has the work | images/git/pre-receive-hook.sh#L6-L8
