@@ -810,6 +810,322 @@ the strict-progress premise of a termination proof.</p>
             '</div></section>')
 
 
+def crdt_view():
+    """The CRDT page: from a shared notebook to append-and-distil.
+
+    The reader's journey is the operator's: "CRDT ...what?!" → non-conflict →
+    semantic distillation → Lamport clocks (the next page). Every statement
+    about the project describes what the ledger code and methodology actually
+    do at the site's checked release; the page claims what git gives for free
+    and what the project's discipline adds, and never that git is a CRDT.
+    """
+    body = """
+<h3>Three friends and one notebook</h3>
+
+<p>Imagine three friends keeping one notebook about a shared garden. There is only one notebook, so
+they pass it around, and whoever has it writes. Then two of them go travelling, each takes a
+photocopy, and for a month all three write in their own copy. When they meet again they hold three
+notebooks that disagree.</p>
+
+<p>Now the trouble starts. One crossed out &ldquo;water the ferns on Tuesdays&rdquo; and wrote
+&ldquo;Thursdays&rdquo;. Another crossed out the same line and wrote &ldquo;Mondays&rdquo;. Which copy
+is right? Nobody can say from the notebooks alone. Someone has to sit down, compare the three, and
+decide. That sitting-down is a <b>merge conflict</b>, and it is the thing every team of people, and
+every team of programs, eventually dreads.</p>
+
+<h3>The rule that makes the dread go away</h3>
+
+<p>Here is a different way to keep the notebook. <b>Nobody ever crosses anything out.</b> Each friend
+only adds dated, signed lines: &ldquo;10 June, Ana: I watered the ferns.&rdquo; &ldquo;12 June, Ben:
+the ferns look dry; I think Thursdays is wrong.&rdquo; When the three copies come back together you
+simply put every line from every copy into one list and sort them. No line fights another line,
+because no line was ever <i>replaced</i>. Three copies, one pile, zero arguments.</p>
+
+<p>That is the whole idea behind a <b>conflict-free replicated data type</b>, or CRDT. Replicated:
+many copies. Conflict-free: the copies can be combined by a rule that never needs a referee. The
+rule has to have three everyday properties, and the notebook already has them:</p>
+
+<ul>
+<li><b>Order does not matter.</b> Add Ana&rsquo;s lines then Ben&rsquo;s, or Ben&rsquo;s then Ana&rsquo;s: same pile.</li>
+<li><b>Grouping does not matter.</b> Combine two copies first and the third later, or all three at once: same pile.</li>
+<li><b>Repeating does not matter.</b> Add the same copy twice by mistake: still the same pile.</li>
+</ul>
+
+<p>A pile you can only add to, with those three properties, is the simplest CRDT there is, and
+mathematicians call it a <b>grow-only set</b>. Everything on this page is a variation of it.</p>
+
+<h3>What git gives you for free</h3>
+
+<p>A git repository is a very good notebook. Every change becomes a <b>commit</b>, every commit is
+named by a fingerprint of its own contents, and every commit records which commit it came after. Any
+number of people can take a copy, work alone for a month, and bring their commits back; git keeps all
+of them, and it remembers exactly which commit knew about which. Branches, worktrees, forks and
+pull requests are just different ways of carrying commits from one copy to another.</p>
+
+<p>But git, on its own, is <b>not</b> a CRDT, and this page would be lying if it said so. Two people
+who edit the same line of the same file still produce a conflict that a human has to settle. Git
+replicates perfectly and remembers perfectly; what it cannot do is decide. The notebook rule has to
+come from how you use it.</p>
+
+<h3>The happy pile</h3>
+
+<p>Tillandsias runs many AI agents on many computers: Linux, macOS and Windows hosts, some of them
+disposable containers that exist for an hour. They all need to read and write one shared plan: what
+is being worked on, what was found, what was proved, what was retracted. If that plan were one big
+file that everyone edited, every hour would end in the three-notebooks problem. For a while it was,
+and it did.</p>
+
+<p>So the project applies the notebook rule to its own plan. Shared state is written as
+<b>append-only evidence</b>: a host that wants to record something writes a <i>new file</i>, in a
+folder of fragments, with a name only that host could have produced: the time in UTC, a random
+suffix, and the host&rsquo;s own name. Once written, a fragment is never edited. If it turns out to
+be wrong, the correction is another fragment. Git then has nothing to argue about, because no two
+hosts ever touch the same file.</p>
+
+@@PILE@@
+
+<p>Seen this way, the whole GitHub apparatus stops being a source of friction and becomes a set of
+conveyor belts. A work branch is a host&rsquo;s private stack of fragments. A pull request is that
+stack arriving at the shared pile. A landing queue takes the stacks one at a time, checks each
+against the pile as it stands at that moment, and adds it or sends it back; the tree that gets
+checked is the tree that lands, never a slightly different one. Hooks refuse the few things that
+would break the rule, such as editing the compacted base in place. None of these parts needs to know
+about the others, because the only thing any of them ever does is <b>dump information into a shared
+pile of evidence</b>.</p>
+
+<h3>Semantic distillation</h3>
+
+<p>A pile of thousands of fragments is not something you want to read. What you read is a
+<b>view</b>, computed from the pile by a fixed recipe the project calls the fold: start from the last
+compacted base, then apply every fragment, in an order the file names fix, so two hosts holding the
+same files always compute the same view. Applying a fragment twice changes nothing. That recipe
+is the distillation, and it is where the real CRDT thinking lives, because different kinds of
+information need different rules:</p>
+
+<ul>
+<li><b>Work items and events are a grow-only set.</b> Two hosts adding different items both win;
+adding the same item twice yields one item. A fact, once recorded, is never lost by a merge.</li>
+<li><b>Single-valued fields are a register.</b> A status can hold only one value, so the fold picks
+a winner deterministically, by timestamp and host name, never by whichever copy happened to arrive
+first. The project is careful to say what this costs: a register keeps one value and drops the
+other, which is exactly why facts are kept as a set and never as a register.</li>
+<li><b>Progress climbs a ladder.</b> A status may move up (implemented, completed, verified, done)
+freely, and may move down only when an explicit falsification event says so. A later, lower claim
+cannot quietly undo a verified one; a disproof can.</li>
+</ul>
+
+<p>Every so often a host that can afford the full checks folds the fragments into a new base and
+deletes exactly the files it folded, by name, never by pattern, so a fragment written by someone else
+during compaction survives untouched.</p>
+
+<h3>Rectified provenance</h3>
+
+<p>The pile has one more property the notebook had: every line is signed and dated. Each fragment
+records which host and which agent wrote it, when, and about which work item. Because nothing is
+ever edited, the pile also keeps every mistake next to its correction: an agent that cited the wrong
+evidence writes a fragment saying so, and a reader can see both the claim and the retraction,
+in that order, forever.</p>
+
+<p>That combination, an append-only pile plus provenance on every entry plus a deterministic way to
+distil it, is what the project means when it says generated software should stand on
+<b>evidence</b>. Code written by many agents in many places is only trustworthy if you can later
+ask &ldquo;who claimed this, from what, and did anyone disprove it?&rdquo; and get an answer that
+does not depend on which copy of the notebook you happen to be holding.</p>
+
+<h3>What the pile does not promise</h3>
+
+<p>Honesty about the limits is part of the method, so here are the three things a CRDT cannot do:</p>
+
+<ul>
+<li><b>It does not deliver.</b> Copies that hold the same fragments agree; nothing makes a fragment
+arrive. Pushing, fetching and the landing queue are separate machinery.</li>
+<li><b>It does not make a claim true.</b> Three hosts agreeing on a pile of evidence agree about what
+was <i>recorded</i>. Whether a recorded test actually proves anything is a question for the
+<a href="#centicolons">CentiColon</a> accounting, not for the merge rule.</li>
+<li><b>It does not merge code.</b> Source files are still edited in place and still conflict; they go
+through review and the full build. The pile is for the plan and its evidence, not for the program.</li>
+</ul>
+
+<p>The project also retracts its own CRDT claims when they fail: one deduplication routine once
+described itself as a CRDT, and its header now says plainly that it is not, because first-wins
+depends on arrival order. A pile that keeps its retractions is a pile worth trusting.</p>
+
+<h3>One question left: who went first?</h3>
+
+<p>Sorting the pile &ldquo;by date&rdquo; hides a problem. Three computers have three clocks, and none
+of them agrees with the others to the millisecond. Whether one fragment came before another is not
+something a wristwatch can settle. The answer is that computers do not need wristwatches at all;
+they need to know what <i>caused</i> what, and git has been writing that down all along.
+<button type="button" class="gobtn" data-go="view-lamport">Computers don&rsquo;t understand time &#8594;</button></p>
+"""
+    body = body.replace("@@PILE@@", figures.FIGURES["append-fold"])
+    return ('<section class="view" id="view-crdt" role="tabpanel" aria-labelledby="nav-crdt">'
+            '<div class="wrap">'
+            '<h2 class="view-h">CRDT ...what?</h2>'
+            '<p class="view-lede">Why many agents on many machines can all write to one shared plan '
+            'and never have to argue about it.</p>'
+            '<div class="prose" style="margin:28px 0 56px;">'
+            + body +
+            '</div>'
+            '</div></section>')
+
+
+def lamport_view():
+    """The Lamport clocks page: "Computers don't understand time".
+
+    Discrete time, why synchronising clocks is finicky, why logical time is
+    the better abstraction, Lamport's rule, and the honest relationship to a
+    git commit graph: the graph is the causal order itself; a Lamport clock is
+    the smallest counter consistent with it, and git computes one of its own
+    (generation numbers) for its commit-graph file. What Tillandsias ships is
+    stated as it is: UTC-first fragment names and a (timestamp, host) register,
+    with the causal order carried by git, and Lamport-style counters described
+    in the methodology for iteration ordering.
+    """
+    body = """
+<h3>Everyone&rsquo;s watch is a little wrong</h3>
+
+<p>Ask three friends what time it is and you get three answers, a minute or two apart. Usually that
+is fine. It stops being fine the moment you ask a question like &ldquo;did Ana write her note before
+Ben read the notebook?&rdquo; and the two watches disagree by more than the gap between the two
+events. Then &ldquo;before&rdquo; has no answer. Computers live in that situation all day long.</p>
+
+<h3>Why a computer counts instead of flows</h3>
+
+<p>A river flows; a metronome ticks. Inside a computer, time is a metronome: a tiny crystal
+vibrates, a counter goes up by one on each vibration, and <i>that count is the only clock the machine
+has</i>. Between two ticks nothing happens at all. The computer cannot say &ldquo;a bit after
+tick 400&rdquo;; it can only say &ldquo;tick 400&rdquo; or &ldquo;tick 401&rdquo;. Time in a computer
+is <b>discrete</b>: a staircase, not a ramp.</p>
+
+<p>This is not a defect. A count is something a machine can compare exactly, copy exactly and
+write down exactly. &ldquo;Four hundred&rdquo; is the same on every machine; &ldquo;a moment
+ago&rdquo; is not.</p>
+
+<h3>Why making clocks agree is so hard</h3>
+
+<p>Fine, you say, just set every computer&rsquo;s counter from one trustworthy clock. Here is why that
+is finicky in practice:</p>
+
+<ul>
+<li><b>The crystals drift.</b> Two quartz crystals never vibrate at exactly the same rate; left alone,
+two machines drift apart by seconds a month. Warm one of them and it drifts faster.</li>
+<li><b>Asking takes time.</b> To learn the time from a server you send a question and wait for the
+answer. The answer is already stale by the time it arrives, and you cannot know by how much, because
+the trip out and the trip back need not take the same time.</li>
+<li><b>The sleep problem.</b> Laptops sleep, virtual machines pause, containers are frozen and
+thawed. When they wake, their counter is wrong by exactly the time they were asleep, and they do not
+know it yet. Tillandsias runs most of its work in exactly such machines.</li>
+<li><b>Time itself is edited.</b> Leap seconds, time-zone rules, daylight saving and a human typing
+the wrong date all change the number without anything having happened.</li>
+</ul>
+
+<p>Protocols such as NTP work hard at this and get two machines on one network to within a few
+milliseconds. A few milliseconds is an eternity for a computer: thousands of events fit inside
+it. So two timestamps from two machines can never prove which event came first.</p>
+
+<h3>Letters crossing in the mail</h3>
+
+<p>Step back and ask what we actually wanted to know. Not the time of day. We wanted to know whether
+Ana&rsquo;s note <i>could have influenced</i> Ben&rsquo;s. If Ben read the notebook before Ana wrote in
+it, his note cannot depend on hers, no matter what either watch says. If Ana posted a letter and Ben
+replied to it, the reply came after the letter, even if Ben&rsquo;s clock says otherwise. And if two
+letters crossed in the mail, neither came &ldquo;first&rdquo; in any sense that matters: they are
+simply <b>concurrent</b>.</p>
+
+<p>This relation, &ldquo;could have caused&rdquo;, is called <b>happens-before</b>, and it is the only
+order a distributed system truly needs. Notice that it is a <i>partial</i> order: some pairs of events
+are ordered, and some are not, and that is the honest answer.</p>
+
+<h3>The trick: carry a counter in every letter</h3>
+
+<p>In 1978 Leslie Lamport showed that you can capture happens-before with nothing but counting.
+Each machine keeps one integer. The rule has three lines:</p>
+
+<ol>
+<li>Before you do anything worth recording, add one to your counter.</li>
+<li>When you send a message, write your counter on it.</li>
+<li>When you receive a message, set your counter to one more than the larger of your own and the
+number on the message.</li>
+</ol>
+
+@@LAMPORT@@
+
+<p>No machine ever asks what time it is. Yet if one event could have caused another, the first
+always carries the smaller number, because the message that carried the influence also carried the
+count. The number is not a time; it is a <b>logical clock</b>, and it is exactly as discrete as the
+computer wanted it to be in the first place.</p>
+
+<p>One honest caveat. A smaller number does not prove causation: two concurrent letters may carry
+3 and 5 without either having influenced the other. Lamport&rsquo;s counter is consistent with
+happens-before, not equal to it. Keeping one counter per machine (a <i>vector clock</i>) closes that
+gap, at a cost in size. For most of what a project needs, the single counter is the right tool: it is
+small, it never disagrees with causality, and a tie can be broken by the machine&rsquo;s name.</p>
+
+<h3>Your git history already is this</h3>
+
+<p>Now look at a git repository with the above in mind. Each commit is named by a fingerprint of
+its contents, and that fingerprint covers the names of its parents. So a commit literally cannot
+exist before its parents, and anyone holding a commit can follow the parent names all the way back.
+The arrows in the graph are happens-before, written down.</p>
+
+@@DAG@@
+
+<p>This is better than a Lamport clock, not worse: the graph <i>is</i> the causal order, and a
+Lamport clock is just the smallest counter that respects it. You can read one off the graph by
+giving each commit one more than the largest number among its parents. Git in fact computes that
+very number, which it calls a generation number, to speed up its own history searches. Git also
+records the author&rsquo;s wall-clock date on every commit, but nothing about branching or merging
+depends on it; two commits with crossed dates merge exactly as well as any others.</p>
+
+<p>So the punchline is a cheap one, and that is the point: <b>back your project up in a git
+repository and you get happens-before for free</b>. Every clone is a replica; every commit is an
+event with its causes attached; every merge is a letter arriving. The clocks on the machines can be
+wrong by hours, and the history still says, correctly, what came after what.</p>
+
+<h3>How Tillandsias uses it</h3>
+
+<p>The project keeps its shared plan as an append-only pile of fragments inside that git history,
+so every fragment inherits the causal order of the commit that carried it. Within the pile, two
+smaller choices are worth naming plainly:</p>
+
+<ul>
+<li><b>Fragment names begin with the UTC time</b>, so a plain alphabetical sort of the folder is
+also a chronological one and every host folds the pile in the same order. That is a wall-clock
+stamp, and the project knows it: nothing is <i>lost</i> if two hosts&rsquo; clocks disagree, because
+facts are kept as a set, where order does not matter at all.</li>
+<li><b>Where one value must win</b>, the fold breaks ties by timestamp and then by host name, so
+every host picks the same winner from the same files. That is the familiar &ldquo;later watch
+wins&rdquo; rule, chosen for a field where only one value can survive anyway, and never applied to
+the facts.</li>
+</ul>
+
+<p>The methodology also describes Lamport-style counters for ordering an agent&rsquo;s iterations
+across merges: tick locally, take the maximum on fetch, break ties by agent name. Where it matters
+most, though, the project does not reach for a clock at all. The landing queue checks a candidate
+against the shared branch at a particular commit, and just before pushing it reads the branch again:
+if the commit has changed, the green result described a tree nobody is shipping, and the candidate
+goes back in the queue. That is a happens-before check, done with git&rsquo;s own graph, and it is
+the one that keeps the shipped tree equal to the tested tree.</p>
+
+<p>Which is where this page and the last one meet. A pile you only add to needs no referee;
+a history that names its causes needs no synchronised clock. Together they are most of what a
+crowd of agents on a crowd of machines needs in order to agree.
+<button type="button" class="gobtn" data-go="view-crdt">&#8592; CRDT ...what?</button></p>
+"""
+    body = (body.replace("@@LAMPORT@@", figures.FIGURES["lamport-exchange"])
+                .replace("@@DAG@@", figures.FIGURES["commit-dag"]))
+    return ('<section class="view" id="view-lamport" role="tabpanel" aria-labelledby="nav-lamport">'
+            '<div class="wrap">'
+            '<h2 class="view-h">Computers don&rsquo;t understand time</h2>'
+            '<p class="view-lede">Why machines count instead of telling the time, and why a git '
+            'history is already the clock you wanted.</p>'
+            '<div class="prose" style="margin:28px 0 56px;">'
+            + body +
+            '</div>'
+            '</div></section>')
+
+
 def slides_view():
     """The deck behind the menu, one visible at a time.
 
@@ -970,6 +1286,8 @@ def build():
            .replace("__HOME__", home_view())
            .replace("__PROGRESS__", progress.render(SITE_REF))
            .replace("__CENTICOLONS__", centicolons_view())
+           .replace("__CRDT__", crdt_view())
+           .replace("__LAMPORT__", lamport_view())
            .replace("__BIG_GRAPH__", big_graph.render(SITE_REF))
            .replace("__BIG_GRAPH_CSS__", big_graph.CSS)
            .replace("__BIG_GRAPH_JS__", big_graph.JS)
@@ -1595,6 +1913,8 @@ __DEFS__
   <button class="nav" id="nav-install" data-go="view-install"><span class="nav-i">&#8595;</span>I want it!</button>
   <button class="nav" id="nav-progress" data-go="view-progress"><span class="nav-i">&#9673;</span>Live progress</button>
   <button class="nav" id="nav-centicolons" data-go="view-centicolons"><span class="nav-i">&#9823;</span>CentiColons</button>
+  <button class="nav" id="nav-crdt" data-go="view-crdt"><span class="nav-i">&#8853;</span>CRDT ...what?</button>
+  <button class="nav" id="nav-lamport" data-go="view-lamport"><span class="nav-i">&#9201;</span>Lamport Clocks</button>
   <button class="nav" id="nav-slides" data-go="view-slides"><span class="nav-i">&#9654;</span>Slides</button>
   <button class="nav" id="nav-big-graph" data-go="view-big-graph"><span class="nav-i">&#9638;</span>Big Graph</button>
   <p class="drawer-f">Checked against release <code>__SITE_REF__</code>.</p>
@@ -1638,6 +1958,10 @@ __INSTALL_VIEW__
 __PROGRESS__
 
 __CENTICOLONS__
+
+__CRDT__
+
+__LAMPORT__
 
 __BIG_GRAPH__
 
@@ -1795,11 +2119,11 @@ __SLIDES__
     if (lines.length) out.textContent = lines[Math.floor(Math.random() * lines.length)].textContent;
   }
 
-  // A deep link opens its view: #home, #what, #install, #progress, #slides, #big-graph, or a level.
+  // A deep link opens its view: #home, #what, #install, #progress, #centicolons, #crdt, #lamport, #slides, #big-graph, or a level.
   function fromHash(){
     var h = location.hash.slice(1);
     if (!h) return go('view-home', false);
-    if (h === 'home' || h === 'what' || h === 'install' || h === 'progress' || h === 'slides' || h === 'centicolons' || h === 'big-graph') return go('view-' + h, false);
+    if (h === 'home' || h === 'what' || h === 'install' || h === 'progress' || h === 'slides' || h === 'centicolons' || h === 'crdt' || h === 'lamport' || h === 'big-graph') return go('view-' + h, false);
     if (document.getElementById('panel-' + h)) go('view-what', false);
   }
   window.addEventListener('hashchange', fromHash);

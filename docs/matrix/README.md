@@ -106,6 +106,6 @@ loads no external images, so the drawings are hand-authored inline SVG in
 ## Figures
 
 `layers`, `loop`, `staircase`, `lln`, `lattice`, `crdt`, `gate`, `ephemeral`,
-`fixpoint`, `galois`, `hasse` — defined as inline SVG in `scripts/figures.py`, drawn
+`fixpoint`, `galois`, `hasse`, `append-fold`, `commit-dag`, `lamport-exchange` — defined as inline SVG in `scripts/figures.py`, drawn
 with the page's own CSS variables so they carry one idea each and need no second
 palette.

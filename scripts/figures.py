@@ -1142,7 +1142,136 @@ CC_SPEC_BUTTON = _wrap(
     <text x="6" y="332" class="s-lbl">the denominator moves only when the obligation set changes, not when one closes</text>
     """)
 
+# --- CRDT and Lamport pages -------------------------------------------------
+#
+# Three figures, one idea each: fragments from several hosts landing in one
+# pile and folding to one view; a commit graph whose arrows are the only clock;
+# and two counters that agree about order by travelling with every message.
+
+def _frag(x, y, host, cls="s-box"):
+    return ('<g class="%s"><rect x="%d" y="%d" width="118" height="28" rx="6"/></g>'
+            '<text x="%d" y="%d" class="s-code">&#8230;-%s.yaml</text>'
+            % (cls, x, y, x + 59, y + 18, host))
+
+
+APPEND_FOLD = _wrap(
+    "720 250",
+    "Fragments written by three hosts land in one pile in any order, and a "
+    "deterministic fold turns the pile into one readable view",
+    "Nobody edits the pile. Each host adds a file only it could have named; "
+    "the readable plan is computed from the pile, in an order the file names "
+    "fix, so every host that holds the same files derives the same view.",
+    """
+    <text x="60" y="26" class="s-lbl">linux host</text>
+    <text x="240" y="26" class="s-lbl">macOS host</text>
+    <text x="420" y="26" class="s-lbl">windows host</text>
+    """
+    + _frag(40, 38, "linux") + _frag(40, 72, "linux")
+    + _frag(220, 38, "macneo") + _frag(220, 72, "macneo") + _frag(220, 106, "macneo")
+    + _frag(400, 38, "yoga")
+    + """
+    <g class="s-arrow" fill="none">
+      <path d="M99 108 C 110 150 170 172 210 180" marker-end="url(#ah)"/>
+      <path d="M279 142 C 279 160 279 170 279 180" marker-end="url(#ah)"/>
+      <path d="M459 74 C 450 130 390 168 350 180" marker-end="url(#ah)"/>
+    </g>
+    <rect x="150" y="186" width="258" height="40" rx="8" class="s-line s-fill1"/>
+    <text x="279" y="211" class="s-txt">the pile &#8212; append only, never edited</text>
+    <path d="M414 206 H 470" class="s-arrow" fill="none" marker-end="url(#ah)"/>
+    <text x="442" y="198" class="s-lbl" text-anchor="middle">fold</text>
+    <rect x="478" y="176" width="210" height="60" rx="8" class="s-line s-gate"/>
+    <text x="583" y="201" class="s-txt s-accent">one readable view</text>
+    <text x="583" y="222" class="s-lbl" text-anchor="middle">same files &#8594; same view</text>
+    <text x="583" y="60" class="s-lbl" text-anchor="middle">arrival order: any</text>
+    <text x="583" y="80" class="s-lbl" text-anchor="middle">duplicates: harmless</text>
+    <text x="583" y="100" class="s-lbl" text-anchor="middle">edits in place: none</text>
+    """)
+
+
+def _commit(cx, cy, label, cls="s-dot"):
+    return ('<g class="%s"><circle cx="%d" cy="%d" r="9"/></g>'
+            '<text x="%d" y="%d" class="s-code">%s</text>' % (cls, cx, cy, cx, cy + 26, label))
+
+
+COMMIT_DAG = _wrap(
+    "720 230",
+    "A commit graph: a root commit, two branches that diverge, and a merge "
+    "commit that names both branch tips as its parents; every arrow points "
+    "from a commit to the parent it names",
+    "Every commit names its parents by hash. Follow the arrows and you get "
+    "&ldquo;happened before&rdquo; with no clock at all: a1b2 is before both "
+    "branches, e5f6 and 7a8b know nothing of each other, and the merge knows "
+    "everything.",
+    """
+    <g class="s-arrow" fill="none">
+      <path d="M160 115 L 92 115" marker-end="url(#ah)"/>
+      <path d="M264 66 L 182 106" marker-end="url(#ah)"/>
+      <path d="M264 164 L 182 124" marker-end="url(#ah)"/>
+      <path d="M372 58 L 296 58" marker-end="url(#ah)"/>
+      <path d="M372 172 L 296 172" marker-end="url(#ah)"/>
+      <path d="M476 106 L 404 66" marker-end="url(#ah)"/>
+      <path d="M476 124 L 404 164" marker-end="url(#ah)"/>
+      <path d="M580 115 L 500 115" marker-end="url(#ah)"/>
+    </g>
+    """
+    + _commit(80, 115, "0000", "s-dot2") + _commit(172, 115, "a1b2")
+    + _commit(284, 58, "c3d4") + _commit(392, 58, "e5f6")
+    + _commit(284, 172, "9c0d") + _commit(392, 172, "7a8b")
+    + _commit(488, 115, "merge") + _commit(600, 115, "f1e2")
+    + """
+    <text x="338" y="24" class="s-lbl" text-anchor="middle">branch: linux host</text>
+    <text x="338" y="214" class="s-lbl" text-anchor="middle">branch: macOS host</text>
+    <text x="80" y="92" class="s-num" style="text-anchor:middle">1</text>
+    <text x="172" y="92" class="s-num" style="text-anchor:middle">2</text>
+    <text x="284" y="36" class="s-num" style="text-anchor:middle">3</text>
+    <text x="392" y="36" class="s-num" style="text-anchor:middle">4</text>
+    <text x="284" y="150" class="s-num" style="text-anchor:middle">3</text>
+    <text x="392" y="150" class="s-num" style="text-anchor:middle">4</text>
+    <text x="488" y="92" class="s-num" style="text-anchor:middle">5</text>
+    <text x="600" y="92" class="s-num" style="text-anchor:middle">6</text>
+    <text x="580" y="214" class="s-lbl" text-anchor="middle">green: generation = 1 + max(parents)</text>
+    """)
+
+
+def _lamport_tick(x, y, n, hot=False):
+    return ('<g class="%s"><circle cx="%d" cy="%d" r="7"/></g>'
+            '<text x="%d" y="%d" class="s-num" style="text-anchor:middle">%s</text>'
+            % ("s-dot" if hot else "s-dot2", x, y, x, y - 14, n))
+
+
+LAMPORT_EXCHANGE = _wrap(
+    "720 250",
+    "Two hosts with their own counters exchanging two messages; each receipt "
+    "sets the receiver's counter to one more than the larger of its own and "
+    "the stamp carried in the message",
+    "Each host counts its own events. A message carries the sender&rsquo;s "
+    "count, and the receiver jumps to one past the larger of the two. Nothing "
+    "is synchronised and no one asks what time it is, yet every cause carries "
+    "a smaller number than its effect.",
+    """
+    <text x="24" y="72" class="s-lbl">host A</text>
+    <text x="24" y="192" class="s-lbl">host B</text>
+    <line x1="90" y1="80" x2="690" y2="80" class="s-axis"/>
+    <line x1="90" y1="200" x2="690" y2="200" class="s-axis"/>
+    """
+    + _lamport_tick(130, 80, 1) + _lamport_tick(210, 80, 2) + _lamport_tick(290, 80, 3, True)
+    + _lamport_tick(540, 80, "max(3,6)+1 = 7", True) + _lamport_tick(630, 80, 8)
+    + _lamport_tick(150, 200, 1) + _lamport_tick(380, 200, "max(1,3)+1 = 4", True)
+    + _lamport_tick(460, 200, 5) + _lamport_tick(500, 200, 6, True)
+    + """
+    <g class="s-arrow" fill="none">
+      <path d="M296 88 L 374 192" marker-end="url(#ah)"/>
+      <path d="M506 192 L 534 88" marker-end="url(#ah)"/>
+    </g>
+    <text x="318" y="150" class="s-lbl">message stamped 3</text>
+    <text x="528" y="150" class="s-lbl">message stamped 6</text>
+    <text x="90" y="236" class="s-lbl">rule: tick before each event; on receipt, counter = max(mine, theirs) + 1</text>
+    """)
+
+
 FIGURES = {
+    "append-fold": APPEND_FOLD, "commit-dag": COMMIT_DAG,
+    "lamport-exchange": LAMPORT_EXCHANGE,
     "project-orchestration": PROJECT_ORCHESTRATION,
     "methodology-bridge": METHODOLOGY_BRIDGE, "refinement-cloud": REFINEMENT_CLOUD,
     "refinement-field": REFINEMENT_FIELD,
