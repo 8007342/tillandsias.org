@@ -2,11 +2,11 @@
 
 ## What you get the moment a forge opens
 
-`tillandsias --headless /path/to/project --claude` starts a container with your project in it and an agent at the prompt. Nothing below is configured by you or by the agent: the context file the agent reads first lists the plumbing under the heading "all transparent — zero configuration needed".[^16] Every claim here is checked against the stable release, v56.9.21.1.
+`tillandsias --headless /path/to/project --claude` starts a container with your project in it and an agent at the prompt. Nothing below is configured by you or by the agent: the context file the agent reads first lists the plumbing under the heading "all transparent — zero configuration needed".[^16] Every claim here is checked against the stable release, v56.10.9.1.
 
 ### The forge container
 
-A forge is a Fedora Minimal image in two layers: a heavy base carrying the toolchains — gcc, make, cmake, Rust with cargo and rust-analyzer, Go, Node, Java, Python, the debuggers — and a thin runtime layer with the entrypoints, cheatsheets and the agent's configuration.[^17][^18] The tag is a content hash of its sources, so an unchanged rebuild is a no-op.[^19] The coding agents are not baked in: every launch refreshes them into a per-project cache volume that outlives the container, rolling back to the last known-good version when upstream ships a broken one.[^20][^21] Cheatsheets, `/tmp` and the runtime directory sit on RAM-backed tmpfs with hard caps.[^22] The default clone-only lane now puts the source tree on tmpfs too, sized from the mirror’s pack; the opt-in host-mounted checkout keeps its host mount.[^30][^149] Allowlisted commands — tmux and lazygit among them — are shims that install userspace Homebrew on first use.[^23] On start the forge writes a context file into the checkout naming what is present, what is absent, and what needs no configuring.[^24]
+A forge is a Fedora Minimal image in two layers: a heavy base carrying the toolchains — gcc, make, cmake, Rust with cargo and rust-analyzer, Go, Node, Java, Python, the debuggers — and a thin runtime layer with the entrypoints, cheatsheets and the agent's configuration.[^17][^18] The tag is a content hash of its sources, so an unchanged rebuild is a no-op.[^19] The coding agents are not baked in: every launch refreshes them into a per-project cache volume that outlives the container, rolling back to the last known-good version when upstream ships a broken one.[^20][^21] Cheatsheets, `/tmp` and the runtime directory sit on RAM-backed tmpfs with hard caps.[^22] The default clone-only lane now puts the source tree in RAM too — a tmpfs-backed volume the launcher creates for the lane, sized from the mirror’s pack; the opt-in host-mounted checkout keeps its host mount.[^30][^149] Allowlisted commands — tmux and lazygit among them — are shims that install userspace Homebrew on first use.[^23] On start the forge writes a context file into the checkout naming what is present, what is absent, and what needs no configuring.[^24]
 
 > GREEN: Works out of the box. The tool cache is a named volume, never a host path, so first-run installs survive the container's removal without opening a host-home surface.[^21]
 
@@ -107,11 +107,13 @@ The agent finds four tool servers already registered, for Claude Code and OpenCo
 
 ### Sibling web containers
 
-Ask the agent to publish the project and it does not start a server in the forge. It asks the host, over a socket that exists only for that lane, to launch a sibling: a busybox httpd with the project mounted read-only, joined to the enclave network and given a router route.[^93][^94][^95][^96] The URL comes back as `http://www.<project>.localhost:<port>`, fetchable from the forge through the proxy.[^96][^97] The project is attributed from the socket the request arrived on, never from the request.[^95]
+Ask the agent to publish the project and it does not start a server in the forge. It asks the host, over a socket that exists only for that lane, to launch a sibling web container beside it: read-only, capability-dropped, joined to the enclave network and given a router route.[^93][^94][^95] The sibling sees the running forge's own worktree, resolved from the lane's live container and its RAM-backed source volume rather than from a path on the host, and it is given a selected public document tree rather than the repository: `var/html`, `public` or `dist` if one exists, otherwise the root `index.html` and the plainly static files and asset directories beside it; a Wrangler configuration at the project root selects a second, Wrangler-based runtime instead.[^160] The URL comes back as `https://www.<project>.localhost:<port>`, on a loopback TLS port the router listens on, with a leaf certificate issued for that name.[^96] The project is attributed from the socket the request arrived on, never from the request.[^95] From inside the forge the proxy forwards `.localhost` requests to the router;[^97] this page has not traced the HTTPS preview port through that rule.
 
-> RED: Works with caveats, and they are real. The sibling serves the repository root, so a site kept in a subdirectory answers 404 at `/`, and `.git` is reachable through the router: the deny that closed it was applied by hand to a running router, while the route a publish generates carries no dotfile rule at this release.[^98] Only `www` is routed, not the apex.[^96] Nothing reaps the sibling when the forge that published it dies: its name matches none of the stack sweep's patterns.[^99] The project must live under `~/src` on the host,[^100] the web image is built by initialisation rather than by a forge launch, so a host that never initialised hits a phantom registry pull,[^101][^102][^103] and the only end-to-end test of publishing has never been run by any suite.[^104]
-> PATH: The document-root convention and the `~/src` assumption are open, ready items.[^98][^100]
-> PATH: For the orphaned sibling and the phantom pull: No path to green is recorded in the repo.
+> GREEN: Two defects of the earlier publish path are closed in the code. The sibling no longer serves the repository root: the source says it never mounts `.git`, `.env` or the forge root into a sibling, so the `.git` exposure through the router that a consumer found on the earlier path has no mount left to reach.[^160][^98] The earlier requirement that the project live under `~/src` on the host no longer applies to publishing, which reads the running forge; the plan item filed against that hardcoded path is a separate matter.[^100] And the sibling is no longer orphaned when its forge dies: a watcher stops it and removes its route once the forge that published it is gone, and the next launch of the same lane clears a departed one; the stack-wide sweep still names no pattern that matches the sibling, so this cleanup is the preview's own.[^161][^99] Both are read in code, not demonstrated live.
+
+> RED: The feature's own spec still calls itself a draft whose verification is design-only, with executable coverage and live evidence pending.[^162] The only end-to-end test of publishing is still on the list of tests that no suite has ever run.[^104] Only `www` is routed, not the apex.[^96] The static web image is built by initialisation rather than by a forge launch, which ensures only four images;[^101][^102] a host that never initialised now gets an explicit error telling it to initialise the managed runtime image, where the earlier path hit a phantom registry pull that was fixed only for the status-check path.[^164][^103] The Wrangler runtime needs a second image that the list of images initialisation builds does not contain, so it stops with the same error.[^101][^164]
+> PATH: The plan records an open item to prove the preview live and then activate its specs.[^163]
+> PATH: For the apex route and the Wrangler image: No path to green is recorded in the repo.
 
 ### Chromium
 
@@ -166,16 +168,16 @@ The forge does not touch your working tree by default: it clones fresh from the 
 Idempotence is what makes destroy-and-recreate a repair procedure rather than a loss. Every layer comes up clean from scratch, so the boundary worth memorising is not "will it break" but "what is on which side of the wipe":
 
 - **Survives a stop:** the bare mirror in its per-project volume, with everything you pushed to it.[^6]
-- **Survives a stop:** vault data, auto-unsealed from a single Shamir share held in your host keychain, with no passphrase prompt. The spec requires the share to reach the vault only through a tmpfs-mounted secret;[^8] the shipped guest also keeps a fallback copy of the share on its own disk when no keyring is reachable, and inside a VM guest that file is written on every initialisation.[^126][^127]
-- **Survives even `podman system reset`,** on Linux: the model cache, because it is a host bind mount and not a named volume. The spec spells that distinction out, having once cost someone a wrong answer.[^9]
-- **Does not survive `--reset-guest`:** it wipes the vault and every enclave container, volume, secret and network, then re-initialises, keeping the model cache. Push first.[^10][^128][^129]
+- **Survives a stop:** vault data, auto-unsealed from a single Shamir share held in your host keychain, with no passphrase prompt. The spec requires the share to reach the vault only through a tmpfs-mounted secret;[^8] the shipped guest also keeps a fallback copy of the share on its own disk when no keyring is reachable, and inside a VM guest that file is written on every initialisation.[^126][^127] The lifecycle spec amended on 2026-09-27 says survival of the store requires an unlocking keyring and allows no persisted fallback share, so that code path is ahead of the spec in the other direction: the fallback writer is still present at this release.[^158]
+- **Survives even `podman system reset`,** on Linux: the model cache, because it is a host bind mount and not a named volume. The spec spells that distinction out, having once cost someone a wrong answer.[^9] The spec now moves that directory to `~/.tillandsias/downloads/models`, with a one-time migration from the old cache path; the launcher at this release still resolves the model directory under the cache root, so the move is specified and not yet in the code.[^9][^159]
+- **Does not survive `--reset-guest`:** it removes every Tillandsias container, volume (the per-project git mirrors among them) and secret and the enclave and egress networks, then re-initialises. On Linux at this release it keeps the model cache and no longer deletes the Vault store, which is a host directory; whether your sign-ins then survive depends on the keyring still holding the unseal share. Push first.[^10][^128][^129] `--reset-state` goes further: it also destroys every Podman image, and still keeps the models and the keyring entries.[^156]
 
-> GREEN: On Linux that boundary is documented per artifact and matches the code.[^9][^129]
+> GREEN: On Linux the reset boundary is documented per artifact and matches the code for what a reset removes and keeps.[^128][^129] The one divergence is the model directory's path, which the spec has moved and the launcher has not.[^9][^159]
 
 > RED: The spec also promises that your host working copy is fast-forwarded after every successful push. No code implements it at this release: the file the spec names does not exist, and the tray-managed host checkout it fed was removed by ruling. After a forge push, your host checkout moves only when you pull.[^130][^143]
 > PATH: No path to green is recorded in the repo.
 
-> RED: On macOS the "cache survives" line is not yet proven. The VM at this release already boots with a second shared directory for the model cache, and the guest's first boot mounts it, so the durable path exists.[^131][^132] What remains open: guests provisioned before that change are not migrated, because the mount is written on first boot only, and survival across a VM rebuild has not been demonstrated end to end.[^11][^133] The shipped uninstaller now preserves the VM unless asked to wipe.[^134][^135] A partially restored cache is worse than none — the inference service answers a version check and then fails every request.[^11]
+> RED: On macOS the "cache survives" line is not yet proven. The VM at this release already boots with a second shared directory for the model cache, and the guest's first boot mounts it, so the durable path exists.[^131][^132] What remains open: guests provisioned before that change are not migrated, because the mount is written on first boot only, and survival across a VM rebuild has not been demonstrated end to end.[^11][^133] The shipped uninstaller now preserves the VM unless asked to wipe, and asks for a typed confirmation before it removes anything.[^134][^135][^157] A partially restored cache is worse than none — the inference service answers a version check and then fails every request.[^11]
 > PATH: An open, ready item: prove survival end to end, which needs a re-provision nobody has authorised, and migrate the guests provisioned before the share. The next recorded step, dated 2026-09-04, is to re-measure on a warm cache: the one cold measurement taken so far came in far below the re-download cost the item was filed with, which now stands as unverified in magnitude.[^133][^136]
 
 > RED: On Windows, wiping the guest used to leave the old unseal share in Credential Manager, and the tray pushed that dead key into the fresh guest, permanently breaking GitHub login. The wipe paths now clear the stale share; a host that already holds one still delivers it, and the guest cannot tell the host it was rejected.[^12][^137]
@@ -201,25 +203,25 @@ Second, the gate on your machine is the only gate there is.
 
 ## Footnotes
 
-[^1]: Enclave network requirements — `--internal` creation, reuse, cleanup on exit, proxy-only egress, and the symbol-anchored membership list the guard enforces | openspec/specs/enclave-network/spec.md#L19-L71
-    > A new enclave member MUST be added to this list in the same commit that attaches it; `scripts/check-enclave-membership-documented.sh` refuses the divergence in both directions.
+[^1]: Enclave network requirements — `--internal` creation, reuse, cleanup on exit, proxy-only egress, and the symbol-anchored membership list the guard enforces | openspec/specs/enclave-network/spec.md#L19-L75
+    > A new enclave member MUST be added to this list in the same commit that attaches it; `scripts/lua/check-enclave-membership-documented.lua` refuses the divergence in both directions.
 [^2]: Loopback-only publish, the host-port fallback chain, and the 2026-09 freshness audit that corrected the drifted literals | openspec/specs/subdomain-routing-via-reverse-proxy/spec.md#L3-L43
     > What did NOT change, and what the requirement is actually protecting, is the loopback-only invariant: the publish is `127.0.0.1:{host_port}:8080` in every branch.
 [^3]: The stack orchestration path now creates an internal network | scripts/orchestrate-enclave.sh#L90-L103
     > --internal
 [^4]: Forge-as-only-runtime: the agent binaries must resolve inside a fresh forge, and the host must not need them | openspec/specs/forge-as-only-runtime/spec.md#L48-L68
     > `command -v claude codex opencode bash` MUST print four valid paths from inside a freshly built forge container.
-[^5]: Regression test asserting no user home is mounted into a forge, and the mounts it deliberately allows | crates/tillandsias-headless/src/main.rs#L22844-L22844
+[^5]: Regression test asserting no user home is mounted into a forge, and the mounts it deliberately allows | crates/tillandsias-headless/src/main.rs#L24432-L24432
     > must not mount a host .config dir into the forge; got source in: {arg}
 [^6]: Bare mirror per project in a named volume; forge pushes persist there | openspec/specs/git-mirror-service/spec.md#L19-L39
     > The system SHALL create and maintain a bare mirror repository for each project at `/srv/git/<project>` inside the git service container, backed by the named Podman volume `tillandsias-mirror-<project>`.
 [^7]: The ephemerality rule, stated for agents | AGENTS.md#L61-L61
     > **IN A FORGE, A FINDING YOU DID NOT PUSH IS A FINDING YOU DESTROYED.**
-[^8]: Auto-unseal from the host native keychain, no passphrase prompt, share on tmpfs only | openspec/specs/tillandsias-vault/spec.md#L78-L97
+[^8]: Auto-unseal from the host native keychain, no passphrase prompt, share on tmpfs only | openspec/specs/tillandsias-vault/spec.md#L109-L128
     > The unseal secret SHALL be loaded into a podman secret and mounted at `/run/secrets/vault-unseal` on tmpfs only.
-[^9]: Model cache is a host bind mount, NOT a named volume — and why that decides what `podman system reset` destroys | openspec/specs/inference-container/spec.md#L29-L32
-    > Models SHALL be stored in a HOST DIRECTORY (a bind mount, NOT a named Podman volume) at `~/.cache/tillandsias/models/`, mounted into the inference container at `/home/ollama/.ollama/models/`.
-[^10]: What `--reset-guest` wipes and what it keeps | crates/tillandsias-headless/src/main.rs#L1587-L1587
+[^9]: Model cache is a host bind mount, NOT a named volume — and why that decides what `podman system reset` destroys; the spec now names `~/.tillandsias/downloads/models/` | openspec/specs/inference-container/spec.md#L30-L32
+    > Models SHALL be stored in a HOST DIRECTORY (a bind mount, NOT a named Podman volume)
+[^10]: What `--reset-guest` wipes and what it keeps | crates/tillandsias-headless/src/main.rs#L1706-L1706
     > keeps the model cache) and re-initialize.
 [^11]: macOS model cache and engine payload inside the VM disk image; the destroyers, the outage a lost engine caused, and the ~2.47 GB figure as filed (status: ready) | plan/index.yaml#L27667-L27667
     > every VM-directory deletion forces a ~2.47 GB re-download — the macOS twin of 518
@@ -231,7 +233,7 @@ Second, the gate on your machine is the only gate there is.
     > THE ONLY LEGITIMATE EDIT TO THIS FILE IS A DELETION
 [^15]: The Actions budget ruling: one workflow, what was removed, and what was given up | methodology/ci.yaml#L286-L324
     > GitHub Actions runs EXACTLY ONE workflow: the release. Nothing else may consume cloud minutes — no push CI, no PR CI, no scheduled jobs, no cache warming, no webhooks. Every other gate runs locally.
-[^16]: The startup context's infrastructure section: everything transparent, nothing to configure | images/default/lib-common.sh#L4415-L4444
+[^16]: The startup context's infrastructure section: everything transparent, nothing to configure | images/default/lib-common.sh#L4978-L5007
     > You never need to configure git remotes, tokens, SSH keys, proxy settings, or CA certs.
 [^17]: The heavy base layer: Fedora Minimal with the toolchains in one package set | images/default/Containerfile.base#L5-L35
     > rust cargo clippy rustfmt rust-analyzer cargo-deny
@@ -241,13 +243,13 @@ Second, the gate on your machine is the only gate there is.
     > The default forge image SHALL use a content-hash canonical tag derived from the image source set.
 [^20]: Harnesses refresh at every launch into the persistent per-project tool cache, and a freshly installed binary that fails its contracts is replaced by the last good one | openspec/specs/default-image/spec.md#L196-L237
     > A freshly installed OpenCode that violates any of those contracts SHALL be rejected and replaced by that last-good binary.
-[^21]: The tool cache is a podman named volume, not a host bind-mount, so it cannot become a credential-leak path | crates/tillandsias-headless/src/main.rs#L16301-L16301
+[^21]: The tool cache is a podman named volume, not a host bind-mount, so it cannot become a credential-leak path | crates/tillandsias-headless/src/main.rs#L17589-L17589
     > A named volume — not a host bind-mount —
-[^22]: The three RAM-backed roots the launcher mounts at this release | crates/tillandsias-headless/src/main.rs#L16625-L16625
+[^22]: The three RAM-backed roots the launcher mounts at this release | crates/tillandsias-headless/src/main.rs#L18125-L18125
     > .tmpfs("/tmp:size=256m,mode=1777")
 [^23]: The on-demand tool allowlist in full: every listed command becomes a PATH shim that installs on first use | images/default/brew-tools-allowlist.txt#L1-L122
     > Commands listed here get a PATH shim in the forge: running the command
-[^24]: Where the startup context file is written | images/default/lib-common.sh#L4116-L4116
+[^24]: Where the startup context file is written | images/default/lib-common.sh#L4679-L4679
     > local ctx_file="$project_dir/.forge-startup-context.md"
 [^25]: The hot/cold spec: exactly four RAM-backed roots, the source tree among them | openspec/specs/forge-hot-cold-split/spec.md#L11-L24
     > Only these four path roots are HOT. "Maybe a hot path" is a HARD NO.
@@ -255,25 +257,25 @@ Second, the gate on your machine is the only gate there is.
     > production launch runs check_host_ram, derives compute_memory_ceiling_mb, and emits equal --memory and --memory-swap limits
 [^27]: The Homebrew prefix is ephemeral; every launch re-installs on-demand tools (status: ready) | plan/index.yaml#L12407-L12407
     > The brew prefix is ephemeral, so every forge launch re-installs and re-attests every tool — that is the rate-limit multiplier
-[^28]: The startup context's claim of a Sigstore attestation per bottle | images/default/lib-common.sh#L4515-L4520
+[^28]: The startup context's claim of a Sigstore attestation per bottle | images/default/lib-common.sh#L5079-L5084
     > it verifies a Sigstore attestation per bottle
 [^29]: What the shim verifies today: integrity from one publisher, attestation off | images/default/brew-shim-exec.sh#L12-L21
     > Sigstore verification is OFF because it requires a GitHub credential to FETCH
-[^30]: The source tmpfs budget is calculated from the mirror pack size | crates/tillandsias-headless/src/main.rs#L16337-L16337
+[^30]: The source tmpfs budget is calculated from the mirror pack size | crates/tillandsias-headless/src/main.rs#L17625-L17625
     > format!("/home/forge/src:size={budget}m,mode=0777")
-[^31]: The launcher creates the enclave network with `--internal` on first launch, after ensuring the egress network | crates/tillandsias-headless/src/main.rs#L3058-L3061
+[^31]: The launcher creates the enclave network with `--internal` on first launch, after ensuring the egress network | crates/tillandsias-headless/src/main.rs#L3218-L3221
     > command.args([ "network", "create", "--internal",
-[^32]: The membership guard: every attach site's enclosing function must be in the spec and vice versa; it counts only builder and launcher functions | scripts/check-enclave-membership-documented.sh#L21-L75
-    > if (fname ~ /^(build|launch)_/) { print fname }
-[^33]: The only network removal in the launcher: the destructive reset | crates/tillandsias-headless/src/main.rs#L10026-L10026
+[^32]: The membership guard (now a Lua decider): every attach site's enclosing function must be in the spec and vice versa; it counts only builder and launcher functions | scripts/lua/check-enclave-membership-documented.lua#L60-L81
+    > local BUILD_LAUNCH = [[^(build|launch)_]]
+[^33]: The only network removal in the launcher: the destructive reset | crates/tillandsias-headless/src/main.rs#L10642-L10642
     > command.args(["network", "rm", "-f", &name]);
-[^34]: Proxy variables injected into every enclave container from one source | crates/tillandsias-headless/src/main.rs#L1881-L1881
+[^34]: Proxy variables injected into every enclave container from one source | crates/tillandsias-headless/src/main.rs#L2015-L2015
     > "http_proxy=http://proxy:3128".into(),
 [^35]: The forge composes vendor roots plus the proxy CA into the system-default bundle before any network client starts | images/default/lib-common.sh#L12-L23
     > Compose the per-install CA into that target atomically, before any network
 [^36]: No per-client CA variables; trust flows through the distribution's standard path | openspec/specs/transparent-https-caching/spec.md#L57-L62
     > launchers and entrypoints SHALL NOT select CA files with `GIT_SSL_CAINFO`, `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, or `NODE_EXTRA_CA_CERTS`.
-[^37]: A regression test pins the CA mount and the absence of CA overrides | crates/tillandsias-headless/src/main.rs#L22954-L22954
+[^37]: A regression test pins the CA mount and the absence of CA overrides | crates/tillandsias-headless/src/main.rs#L24542-L24542
     > typed forge launcher must mount the single runtime CA input
 [^38]: Package-manager workflows must work with no configuration | openspec/specs/proxy-container/spec.md#L157-L157
     > common development workflows (npm install, cargo build, pip install, flutter pub get) work out of the box without configuration.
@@ -283,7 +285,7 @@ Second, the gate on your machine is the only gate there is.
     > ssl_bump peek ssl_bump_step1 ssl_bump bump github_release_assets ssl_bump splice all
 [^41]: Spliced HTTPS is never cached by the proxy | openspec/specs/proxy-container/spec.md#L44-L49
     > the HTTPS response SHALL NOT be cached (tunneled traffic is opaque to squid)
-[^42]: cargo, Go, npm and pip caches all redirected into the per-project cache | images/default/lib-common.sh#L2020-L2052
+[^42]: cargo, Go, npm and pip caches all redirected into the per-project cache | images/default/lib-common.sh#L2227-L2259
     > export CARGO_HOME="$PROJECT_CACHE/cargo"
 [^43]: Blocked hosts get a TCP reset, not a 403 | images/proxy/squid.conf#L151-L156
     > deny_info TCP_RESET strict_deny_acl
@@ -291,27 +293,27 @@ Second, the gate on your machine is the only gate there is.
     > no rebuilt-image parser result or real identical-key MISS-to-HIT trace is claimed
 [^45]: The consumer contract: one endpoint at inference:11434, downloads through the proxy | openspec/specs/inference-container/spec.md#L13-L14
     > Forge containers SHALL access it via `OLLAMA_HOST=http://inference:11434`. The inference container SHALL use the proxy for model downloads.
-[^46]: Inference readiness is best-effort, never a launch gate | crates/tillandsias-headless/src/main.rs#L15948-L15948
+[^46]: Inference readiness is best-effort, never a launch gate | crates/tillandsias-headless/src/main.rs#L17226-L17226
     > Local inference readiness (order 392) is BEST-EFFORT, not a launch
 [^47]: The single default chat model pulled on first run | images/inference/entrypoint.sh#L120-L120
     > DEFAULT_MODELS="${TILLANDSIAS_DEFAULT_MODELS:-qwen2.5:0.5b}"
 [^48]: The engine download pins a version and architecture-specific digests | images/inference/entrypoint.sh#L329-L335
     > OLLAMA_VERSION="v0.34.0"
-[^49]: The closed-vocabulary accelerator line every forge receives | crates/tillandsias-headless/src/accel_probe.rs#L4397-L4397
+[^49]: The closed-vocabulary accelerator line every forge receives | crates/tillandsias-headless/src/accel_probe.rs#L4402-L4402
     > accel_class=<workstation-gpu|mobile-npu|hybrid-gpu-npu|cpu-only>
 [^50]: Ready means the endpoint answers and at least one model is cached; there is no "starting up" | images/default/lib-inference-state.sh#L14-L24
     > Reason vocabulary (CLOSED SET — there is deliberately no "starting up"):
 [^51]: Larger tier models are opt-in, not default | images/inference/entrypoint.sh#L795-L798
     > tier pulls opt-in (set TILLANDSIAS_INFERENCE_TIER_PULLS=1) — skipping runtime tier pulls
-[^52]: The CPU floor is unconditional by spec | openspec/specs/inference-container/spec.md#L147-L152
+[^52]: The CPU floor is unconditional by spec | openspec/specs/inference-container/spec.md#L154-L159
     > Tier-S SHALL be available on every host regardless of GPU, NPU, driver, or engine availability, and SHALL NOT be gated on any device probe.
 [^53]: A missing verifier or wrong engine digest prevents execution | images/inference/entrypoint.sh#L371-L383
     > FATAL: sha256sum unavailable — cannot verify the engine payload, refusing to execute it
-[^54]: NVIDIA delivery is gated on a CDI spec; without one the host degrades to CPU with a loud remedy | crates/tillandsias-headless/src/main.rs#L5720-L5720
+[^54]: NVIDIA delivery is gated on a CDI spec; without one the host degrades to CPU with a loud remedy | crates/tillandsias-headless/src/main.rs#L6059-L6059
     > a GPU host without CDI degrades to CPU with a LOUD remedy
-[^55]: The AMD lane is selected only when ROCm reports a graphics agent | crates/tillandsias-headless/src/main.rs#L4877-L4877
+[^55]: The AMD lane is selected only when ROCm reports a graphics agent | crates/tillandsias-headless/src/main.rs#L5171-L5171
     > let rocm = std::process::Command::new("rocminfo")
-[^56]: The spec: NPU rows are never attempted on the shipped engine | openspec/specs/inference-container/spec.md#L179-L186
+[^56]: The spec: NPU rows are never attempted on the shipped engine | openspec/specs/inference-container/spec.md#L186-L193
     > N rows SHALL NOT be attempted on the `ollama` engine kind. Ollama cannot use any NPU
 [^57]: On Windows the NPU cannot be seen from inside the guest at all | scripts/windows-host-capability-probe.sh#L12-L14
     > The NPU is not merely undetected in the guest, it is STRUCTURALLY invisible:
@@ -323,9 +325,9 @@ Second, the gate on your machine is the only gate there is.
     > Impl: host-native inference sidecar registry (macOS Metal/MLX, AMD XDNA2 flm/Lemonade, Intel NPU OpenVINO) behind the enclave proxy
 [^61]: Agents configure nothing and still see the original GitHub URL | openspec/specs/git-mirror-service/spec.md#L470-L476
     > `git push`, `git fetch`, and `git clone` SHALL work with zero agent-side configuration
-[^62]: One atomic push of explicit refspecs | images/git/relay-refs.sh#L286-L286
+[^62]: One atomic push of explicit refspecs | images/git/relay-refs.sh#L298-L298
     > git push --atomic "$PUSH_URL" "$@"
-[^63]: The mirror acknowledges only after upstream durably accepts the ref transaction | images/git/pre-receive-hook.sh#L582-L582
+[^63]: The mirror acknowledges only after upstream durably accepts the ref transaction | images/git/pre-receive-hook.sh#L765-L765
     > Push rejected: configured upstream did not durably accept the ref transaction
 [^64]: The GitHub token is read from Vault at push time inside the git service and never crosses into a forge | openspec/specs/git-mirror-service/spec.md#L14-L16
     > The git service reads the GitHub token from Vault at push time via Vault CLI; the token never crosses into a forge container.
@@ -337,9 +339,9 @@ Second, the gate on your machine is the only gate there is.
     > No upstream configured; accepting as a durable local-only mirror update
 [^68]: Without a stored token the relay refuses and names the remedy | images/git/relay-refs.sh#L193-L193
     > HTTPS upstream credential is unavailable; run GitHub Login before pushing
-[^69]: The mirror daemon's push path is anonymous inside the enclave, and the repo says so in the same breath as the hardening that limits the damage | images/git/entrypoint.sh#L451-L451
+[^69]: The mirror daemon's push path is anonymous inside the enclave, and the repo says so in the same breath as the hardening that limits the damage | images/git/entrypoint.sh#L504-L504
     > The daemon remains anonymous inside the enclave: any reachable peer can still
-[^70]: The authenticated SSH push lane is dark behind one flag until the default flip | crates/tillandsias-headless/src/main.rs#L12098-L12098
+[^70]: The authenticated SSH push lane is dark behind one flag until the default flip | crates/tillandsias-headless/src/main.rs#L13186-L13186
     > std::env::var("TILLANDSIAS_MIRROR_SSHD")
 [^71]: Offline or credential-less, the forge's push returns non-zero and nothing is partially applied | openspec/specs/git-mirror-service/spec.md#L224-L230
     > the forge's `git push` SHALL return non-zero
@@ -349,19 +351,19 @@ Second, the gate on your machine is the only gate there is.
     > Run a HashiCorp Vault container as the default and ONLY Linux secrets backend for Tillandsias.
 [^75]: The shipped Vault listener is TLS-only | images/vault/vault.hcl#L16-L24
     > tls_cert_file   = "/run/secrets/tillandsias-vault-tls-cert"
-[^76]: Every OAuth-credentialed agent lane mounts one scoped Vault token | crates/tillandsias-headless/src/main.rs#L16684-L16684
+[^76]: Every OAuth-credentialed agent lane mounts one scoped Vault token | crates/tillandsias-headless/src/main.rs#L18186-L18186
     > Every OAuth-credentialed agent lane mounts a scoped Vault token so its
-[^77]: Forge containers get no broad Vault token, only a provider-scoped short-lived one | openspec/specs/tillandsias-vault/spec.md#L317-L322
+[^77]: Forge containers get no broad Vault token, only a provider-scoped short-lived one | openspec/specs/tillandsias-vault/spec.md#L348-L353
     > Forge containers SHALL NOT receive a broad Vault token.
 [^78]: The generic forge policy cannot read the GitHub token | images/vault/policies/forge.hcl#L1-L8
     > Explicitly NO github or token access — forge containers must remain
 [^79]: The tray policy reads the whole secret tree | images/vault/policies/tray.hcl#L1-L6
     > path "secret/*" {
-[^80]: The startup context advertises http for a TLS-only Vault | images/default/lib-common.sh#L4442-L4442
+[^80]: The startup context advertises http for a TLS-only Vault | images/default/lib-common.sh#L5005-L5005
     > http://vault:8200
 [^81]: The in-image helper defaults to https and the tmpfs token path | images/default/vault-cli.sh#L23-L24
     > VAULT_ADDR="${VAULT_ADDR:-https://vault:8200}"
-[^82]: Client tokens default to a one-hour TTL | openspec/specs/tillandsias-vault/spec.md#L221-L225
+[^82]: Client tokens default to a one-hour TTL | openspec/specs/tillandsias-vault/spec.md#L252-L256
     > Every client token, including tokens minted by Vault Agent, SHALL default to TTL 1h with a maximum TTL of 24h.
 [^83]: Four MCP servers registered for Claude Code inside the forge image | images/default/config-overlay/claude/mcp.json#L2-L23
     > "command": "/home/forge/.config-overlay/mcp/forge-plan.sh"
@@ -369,15 +371,15 @@ Second, the gate on your machine is the only gate there is.
     > "command": ["/home/forge/.config-overlay/mcp/forge-plan.sh"],
 [^85]: Spec: the generic project expert bootstraps for any project with no registration or configuration | openspec/specs/forge-environment-discoverability/spec.md#L171-L173
     > The forge MUST bootstrap a project expert surface for an ARBITRARY mounted project without manual registration, configuration, or repository-type knowledge from the caller.
-[^86]: The plan expert's refusal rule: zero citations means unsupported | images/default/config-overlay/mcp/forge-plan.sh#L1240
+[^86]: The plan expert's refusal rule: zero citations means unsupported | images/default/config-overlay/mcp/forge-plan.sh#L1355
     > An answer with zero citations is returned as confidence=unsupported — the expert refuses rather than guesses.
-[^87]: The plan expert is degraded by design on a project without the plan crate | images/default/lib-common.sh#L4433-L4433
+[^87]: The plan expert is degraded by design on a project without the plan crate | images/default/lib-common.sh#L4996-L4996
     > (this project has no plan expert — expected off-tillandsias)
-[^88]: Discovery, expert build and the grounded endpoint all backgrounded and fail-soft after the clone | images/default/lib-common.sh#L1445-L1451
+[^88]: Discovery, expert build and the grounded endpoint all backgrounded and fail-soft after the clone | images/default/lib-common.sh#L1652-L1658
     > ensure_forge_experts >>/tmp/forge-lifecycle.log 2>&1 || true
 [^89]: The on-demand spec obliges the tray to detect and spawn servers | openspec/specs/mcp-on-demand/spec.md#L32-L37
     > the tray MUST detect that the filesystem MCP server is not running
-[^90]: The startup context every lane reads names Local Experts mode | images/default/lib-common.sh#L4452-L4452
+[^90]: The startup context every lane reads names Local Experts mode | images/default/lib-common.sh#L5015-L5015
     > Local Experts mode (the
 [^91]: Only the OpenCode configuration carries an agent bound to the grounded endpoint | images/default/config-overlay/opencode/config.json#L18-L30
     > "model": "tillandsias-experts/all",
@@ -389,21 +391,21 @@ Second, the gate on your machine is the only gate there is.
     > The image MUST serve static files from `/var/www` on port 8080 using busybox httpd with no additional packages or configuration.
 [^95]: One socket per lane, bind-mounted into the forge; attribution comes from the listener that accepted the connection, never from the request | openspec/specs/mcp-tool-socket/spec.md#L31-L64
     > The project (and instance) a request acts on SHALL be derived from WHICH LISTENER accepted the connection. The tray SHALL NOT read the project from the request body, from the peer process's environment, or from any other peer-supplied source.
-[^96]: The live publish path: worktree mounted read-only, a www route made public, an http URL on the router's host port | crates/tillandsias-headless/src/main.rs#L19127-L19127
-    > "http://www.{project_name}.localhost:{router_host_port}"
+[^96]: The live publish path hands back an https URL for the www name on the router's TLS port | crates/tillandsias-headless/src/local_web_preview.rs#L730-L730
+    > Ok(format!("https://www.{project}.localhost:{}", tls_port()?))
 [^97]: From inside the forge, .localhost requests are forwarded by the proxy to the router | images/proxy/squid.conf#L183-L188
     > cache_peer_access tillandsias-router allow localhost_subdomain
-[^98]: Serving the repository root: the document-root rung (status: ready), and what a consumer found reachable | plan/index.yaml#L44421-L44421
+[^98]: What a consumer found reachable when the earlier path served the repository root (status as filed: ready) | plan/index.yaml#L44421-L44421
     > /.git/config returned 200 through the router (full history + remote URLs reconstructible)
-[^99]: The stack sweep's name patterns: a published sibling matches none of them | crates/tillandsias-headless/src/main.rs#L7328-L7328
+[^99]: The stack sweep's name patterns: a published sibling matches none of them | crates/tillandsias-headless/src/main.rs#L7698-L7698
     > name.starts_with("tillandsias-git-")
 [^100]: Projects must live under ~/src on the host; discovery hardcodes it (status: ready) | plan/index.yaml#L42106-L42106
     > tray discover_projects hardcodes ~/src and run_opencode_mode starts no lane listener
-[^101]: The declarative image set initialisation builds: both Chromium images and the web image among them | crates/tillandsias-headless/src/main.rs#L8871-L8873
+[^101]: The declarative image set initialisation builds: both Chromium images and the web image among them | crates/tillandsias-headless/src/main.rs#L10190-L10192
     > "forge-base", "forge", "web",
-[^102]: An ordinary forge launch ensures four images, not the web or browser ones | crates/tillandsias-headless/src/main.rs#L15866-L15866
+[^102]: An ordinary forge launch ensures four images, not the web or browser ones | crates/tillandsias-headless/src/main.rs#L17144-L17144
     > let images = ["router", "git", "inference", "forge"];
-[^103]: The phantom pull the status-check path was fixed for | crates/tillandsias-headless/src/main.rs#L10351-L10351
+[^103]: The phantom pull the status-check path was fixed for | crates/tillandsias-headless/src/main.rs#L11005-L11005
     > phantom registry pull (125) on any version handover.
 [^104]: The end-to-end publish litmus has never been run by any suite | openspec/litmus-tests/unbound-grandfathered.txt#L21-L21
     > litmus:publish-local-e2e
@@ -411,9 +413,9 @@ Second, the gate on your machine is the only gate there is.
     > ENTRYPOINT ["/usr/lib64/chromium-browser/headless_shell", "--headless=new"]
 [^106]: The framework image extends the core with GUI Chromium, Node and Playwright | images/chromium/Containerfile.framework#L15-L35
     > RUN npm install -g --prefix=/usr \ playwright \
-[^107]: The hardened, ephemeral browser container the runtime launches | crates/tillandsias-headless/src/main.rs#L14850-L14850
+[^107]: The hardened, ephemeral browser container the runtime launches | crates/tillandsias-headless/src/main.rs#L15944-L15944
     > Hardened browser boundary: read-only rootfs, CAP_DROP=ALL, no-new-privileges,
-[^108]: Browser launch requires a graphical session | crates/tillandsias-headless/src/main.rs#L14808-L14808
+[^108]: Browser launch requires a graphical session | crates/tillandsias-headless/src/main.rs#L15902-L15902
     > OpenCode Web browser launch requires a graphical session (DISPLAY or WAYLAND_DISPLAY)
 [^109]: The browser tool spawns a host Chromium from the cache directory, not a container | crates/tillandsias-browser-mcp/src/launcher.rs#L78-L82
     > root.join("current/chrome"),
@@ -429,7 +431,7 @@ Second, the gate on your machine is the only gate there is.
     > Full network isolation inside the enclave, with allowlist enforcement via the proxy only; no host-gateway internet fallback
 [^115]: The browser script defaults to the enclave network | scripts/launch-chromium.sh#L93-L98
     > "--network=${TILLANDSIAS_BROWSER_NETWORK:-${TILLANDSIAS_ENCLAVE_NET:-tillandsias-enclave}}"
-[^116]: The router's host-port candidates: an explicit --port first, then 80 and the fallbacks | crates/tillandsias-headless/src/main.rs#L6545-L6545
+[^116]: The router's host-port candidates: an explicit --port first, then 80 and the fallbacks | crates/tillandsias-headless/src/main.rs#L6915-L6915
     > let mut candidates = vec![80, 8080, 18080, 28080, 38080, 48080, 58080];
 [^117]: Stack orchestration script now passes `--internal` and refuses to reuse an unisolated network | scripts/orchestrate-enclave.sh#L82-L126
     > Network $ENCLAVE_NET EXISTS BUT IS NOT INTERNAL — it was created without --internal, so every member has NAT egress and the proxy is not the only way out (order 972-a8vh, spec:enclave-network).
@@ -443,29 +445,29 @@ Second, the gate on your machine is the only gate there is.
     > podman network create --driver bridge --internal --subnet "10.0.42.0/24" "$ENCLAVE_NET"
 [^122]: A missing forge image makes the launcher refuse, never fall back to a host binary | openspec/specs/forge-as-only-runtime/spec.md#L114-L115
     > The tray MUST refuse to launch an agent if the forge image is missing — it MUST NOT silently fall back to a host binary.
-[^123]: Clone-only by default: the host checkout is the opt-in path | crates/tillandsias-headless/src/main.rs#L16550-L16550
+[^123]: Clone-only by default: the host checkout is the opt-in path | crates/tillandsias-headless/src/main.rs#L18039-L18039
     > Order 437: clone-only by default.
 [^124]: Forge containers clone from the mirror and push through it | openspec/specs/git-mirror-service/spec.md#L54-L61
     > Forge containers SHALL clone from `git://git-service/<project>`
-[^125]: The reduced-isolation warning the host-mount escape hatch prints | crates/tillandsias-headless/src/main.rs#L7065-L7065
+[^125]: The reduced-isolation warning the host-mount escape hatch prints | crates/tillandsias-headless/src/main.rs#L7435-L7435
     > WARNING: WORKSPACE ENCLAVE ISOLATION IS REDUCED
-[^126]: Inside a VM guest the share is written to a fallback file on every initialisation | crates/tillandsias-headless/src/vault_bootstrap.rs#L1791-L1791
+[^126]: Inside a VM guest the share is written to a fallback file on every initialisation | crates/tillandsias-headless/src/vault_bootstrap.rs#L2851-L2851
     > Inside the VM there is no OS keychain, so these files are the only durable
-[^127]: Where no OS keyring is reachable the share falls back to a file in the cache directory | crates/tillandsias-headless/src/vault_bootstrap.rs#L3701-L3701
+[^127]: Where no OS keyring is reachable the share falls back to a file in the cache directory | crates/tillandsias-headless/src/vault_bootstrap.rs#L4907-L4907
     > using fallback file (expected in VM guest and headless environments)
-[^128]: What the reset wipes on the host side: only the vault data directory | crates/tillandsias-headless/src/main.rs#L9828-L9828
-    > vec![cache_dir.join("vault-data")]
-[^129]: The pin test: the model cache must never be in the reset wipe set | crates/tillandsias-headless/src/main.rs#L31005-L31005
+[^128]: What the reset wipes on the host side: nothing; the function that used to name the vault data directory returns an empty list | crates/tillandsias-headless/src/main.rs#L10397-L10399
+    > fn reset_guest_wipe_paths(_cache_dir: &Path) -> Vec<PathBuf> {
+[^129]: The pin test: the model cache must never be in the reset wipe set | crates/tillandsias-headless/src/main.rs#L33303-L33303
     > the inference model cache must never be in the reset wipe set
 [^130]: The host working-copy fast-forward is specified, and specified against a file that does not exist | openspec/specs/git-mirror-service/spec.md#L344-L363
     > The tray SHALL trigger a fast-forward attempt on the host working copy at `<watch_path>/<project>` for every successful push to the enclave bare mirror
-[^131]: The VM boots with a second shared directory for the model cache | crates/tillandsias-vm-layer/src/vz.rs#L2648-L2648
+[^131]: The VM boots with a second shared directory for the model cache | crates/tillandsias-vm-layer/src/vz.rs#L2907-L2907
     > tag: "model-cache".to_string(),
-[^132]: The guest's first boot persists the model-cache mount | crates/tillandsias-vm-layer/src/vz.rs#L987-L987
+[^132]: The guest's first boot persists the model-cache mount | crates/tillandsias-vm-layer/src/vz.rs#L1078-L1078
     > model-cache /root/.cache/tillandsias/models virtiofs nofail 0 0
 [^133]: The enabling change landed and the packet stayed ready: migration and end-to-end survival unverified | plan/index.yaml#L27804-L27804
     > guest wiring verified by source scan, MIGRATION UNVERIFIED.
-[^134]: The shipped uninstaller preserves the VM unless asked to wipe | scripts/uninstall.sh#L150-L150
+[^134]: The shipped uninstaller preserves the VM unless asked to wipe | scripts/uninstall.sh#L228-L228
     > Preserving the VM image in $DATA_DIR (use --wipe to remove it).
 [^135]: The uninstaller defect the macOS packet waited on, closed | plan/archive/packets-2026-08.yaml#L23430-L23436
     > shipped uninstall.sh deletes the 11.83 GiB VM directory with no --wipe, no root and no prompt
@@ -477,9 +479,9 @@ Second, the gate on your machine is the only gate there is.
     > DeliverCredentials reply says "I received it", never "I accepted it"
 [^139]: A second wipe path found and fixed in the daily channel | plan/index.yaml#L27111-L27111
     > found Part A missing on the SECOND purge path (build-and-install-windows-local.ps1); unifying and gating it
-[^140]: Initialisation removes the orphaned global proxy block | crates/tillandsias-headless/src/main.rs#L8678-L8678
+[^140]: Initialisation removes the orphaned global proxy block | crates/tillandsias-headless/src/main.rs#L9222-L9222
     > Remove the orphaned `[engine] env` proxy block.
-[^141]: What initialisation prints when it converges the file | crates/tillandsias-headless/src/main.rs#L8839-L8839
+[^141]: What initialisation prints when it converges the file | crates/tillandsias-headless/src/main.rs#L9383-L9383
     > removed the orphaned [engine] env proxy block from {} (923-rmtw); containers receive proxy env per-container
 [^142]: The global-config fix, archived as completed | plan/archive/packets-2026-08.yaml#L46813-L46818
     > containers-conf-env-line-is-orphaned-and-never-converges
@@ -489,20 +491,20 @@ Second, the gate on your machine is the only gate there is.
     > TMPFS SLICE LANDED (997-e4v2, slice 1 of 3). compute_hot_budget() has a real caller for the first time since it was archived as complete on 2026-04-27.
 [^145]: Fetch and pin the attestation bundles at image build time so no lane needs a GitHub identity (status: ready) | plan/index.yaml#L12320-L12320
     > a forge lane installs an allowlisted tool with attestation verified and NO GitHub credential present anywhere in the lane
-[^146]: The shared inference container is created only when it is not already running, so sibling forges share one | crates/tillandsias-headless/src/main.rs#L15989-L15990
+[^146]: The shared inference container is created only when it is not already running, so sibling forges share one | crates/tillandsias-headless/src/main.rs#L17277-L17278
     > inference is recreate-if-not-running (a --replace would drop loaded models and interrupt a sibling's inference mid-flight).
-[^147]: The test pinning the scoped lease for every credentialed lane, and its absence from the credential-free ones | crates/tillandsias-headless/src/main.rs#L26978-L26978
+[^147]: The test pinning the scoped lease for every credentialed lane, and its absence from the credential-free ones | crates/tillandsias-headless/src/main.rs#L29042-L29042
     > Credential-free lanes never mount a provider lease.
-[^148]: The check gate invokes the membership guard and fails the build when it refuses | build.sh#L2476-L2476
-    > if ! _run bash "$SCRIPT_DIR/scripts/check-enclave-membership-documented.sh" 2>&1; then
+[^148]: The check gate invokes the membership guard and fails the build when it refuses | build.sh#L2922-L2922
+    > if ! _run_lua_decider "scripts/lua/check-enclave-membership-documented.lua" 2>&1; then
 
-[^149]: Only the clone-only lane mounts the source tmpfs | crates/tillandsias-headless/src/main.rs#L16570-L16570
-    > spec.tmpfs(forge_hot_src_tmpfs(project_name))
+[^149]: Only the clone-only lane mounts the RAM-backed source volume; the host-mount arm binds the checkout instead | crates/tillandsias-headless/src/main.rs#L18051-L18062
+    > forge_ram_workspace_volume(project_name),
 
-[^150]: The context distinguishes waiting, relaunching and relaunch regression | images/default/lib-common.sh#L4431-L4440
+[^150]: The context distinguishes waiting, relaunching and relaunch regression | images/default/lib-common.sh#L4994-L5003
     > \`relaunch-regresses\` means the running binary has MORE than the checkout and a relaunch would REMOVE capability.
 
-[^151]: Ready inference alone does not provide the project index with a synthesis tier | images/default/config-overlay/mcp/project-info.sh#L754-L754
+[^151]: Ready inference alone does not provide the project index with a synthesis tier | images/default/config-overlay/mcp/project-info.sh#L789-L789
     > no synthesis tier is wired into project_answer yet
 
 [^152]: The upstream token is read by the git service at push time and never enters a workspace container | openspec/specs/git-mirror-service/spec.md#L15-L16
@@ -512,6 +514,24 @@ Second, the gate on your machine is the only gate there is.
     > Validates ledger YAML, then synchronously relays the proposed ref transaction
     > upstream before accepting it locally. A client success therefore means the
     > configured upstream has durably accepted the same atomic ref set.
-[^154]: The live relay pushes the refs as one atomic transaction | images/git/relay-refs.sh#L286-L286
+[^154]: The live relay pushes the refs as one atomic transaction | images/git/relay-refs.sh#L298-L298
     > if OUTPUT="$(GIT_TERMINAL_PROMPT=0 git push --atomic "$PUSH_URL" "$@" 2>&1)"; then
 [^155]: The entry tracking every shortcoming here for which no remedy is recorded | https://github.com/8007342/tillandsias/blob/linux-next/plan/index.d/20260915t215254z-1213-rbt9-website-found-fourteen-shortcomings-the-ledger-does-not-track-macuahuitl.yaml
+[^156]: What a soft reset destroys and what it keeps | crates/tillandsias-headless/src/main.rs#L10557-L10567
+    > <cache>/tillandsias/models and every other download in the cache
+[^157]: The uninstaller asks for a typed confirmation before removing anything | scripts/uninstall.sh#L184-L184
+    > Type \"delete\" to uninstall, or press Enter to cancel:
+[^158]: The lifecycle spec's amendment: store survival requires an unlocking keyring, no persisted fallback share | openspec/specs/host-state-lifecycle/spec.md#L13-L18
+    > survival of the Vault store REQUIRES an unlocking keyring — no persisted fallback share
+[^159]: The launcher resolves the model directory under the cache root | crates/tillandsias-headless/src/main.rs#L5954-L5957
+    > &tillandsias_core::cache_root::cache_root().join("models"),
+[^160]: The preview never mounts .git, .env or the forge root; it selects a document tree or named assets | crates/tillandsias-headless/src/local_web_preview.rs#L544-L551
+    > Static compatibility selects a public document tree, never mounts .git/.env/the forge root into a sibling.
+[^161]: A departed lane's preview and route are removed | crates/tillandsias-headless/src/local_web_preview.rs#L1289-L1291
+    > Called only after the launcher proves no forge remains for this lane.
+[^162]: The preview spec's own status | openspec/specs/local-web-preview/spec.md#L7-L10
+    > verification: S0 (design; executable coverage and live evidence pending)
+[^163]: The plan item to prove the preview live and activate the scoped specs | plan/index.d/20261007-local-web-preview-design-yoga.yaml#L79-L79
+    > title: Prove live tillandsias.org preview and activate scoped specs
+[^164]: Publishing refuses when the managed runtime image is absent | crates/tillandsias-headless/src/local_web_preview.rs#L1038-L1041
+    > initialize the managed runtime image before publication

@@ -62,7 +62,7 @@ LEVELS = [
     ("level-3-power",    "I'm a power user",
      "The anatomy: what runs where, what survives a teardown, and where the sharp edges are.",
      "Assumes the two levels before it.",
-     "v56.9.27.2",
+     "v56.10.9.1",
      ("xerographica",
       "Its roots only grip; the leaves do the drinking — a plant that runs rootless.")),
     ("level-4-security", "I'm a Cyber Security expert",
