@@ -67,8 +67,11 @@ completeness and for readers without a pointer.
 - **Footnote targets are repo-relative paths** with optional `#L10-L20` anchors, or
   full external URLs. They are resolved against the tag the level pins in
   `build-matrix.py`, not against `main`, so a reader clicking a line number lands on
-  the line we quoted. When you bump a level's tag, re-verify its line ranges — they
-  drift — and rebuild with the checkout present so the quotes are re-checked too.
+  the line we quoted. Line ranges drift at every release. Do not re-anchor them by
+  hand: `skills/update-website/scripts/release-refresh.sh` finds each cited text
+  again at the new tag and moves the range, and it hands you only the citations
+  whose text is gone. A quote is what lets it do that, so quote every in-repo
+  footnote you can.
 - **A level describes the stable channel.** Its pin is the release the install commands
   hand a reader. A shortcoming fixed only in a daily build stays RED; its PATH line says
   when the fix landed and cites it with a footnote carrying that daily's tag (`@vTAG`).
