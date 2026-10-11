@@ -27,5 +27,7 @@
 - [x] 4.1 Run the checked build (`skills/update-website/scripts/checked-build.sh`).
 - [ ] 4.2 Re-check the Mac reset PATH ("a fix is being written") against the
       runtime at the next audit.
-- [ ] 4.3 Operator review before archival. Archive `add-level-page-specs` first,
+- [x] 4.3 Operator review before archival. APPROVED 2026-10-10: "Yes the website
+      is just what the reader needs, not the whole ledger. It's the top view of
+      the latest state of our Tillandsias stable release." Archive `add-level-page-specs` first,
       or fold these deltas into it.
