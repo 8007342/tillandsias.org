@@ -76,18 +76,28 @@ than the pin.
 
 ## 3. Refine: leave the next run better
 
-Every run appends its fragment automatically. Add what you learned, one line
-per lesson, naming the page surface it improves:
+Every run appends its fragment to `refresh.d/` automatically. That ledger is
+internal: it is for the next run, and the site never shows it. Add what you
+learned, one line per lesson:
 
 ```
-release-refresh.sh --tag vX --learned 'progress:the snapshot now includes …'
+release-refresh.sh --tag vX --learned 'anchors:Big Graph citations need quotes to survive ports'
 ```
 
-Or append a `distilled` fragment by hand. Never edit an old fragment: a
-correction is a new one. The `learned` entries become the "How this section
-has improved" notes on Live progress and CentiColons. A step that needed a
-person twice is a missing rule: add the rule to `anchors.py` or `refresh.py`,
-and record it with `--learned 'anchors:…'`.
+Never edit an old fragment: a correction is a new one. A step that needed a
+person twice is a missing rule. Add the rule to `anchors.py` or
+`refresh.py`, and record it with `--learned`.
+
+The site shows the reader only outcomes. When a run changed what a reader of
+Live progress or CentiColons gets, add one plain sentence about it, with no
+ids, file names or process detail:
+
+```
+release-refresh.sh --tag vX --reader 'progress:The chart now also shows …'
+```
+
+That sentence goes to `docs/progress/improvements.json`, the only source of
+the "How this section has improved" notes.
 
 ## 4. Commit and publish
 

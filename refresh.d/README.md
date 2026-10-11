@@ -24,10 +24,12 @@ history. The same rules as `issues.d/`:
 | `judgement` | list | citations whose text could not be found again. Their level kept its pin. |
 | `review_queue` | list | flags whose cited file changed in a level that moved. This never blocks. |
 | `reviewed` | map | level slug → the release a person last reviewed its claims against |
-| `learned` | list | `{ts, surfaces, note, evidence}`: one improvement or lesson per entry |
+| `learned` | list | `{ts, surfaces, note, evidence}`: one lesson for the next run per entry |
 | `next_run` | list | sentences the next run prints before it starts |
 
-`scripts/metrics.py` folds `learned` into each page's "How this section has
-improved" note, selected by `surfaces` (`progress`, `centicolons`, `levels`,
-`anchors`, `metrics`). It folds `reviewed` into the footnote note of a level
-whose pin moved past its last review.
+This ledger is internal: it is written for the next run and is never shown on
+the site. The only part a page reads is the `reviewed` map. A level whose pin
+moved past its last review says so in its footnote note. A page's "How this
+section has improved" note comes from `docs/progress/improvements.json`
+instead. That file holds plain-words outcomes for readers, with no ids and no
+process detail, and it only grows (`release-refresh.sh --reader SURFACE:SENTENCE`).

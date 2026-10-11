@@ -289,36 +289,23 @@ def refresh_fragments():
     return sorted(out, key=lambda d: (d.get("ts", ""), d["_file"]))
 
 
-def improvements(surface):
-    """The `learned` entries of every refresh run for one page surface, oldest
-    first: the distilled history of how that surface got better."""
-    rows = []
-    for doc in refresh_fragments():
-        for item in doc.get("learned", []):
-            if surface in item.get("surfaces", []):
-                rows.append(dict(item, ts=item.get("ts") or doc.get("ts", ""), _file=doc["_file"]))
-    return sorted(rows, key=lambda r: (r["ts"][:10], r["_file"]))
+READER = ROOT / "docs" / "progress" / "improvements.json"
 
 
 def improvements_html(surface, title="How this section has improved"):
-    rows = improvements(surface)
+    """What changed for the reader, in plain words, newest first. This comes
+    from docs/progress/improvements.json, which is written for readers and
+    only grows. The refresh.d/ ledger is the internal record for the next run
+    and is never displayed."""
+    rows = [r for r in (json.loads(READER.read_text()) if READER.exists() else [])
+            if surface in r.get("surfaces", [])]
     if not rows:
         return ""
-    items = []
-    for r in rows:
-        ev = r.get("evidence", "")
-        link = ""
-        if re.fullmatch(r"[0-9a-f]{7,40}", ev):
-            link = (' <a href="https://github.com/8007342/tillandsias.org/commit/%s" target="_blank" '
-                    'rel="noopener"><code>%s</code></a>' % (ev, ev[:7]))
-        elif ev:
-            link = (' <a href="https://github.com/8007342/tillandsias.org/blob/main/%s" target="_blank" '
-                    'rel="noopener"><code>%s</code></a>' % (html.escape(ev, quote=True), html.escape(ev)))
-        items.append('<li><time>%s</time> %s%s</li>' % (html.escape(r["ts"][:10]), html.escape(r["note"]), link))
-    return ('<details class="improved"><summary>%s <span>%d</span></summary>'
-            '<p class="muted">Distilled from the append-only refresh ledger '
-            '(<code>refresh.d/</code>); each line names its evidence.</p><ol>%s</ol></details>'
-            % (html.escape(title), len(rows), "".join(items)))
+    rows = sorted(rows, key=lambda r: r["month"], reverse=True)[:5]
+    items = "".join('<li><time>%s</time> %s</li>' % (
+        datetime.strptime(r["month"], "%Y-%m").strftime("%B %Y"), html.escape(r["text"])) for r in rows)
+    return ('<details class="improved"><summary>%s</summary><ul>%s</ul></details>'
+            % (html.escape(title), items))
 
 
 def reviewed_at():
@@ -336,10 +323,21 @@ PANEL_H, GAP, TOP = 132, 34, 46
 TICKS = [(0, "pin"), (1, "1 day"), (7, "1 week"), (30, "1 month"), (91, "3 months")]
 COLORS = {"floor:shell-decider": ("var(--leaf)", ""), "floor:pipe-site": ("var(--sky)", "6 4"),
           "floor:jq-callsite": ("var(--amber)", "2 3")}
-LABELS = {"floor:shell-decider": "shell→Lua", "floor:pipe-site": "pipe sites",
-          "floor:jq-callsite": "jq sites"}
-NAMES = {"floor:shell-decider": "shell scripts still to port to Lua", "floor:pipe-site": "fragile shell pipe sites",
-         "floor:jq-callsite": "jq call sites"}
+LABELS = {"floor:shell-decider": "scripts to rewrite", "floor:pipe-site": "fragile pipelines",
+          "floor:jq-callsite": "JSON tool calls"}
+NAMES = {"floor:shell-decider": "Shell scripts still to be rewritten in Lua",
+         "floor:pipe-site": "Fragile shell pipelines still to be replaced",
+         "floor:jq-callsite": "Calls to an external JSON tool still to be replaced"}
+
+
+def milestone_text(m):
+    """(short label, tooltip) for a milestone, in plain words."""
+    if m["kind"] == "series":
+        v = m["key"].rsplit(".", 2)[0]
+        return v, "First %s release" % v
+    if m["kind"] == "bar":
+        return "stricter", "The project raised its own quality bar"
+    return m["key"], "This release, %s" % m["key"]
 TAU = 3.0  # days of grace before the logarithm takes hold
 
 
@@ -386,9 +384,8 @@ def _panel(i, title, note, axis, lines, vmax, dots=(), vmin=0, shown=None):
                    % (PAD_L, W - PAD_R, y(v), y(v), PAD_L - 8, y(v) + 4,
                       ("%+d" % round(v) if vmin < 0 else "{:,}".format(int(round(v)))) if v else "0"))
     for r in dots:
-        out.append('<circle class="mx-dot" cx="%.1f" cy="%.1f" r="1.6"><title>run %s · %s: %s of a %s budget (%s)</title></circle>'
-                   % (axis.x(ts(r["t"])), y(r["v"]), html.escape(r["release"]), r["t"][:16].replace("T", " "),
-                      r["v"], r.get("budget"), html.escape(r["measured_at"])))
+        out.append('<circle class="mx-dot" cx="%.1f" cy="%.1f" r="1.6"><title>%s: %s still open out of %s</title></circle>'
+                   % (axis.x(ts(r["t"])), y(r["v"]), r["t"][:10], r["v"], r.get("budget")))
     labels = []
     for name, segs, color, dash, label in lines:
         last = None
@@ -403,11 +400,11 @@ def _panel(i, title, note, axis, lines, vmax, dots=(), vmin=0, shown=None):
                 out.append('<circle class="mx-hit" cx="%.1f" cy="%.1f" r="6"><title>%s · %s: %s%s</title></circle>'
                            % (axis.x(ts(r["t"])), y(r["v"]), html.escape(label), r["t"][:16].replace("T", " "),
                               "{:,}".format(shown(r)),
-                              (" of %s budget (%s)" % (r.get("budget"), r.get("release")) if r.get("budget") else "")))
+                              (" out of %s" % r.get("budget") if r.get("budget") else "")))
             last = pts[-1]
         if last:
             tail = segs[-1][-1]
-            when = "" if name != "cc_residual" else " (%s)" % tail["t"][5:10]
+            when = "" if name != "cc_residual" else " (last measured %s)" % tail["t"][5:10]
             labels.append([last[1] + 4, "%s %s%s" % ("{:,}".format(shown(tail)), label, when)])
     # Direct labels never overlap: push each one below the one above it.
     labels.sort()
@@ -426,9 +423,9 @@ def render_chart(data, t_ref, milestones):
     cc = data.get("cc_residual", [])
     segs = regimes(cc)
     vmax = max([r["v"] for r in cc] + [1])
-    p, y0 = _panel(0, "CentiColon residual (cc) per recorded run · best so far within one scope",
-                   "%d scopes" % len(segs), axis,
-                   [("cc_residual", segs, "var(--violet)", "", "best so far")], vmax, dots=cc)
+    p, y0 = _panel(0, "Open obligations, as measured by each test run (CentiColons)",
+                   "dots: each run · line: lowest reached", axis,
+                   [("cc_residual", segs, "var(--violet)", "", "lowest")], vmax, dots=cc)
     panels.append(p)
     tops.append(y0)
     # Indexed to each floor's first entry: three counts of different size on
@@ -440,14 +437,14 @@ def render_chart(data, t_ref, milestones):
             floors.append((n, [[dict(r, v=r["v"] - base, abs=r["v"]) for r in data[n]]],
                            COLORS[n][0], COLORS[n][1], LABELS[n]))
     deltas = [r["v"] for _, s, *_ in floors for r in s[0]] + [0]
-    p, y0 = _panel(1, "Carried obligations: ratchet floors, change since each floor was set",
+    p, y0 = _panel(1, "Clean-up work the build will not let grow: change since tracking began",
                    "lower is better", axis, floors, max(deltas + [1]), vmin=min(deltas + [-1]),
                    shown=lambda r: r.get("abs", r["v"]))
     panels.append(p)
     tops.append(y0)
     op = data.get("openspec_open", [])
-    p, y0 = _panel(2, "Declared scope: open OpenSpec tasks (context, not a residual)",
-                   "rises when scope is declared", axis, [("openspec_open", [op], "var(--ink-dim)", "", "open tasks")],
+    p, y0 = _panel(2, "Planned work still open in the design documents",
+                   "rises when new work is planned", axis, [("openspec_open", [op], "var(--ink-dim)", "", "open tasks")],
                    max([r["v"] for r in op] + [1]))
     panels.append(p)
     tops.append(y0)
@@ -467,10 +464,10 @@ def render_chart(data, t_ref, milestones):
     for m in sorted(milestones, key=lambda r: r["t"]):
         x = axis.x(ts(m["t"]))
         cls = "mx-ms mx-ms-%s" % m["kind"]
-        marks.append('<line class="%s" x1="%.1f" x2="%.1f" y1="%d" y2="%d"><title>%s · %s</title></line>'
-                     % (cls, x, x, 18, bottom, html.escape(m["label"]), m["t"][:10]))
+        text, tip = milestone_text(m)
+        marks.append('<line class="%s" x1="%.1f" x2="%.1f" y1="%d" y2="%d"><title>%s, %s</title></line>'
+                     % (cls, x, x, 18, bottom, html.escape(tip), m["t"][:10]))
         # Labels only where they fit; every marker keeps its tooltip.
-        text = {"series": m["key"].rsplit(".", 2)[0], "bar": "bar↑"}.get(m["kind"], m["key"])
         if x - last_x > 6.2 * len(text) + 8:
             marks.append('<text class="mx-msl" x="%.1f" y="14" text-anchor="middle">%s</text>'
                          % (x, html.escape(text)))
@@ -482,20 +479,20 @@ def render_chart(data, t_ref, milestones):
 
 def summary_rows(data):
     rows = []
-    for name, label in [("cc_residual", "CentiColon residual")] + \
-            [(n, "Floor: " + NAMES[n]) for n in COLORS] + [("openspec_open", "Open OpenSpec tasks")]:
+    for name, label in [("cc_residual", "Open obligations per test run")] + \
+            [(n, NAMES[n]) for n in COLORS] + [("openspec_open", "Planned work still open")]:
         s = data.get(name)
         if not s:
             continue
         if name == "cc_residual":
             segs = regimes(s)
-            verdict = ("raw runs rose %d time(s) under an unchanged budget; the best-so-far line is monotone "
-                       "by construction across %d scope regimes" % (raw_rises(s), len(segs)))
+            verdict = ("went up %d times from one run to the next; the lowest-reached line only goes down"
+                       % raw_rises(s))
         elif name.startswith("floor:"):
             k = rises(s)
-            verdict = "monotone non-increasing" if k == 0 else "rose %d time(s)" % k
+            verdict = "never went up" if k == 0 else "went up %s" % ("once" if k == 1 else "%d times" % k)
         else:
-            verdict = "context: net %+d" % (s[-1]["v"] - s[0]["v"])
+            verdict = "grew by %d as work was planned" % (s[-1]["v"] - s[0]["v"])
         rows.append('<tr><td>%s</td><td>%s</td><td>%s</td><td class="num">%s</td><td class="num">%s</td>'
                     '<td class="num">%d</td><td>%s</td><td><a href="%s" target="_blank" rel="noopener">first</a> · '
                     '<a href="%s" target="_blank" rel="noopener">last</a></td></tr>'
@@ -518,27 +515,23 @@ def render(site_ref):
     gap = ""
     if cc:
         stale = (t_ref - ts(cc[-1]["t"])) / 86400
-        gap = ('<p class="ledger-note">The CentiColon residual stops on %s: the runtime stopped regenerating '
-               'its dashboard then, %d days before the pinned release. No committed source records a residual '
-               'after it; the ratchet floors are the only obligation counts that continue. A gap is drawn as a gap.</p>'
-               % (cc[-1]["t"][:10], stale))
+        gap = ('<p class="ledger-note">The test runs stopped publishing this measure on %s, %d days before '
+               'this release. The chart leaves that stretch empty rather than guess. The clean-up counts are '
+               'the only measures that continue past it.</p>'
+               % (datetime.strptime(cc[-1]["t"][:10], "%Y-%m-%d").strftime("%-d %B %Y"), stale))
     return ('<section class="metrics" id="metrics" aria-labelledby="metrics-h">'
-            '<h3 id="metrics-h">Residual obligations over time</h3>'
-            '<p class="view-lede" id="mx-cap">Every point is read from the runtime\'s git history at or before '
-            '<code>%s</code>, and links to the commit it came from. Time runs on a logarithmic axis back from the '
-            'pinned release: recent weeks get more room than older months, and the first commit '
-            'is still on screen. Dotted verticals are milestones; hover any point or marker for its value. '
-            'In the first panel the grey dots are what each recorded CI run measured, and the violet line is '
-            'derived from them: the best residual reached so far within one scope, the accepted-baseline view '
-            'the methodology asks for. It descends by construction; the dots show that the runs did not.</p>'
+            '<h3 id="metrics-h">How much work is still open</h3>'
+            '<p class="view-lede" id="mx-cap">The whole history of the project up to release <code>%s</code>, '
+            'from its first day. Time is squeezed toward the past: recent weeks get the most room, and older '
+            'months are drawn narrower but never cut off. Dotted lines mark releases. Point at any mark to '
+            'read its value. In the top chart, each grey dot is one test run. The line is the lowest '
+            'value reached so far: it can only go down, while the runs themselves went up and down.</p>'
             '<div class="mx-wrap">%s</div>%s'
-            '<details class="mx-table"><summary>Series, sources and monotonicity</summary>'
-            '<table><thead><tr><th>Series</th><th>From</th><th>To</th><th>First</th><th>Last</th><th>Points</th>'
-            '<th>Descent</th><th>Source</th></tr></thead><tbody>%s</tbody></table>'
-            '<p class="muted">Recomputed by <code>scripts/metrics.py</code> from the runtime repository; stored '
-            'append-only in <code>docs/metrics/series.jsonl</code> with the commit and path of every row. '
-            'A residual is comparable only within one regime: when the budget changes, scope changed, '
-            'and the line breaks rather than pretending the two are one descent.</p></details></section>'
+            '<details class="mx-table"><summary>The numbers behind the chart</summary>'
+            '<table><thead><tr><th>Measure</th><th>From</th><th>To</th><th>First</th><th>Last</th><th>Points</th>'
+            '<th>Direction</th><th>Source</th></tr></thead><tbody>%s</tbody></table>'
+            '<p class="muted">Every number is read from the project\'s public history and links to the exact '
+            'version it came from.</p></details></section>'
             % (html.escape(site_ref), render_chart(data, t_ref, shown), gap, summary_rows(data)))
 
 
@@ -553,21 +546,16 @@ def centicolon_status(site_ref):
     parts = []
     if cc:
         last = cc[-1]
-        parts.append('the last recorded CentiColon residual is <b>%s of a %s budget</b> (%s, release %s); '
-                     'across %d recorded runs it rose %d times under an unchanged budget, so the record is '
-                     'not a monotone descent, and nothing has recorded a residual since'
-                     % ("{:,}".format(last["v"]), "{:,}".format(last["budget"] or 0), last["t"][:10],
-                        html.escape(last["release"]), len(cc), raw_rises(cc)))
+        parts.append('<b>%s of %s</b> obligations were still open at the last test run that reported a score, on %s. '
+                     'Between runs the score went up as well as down, and no run has reported one since'
+                     % ("{:,}".format(last["v"]), "{:,}".format(last["budget"] or 0),
+                        datetime.strptime(last["t"][:10], "%Y-%m-%d").strftime("%-d %B %Y")))
     if floors:
-        k = rises(floors)
-        parts.append('the shell-to-Lua carried obligation stands at <b>%s</b>, down from %s on %s%s'
-                     % ("{:,}".format(floors[-1]["v"]), "{:,}".format(floors[0]["v"]), floors[0]["t"][:10],
-                        "" if not k else " (its floor rose %d time(s) on the way)" % k))
-    return ('<h3>What the history says at %s</h3><p>Generated from the runtime\'s git history at each '
-            'release refresh: %s.</p><p><button type="button" class="gobtn" data-go="view-progress">'
-            'The full series, on a logarithmic time axis →</button></p>%s'
-            % (html.escape(site_ref), "; ".join(parts), improvements_html("centicolons")))
-
+        parts.append('<b>%s</b> shell scripts are still to be rewritten in Lua, down from %s when the count began'
+                     % ("{:,}".format(floors[-1]["v"]), "{:,}".format(floors[0]["v"])))
+    return ('<h3>Where the score stands at %s</h3><p>%s.</p><p><button type="button" class="gobtn" '
+            'data-go="view-progress">See the whole history →</button></p>%s'
+            % (html.escape(site_ref), ". ".join(parts), improvements_html("centicolons")))
 
 CSS = r"""
 .metrics{margin:26px 0 40px}.metrics h3{font-size:19px;margin:0 0 6px}
@@ -586,7 +574,6 @@ CSS = r"""
 .mx-table th,.mx-table td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left;color:var(--ink-dim)}
 .mx-table td.num{text-align:right;font-family:var(--mono)}.mx-table a,.improved a{color:var(--leaf)}
 .improved{margin:14px 0 26px;padding:10px 14px;border:1px solid var(--line);border-radius:9px;background:var(--bg-2)}
-.improved summary span{padding:1px 7px;border-radius:20px;background:var(--line-2);font-size:11px}
 .improved li,.improved p{font-size:13px;color:var(--ink-dim)}.improved time{font-family:var(--mono);color:var(--ink-faint)}
 """
 

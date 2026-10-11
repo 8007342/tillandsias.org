@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """A release happened: do everything that needs no judgement, then stop.
 
-  refresh.py [--tag vX.Y.Z.B] [--offline] [--history DIR] [--learned SURFACE:NOTE]...
+  refresh.py [--tag vX.Y.Z.B] [--offline] [--history DIR]
+             [--learned SURFACE:NOTE]... [--reader SURFACE:SENTENCE]...
+
+--learned goes to the internal refresh.d/ fragment, for the next run.
+--reader appends one plain-words outcome to docs/progress/improvements.json,
+the only source of a page's "How this section has improved" note.
 
 Steps, each recorded in the run's fragment under refresh.d/:
 
@@ -60,7 +65,7 @@ def previous():
 
 
 def main(argv):
-    tag, offline, history, learned = None, False, None, []
+    tag, offline, history, learned, reader = None, False, None, [], []
     i = 0
     while i < len(argv):
         a = argv[i]
@@ -70,6 +75,11 @@ def main(argv):
             offline, i = True, i + 1
         elif a == "--history":
             history, i = argv[i + 1], i + 2
+        elif a == "--reader":
+            surface, _, text = argv[i + 1].partition(":")
+            reader.append({"month": datetime.now(timezone.utc).strftime("%Y-%m"),
+                           "surfaces": [surface], "text": text.strip()})
+            i += 2
         elif a == "--learned":
             surface, _, note = argv[i + 1].partition(":")
             learned.append({"surfaces": [surface], "note": note.strip()})
@@ -158,6 +168,12 @@ def main(argv):
         print("blocked:no-history-repo:%s (a full clone of the runtime; set --history or "
               "TILLANDSIAS_HISTORY_REPO)" % history)
         return 2
+
+    # Reader-facing outcomes (plain words, no ids) go to the page; the
+    # refresh.d/ fragment below stays internal, for the next run.
+    if reader:
+        rows = json.loads(metrics.READER.read_text()) if metrics.READER.exists() else []
+        metrics.READER.write_text(json.dumps(rows + reader, indent=1, ensure_ascii=False) + "\n")
 
     # 6. checked build
     rc, out, last, secs = run([str(HELP / "checked-build.sh")])

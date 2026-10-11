@@ -4,7 +4,8 @@
 # data, rebuild the metrics history, checked build, append the run to
 # refresh.d/. See scripts/refresh.py for the steps and skills/update-website.
 #
-#   release-refresh.sh [--tag vX.Y.Z.B] [--offline] [--history DIR] [--learned SURFACE:NOTE]
+#   release-refresh.sh [--tag vX.Y.Z.B] [--offline] [--history DIR]
+#                      [--learned SURFACE:NOTE] [--reader SURFACE:SENTENCE]
 #
 # Last line: `ok:refreshed:<tag>`, `ask:judgement:<n>` (exit 3) or `blocked:<why>`.
 set -uo pipefail

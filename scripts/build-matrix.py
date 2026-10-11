@@ -1273,8 +1273,8 @@ def build():
             # judgement: say which release a person last read the claims at.
             seen = REVIEWED.get(slug)
             review = ("" if not seen or seen == ref else
-                      ' The sources were re-anchored to <code>%s</code> automatically; a person '
-                      'last reviewed the claims themselves against <code>%s</code>.' % (ref, seen))
+                      ' The links were moved to release <code>%s</code> automatically; a person '
+                      'last checked the claims themselves against <code>%s</code>.' % (ref, seen))
             fn_html = ('<details class="footnotes"><summary>How we know &#8212; %d sources</summary>'
                        '<p class="fn-note">Each small number in the text opens the exact lines '
                        'of the Tillandsias source that back that sentence, as they stand in '
