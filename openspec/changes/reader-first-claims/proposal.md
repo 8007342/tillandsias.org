@@ -115,3 +115,10 @@ not been archived yet. Archive that change first, or fold these deltas into it.
   list, and the home, hero, lede and footer prose.
 - `docs/matrix/README.md`: the dialect table's reader-facing labels, the new
   no-remedy sentence, and the "reader is the end user" rule.
+
+## Operator decision (2026-10-10)
+
+Approved: "Yes the website is just what the reader needs, not the whole
+ledger. It's the top view of the latest state of our Tillandsias stable
+release." Archival still waits on `add-level-page-specs` being archived first
+(or these deltas folded into it).

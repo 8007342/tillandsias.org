@@ -65,6 +65,10 @@ what the reader sees.
 - **Every `> RED:` is followed by a `> PATH:`.** If the repo records no remedy, the
   PATH line says `No fix is planned yet.` — after looking — optionally scoped to the
   item it answers ("For the apex route, no fix is planned yet.").
+- **The site is the top view of the latest stable release, not the ledger.**
+  Operator, 2026-10-10: "the website is just what the reader needs, not the whole
+  ledger. It's the top view of the latest state of our Tillandsias stable
+  release." History, process and internal ids live in the product repo.
 - **The reader is the end user at that level, never us.** Every block on a page —
   sentence, flag, footnote label — must answer a question that page's reader has.
   Three kinds of text fail that test and do not go on a page:
