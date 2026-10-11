@@ -11,3 +11,6 @@ node_modules/
 
 # Python bytecode from the build script
 __pycache__/
+
+# Per-run working report of the release refresh; the durable record is refresh.d/
+var/refresh-anchors.json
