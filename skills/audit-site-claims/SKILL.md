@@ -5,6 +5,12 @@ description: Re-verify one explanation level's footnotes, quotes and flags again
 
 # Audit a level's claims against a release
 
+**When.** Not for every footnote of every release. The release refresh
+(`update-website/scripts/release-refresh.sh`) re-anchors every citation whose
+text survived. Use this procedure for the items it hands you (`ask:` lines in
+the run, `judgement` in its `refresh.d/` fragment), for the `review_queue`,
+and for a deliberate full re-read of a level's claims.
+
 **Input.** A level source `docs/matrix/<level>.md`, its pinned tag `OLD`, a
 target tag `NEW`, and checkouts at both under `$TILLANDSIAS_CLONE_DIR/<tag>`
 (from `update-website/scripts/fetch-checkouts.sh`). The `.repo` directory
@@ -77,11 +83,13 @@ survive this pass may change the page.
 ## Then edit
 
 Apply the surviving corrections to `docs/matrix/<level>.md` following
-`docs/matrix/README.md`: targets, quotes, flags, prose. Move the level's pin
-in `scripts/build-matrix.py` (levels 1–4) or write an OpenSpec change (level
-5). Run `update-website/scripts/checked-build.sh`; it must print
-`ok:checked-build`. Record the audit under `docs/audit/` and file the runtime
-findings with `file-findings`.
+`docs/matrix/README.md`: targets, quotes, flags, prose. Do not move pins by
+hand. Re-run `update-website/scripts/release-refresh.sh --tag NEW`. It moves
+the level once nothing is left to decide. Level 5 claim changes still go
+through an OpenSpec change. If you re-read the whole level, append a
+`kind: review` fragment to `refresh.d/` with `reviewed: {<level>: NEW}`.
+Record the audit under `docs/audit/` and file the runtime findings with
+`file-findings`.
 
 ## Running it with several agents at once
 

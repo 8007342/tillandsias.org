@@ -1,0 +1,53 @@
+{
+ "from": "v56.10.9.1",
+ "host": "macuahuitl",
+ "judgement": [],
+ "kind": "run",
+ "learned": [],
+ "moved": [],
+ "next_run": [],
+ "pins_after": {
+  "level-1-five": "v56.10.9.1",
+  "level-2-phone": "v56.10.9.1",
+  "level-3-power": "v56.10.9.1",
+  "level-4-security": "v56.10.9.1",
+  "level-5-phd": "v56.10.9.1"
+ },
+ "pins_before": {
+  "level-1-five": "v56.10.9.1",
+  "level-2-phone": "v56.10.9.1",
+  "level-3-power": "v56.10.9.1",
+  "level-4-security": "v56.10.9.1",
+  "level-5-phd": "v56.10.9.1"
+ },
+ "pins_moved": [],
+ "review_queue": [],
+ "steps": {
+  "anchors": {
+   "secs": 0.7,
+   "verdict": "ok:anchors:0"
+  },
+  "checked_build": {
+   "secs": 1.0,
+   "verdict": "ok:checked-build"
+  },
+  "fetch": {
+   "secs": 0,
+   "verdict": "offline:1 checkouts present"
+  },
+  "metrics": {
+   "secs": 0.8,
+   "verdict": "ok:metrics:0"
+  },
+  "metrics_verify": {
+   "secs": 0.8,
+   "verdict": "ok:metrics-verified:1200"
+  },
+  "snapshot": {
+   "secs": 0.1,
+   "verdict": "snapshot: 184 specs, 219 archived changes at v56.10.9.1"
+  }
+ },
+ "to": "v56.10.9.1",
+ "ts": "2026-10-11T00:03:15Z"
+}

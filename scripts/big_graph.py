@@ -168,7 +168,6 @@ def render(tag):
     cards = []
     data = []
     clone_dir = os.environ.get("TILLANDSIAS_CLONE_DIR")
-    runtime_checkout = pathlib.Path(clone_dir) / tag if clone_dir else None
     for id_, lane, col, row, title, status, short, long, specs in NODES:
         refs = [BASE.format(tag=tag, slug=s) for s in specs.split()]
         current, pending, source_records = NOTES[id_]
@@ -180,9 +179,14 @@ def render(tag):
                     raise ValueError("Big Graph site source is absent: " + path)
                 url = SITE_FILE_BASE + path
             elif kind == "runtime":
-                if runtime_checkout is not None:
+                # `@vTAG` holds a citation at the release it was verified at,
+                # when scripts/anchors.py could not find its text at the pin.
+                path, _, own = path.partition("@")
+                cite_tag = own or tag
+                checkout = pathlib.Path(clone_dir) / cite_tag if clone_dir else None
+                if checkout is not None:
                     file_path, _, anchor = path.partition("#")
-                    source_file = runtime_checkout / file_path
+                    source_file = checkout / file_path
                     if not source_file.exists():
                         raise ValueError("Big Graph runtime source is absent: " + path)
                     if anchor:
@@ -190,7 +194,7 @@ def render(tag):
                         limit = len(source_file.read_text(errors="replace").splitlines())
                         if not match or int(match.group(1)) < 1 or int(match.group(2) or match.group(1)) > limit or int(match.group(2) or match.group(1)) < int(match.group(1)):
                             raise ValueError("Big Graph runtime source range is invalid: " + path)
-                url = RUNTIME_FILE_BASE.format(tag=tag) + path
+                url = RUNTIME_FILE_BASE.format(tag=cite_tag) + path
             else:
                 raise ValueError("Big Graph has an unknown source kind: " + kind)
             evidence.append(dict(label=label, url=url))

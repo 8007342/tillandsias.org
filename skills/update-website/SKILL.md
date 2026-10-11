@@ -1,141 +1,106 @@
 ---
 name: update-website
-description: Re-verify tillandsias.org against the stable Tillandsias release, including its explanation levels, Home, Progress and Slides; correct drift, move verified pins, and publish. Run weekly or after a release.
+description: A Tillandsias release happened, so bring tillandsias.org up to it. One command does every step that needs no judgement: re-pin by content, regenerate Progress and CentiColon data, rebuild the metrics history, checked build, and record the run. It stops only for a claim that may have changed truth value or for a new claim. Run it after a release, or weekly.
 ---
 
-# Update the website against the latest release
+# Update the website after a release
 
-**Purpose.** Every claim on tillandsias.org is a footnote into the Tillandsias
-source at a pinned release. Releases land daily; footnotes drift, fixes land,
-and a page that still calls something broken is lying. This skill is the loop
-that keeps the pages true. It is also the manual run behind the automation
-candidates listed at the end.
+Every claim on the site is a footnote into the runtime at a pinned release.
+When a release lands, line numbers drift but the cited text mostly does not.
+Moving the pins is therefore mostly mechanical, and this skill does that part
+without a person. A person is needed only where the cited text is gone or
+where a claim changes.
 
-**Where you are.** Usually a Tillandsias forge for this repository. There you
-can `git push` (through the enclave mirror), clone the runtime repo from GitHub
-through the proxy, run the build, and nothing else: no `gh`, no browser, no
-access to the runtime repo's mirror. Read `.forge-startup-context.md` and
-`plan/README.md` first if this is your first session here.
+## 0. Before you start
 
-## Which release the pages describe
+- Work in a worktree outside the checkout. Never run this on `main`.
+- Checkouts live in `$TILLANDSIAS_CLONE_DIR` (default
+  `~/.cache/tillandsias-org/clones`, on real disk, never `/tmp`).
+- The metrics step needs a **full** (not shallow) runtime clone:
+  `--history DIR` or `TILLANDSIAS_HISTORY_REPO`. The default is
+  `$TILLANDSIAS_CLONE_DIR/.history`. Create it once with
+  `git clone https://github.com/8007342/tillandsias "$TILLANDSIAS_CLONE_DIR/.history"`.
+  After that, `git -C … fetch --tags` keeps it current.
+- The command prints the previous run's leftover items and `next_run` notes
+  first. Read them.
 
-The runtime publishes two channels out of one stream. Every daily build is a
-GitHub *prerelease*; `/releases/latest`, which the site's three install
-commands resolve, moves only when a vetted daily is promoted with the
-runtime's `scripts/promote-stable.sh`. The prerelease bit is the channel.
+## 1. Run the one command
 
-The pages pin the **stable** tag: it is the binary a reader who copies the
-install line actually gets, so a RED that is fixed only in a daily is still
-true for that reader. The PATH line is where the daily-channel fix is
-acknowledged ("fixed in the daily channel on <date>; not yet promoted"), and
-the drift report shows exactly which cited files a daily has changed so those
-PATH lines can be written from evidence rather than hope.
+```
+skills/update-website/scripts/release-refresh.sh                 # stable channel
+skills/update-website/scripts/release-refresh.sh --tag v56.10.9.1 --offline
+```
 
-## Inventory before editing
+| step | what it does | gate |
+|---|---|---|
+| fetch | checkouts for the target and every pin | `ok:checkouts` |
+| anchors | `scripts/anchors.py apply`: re-anchors every runtime citation (level footnotes, Big Graph, CentiColons `rcite(...)`) by identical lines or verbatim quote, then moves each level whose citations all re-anchored | `ok:anchors:<n>` or `ask:anchors:<n>` |
+| snapshot | `scripts/snapshot-specs.py` at the site pin (Progress inventory) | snapshot line |
+| metrics | `scripts/metrics.py extract`, then `verify`: appends new rows from runtime git and proves every stored row replays | `ok:metrics-verified:<n>` |
+| build | `checked-build.sh`: every quote at its release, ledger quotes, no warnings | `ok:checked-build` |
+| refine | appends `refresh.d/<utc>-<tag>-<host>.json` | always |
 
-Read the current renderer and its inputs, not just the five Markdown files.
-Manually added surfaces are part of the website: Home and its positioning text,
-Progress (`issues.d/` and `scripts/issues.py`), Slides (`scripts/slides.py`),
-shared figures and their captions (`scripts/figures.py`), install commands and
-navigation in `scripts/build-matrix.py`. Preserve their sections, slide order,
-and deep links; fill placeholders only with evidence the owning level supports.
-Do not replace the site with an older template.
+Last line: `ok:refreshed:<tag>` (done; commit), `ask:judgement:<n>` (exit 3:
+the mechanical part is done; go to step 2) or `blocked:<why>` (fix the cause
+and re-run). Re-running is safe. Every step is idempotent, and the stores only
+grow.
 
-The methodology's core principle is reduction of uncertainty under verifiable
-constraints. For this site that means preserving useful content and history,
-correcting unsupported claims, and separating code inspection from live testing.
-More green flags or a higher resolved percentage is not itself improvement.
-When retracting a published claim, append a reasoned `retracted` event using
-[`file-issue`](../file-issue/SKILL.md). Never rewrite old ledger fragments.
+## 2. Judgement, and only judgement
 
-## The loop
+`ask:` lines name each item and why it was left. The fragment holds the full
+detail: what the range used to say, and candidate files for a moved path.
 
-Every step's script prints a verdict on its last line.
+- **`quote-gone` / `unquoted-text-changed`**: the evidence changed. Follow
+  [`audit-site-claims`](../audit-site-claims/SKILL.md) for that one footnote.
+  Then either re-cite (new target and new quote) or change the claim, the
+  flag or the PATH.
+- **`path-gone`**: usually a port or a rename. Check the candidates. A
+  retarget gets a new quote, because the old one belongs to a file that no
+  longer exists.
+- **`daily-fix-reached-stable`**: a PATH said "fixed only in the daily".
+  That is now false, so rewrite the flag.
+- **`quote-ambiguous` / `block-ambiguous`**: pick the occurrence the claim
+  means, and widen the quote until it is unique.
+- **Level 5 proposal** (until `openspec/changes/automated-release-refresh`
+  is archived): the generated `openspec/changes/level-5-<tag>/` waits for the
+  operator. Do not apply it yourself.
 
-1. **Find the channel tags.**
-   `skills/update-website/scripts/latest-release.sh` → the stable tag (from
-   `/releases/latest` with cache-busting headers, because the enclave proxy
-   caches API responses; cross-checked against the newest non-prerelease and
-   the runtime's `stable` git tag, warning on stderr when they disagree).
-   `latest-release.sh --channel unstable` → the newest daily, over git alone.
-2. **Read the pins.** `skills/update-website/scripts/pinned-refs.sh` → one line
-   per level, `slug<TAB>tag`.
-3. **Fetch checkouts.** `skills/update-website/scripts/fetch-checkouts.sh [tags…]`
-   → creates `$TILLANDSIAS_CLONE_DIR/<tag>` for every pinned tag, citation
-   override, historical runtime evidence tag in the findings ledger, the stable
-   tag and the newest daily (shallow, one worktree per tag, shared object
-   store so tags can be diffed). Default dir: `$HOME/.cache/tillandsias-org/clones`,
-   on real disk; the forge's `/tmp` is a 256 MB tmpfs and fills at two checkouts.
-4. **See what breaks.** `skills/update-website/scripts/drift-report.sh` → for
-   each level: which cited files changed between its pin and the stable tag,
-   the exact broken-target list (missing path, line range outside the file,
-   quote not found) from a trial build pinned to the stable tag, and, for
-   information, how many cited files the newest daily has changed. If every
-   level already pins the stable tag and nothing is broken it prints
-   `ok:up-to-date`; the daily-channel counts still tell you whether any PATH
-   lines can be updated. Nothing is edited. The report is a mechanical aid, not a completed audit: it
-   currently counts changed paths without accounting for citation overrides, and
-   skips the trial when pins already match. Run the checked build even then.
-5. **Re-verify and fix, one level at a time.** Follow
-   [`audit-site-claims`](../audit-site-claims/SKILL.md) for each level whose
-   report is not empty: every broken footnote, every footnote whose cited file
-   changed, and every GREEN/RED/PATH in the affected sections. Correct targets,
-   quotes and prose in `docs/matrix/<level>.md`. Respect the rules in
-   `docs/matrix/README.md`. A RED that the stable code has outrun becomes a
-   past-tense flag or a GREEN; a RED fixed only in a daily stays RED and its
-   PATH says so; a partial fix says what remains.
-6. **Move the pin.** Levels 1–4: edit the level's tag in the `LEVELS` table of
-   `scripts/build-matrix.py` to the stable tag. Level 5: write an OpenSpec
-   change under `openspec/changes/` listing each delta with its evidence; you
-   may then apply exactly the deltas it lists and no others. The operator
-   reviews the change before it is archived. See the level 5 rule in
-   `docs/matrix/README.md`.
-7. **Checked build must pass.** `skills/update-website/scripts/checked-build.sh`
-   → exit 0 and `ok:checked-build`. It fails on any unresolved target or drifted
-   quote of any level whose checkout is present.
-8. **Review non-level pages and record.** Check Home and Slides against the
-   newly verified levels; a summary cannot strengthen their claims. Review
-   Progress wording and append evidence for findings actually resolved; historical
-   findings are not automatically current defects. Keep an unmeasured score
-   explicitly unmeasured. Check navigation, slide count, fragment links and
-   generated HTML identifiers. Run `python3 scripts/issues.py validate` and
-   confirm a second checked build is byte-identical at the same git HEAD.
-   **Record and file.** Write `docs/audit/<YYYY-MM-DD>-<tag>.md` (see
-   `docs/audit/README.md`) and use [`file-issue`](../file-issue/SKILL.md) for ledger entries and
-   [`file-findings`](../file-findings/SKILL.md) for runtime issue drafts. Do not
-   claim upstream filing or live deployment verification without evidence.
-9. **Commit per level, then push.** One commit per level so the change trail
-   reads. A push to `main` is a deploy: Cloudflare publishes `var/html` on
-   commit. Confirm with `git log origin/main..main` empty before you exit; the
-   forge is ephemeral and an unpushed commit is destroyed with it.
+Edit only what an item names. Then run the command again: the levels you
+fixed now move. Commit when it prints `ok:refreshed:<tag>`.
 
-## What "complete" means
+The `review_queue` lists flags whose cited files changed. It never blocks a
+move. Work through it when you have time. When you have re-read a level's
+claims, append a `kind: review` fragment with `reviewed: {<slug>: <tag>}`
+(see `refresh.d/README.md`), so the page stops saying the claims are older
+than the pin.
 
-The audit's product is a table per level: footnotes total, re-verified, drifted
-and corrected, flags confirmed, flags flipped (with evidence), and the pin
-moved. Include the non-level surface inventory, changes, verification limits and
-retractions; keep older dated audits as history. The spec-versus-code question the operator actually asks — how much of
-what the pages advertise is implemented at this release — is answered by the
-feature and security tables in the dated audit record, one row per capability
-with `implemented | partial | spec-only | absent` and a citation.
+## 3. Refine: leave the next run better
 
-## Automation candidates
+Every run appends its fragment automatically. Add what you learned, one line
+per lesson, naming the page surface it improves:
 
-Ordered by value over effort. All shell, all already exercised by hand once.
+```
+release-refresh.sh --tag vX --learned 'progress:the snapshot now includes …'
+```
 
-1. **Weekly drift check (no edits).** Steps 1–4 as a scheduled run that opens
-   a report when the newest tag differs from any pin: which levels, how many
-   cited files changed, how many footnotes break. Cheap, zero risk, and it
-   turns "we should look at the site" into a number.
-2. **Post-release trigger.** Same report, fired when the runtime publishes a
-   release (the release workflow could ping this repo, or a cron polls tags).
-3. **Checked build as a pre-push gate.** Step 7 refusing the push when a quote
-   or target does not resolve for the pinned tag. This is the one that stops a
-   lie from deploying.
-4. **Agent-driven re-verification (steps 5–6).** An agent per level with the
-   `audit-site-claims` procedure, then a skeptic per level, then a human or a
-   second agent reads the diff. Needs a model; not free; the part that should
-   stay reviewed.
-5. **Level 5 proposal generator.** Step 6 for level 5 only: produce the
-   OpenSpec change with the exact deltas and evidence, and then exactly those
-   edits, nothing else.
+Or append a `distilled` fragment by hand. Never edit an old fragment: a
+correction is a new one. The `learned` entries become the "How this section
+has improved" notes on Live progress and CentiColons. A step that needed a
+person twice is a missing rule: add the rule to `anchors.py` or `refresh.py`,
+and record it with `--learned 'anchors:…'`.
+
+## 4. Commit and publish
+
+The pre-commit hook re-runs the checked build and refuses a stale
+`var/html/index.html`. Make one commit per level when a person changed
+claims, and one commit for the mechanical refresh. A push to `main` deploys
+(Cloudflare publishes `var/html`). Push only when the operator's flow says so.
+
+## What a green run does and does not claim
+
+A green run claims that every cited text exists verbatim at the new pin and
+that every metrics row replays from git. It does **not** claim that every RED
+is still the whole truth: a fix can land beside an unchanged quoted line. For
+that reason the footnote note of a level whose pin moved past its last review
+says so, and the dated audit in `docs/audit/` is still written by a person
+whenever claims are re-read.

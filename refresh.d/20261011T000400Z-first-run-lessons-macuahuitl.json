@@ -1,0 +1,17 @@
+{
+ "kind": "distilled",
+ "ts": "2026-10-11T00:04:00Z",
+ "host": "macuahuitl",
+ "note": "Lessons from building the refresh and from its first run, against v56.10.9.1. That run moved nothing, the checked build was green, and var/html/index.html was byte-identical across two runs.",
+ "learned": [
+  {"surfaces": ["anchors"], "evidence": "scripts/big_graph.py", "note": "Big Graph runtime citations carry no quote, so they can re-anchor only as an identical block of lines. Their short ranges (often a single line) are the most likely to come back ambiguous. Adding quotes would let the quote rule resolve them."},
+  {"surfaces": ["anchors"], "evidence": "scripts/build-matrix.py", "note": "The quickstart storyboard's source notes ('v56.10.9.1 README.md:154-156') are free text that is never rendered. No tool checks or re-anchors them. Converting them to rcite-style targets would bring them under the gate."},
+  {"surfaces": ["anchors"], "evidence": "scripts/anchors.py", "note": "A quoted citation whose quote is still inside its old range counts as ok, even when the lines around the quote changed. The v56.10.9.1 hand run re-spanned two of these (level 2 [^24], level 5 [^46]). The tool leaves them alone because the quote still verifies."},
+  {"surfaces": ["metrics"], "evidence": "docs/metrics/series.jsonl", "note": "The runtime's centicolon-dashboard.json is per CI run and mixes scopes (budgets 120 to 1250). It has not been regenerated since 2026-08-09. No committed R_t series exists, and no commit carries a Carried: trailer. Watch for a committed residual series or trailer and add an extractor when one appears."},
+  {"surfaces": ["metrics"], "evidence": "docs/metrics/series.jsonl", "note": "Two ratchet floors rose once each (shell-decider 667 to 668, jq-callsite 90 to 91). The table reports this instead of calling them monotone."}
+ ],
+ "next_run": [
+  "Metrics need a full runtime clone (--history); a shallow .repo is refused.",
+  "If the stable tag moved, expect Level 5 to produce a generated OpenSpec proposal until automated-release-refresh is archived."
+ ]
+}

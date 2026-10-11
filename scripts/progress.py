@@ -5,6 +5,7 @@ import pathlib
 import re
 
 import issues
+import metrics
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CATALOG = ROOT / "docs/progress/runtime-specs.json"
@@ -182,8 +183,10 @@ def render(site_ref):
             '“obsolete”, etc.) describes document lifecycle. See the '
             '<a href="https://github.com/8007342/tillandsias.org/blob/main/docs/audit/2026-09-24-v56.9.21.1.md" '
             'target="_blank" rel="noopener">stable audit</a> for checked capability limits.</p>'
+            '%s%s'
             '<label class="ledger-search-label" for="ledger-search">Find a spec, change or finding</label>'
             '<input id="ledger-search" class="ledger-search" type="search" autocomplete="off" '
             'placeholder="Search titles, IDs and summaries"><p class="ledger-results" id="ledger-results" aria-live="polite"></p>'
             '%s</div></section>' % (len(state), len(cols["green"]), len(catalog["specs"]),
-                                   len(archived), complete, "".join(sections)))
+                                   len(archived), complete, metrics.render(site_ref),
+                                   metrics.improvements_html("progress"), "".join(sections)))
