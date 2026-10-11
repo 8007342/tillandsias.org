@@ -47,10 +47,18 @@ For each callout (`GREEN`, `RED`, `PATH`, `PROVEN`, `PLAUSIBLE`, `REFUTED`):
    rows for the order ids the flag's footnotes point at. Record
    `true | fixed | partial | false | unverifiable` with evidence, and for
    anything but `true` a minimal rewrite in the page's voice. A fixed RED
-   becomes a past-tense flag or a GREEN; a partial fix says what remains; a
-   PATH that landed says so.
+   becomes a GREEN stating the present behaviour, or is dropped; the story of
+   the fix goes in the audit record, not on the page. A partial fix says what
+   remains; a PATH that landed says so; a PATH with no recorded remedy says
+   `No fix is planned yet.`
 
 6. List prose the cited source does not support.
+
+7. List every block that fails the reader rule in `docs/matrix/README.md`:
+   meta (how we write, how the project runs, how we verified), anecdote (the
+   history of a fix), or an internal identifier or plan status word in prose or
+   in a footnote label. Propose the plain rewrite, or where the text should
+   move. A limitation is never in this list: it is rewritten, not removed.
 
 Output shape (JSON, one object per level):
 
@@ -58,7 +66,8 @@ Output shape (JSON, one object per level):
 { "level": "level-3-power", "old": "v56.9.2.1", "new": "v56.9.5.1",
   "footnotes": [ { "n": 3, "verdict": "DRIFT", "old_target": "…", "new_target": "…", "quote": "…", "notes": "…" } ],
   "flags": [ { "kind": "RED", "excerpt": "first twelve words", "status_at_new": "fixed", "evidence": "path#L1-L2 + quote", "suggested_rewrite": "…" } ],
-  "prose_overreach": [ { "excerpt": "…", "why": "…", "suggested": "…", "evidence": "…" } ] }
+  "prose_overreach": [ { "excerpt": "…", "why": "…", "suggested": "…", "evidence": "…" } ],
+  "not_for_reader": [ { "excerpt": "…", "kind": "meta|anecdote|identifier", "suggested": "…", "moves_to": "…" } ] }
 ```
 
 ## Pass 2: refute

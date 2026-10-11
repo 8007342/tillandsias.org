@@ -33,11 +33,11 @@ Small on purpose. Anything not listed here is not supported.
 | `## Heading` / `### Sub` | section headings |
 | `- item` / `1. item` | bullets / numbered list |
 | `**bold**` `*italic*` `` `code` `` | inline emphasis |
-| `> GREEN: …` | ● *verified* — something checked against the source and working |
-| `> RED: …` | ● *shortcoming* — something incomplete, pending, wrong or overclaimed |
-| `> PATH: …` | → the recorded path to green for the RED above it |
+| `> GREEN: …` | ● *checked* — something checked against the source and working |
+| `> RED: …` | ● *known limitation* — something incomplete, pending, wrong or overclaimed |
+| `> PATH: …` | → *what happens next* — the recorded remedy for the RED above it |
 | `> PROVEN: …` | ✓ *shown* — an argument we can point at the code or a test for |
-| `> PLAUSIBLE: …` | ∼ *plausible* — an argument that sounds right and is not yet demonstrated |
+| `> PLAUSIBLE: …` | ∼ *not yet shown* — an argument that sounds right and is not yet demonstrated |
 | `> REFUTED: …` | ✗ *does not hold* — an argument we tried, and it failed |
 | `> NOTE: …` | a neutral aside |
 | `$x$` and `$$x$$` | inline / display maths, rendered by KaTeX |
@@ -55,12 +55,37 @@ and use them sparingly: a page that is all flags has stopped being prose.
 
 A footnote number in the text opens its source in a new tab; hovering it shows the
 label, the quote, and the target. The list at the foot of the level stays for
-completeness and for readers without a pointer.
+completeness and for readers without a pointer, collapsed under "How we know" so
+the evidence is one click away without standing between the reader and the page.
+The keyword on the left of the table is editor vocabulary; the word in italics is
+what the reader sees.
 
 ## Rules that are not style preferences
 
 - **Every `> RED:` is followed by a `> PATH:`.** If the repo records no remedy, the
-  PATH line says exactly `No path to green is recorded in the repo.` — after looking.
+  PATH line says `No fix is planned yet.` — after looking — optionally scoped to the
+  item it answers ("For the apex route, no fix is planned yet.").
+- **The reader is the end user at that level, never us.** Every block on a page —
+  sentence, flag, footnote label — must answer a question that page's reader has.
+  Three kinds of text fail that test and do not go on a page:
+  - *Meta rules*: how we write (the vocabulary a screen may use, RFC 2119 keyword
+    meanings, which flags a level may carry), how the project runs its process
+    (cadences, obligations to run a gate, budget rulings), and how we verify (what
+    an audit covered, how a tracking entry collects open items). They live here, in
+    `openspec/`, in `AGENTS.md` or in `skills/`.
+  - *Anecdote*: the history of how the project got here — who found a defect, on
+    what date an internal fix landed, which host measured something, what was
+    reverted before what. A fix the reader can now rely on is stated in the present
+    tense; the story of the fix is not.
+  - *Internal identifiers*: order and packet ids, pull request numbers, fragment
+    names, ledger rows. See the next rule.
+  A disclosed limitation is not anecdote: it stays, in the reader's words. What the
+  project tests about itself is reader material only where it changes what the
+  reader can trust about what they install.
+- **Footnote labels are for the reader too.** A label says what the cited lines
+  show, in the page's words; status vocabulary from the plan ("ready", "packet",
+  "row", "ruling") is translated ("planned, not started", "open defect",
+  "decision").
 - **No internal identifiers in prose.** A reader does not know what `755-qcxh` is.
   State the substance in a sentence they could repeat out loud; the identifier lives
   in the footnote target and nowhere else.
@@ -109,6 +134,6 @@ loads no external images, so the drawings are hand-authored inline SVG in
 ## Figures
 
 `layers`, `loop`, `staircase`, `lln`, `lattice`, `crdt`, `gate`, `ephemeral`,
-`fixpoint`, `galois`, `hasse` — defined as inline SVG in `scripts/figures.py`, drawn
+`fixpoint`, `galois`, `hasse`, `append-fold`, `commit-dag`, `lamport-exchange` — defined as inline SVG in `scripts/figures.py`, drawn
 with the page's own CSS variables so they carry one idea each and need no second
 palette.

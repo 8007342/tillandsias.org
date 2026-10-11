@@ -8,70 +8,49 @@ The reason a grown-up wants one is narrower than "the cloud, but at home". Softw
 
 ## Is my stuff private, and who could see it?
 
-The people who make Tillandsias operate no servers your copy talks to: no account, no sign-up, no usage tracking, no crash reporting, no identifier attached to you or your machine.[^2] Your logs stay on your own disk where you can read them, and leave only if you send them somewhere yourself. Any login you hand over goes into a secret store on your own machine — the project's own vault, whose key sits in your operating system's keychain, or on some hosts in a local file — never on anyone else's server.[^3][^16]
+The people who make Tillandsias operate no servers your copy talks to: no account, no sign-up, no usage tracking, no crash reporting, no identifier attached to you or your machine.[^2] Your logs stay on your own disk where you can read them, and leave only if you send them somewhere yourself. Any login you hand over goes into a secret store on your own machine — the program's own vault, whose key sits in your operating system's keychain, or on some computers in a local file — never on anyone else's server.[^3][^16]
 
-> GREEN: The privacy claim does not rest on anyone's intentions. There is no server of theirs to send anything to, so there is no decision to trust and none to reverse.[^2] It covers their side only — a service you sign into yourself still sees what you tell it.
+This does not depend on trusting anyone's intentions: there is no server of theirs to send anything to.[^2] It covers their side only. A service you sign into yourself still sees what you tell it.[^18]
 
 ## Does it cost money? Does it need the internet?
 
 It costs nothing: free software under a licence that lets anyone read, run, modify and pass it on.[^4] You have already paid for the only hardware involved.
 
-The internet is needed only for ordinary, visible reasons: fetching the program, fetching updates, reaching a service you chose.[^17] Local work can continue without sending it to an AI provider: language models can run on your own machine.[^18] That does not make every action offline-ready. Fetching a missing tool or model needs a connection, and a push configured for GitHub fails when its upstream cannot be reached.[^31]
+The internet is needed only for ordinary, visible reasons: fetching the program, fetching updates, reaching a service you chose.[^17] Local work can continue without sending it to an AI provider: language models can run on your own machine.[^18] That does not make every action offline-ready. Fetching a missing tool or model needs a connection, and publishing your work to GitHub fails when GitHub cannot be reached.[^31]
 
 ## What happens when I turn it off? Can it break my computer?
 
-Turning it off is the expected motion, not an interruption. Anything you saved is a real file on your real disk, untouched by the rebuild. Even the internal secrets the pieces use to talk to each other are re-registered at every start, so yesterday's messy shutdown cannot jam today's start.[^5]
+Turning it off is the expected motion, not an interruption. Anything you saved is a real file on your real disk, untouched by the rebuild. Even the internal passwords the pieces use to talk to each other are replaced at every start, so yesterday's messy shutdown cannot jam today's start.[^5]
 
-> NOTE: Installing a new release is a larger change than stopping the program. The current Linux, Mac and Windows installers run a local-state reset and reprovision by default.[^36][^37][^38] On Linux the reset is a soft one: it rebuilds the containers and images but deletes no stored data; your downloads survive, and so do your sign-ins as long as the keyring can still unlock them.[^39] The Windows installer runs the same soft reset without announcing it.[^38][^40] The Linux and Mac installers announce the reset; set `TILLANDSIAS_DESTRUCTIVE_RESET_OK=0` before installing if you need to skip its destructive half.[^37]
+Installing a new release is a bigger change than turning it off: the Linux, Mac and Windows installers all reset the program's own working state and set it up again.[^36][^37][^38] On Linux this reset is gentle: it rebuilds the program's parts but deletes none of your stored data, so your downloads survive, and so do your sign-ins as long as your keychain can still unlock them.[^39] Windows runs the same gentle reset without telling you first.[^38][^40] The Linux and Mac installers tell you before they reset; to skip the part that deletes things, set `TILLANDSIAS_DESTRUCTIVE_RESET_OK=0` before installing.[^37]
 
-> RED: The Mac is the exception to "soft". As the code reads at this release, the Mac reset still deletes the saved vault keys and the secret store, although the project's own specification says every platform's reset must keep them.[^41][^42]
-> PATH: A rewrite that makes the Mac reset soft is in review as pull request #281 on GitHub. It is not in any release yet, so this stays red until a stable release carries it.
+> RED: On a Mac the reset is not gentle yet. It still deletes your saved vault keys and the secret store, although the project's own rules say every platform's reset must keep them.[^41][^42]
+> PATH: A fix is being written. It is not in any release yet.
 
-> GREEN: That is written down as a required behaviour with named cases — the unclean shutdown among them — not left to the habits of whoever wrote the code.[^5]
+Publishing your work follows the same idea. Inside the sealed room you push to a copy that lives on your own machine, not to the internet. That copy passes your work on and waits: it reports success only once the copy outside has really accepted the same changes, so a success you can see is one that survives the room being thrown away.[^32] It is also the only part that holds your GitHub login — it uses it when it publishes, and never hands it to the room where your tools run.[^33]
 
-Publishing your work has a rule that fits the same idea. Inside the sealed room you push to a mirror that lives on your own machine, not to the internet. The mirror passes the push onward and waits: it reports success only once the copy outside has durably accepted the same set of changes, so a success you can see is one that survives the room being thrown away.[^32] The mirror is also the only part that holds the credential for the outside service — it reads it when it pushes, and it never hands it to the room where your tools run.[^33]
+As for damage: a misbehaving tool inside the sealed room sees only the folder you gave it.[^1] Wiping the installation and rebuilding is documented and supported, not a last resort.[^6] The cost you do pay is ordinary and reversible. It is a real virtual machine, so it holds real memory while running and gives it back when it stops. The system image it downloaded stays on your disk so the next start is quick; uninstalling clears it, though on a Mac you have to ask for that explicitly, and the uninstaller makes you type a confirmation first.[^20][^30][^43]
 
-As for damage: a misbehaving tool inside the sealed room sees only the folder you gave it.[^1] Wiping the installation and rebuilding is documented and supported, not a last resort.[^6] The cost you do pay is ordinary and reversible — it is a real virtual machine, so it holds real memory while running and gives it back when it stops. The system image it downloaded stays cached on your disk so the next start is quick; uninstalling clears it, though on a Mac you have to ask for that explicitly, and the uninstaller makes you type a confirmation first.[^20][^30][^43]
-
-## Sharpening one thing you were told
+## Will an update break what already works?
 
 @fig:staircase
 
-You were told they check that nothing got worse. Precisely: the project's stated objective is that the measured gap between what it specifies and what it builds must not grow,[^7][^21] and its build gate refuses a change that points at a specification that does not exist, or that adds a new failing test — a machine's verdict, not a person's.[^22][^23]
+Each change to Tillandsias has to pass its tests, and a machine refuses a change that makes a test fail that was not already known to fail.[^23]
 
-Two honest limits follow, in the project's own words. Passing tests are *evidence, not proof* — they show no contradiction was found, not that none exists.[^8] And "never worse" means settling toward some floor, not that the floor is zero; the stronger mathematical result that would guarantee zero is explicitly not claimed.[^9]
-
-## Lots of small maps, one destination
-
-An AI does not swallow a repository as one magic answer. It is given selected
-source, rules and a request; it suggests a small change; then people and tests
-decide whether to keep that change. Think of the selected material as a map, not
-as every file turned literally into a vector. The next job starts from the newly
-saved repository, so it can use what the earlier job learned.
-
-Different jobs have different nearby destinations: a security repair, a clearer
-screen, or a working installer. They all share the larger destination of matching
-what the project promised. We can measure particular gaps and refuse a known
-regression,[^7][^21] but a row of successful changes is not proof that the whole
-journey reaches perfection.[^8][^9]
+Two honest limits come with that. Passing tests are *evidence, not proof*: they show no problem was found, not that none exists.[^8] And "never worse" means settling toward some floor, not that the floor is zero problems.[^9]
 
 ## Where it falls short today
 
-> RED: On Macs, the application has not yet passed Apple's inspection service, so a copy downloaded with a web browser is blocked on first launch; the recommended one-line install sidesteps that only by not going through a browser.[^10]
-> PATH: The fix — an Apple Developer identity and notarization — is written up and costed.[^11] The build script is already wired: hand it the signing identity and notary credentials and it notarizes.[^24] The release workflow has not yet been given them, and enrolment is still pending.[^25][^10]
+> RED: On a Mac, the app has not yet passed Apple's inspection, so a copy downloaded with a web browser is blocked the first time you open it. The recommended one-line install avoids that only because it does not go through a browser.[^10]
+> PATH: The fix needs a paid Apple developer membership, which is still pending.[^10][^11] The build is already able to do the inspection step once it has those credentials.[^24]
 
-> RED: One Windows package in a past release went out without its signature, which makes it not merely warned-about but impossible to install, with no user-side workaround.[^12]
-> PATH: That one package is now withheld from a release whenever it is unsigned;[^26] the other Windows downloads still publish unsigned, with the only warning in the build log,[^27] and the signing route has been chosen but not yet put in place.[^13]
+> RED: The Windows downloads are not signed yet.[^27] One kind of Windows installer package cannot be installed at all without a signature, so it is left out of a release until signing is in place.[^12][^26]
+> PATH: The signing service has been chosen but is not set up yet.[^13]
 
-> NOTE: A built-in "expert" feature once gave confident answers with no sources at all: it described a careful research procedure, did not run it, returned an empty citation list, and stamped its own output verified anyway.[^14]
-> GREEN: It was switched off and replaced: the shipped configuration now points the assistant at a grounded service that either cites the sources it actually used or plainly refuses.[^28] The replacement was checked live on 2026-09-02 and is now in the stable release.[^29] One limit remains below.
+> RED: The Linux program shows a version number but not the exact source it was built from, so two builds with the same number cannot be told apart.[^34][^35]
+> PATH: It is recorded as an open problem in this release.[^35]
 
-> RED: The Linux launcher prints a version number baked in when it was compiled, but carries no build commit to identify its exact source snapshot.[^34][^35]
-> PATH: The Linux launcher still has no build commit or dirty-tree marker; the runtime records that as an open item in the stable release.[^35]
-
-> GREEN: The replacement’s small scripting layer was rebuilt and tested on both the Mac and Windows build lanes on 17 September 2026.[^15] The Windows run used Visual Studio’s C toolchain; an MSYS host without it remains untested.
-
-Two install problems and one feature that once promised more than it delivered and has since been replaced. None touch the privacy story, and all three are here because the project's own checking found them.
+None of these touch the privacy answer above.
 
 ## Footnotes
 
@@ -83,29 +62,23 @@ Two install problems and one feature that once promised more than it delivered a
     > **Credentials you provide** (for example, a GitHub login you initiate) are stored in a local secret store on your machine.
 [^4]: GNU General Public License, version 3 | LICENSE#L1-L2
     > GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
-[^5]: Internal secrets are removed and reissued at every start, so an unclean shutdown leaves nothing stale | openspec/specs/ephemeral-secret-refresh/spec.md#L10-L25
+[^5]: Internal passwords are removed and reissued at every start, so an unclean shutdown leaves nothing stale | openspec/specs/ephemeral-secret-refresh/spec.md#L10-L25
     > The system SHALL check for existing podman secrets before creation. If a secret exists from a prior unclean shutdown, it SHALL be removed and recreated with fresh content.
 [^6]: "Designed to be wiped and rebuilt freely" | PRIVACY.md#L46-L47
     > You can remove all of it at any time by resetting or uninstalling; the application is designed to be wiped and rebuilt freely.
-[^7]: The convergence objective: minimise the measured distance between specification, code and reality | methodology/convergence.yaml#L2-L8
-    > objective: | Minimize: Δ(spec ↔ code) + Δ(code ↔ cheatsheet) + Δ(cheatsheet ↔ reality) + Δ(litmus_binding ↔ spec)
-[^8]: Evidence boundaries — traceability and passing tests are evidence, not proof of correctness | methodology/philosophy.yaml#L249-L252
+[^8]: Passing tests are evidence, not proof that the program is correct | methodology/philosophy.yaml#L249-L252
     > Traceability, version matching, litmus success, and CRDT metadata convergence are evidence. They are not proof of semantic correctness by themselves.
-[^9]: The stronger contraction result is explicitly not claimed | methodology/math-foundations.yaml#L107-L120
+[^9]: The project does not claim it will reach zero problems | methodology/math-foundations.yaml#L107-L120
     > The methodology does not currently claim Banach-style contraction. It can report decreasing residuals, but it has not proven a contraction constant over a complete metric space of project states.
-[^10]: Install instructions warning that a browser download hits a Gatekeeper block on first launch | README.md#L27-L45
+[^10]: The install instructions: a Mac download through a browser is blocked on first launch | README.md#L27-L45
     > Tillandsias is signed but not yet notarized (Apple Developer enrollment is pending), and macOS tags anything a *browser* downloads with `com.apple.quarantine` — so the .dmg route hits a Gatekeeper block on first launch, while `curl` does not tag at all and the app opens normally.
-[^11]: Recorded options and costs for Apple signing and notarization: which steps need paid membership | plan/issues/macos-gatekeeper-signing-options-2026-08-29.md#L39-L48
+[^11]: Apple signing and inspection options, and which steps need a paid membership | plan/issues/macos-gatekeeper-signing-options-2026-08-29.md#L39-L48
     > | Developer ID Application certificate | **Yes** — no free-tier equivalent.
-[^12]: The unsigned Windows package is uninstallable, with no user-side workaround | plan/issues/store-msix-submission-blockers-2026-08-31.md#L26-L40
+[^12]: An unsigned Windows installer package of this kind cannot be installed | plan/issues/store-msix-submission-blockers-2026-08-31.md#L26-L40
     > **Consequence for the pending signing decision.** The unsigned MSIX (`0x800B0100`, packet 722-w7a2) blocks the **GitHub-release** channel only. It does not block the Store channel at all.
-[^13]: The chosen signing route for the Windows release channel | plan/issues/windows-signing-research-2026-08-16.md#L1-L25
+[^13]: The signing service chosen for the Windows downloads | plan/issues/windows-signing-research-2026-08-16.md#L1-L25
     > **SignPath Foundation is the signing path for the GitHub-release channel.** Packet 722-w7a2 is reshaped, not closed: its deliverable changes from "an Azure Trusted Signing account" to the SignPath Foundation chain, with Azure **Artifact Signing** as the recorded fallback.
-[^14]: Audit of the shipped "local expert" facade: answers stamped valid with no retrieval and no citations | openspec/changes/archive/expert-serve-grounded-pipeline-completed-2026-09-22/proposal.md#L9-L10
-    > The `pipeline` CLI arm did no retrieval and no validation, yet stamped every response `validated: true` with `confidence: 0.5` and `citations: []`
-[^15]: Mac and Windows portability runs, and the remaining toolchain limit | openspec/changes/archive/expert-serve-grounded-pipeline-completed-2026-09-22/tasks.md#L53-L55
-    > BOTH LANES REPORTED 2026-09-17, 7/7 lua_runtime each, both from a forced `cargo clean -p mlua-sys` rebuild rather than a cached artifact.
-[^16]: Where no OS keyring is available, the key that unlocks the local vault falls back to a local file | crates/tillandsias-headless/src/vault_bootstrap.rs#L2943-L2943
+[^16]: Where no keychain is available, the vault's key falls back to a local file | crates/tillandsias-headless/src/vault_bootstrap.rs#L2943-L2943
     > Fallback: file (populated by keychain_set_blocking when keyring unavailable,
 [^17]: Software sources — package repositories and release downloads, reached at your direction | PRIVACY.md#L51-L56
     > **Software sources** — package repositories and release downloads (for example GitHub, Linux distribution mirrors, and language package registries) to fetch the software it runs.
@@ -113,57 +86,42 @@ Two install problems and one feature that once promised more than it delivered a
     > **AI providers, only if you configure one.** Tillandsias can run language models entirely on your own machine. If you instead configure a remote provider, the content you send is transmitted to that provider under their terms.
 [^20]: The downloaded system image is cached on the host between runs | openspec/specs/vm-provisioning-lifecycle/spec.md#L48-L51
     > cached at `~/.local/share/tillandsias/rootfs-fedora-44-<sha256>.tar.xz` (on macOS: `~/Library/Application Support/tillandsias/rootfs-…`; on Windows: `%LOCALAPPDATA%\tillandsias\rootfs-…`).
-[^21]: The rule that convergence is monotonic: once achieved, divergence must be detectable | methodology/convergence.yaml#L56-L58
-    > - Convergence is monotonic under normal operation: once achieved, divergence must be detectable
-[^22]: The build's trace ratchet: a new reference to a specification that does not exist fails the build | build.sh#L1639-L1639
-    > The ratchet fails in BOTH directions: a new ghost, or a baseline entry
-[^23]: The build's test verdict is a ratchet: a failure not on the known list is a new regression | build.sh#L2451-L2451
+[^23]: The test verdict: a failure not already on the known-failing list is refused as new | build.sh#L2451-L2451
     > THE VERDICT IS A RATCHET, NOT CARGO'S EXIT CODE.
-[^24]: The build script notarizes and staples when given a signing identity and the notary credentials | scripts/build-macos-tray.sh#L267-L290
+[^24]: The Mac build inspects and seals the app when given Apple's credentials | scripts/build-macos-tray.sh#L267-L290
     > say "notarize: submitting (this waits for Apple's verdict)"
-[^25]: The release workflow runs the macOS build script with no credentials handed to it | .github/workflows/release.yml#L521-L521
-    > run: scripts/build-macos-tray.sh
-[^26]: The unsigned Windows installer package is withheld from a release rather than shipped uninstallable | .github/workflows/release.yml#L751-L751
+[^26]: That installer package is left out of a release when it is unsigned | .github/workflows/release.yml#L751-L751
     > ::warning::withholding unsigned MSIX from release assets: $($_.Name) (uninstallable without a signature; set TILLANDSIAS_SIGNING_ACCOUNT to publish it)
-[^27]: The other Windows downloads still publish unsigned, with a warning in the build log | .github/workflows/release.yml#L740-L740
+[^27]: The other Windows downloads are published unsigned | .github/workflows/release.yml#L740-L740
     > ::warning::TILLANDSIAS_SIGNING_ACCOUNT is unset — publishing UNSIGNED Windows artifacts (plan packet 722-w7a2)
-[^28]: The shipped assistant configuration points at the grounded expert service: citations kept only if used, typed refusals otherwise | images/default/config-overlay/opencode/config.json#L18-L30
-    > "description": "Grounded local experts: retrieval from the published spec index, citations kept only if used, typed unsupported: refusals — served by tillandsias-plan expert-serve beside the MCP servers (order 920-pxg6).",
-[^29]: The live end-to-end check of the replacement, recorded 2026-09-02 in the daily channel | openspec/changes/archive/expert-serve-grounded-pipeline-completed-2026-09-22/tasks.md#L93-L94
-    > 5.10 Live OpenCode session verification against a running expert-serve — DONE on macuahuitl-tillandsias-forge 2026-09-02
 [^30]: Uninstalling removes the cached image, except on macOS where it is preserved unless you ask for a full wipe | scripts/uninstall.sh#L228-L228
     > Preserving the VM image in $DATA_DIR (use --wipe to remove it).
-
-[^31]: A failed upstream push is refused without partially updating refs | openspec/specs/git-mirror-service/spec.md#L225-L230
+[^31]: A publish that cannot reach GitHub fails instead of half-succeeding | openspec/specs/git-mirror-service/spec.md#L225-L230
     > the forge's `git push` SHALL return non-zero
-
-[^32]: A client's success means the upstream durably accepted the same refs | images/git/pre-receive-hook.sh#L6-L8
+[^32]: Success means the faraway copy really accepted the same changes | images/git/pre-receive-hook.sh#L6-L8
     > Validates ledger YAML, then synchronously relays the proposed ref transaction
     > upstream before accepting it locally. A client success therefore means the
     > configured upstream has durably accepted the same atomic ref set.
-[^33]: The upstream token is read by the git service and never enters a workspace container | openspec/specs/git-mirror-service/spec.md#L15-L16
+[^33]: The GitHub login is read by the publishing service and never enters a workspace | openspec/specs/git-mirror-service/spec.md#L15-L16
     > The git service reads the GitHub token from Vault at
     > push time via Vault CLI; the token never crosses into a forge container.
-
-[^34]: The version shown is the version file as it stood when the program was compiled | crates/tillandsias-headless/src/main.rs#L161-L161
+[^34]: The version shown is the one written into the program when it was built | crates/tillandsias-headless/src/main.rs#L161-L161
     > pub(crate) const VERSION: &str = include_str!("../../../VERSION");
-[^35]: The stable runtime finding is specifically about the Linux launcher | plan/index.d/20260914t185710z-1188-mm9y-installed-launcher-has-no-provenance-lenovinha.yaml#L27-L43
+[^35]: The open problem: the Linux program records no build commit | plan/index.d/20260914t185710z-1188-mm9y-installed-launcher-has-no-provenance-lenovinha.yaml#L27-L43
     > the Linux launcher has no build.rs reading it.
-
-[^36]: Linux installer announces and runs the reset command | scripts/install.sh#L340-L340
+[^36]: The Linux installer runs the reset | scripts/install.sh#L340-L340
     > "$INSTALL_PATH" --reset-state --debug
-[^37]: Mac installer runs the reset and says the opt-out skips the destruction | scripts/install-macos.sh#L290-L290
+[^37]: The Mac installer runs the reset, and the setting that skips its deleting part | scripts/install-macos.sh#L290-L290
     > TILLANDSIAS_DESTRUCTIVE_RESET_OK=0 skips the destruction
-[^38]: Windows installer runs the reset quietly, with no announcement and no prompt | scripts/install-windows.ps1#L968-L968
+[^38]: The Windows installer runs the reset without asking | scripts/install-windows.ps1#L968-L968
     > --reset-state < NUL
-
-[^39]: The Linux reset is a soft one: derived state only, no store deleted | crates/tillandsias-headless/src/main.rs#L10474-L10490
+[^39]: The Linux reset rebuilds the program's parts and deletes no stored data | crates/tillandsias-headless/src/main.rs#L10474-L10490
     > A SOFT reset destroys DERIVED state only and deletes NO store under any
-[^40]: The Windows installer's rule: the soft reset is the default only, with no prompt | scripts/install-windows.ps1#L951-L952
+[^40]: The Windows installer's rule: the gentle reset, with no prompt | scripts/install-windows.ps1#L951-L952
     > So SOFT reset is the default only and forever.
-[^41]: The Mac reset body deletes the saved vault keys and then the vault data | crates/tillandsias-macos-tray/src/reset_state.rs#L286-L292
+[^41]: The Mac reset deletes the saved vault keys and the vault data | crates/tillandsias-macos-tray/src/reset_state.rs#L286-L292
     > remove_path(&cache_root.join("vault-data"))?;
-[^42]: The specification: the reset on every platform must be soft and delete no operator data | openspec/specs/host-state-lifecycle/spec.md#L180-L182
+[^42]: The project's rule: every platform's reset must keep your data | openspec/specs/host-state-lifecycle/spec.md#L180-L182
     > `--reset-state` on every platform SHALL be a SOFT reset: it destroys every item of derived state and SHALL NOT remove, move or rewrite any item of operator data.
 [^43]: The uninstaller asks for a typed confirmation and refuses without a terminal | scripts/uninstall.sh#L184-L185
     > Type \"delete\" to uninstall, or press Enter to cancel:
