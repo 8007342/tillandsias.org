@@ -404,7 +404,7 @@ def _panel(i, title, note, axis, lines, vmax, dots=(), vmin=0, shown=None):
             last = pts[-1]
         if last:
             tail = segs[-1][-1]
-            when = "" if name != "cc_residual" else " (last measured %s)" % tail["t"][5:10]
+            when = "" if name != "cc_residual" else datetime.strptime(tail["t"][:10], "%Y-%m-%d").strftime(" (%b %-d)")
             labels.append([last[1] + 4, "%s %s%s" % ("{:,}".format(shown(tail)), label, when)])
     # Direct labels never overlap: push each one below the one above it.
     labels.sort()
@@ -460,7 +460,7 @@ def render_chart(data, t_ref, milestones):
     ticks.append('<text class="mx-xl" x="%d" y="%d">%s</text>' % (PAD_L, bottom + 32, first))
     ticks.append('<text class="mx-xl" x="%d" y="%d" text-anchor="end">%s</text>'
                  % (W - PAD_R, bottom + 32, datetime.fromtimestamp(t_ref, timezone.utc).strftime("%Y-%m-%d")))
-    marks, last_x = [], -999
+    marks, last_x, last_w = [], -999, 0
     for m in sorted(milestones, key=lambda r: r["t"]):
         x = axis.x(ts(m["t"]))
         cls = "mx-ms mx-ms-%s" % m["kind"]
@@ -468,10 +468,11 @@ def render_chart(data, t_ref, milestones):
         marks.append('<line class="%s" x1="%.1f" x2="%.1f" y1="%d" y2="%d"><title>%s, %s</title></line>'
                      % (cls, x, x, 18, bottom, html.escape(tip), m["t"][:10]))
         # Labels only where they fit; every marker keeps its tooltip.
-        if x - last_x > 6.2 * len(text) + 8:
+        w = 6.2 * len(text)
+        if x - last_x > (w + last_w) / 2 + 8:
             marks.append('<text class="mx-msl" x="%.1f" y="14" text-anchor="middle">%s</text>'
                          % (x, html.escape(text)))
-            last_x = x
+            last_x, last_w = x, w
     h = bottom + 44
     return ('<svg class="mx-svg" viewBox="0 0 %d %d" role="img" aria-labelledby="mx-cap">%s%s%s</svg>'
             % (W, h, "".join(marks), "".join(panels), "".join(ticks)))
