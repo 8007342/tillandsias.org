@@ -1137,11 +1137,16 @@ crowd of agents on a crowd of machines needs in order to agree.
 """
     body = (body.replace("@@LAMPORT@@", figures.FIGURES["lamport-exchange"])
                 .replace("@@DAG@@", figures.FIGURES["commit-dag"]))
+    art = ('<div class="pageart" role="img" aria-label="Tlatoāni and a friend puzzle over a table '
+           'covered in clocks that all disagree, with message arrows between them">'
+           '<img class="pageart-img" src="assets/lamport-clocks-table.webp" alt="">'
+           '<span class="pageart-vignette" aria-hidden="true"></span></div>')
     return ('<section class="view" id="view-lamport" role="tabpanel" aria-labelledby="nav-lamport">'
             '<div class="wrap">'
             '<h2 class="view-h">Computers don&rsquo;t understand time</h2>'
             '<p class="view-lede">Why machines count instead of telling the time, and why a git '
             'history is already the clock you wanted.</p>'
+            + art +
             '<div class="prose" style="margin:28px 0 56px;">'
             + body +
             '</div>'
