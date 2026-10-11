@@ -22,6 +22,7 @@ import issues  # noqa: E402
 import slides  # noqa: E402
 import progress  # noqa: E402
 import big_graph  # noqa: E402
+import metrics  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "docs" / "matrix"
@@ -244,6 +245,22 @@ def check_target(level, ref, target, quote):
         q = norm(quote)
         if q not in norm("\n".join(cited)) and q not in norm_source(cited):
             broken_links.append((level, target, "quote not found in the cited range"))
+
+
+# Runtime links in site prose are written `rcite("path#Lx-Ly", "label")` inside
+# the page's HTML strings. They resolve against the site-wide pin, are checked
+# like footnotes, and are re-anchored by content when the pin moves
+# (scripts/anchors.py). An `@vTAG` suffix holds one at the release it was
+# verified at, when its text could not be found again at the new pin.
+RCITE = re.compile(r'rcite\("([^"]+)", "([^"]+)"\)')
+
+
+def rcite(target, label, where):
+    target, _, own = target.partition("@")
+    ref = own or SITE_REF
+    check_target(where, ref, target, "")
+    url, _ = footnote_url(target, ref)
+    return '<a href="%s">%s</a>' % (html.escape(url, quote=True), label)
 
 
 def footnote_url(target, ref):
@@ -662,18 +679,18 @@ tested. A green test file alone is not enough. Under a fixed scope and scoring p
 <b>residual (R)</b> records what has not reached its evidence bar. Zero means those declared bars are met,
 not that every possible defect is absent.</p>
 
-<p><b>At stable v56.10.9.1:</b> Lua extracts scenario/requirement obligations and grades recorded
-positive-test results. The <a href="https://github.com/8007342/tillandsias/blob/v56.10.9.1/scripts/lua/centicolon-grade-observed.lua#L38-L105">grader</a>
+<p><b>At stable @@SITE_REF@@:</b> Lua extracts scenario/requirement obligations and grades recorded
+positive-test results. The rcite("scripts/lua/centicolon-grade-observed.lua#L38-L105", "grader")
 still has assertion, implementation-provenance and platform-attribution gaps; its residual is a raw count,
 not the full weighted policy below. The
-<a href="https://github.com/8007342/tillandsias/blob/v56.10.9.1/scripts/lua/check-centicolon-ratchet.lua#L4-L138">regression check is advisory</a>,
+rcite("scripts/lua/check-centicolon-ratchet.lua#L4-L138", "regression check is advisory"),
 not enforced. Lua makes the metric executable; it does not by itself complete the methodology&rsquo;s guarantee.</p>
 
 <h3>What a CentiColon counts</h3>
 
 <p>The following is a <b>simplified binary weighted model</b>, not a claim that the entire policy is shipped.
 Its base weights come from the
-<a href="https://github.com/8007342/tillandsias/blob/v56.10.9.1/methodology/proximity.yaml#L27-L135">methodology</a>,
+rcite("methodology/proximity.yaml#L27-L135", "methodology"),
 which also declares modifiers, partial evidence credits, caps and penalties omitted from this example.
 Every auditable
 thing the project commits to&mdash;a <code>must</code> requirement, a systemic invariant, a positive or
@@ -796,6 +813,9 @@ the strict-progress premise of a termination proof.</p>
     for key, name in (("@@POS@@", "cc-positional"), ("@@TACT@@", "cc-tactical"),
                       ("@@BTN@@", "cc-spec-button")):
         body = body.replace(key, figures.FIGURES[name])
+    body = body.replace("@@SITE_REF@@", SITE_REF)
+    body = RCITE.sub(lambda m: rcite(m.group(1), m.group(2), "centicolons"), body)
+    body += metrics.centicolon_status(SITE_REF)
     art = ('<div class="pageart" role="img" aria-label="A chess game: Tlatoāni facing Mācron across the board">'
            '<img class="pageart-img" src="assets/chess-tlatoni-vs-macron.png" alt="">'
            '<span class="pageart-vignette" aria-hidden="true"></span></div>')
@@ -878,6 +898,9 @@ def slides_view():
             % ("".join(slides_html), len(slides.SLIDES), len(slides.SLIDES)))
 
 
+REVIEWED = metrics.reviewed_at()
+
+
 def build():
     panels, tabs = [], []
     for idx, (slug, title, blurb, cont, ref, plant) in enumerate(LEVELS):
@@ -924,13 +947,19 @@ def build():
                     'rel="noopener">%s<span class="ext" aria-hidden="true">&#8599;</span></a>%s%s</span></li>'
                     % (slug, n, slug, n, n, html.escape(label), url, html.escape(shown), tag, q))
             quoted = sum(1 for v in notes.values() if v[2])
+            # A pin moved by the release refresh re-anchors citations, not
+            # judgement: say which release a person last read the claims at.
+            seen = REVIEWED.get(slug)
+            review = ("" if not seen or seen == ref else
+                      ' The citations were re-anchored to <code>%s</code> automatically; a person '
+                      'last reviewed the claims themselves against <code>%s</code>.' % (ref, seen))
             fn_html = ('<section class="footnotes"><h3>Footnotes</h3>'
                        '<p class="fn-note">Every link points at release <code>%s</code> of the '
                        'source repository, so line numbers match the text above; a link marked '
                        'with its own release tag points at that newer release instead. A footnote '
                        'number in the text opens its source in a new tab; hover it for the '
-                       'quoted lines.</p>'
-                       '<ol class="fn-list">%s</ol></section>' % (ref, "".join(rows)))
+                       'quoted lines.%s</p>'
+                       '<ol class="fn-list">%s</ol></section>' % (ref, review, "".join(rows)))
             cited = {ref} | {v[3] for v in notes.values() if v[3]}
             missing = sorted(r for r in cited if clone_for(r) is None)
             state = ("unchecked at " + ", ".join(sorted(cited)) if len(missing) == len(cited)
@@ -971,7 +1000,7 @@ def build():
            .replace("__PROGRESS__", progress.render(SITE_REF))
            .replace("__CENTICOLONS__", centicolons_view())
            .replace("__BIG_GRAPH__", big_graph.render(SITE_REF))
-           .replace("__BIG_GRAPH_CSS__", big_graph.CSS)
+           .replace("__BIG_GRAPH_CSS__", big_graph.CSS + metrics.CSS)
            .replace("__BIG_GRAPH_JS__", big_graph.JS)
            .replace("__SLIDES__", slides_view())
            .replace("__TABS__", "\n".join(tabs))
