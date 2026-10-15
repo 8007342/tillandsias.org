@@ -1354,9 +1354,12 @@ body.is-graphing footer{display:none}
 <section class="view" id="view-install" role="tabpanel" aria-labelledby="nav-install"><div class="wrap"><h2 class="view-h">I want it!</h2><p class="view-lede">One line in a terminal, one photo, one GitHub app, one prompt.</p><div class="qs" id="quickstart"><input class="sr" type="radio" name="qs-os" id="qs-linux" value="linux" checked><input class="sr" type="radio" name="qs-os" id="qs-macos" value="macos"><input class="sr" type="radio" name="qs-os" id="qs-windows" value="windows"><div class="qs-os" role="group" aria-label="Your system"><label for="qs-linux">Linux</label><label for="qs-macos">macOS</label><label for="qs-windows">Windows</label></div><div class="install-strip"><div class="install" aria-label="Install"><div class="ins-row" data-os="linux"><span class="ins-os">Linux</span><span class="ins-box"><input readonly value="curl -fSsL https://tillandsias.org/install.sh | bash" aria-label="Linux install command" spellcheck="false"><button class="ins-copy" type="button" title="Copy">Copy</button></span></div><div class="ins-row" data-os="macos"><span class="ins-os">macOS</span><span class="ins-box"><input readonly value="curl -fSsL https://tillandsias.org/install-macos.sh | bash" aria-label="macOS install command" spellcheck="false"><button class="ins-copy" type="button" title="Copy">Copy</button></span></div><div class="ins-row" data-os="windows"><span class="ins-os">Windows</span><span class="ins-box"><input readonly value="irm https://tillandsias.org/install.ps1 | iex" aria-label="Windows install command" spellcheck="false"><button class="ins-copy" type="button" title="Copy">Copy</button></span></div><p class="ins-note">Each line fetches a short script from this site, which
 resolves the <strong>latest stable release</strong> on GitHub and runs that
 release&#8217;s own installer. Stable moves only when a daily build is
-promoted, so it normally trails the newest code. The scripts here are not
-rebuilt when the app releases; they look the release up every time they
-run. Current installers reset local application state and reprovision by
+promoted, so it normally trails the newest code. When this page was last
+built the newest release was <code>v56.10.14.1</code>, a daily build from
+2026-10-14, while the latest stable release &#8212; the one the command
+above installs &#8212; was <code>v56.10.13.1</code>, from 2026-10-13. The
+scripts here are not rebuilt when the app releases; they look the release
+up every time they run. Current installers reset local application state and reprovision by
 default; set <code>TILLANDSIAS_DESTRUCTIVE_RESET_OK=0</code> before running
 one to skip the destructive reset. On Linux and Windows that reset keeps your
 local vault and sign-ins; on macOS the stable release&#8217;s reset still

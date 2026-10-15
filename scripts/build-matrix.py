@@ -591,9 +591,12 @@ INSTALL_NOTE = """\
 Each line fetches a short script from this site, which
 resolves the <strong>latest stable release</strong> on GitHub and runs that
 release&#8217;s own installer. Stable moves only when a daily build is
-promoted, so it normally trails the newest code. The scripts here are not
-rebuilt when the app releases; they look the release up every time they
-run. Current installers reset local application state and reprovision by
+promoted, so it normally trails the newest code. When this page was last
+built the newest release was <code>v56.10.14.1</code>, a daily build from
+2026-10-14, while the latest stable release &#8212; the one the command
+above installs &#8212; was <code>v56.10.13.1</code>, from 2026-10-13. The
+scripts here are not rebuilt when the app releases; they look the release
+up every time they run. Current installers reset local application state and reprovision by
 default; set <code>TILLANDSIAS_DESTRUCTIVE_RESET_OK=0</code> before running
 one to skip the destructive reset. On Linux and Windows that reset keeps your
 local vault and sign-ins; on macOS the stable release&#8217;s reset still
