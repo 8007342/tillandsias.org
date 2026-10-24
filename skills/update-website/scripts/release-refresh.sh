@@ -4,10 +4,11 @@
 # data, rebuild the metrics history, checked build, append the run to
 # refresh.d/. See scripts/refresh.py for the steps and skills/update-website.
 #
-#   release-refresh.sh [--tag vX.Y.Z.B] [--offline] [--history DIR]
+#   release-refresh.sh [--tag vX.Y.Z.B] [--offline] [--history DIR] [--unattended]
 #                      [--learned SURFACE:NOTE] [--reader SURFACE:SENTENCE]
 #
-# Last line: `ok:refreshed:<tag>`, `ask:judgement:<n>` (exit 3) or `blocked:<why>`.
+# Last line: `ok:refreshed:<tag>`, `ask:judgement:<n>` (exit 3) or `blocked:<why>`;
+# with --unattended, `ok:merged:<tag>` or `ok:pushed:website/update-<tag>:filed:<n>`.
 set -uo pipefail
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 exec python3 "$ROOT/scripts/refresh.py" "$@"

@@ -109,3 +109,10 @@ description text, or git won't recognize it as a trailer at all. Run
 MISPLACED, distinct from a trailer that was never written.
 
 <!-- /agent-commit-format-version -->
+
+## Routing
+
+- "Update the website to <tag>" (or "after a release", or "refresh the
+  site"): use [`skills/update-website`](skills/update-website/SKILL.md). In a
+  forge with no operator, run it with `--unattended` and follow its
+  "Unattended run" section. Other site procedures: [`skills/README.md`](skills/README.md).
