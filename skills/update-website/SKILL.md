@@ -1,6 +1,6 @@
 ---
 name: update-website
-description: A Tillandsias release happened, so bring tillandsias.org up to it. One command does every step that needs no judgement: re-pin by content, regenerate Progress and CentiColon data, rebuild the metrics history, checked build, and record the run. It stops only for a claim that may have changed truth value or for a new claim. Run it after a release, or weekly.
+description: A Tillandsias release happened, so bring tillandsias.org up to it. One command does every step that needs no judgement: re-pin by content, regenerate Progress and CentiColon data, rebuild the metrics history, checked build, and record the run. It stops only for a claim that may have changed truth value or for a new claim. Run it after a release, or weekly. Use it for any request to update the website (or tillandsias.org) to a release or tag; `--unattended` is the no-operator run inside a forge, which merges a clean result to main by itself.
 ---
 
 # Update the website after a release
@@ -104,7 +104,57 @@ the "How this section has improved" notes.
 The pre-commit hook re-runs the checked build and refuses a stale
 `var/html/index.html`. Make one commit per level when a person changed
 claims, and one commit for the mechanical refresh. A push to `main` deploys
-(Cloudflare publishes `var/html`). Push only when the operator's flow says so.
+(Cloudflare publishes `var/html`). Push only when the operator's flow says so;
+an unattended run follows the section below.
+
+## Unattended run (a forge, no operator)
+
+When the request is "update the website to <tag>" and nobody is watching, run:
+
+```
+skills/update-website/scripts/release-refresh.sh --tag <tag> --unattended
+```
+
+What changes:
+
+- Checkouts and the full-history runtime clone live in `var/unattended/`
+  inside this checkout (gitignored), not `~/.cache`. A missing history clone
+  is cloned in full from `$TILLANDSIAS_REPO_URL` (default: the runtime on
+  GitHub); an existing one is fetched.
+- The run switches to `website/update-<tag>` before anything writes. Never
+  commit on `main` yourself.
+- The result leaves only by `git push` through the mirror. A clean run
+  commits, pushes `website/update-<tag>`, merges `origin/main` in, re-runs the
+  checked build, and pushes to `main`, which deploys. That auto-merge is the
+  operator's decision (2026-10-24); do not add a review step, and do not
+  merge any other way.
+- Any judgement item stops the merge. Handle each one:
+  - **Settle it** when the evidence is clear, by
+    [`audit-site-claims`](../audit-site-claims/SKILL.md), as in step 2. A
+    re-cited item is gone from the next run.
+  - **File it** when it needs a person (a changed claim, a Level 5
+    proposal, anything you are not sure of), by
+    [`file-findings`](../file-findings/SKILL.md): a
+    `docs/audit/<date>-issues-*.md` record that names the item's target as
+    printed.
+  - Then run the command again. An item that is neither settled nor filed
+    keeps `ask:judgement:<n>`. Never drop or skip an item.
+
+Last line, and what to report:
+
+| last line | meaning | report |
+|---|---|---|
+| `ok:merged:<tag>` | refreshed, built, on `main`, deploying | done |
+| `ok:pushed:website/update-<tag>:filed:<n>` | the refresh and `n` findings are on the branch; nothing merged | failed: `n` item(s) need a person |
+| `ask:judgement:<n>` | items left unsettled and unfiled; nothing pushed | settle or file them, then re-run |
+| `blocked:<why>` | the cause is named | failed: `<why>` |
+
+Site rule for anything you write on the way: the site is about the
+architecture, not the fleet. No host names, session names or work-item ids in
+site text, `--reader` sentences or audit pages meant for readers.
+
+`skills/update-website/scripts/test-release-refresh-unattended.sh` is the
+fixture for this path. Last line: `ok:unattended-refresh:<n> case(s)`.
 
 ## What a green run does and does not claim
 
