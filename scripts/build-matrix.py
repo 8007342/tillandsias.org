@@ -591,11 +591,14 @@ INSTALL_NOTE = """\
 Each line fetches a short script from this site, which
 resolves the <strong>latest stable release</strong> on GitHub and runs that
 release&#8217;s own installer. Stable moves only when a daily build is
-promoted, so it normally trails the newest code. The scripts here are not
-rebuilt when the app releases; they look the release up every time they
-run. Each installer resets the application&#8217;s own derived state and sets
-it up again, quietly, keeping its details in a setup log. On every platform
-that reset keeps your downloads, your local vault and your sign-ins."""
+promoted, so it normally trails the newest code: when this page was last
+built, the latest stable release &#8212; the one the command above
+installs &#8212; was <code>@@SITE_REF@@</code>, and newer daily builds are not
+what these commands install. The scripts here are not rebuilt when the app
+releases; they look the release up every time they run. Each installer
+resets the application&#8217;s own derived state and sets it up again,
+quietly, keeping its details in a setup log. On every platform that reset
+keeps your downloads, your local vault and your sign-ins."""
 
 
 def quickstart_steps():
@@ -648,7 +651,7 @@ def install_view(install):
             '<div class="qs" id="quickstart">%s%s'
             '<div class="install-strip"><div class="install" aria-label="Install">%s'
             '<p class="ins-note">%s</p></div></div>%s</div>%s</div></section>'
-            % (radios, switch, install, INSTALL_NOTE, quickstart_steps(), gallery))
+            % (radios, switch, install, INSTALL_NOTE.replace("@@SITE_REF@@", SITE_REF), quickstart_steps(), gallery))
 
 
 def centicolons_view():
