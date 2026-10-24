@@ -1,0 +1,14 @@
+issues:
+  - id: 984bf6cc
+    ts: "2026-10-24T01:50:00Z"
+    host: macuahuitl
+    code: |
+        What was observable at v56.9.5.1: the runtime mirror this site audited from carried no `stable` ref at all, so a reader resolving `stable` there got nothing, while the release ledger named v56.9.2.1 as the current stable.
+
+        What is observable at v56.10.20.1: the origin repository carries a `stable` tag, and it names the commit that merged the 56.10.20.1 version bump, the release the site now pins. The channel pointer and the ledger agree.
+events:
+  - id: 984bf6cc
+    ts: "2026-10-24T01:50:00Z"
+    host: macuahuitl
+    type: resolved
+    note: At v56.10.20.1 the origin's `stable` tag names the promoted release (the 56.10.20.1 version-bump merge), checked with git ls-remote and git log on 2026-10-24. The channel pointer matches the release the site pins.

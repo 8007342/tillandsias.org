@@ -471,7 +471,7 @@ The stated progress premise suffices for eventual zero and the cycle bound.
     > Evidence bundles and CentiColon scores should not be interpreted as probabilities. If probabilistic or belief-function confidence is later added, it must be a separate layer from obligation closure.
 [^25]: Shafer, *A Mathematical Theory of Evidence* (1976), cited as a possible separate confidence layer | https://press.princeton.edu/books/paperback/9780691100425/a-mathematical-theory-of-evidence
 [^26]: Walley, *Statistical Reasoning with Imprecise Probabilities* (1991) | https://doi.org/10.1007/978-1-4899-3472-7
-[^27]: The shell still supplies weights over CI check names | scripts/local-ci.sh#L413-L418
+[^27]: The shell still supplies weights over CI check names | scripts/local-ci.sh#L422-L427
     > check_weight() { case "$1" in spec-cheatsheet-binding) echo 100 ;; spec-code-drift) echo 120 ;; spec-trace-coverage) echo 90 ;; version-monotonicity) echo 40 ;;
 [^28]: The committed dashboard's earned and total figures | docs/convergence/centicolon-dashboard.json#L75-L76
     > "total_cc": 990, "earned_cc": 890,
@@ -485,9 +485,9 @@ The stated progress premise suffices for eventual zero and the cycle bound.
     > Calling a lossy semantic cache a CRDT without stable IDs, tombstones, deterministic merge, and property tests creates false convergence claims.
 [^33]: Determinism rules: fold order and idempotence | crates/tillandsias-plan/src/fragments.rs#L41-L49
     > Fragments fold in `(ts, filename)` order, never directory order — the filesystem does not promise an order, and two hosts folding differently would compute different states from identical inputs, which presents as corruption rather than as a sorting bug.
-[^34]: Commutativity and idempotence of the fold pinned as named tests | crates/tillandsias-plan/src/fragments.rs#L3229-L3230
+[^34]: Commutativity and idempotence of the fold pinned as named tests | crates/tillandsias-plan/src/fragments.rs#L3340-L3341
     > fn the_fold_is_commutative_the_defining_crdt_property() { Order of arrival must not change the result.
-[^35]: Rank-aware status join with a falsification escape hatch | crates/tillandsias-plan/src/fragments.rs#L386-L400
+[^35]: Rank-aware status join with a falsification escape hatch | crates/tillandsias-plan/src/fragments.rs#L459-L473
     > The closure ladder implemented<completed<verified<done is a monotone lattice: you climb UP freely and move DOWN only through a `falsified` event.
 [^36]: A retracted CRDT claim, with the failed property named | crates/tillandsias-plan/lua/collect.lua#L7-L11
     > This is a SEEN-SET DEDUP, not a CRDT — the earlier header's CRDT claim (commutativity in particular) was false: first-wins keeps whichever duplicate arrives first, so order matters.
@@ -501,19 +501,20 @@ The stated progress premise suffices for eventual zero and the cycle bound.
     > The defensible claim is finite ordered convergence under declared validators: stable obligations form a finite lattice; evidence-improving transitions are checked for monotonicity; CentiColons are a bounded ranking function over that model; fixed points mean validator stability; and unknown-event intake is the escape hatch
 [^41]: Generative property tests for monotonicity, inflationarity and idempotence of the refinement operator, over a committed rule set | crates/tillandsias-plan/src/obligation_props.rs#L172-L219
     > fn refine_is_monotone_on_the_real_rules((x, y) in comparable_pair()) {
-[^42]: The gate that refuses a missing or duplicated requirement identifier, tombstoned specifications included | scripts/lua/check-requirement-ids.lua#L5-L10
-    > and no identifier appears twice anywhere in the corpus. Tombstoned specs are checked too
-[^43]: The shell scorer hands its weights to the model instead of summing them itself | scripts/local-ci.sh#L571-L573
+[^42]: The gate that refuses a missing or duplicated requirement identifier, tombstoned specifications included | scripts/lua/check-requirement-ids.lua#L5-L24
+    > TOMBSTONED SPECS ARE CHECKED TOO, deliberately
+[^43]: The shell scorer hands its weights to the model instead of summing them itself | scripts/local-ci.sh#L580-L582
     > What LEFT is the arithmetic: earned/denominator/residual are now computed by `tillandsias-plan score-checks`, which runs obligation::centicolon_function over a SpecState.
 [^44]: The ranking function in code names which side of the monotone band a score is on | crates/tillandsias-plan/src/obligation.rs#L675-L708
     > Regime::Broken("denominator scope changed: an obligation was tombstoned")
 
-[^45]: The shell prints non-comparability when the scorer reports a broken regime | scripts/local-ci.sh#L624-L624
+[^45]: The shell prints non-comparability when the scorer reports a broken regime | scripts/local-ci.sh#L633-L633
     > this score is NOT comparable with the previous run
 
 [^46]: Cacheable and observing predicate capabilities | crates/tillandsias-plan/src/lua_predicate.rs#L74-L95
     > Pure: no shell, no clock. Results MAY be cached.
-[^47]: Observed grading: latest test/digest record, conditional spec freshness and raw positive-test residual | scripts/lua/centicolon-grade-observed.lua#L38-L105
+[^47]: Observed grading: latest test/digest record, conditional spec freshness and raw positive-test residual | scripts/lua/centicolon-grade-observed.lua#L36-L105
+    > A run under the obligation's OWN spec binds that spec's bytes
 [^48]: Advisory regression comparison and local snapshot, advanced even after a loss | scripts/lua/check-centicolon-ratchet.lua#L4-L138
     > the advisory CentiColon R line, ported from check-centicolon-ratchet.sh without changing its protocol stdout or status.
 [^49]: Static grading assigns requirement-level candidates to each scenario | scripts/lua/centicolon-grade-static.lua#L180-L201

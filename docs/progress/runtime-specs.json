@@ -1,6 +1,6 @@
 {
-  "tag": "v56.10.9.1",
-  "commit": "d3e8c872963702dde1fc5ea6fad222a14a69a851",
+  "tag": "v56.10.20.1",
+  "commit": "f0e61287e4596fb5e2ffd93c549c53b10b1aee56",
   "specs": [
     {
       "id": "accel-capability-probe",
@@ -17,14 +17,14 @@
         "PROBE-8 — The capability cache is derived, ephemeral, and self-invalidating",
         "PROBE-9 — The document names the host it describes"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/accel-capability-probe/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/accel-capability-probe/spec.md"
     },
     {
       "id": "agent-cheatsheets",
       "status": "obsolete",
       "purpose": "This umbrella spec has been retired. Its remaining live obligations now live in:",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/agent-cheatsheets/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/agent-cheatsheets/spec.md"
     },
     {
       "id": "app-lifecycle",
@@ -46,21 +46,21 @@
         "shutdown_all verifies post-sweep state and escalates stragglers",
         "kill_container accepts an explicit signal"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/app-lifecycle/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/app-lifecycle/spec.md"
     },
     {
       "id": "appimage-build-pipeline",
       "status": "status: obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/appimage-build-pipeline/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/appimage-build-pipeline/spec.md"
     },
     {
       "id": "artifact-detection",
       "status": "obsolete",
       "purpose": "This umbrella spec has been retired. Its live obligations are now covered by:",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/artifact-detection/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/artifact-detection/spec.md"
     },
     {
       "id": "async-inference-launch",
@@ -71,7 +71,7 @@
         "Startup-time empirical validation",
         "Enclave readiness message clarity"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/async-inference-launch/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/async-inference-launch/spec.md"
     },
     {
       "id": "binary-signing",
@@ -82,7 +82,7 @@
         "Cosign signing produces verifiable bundles",
         "Release verification instructions stay bundle-based"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/binary-signing/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/binary-signing/spec.md"
     },
     {
       "id": "branch-discipline",
@@ -97,21 +97,21 @@
         "The mirror dispatches the project's hooks per push event",
         "The land tool asks before it fetches, gates or pushes"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/branch-discipline/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/branch-discipline/spec.md"
     },
     {
       "id": "browser-daemon-tracking",
       "status": "obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-daemon-tracking/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-daemon-tracking/spec.md"
     },
     {
       "id": "browser-debounce",
       "status": "obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-debounce/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-debounce/spec.md"
     },
     {
       "id": "browser-isolation-core",
@@ -122,7 +122,7 @@
         "Content-hash image identity with human aliases",
         "Build invocation via build-image.sh"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-isolation-core/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-isolation-core/spec.md"
     },
     {
       "id": "browser-isolation-framework",
@@ -134,14 +134,14 @@
         "Security model inheritance and framework-specific isolation",
         "Build invocation via build-image.sh"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-isolation-framework/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-isolation-framework/spec.md"
     },
     {
       "id": "browser-isolation-launcher",
       "status": "obsolete",
       "purpose": "This placeholder spec has been retired. The real browser-launch contract is now owned by:",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-isolation-launcher/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-isolation-launcher/spec.md"
     },
     {
       "id": "browser-isolation-tray-integration",
@@ -156,14 +156,14 @@
         "Browser window lifecycle",
         "No Tauri webview path"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-isolation-tray-integration/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-isolation-tray-integration/spec.md"
     },
     {
       "id": "browser-mcp-server",
       "status": "obsolete",
       "purpose": "Historical stub retained for traceability only. The live browser MCP server contract now lives in `host-browser-mcp`, with transport and tray ownership split across `tray-host-control-socket` and `browser-isolation-tray-integration`.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-mcp-server/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-mcp-server/spec.md"
     },
     {
       "id": "browser-routing-allowlist",
@@ -172,14 +172,14 @@
       "requirements": [
         "Browser routes are allowlisted by project and service"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-routing-allowlist/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-routing-allowlist/spec.md"
     },
     {
       "id": "browser-tray-notifications",
       "status": "obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-tray-notifications/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-tray-notifications/spec.md"
     },
     {
       "id": "browser-window-lifecycle",
@@ -188,14 +188,14 @@
       "requirements": [
         "Browser windows have explicit lifecycle state"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-window-lifecycle/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-window-lifecycle/spec.md"
     },
     {
       "id": "browser-window-rate-limiting",
       "status": "obsolete",
       "purpose": "Historical duplicate of the browser launch throttle. The live debounce ownership now lives in `host-browser-mcp`.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-window-rate-limiting/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-window-rate-limiting/spec.md"
     },
     {
       "id": "browser-window-timeout",
@@ -204,21 +204,21 @@
       "requirements": [
         "Browser windows expire after inactivity"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/browser-window-timeout/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/browser-window-timeout/spec.md"
     },
     {
       "id": "build-lock",
       "status": "obsolete",
       "purpose": "Historical build-serialization helper. The live build coordination behavior is now owned by `init-command` and the higher-level build orchestration specs.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/build-lock/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/build-lock/spec.md"
     },
     {
       "id": "build-script-architecture",
       "status": "status: obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/build-script-architecture/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/build-script-architecture/spec.md"
     },
     {
       "id": "cache-isolation",
@@ -227,7 +227,7 @@
       "requirements": [
         "Durable cache and project state remain separated"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cache-isolation/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cache-isolation/spec.md"
     },
     {
       "id": "cache-recovery-mechanism",
@@ -240,7 +240,7 @@
         "Cache Directory Lifecycle and Paths",
         "Version File Format and Semantics"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cache-recovery-mechanism/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cache-recovery-mechanism/spec.md"
     },
     {
       "id": "cdp-robustness",
@@ -249,14 +249,14 @@
       "requirements": [
         "CDP operations handle transport failure explicitly"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cdp-robustness/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cdp-robustness/spec.md"
     },
     {
       "id": "certificate-authority",
       "status": "obsolete",
       "purpose": "Historical umbrella for the ephemeral CA lifecycle. The live requirements are now owned by `reverse-proxy-internal`, `podman-secrets-integration`, and `secrets-management`.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/certificate-authority/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/certificate-authority/spec.md"
     },
     {
       "id": "certificate-validation",
@@ -265,21 +265,21 @@
       "requirements": [
         "Enclave TLS validation is explicit"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/certificate-validation/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/certificate-validation/spec.md"
     },
     {
       "id": "cheatsheet-mcp-server",
       "status": "obsolete",
       "purpose": "This spec is a historical tombstone.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cheatsheet-mcp-server/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cheatsheet-mcp-server/spec.md"
     },
     {
       "id": "cheatsheet-methodology-evolution",
       "status": "obsolete",
       "purpose": "This placeholder spec has been retired. Its intended live behavior is now covered by methodology:",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cheatsheet-methodology-evolution/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cheatsheet-methodology-evolution/spec.md"
     },
     {
       "id": "cheatsheet-source-layer",
@@ -293,7 +293,7 @@
         "Hot/cold separation",
         "Refresh behaviour"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cheatsheet-source-layer/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cheatsheet-source-layer/spec.md"
     },
     {
       "id": "cheatsheet-tooling",
@@ -305,14 +305,14 @@
         "INDEX.md is generated, not hand-edited",
         "Cheatsheet authoring stays toolable"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cheatsheet-tooling/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cheatsheet-tooling/spec.md"
     },
     {
       "id": "cheatsheets-license-tiered",
       "status": "active",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cheatsheets-license-tiered/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cheatsheets-license-tiered/spec.md"
     },
     {
       "id": "chromium-debug-variant",
@@ -328,7 +328,7 @@
         "Safe isolation (still ephemeral)",
         "Litmus test — chromium-debug-variant lifecycle"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/chromium-debug-variant/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/chromium-debug-variant/spec.md"
     },
     {
       "id": "chromium-safe-variant",
@@ -343,28 +343,30 @@
         "No extensions or plugins",
         "Litmus test — chromium-safe-variant lifecycle"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/chromium-safe-variant/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/chromium-safe-variant/spec.md"
     },
     {
       "id": "ci-release",
       "status": "active",
       "purpose": "No purpose recorded in this spec.",
-      "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/ci-release/spec.md"
+      "requirements": [
+        "A new gate decider or gate fixture runs on the Lua runner"
+      ],
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/ci-release/spec.md"
     },
     {
       "id": "cli-bash-mode",
       "status": "status: obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cli-bash-mode/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cli-bash-mode/spec.md"
     },
     {
       "id": "cli-diagnostics",
       "status": "obsolete",
       "purpose": "This specification documents the retired Tauri-era `--diagnostics` live-tail flow. That design mixed log streaming, container discovery, and debugging output into a single CLI command and is no longer part of the current architecture.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cli-diagnostics/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cli-diagnostics/spec.md"
     },
     {
       "id": "cli-mode",
@@ -382,7 +384,7 @@
         "CLI modes are tray-aware",
         "SIGINT triggers clean shutdown on every CLI path"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cli-mode/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cli-mode/spec.md"
     },
     {
       "id": "clickable-trace-index",
@@ -391,7 +393,7 @@
       "requirements": [
         "Project observatorium view"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/clickable-trace-index/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/clickable-trace-index/spec.md"
     },
     {
       "id": "codex-tray-launcher",
@@ -400,7 +402,7 @@
       "requirements": [
         "Tray-launched Codex uses the forge entrypoint contract"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/codex-tray-launcher/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/codex-tray-launcher/spec.md"
     },
     {
       "id": "command-policies",
@@ -414,7 +416,7 @@
         "Consent is per run; soft reset is pre-authorised in forges, hard reset never is",
         "Every decision is audited with secrets redacted"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/command-policies/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/command-policies/spec.md"
     },
     {
       "id": "command-runtime",
@@ -430,7 +432,7 @@
         "A terminated runner leaves no script-owned process behind",
         "The runtime runs identically on every locus"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/command-runtime/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/command-runtime/spec.md"
     },
     {
       "id": "containerfile-staleness",
@@ -439,14 +441,14 @@
       "requirements": [
         "Runtime image source digest detects stale images"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/containerfile-staleness/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/containerfile-staleness/spec.md"
     },
     {
       "id": "cross-platform",
       "status": "deprecated",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/cross-platform/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/cross-platform/spec.md"
     },
     {
       "id": "default-image",
@@ -481,7 +483,7 @@
         "Forge validation profile is non-destructive and machine-readable",
         "Forge harness permission bypass is pre-accepted at launch, never prompted"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/default-image/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/default-image/spec.md"
     },
     {
       "id": "dev-build",
@@ -504,14 +506,14 @@
         "Install exits with deterministic exit codes",
         "Transparent HTTPS caching via dev proxy"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/dev-build/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/dev-build/spec.md"
     },
     {
       "id": "direct-podman-calls",
       "status": "obsolete superseded_by: podman-container-spec + podman-container-handle + podman-orchestration",
       "purpose": "Historical tombstone for the earlier direct-shell-launch runtime model. The current runtime shape is the typed Podman layer (`podman-container-spec`, `podman-container-handle`, and `podman-orchestration`). This tombstone is kept for traceability only and should not receive new behavior.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/direct-podman-calls/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/direct-podman-calls/spec.md"
     },
     {
       "id": "disk-usage-detection",
@@ -520,7 +522,7 @@
       "requirements": [
         "Cache tooling reports disk pressure before eviction"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/disk-usage-detection/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/disk-usage-detection/spec.md"
     },
     {
       "id": "distributed-tracing",
@@ -529,21 +531,21 @@
       "requirements": [
         "Runtime events can share trace context"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/distributed-tracing/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/distributed-tracing/spec.md"
     },
     {
       "id": "download-telemetry",
       "status": "deprecated",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/download-telemetry/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/download-telemetry/spec.md"
     },
     {
       "id": "embedded-scripts",
       "status": "obsolete superseded_by: podman-container-spec + podman-container-handle + podman-orchestration",
       "purpose": "Historical tombstone for the retired script-embedding model. The shipped Tillandsias binary no longer extracts or executes repository shell scripts at runtime. Static assets such as icons, version metadata, and Containerfile-adjacent build inputs may still be embedded where needed, but executable runtime behavior is owned by compiled Rust and direct CLI call",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/embedded-scripts/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/embedded-scripts/spec.md"
     },
     {
       "id": "enclave-network",
@@ -554,7 +556,7 @@
         "Container attachment to enclave network",
         "Enclave lifecycle telemetry"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/enclave-network/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/enclave-network/spec.md"
     },
     {
       "id": "enclave-service-catalog",
@@ -565,14 +567,14 @@
         "Published services join the enclave by fixed name",
         "Public routes drop auth deliberately, never by default"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/enclave-service-catalog/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/enclave-service-catalog/spec.md"
     },
     {
       "id": "enforce-trace-presence",
       "status": "obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/enforce-trace-presence/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/enforce-trace-presence/spec.md"
     },
     {
       "id": "environment-runtime",
@@ -587,7 +589,7 @@
         "TILLANDSIAS_AGENT accepts opencode-web",
         "Forge launchers export the exact active harness identity"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/environment-runtime/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/environment-runtime/spec.md"
     },
     {
       "id": "ephemeral-guarantee",
@@ -601,7 +603,7 @@
         "Zero Artifact Persistence Post-Teardown",
         "Ephemeral Initialization and Diagnostic Log Lifecycle"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/ephemeral-guarantee/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/ephemeral-guarantee/spec.md"
     },
     {
       "id": "ephemeral-secret-refresh",
@@ -611,7 +613,7 @@
         "Stale secrets are automatically refreshed on startup",
         "Secret removal failures are reported and propagate"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/ephemeral-secret-refresh/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/ephemeral-secret-refresh/spec.md"
     },
     {
       "id": "expert-serve-grounded-pipeline",
@@ -625,7 +627,7 @@
         "R5 — freshness from the entry's own frame",
         "R6 — OpenAI-compatible loopback endpoint"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/expert-serve-grounded-pipeline/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/expert-serve-grounded-pipeline/spec.md"
     },
     {
       "id": "external-logs-layer",
@@ -639,7 +641,7 @@
         "Reverse-breach refusal",
         "Migration of git-push.log"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/external-logs-layer/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/external-logs-layer/spec.md"
     },
     {
       "id": "filesystem-scanner",
@@ -649,21 +651,21 @@
         "OS-native event-driven watching",
         "Debounced event batching"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/filesystem-scanner/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/filesystem-scanner/spec.md"
     },
     {
       "id": "fix-podman-machine-host-aliases",
       "status": "obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/fix-podman-machine-host-aliases/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/fix-podman-machine-host-aliases/spec.md"
     },
     {
       "id": "fix-windows-extended-path",
       "status": "obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/fix-windows-extended-path/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/fix-windows-extended-path/spec.md"
     },
     {
       "id": "fix-windows-image-routing",
@@ -676,7 +678,7 @@
         "Defensive Integration Test or Self-Check",
         "Build Number Bump"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/fix-windows-image-routing/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/fix-windows-image-routing/spec.md"
     },
     {
       "id": "forge-as-only-runtime",
@@ -691,14 +693,14 @@
         "Delegated agent results come from the current scoped run",
         "Host Terminal Is the Only Host-Side Process"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-as-only-runtime/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-as-only-runtime/spec.md"
     },
     {
       "id": "forge-cache-architecture",
       "status": "obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-cache-architecture/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-cache-architecture/spec.md"
     },
     {
       "id": "forge-cache-dual",
@@ -711,7 +713,7 @@
         "Project workspace is the user's git repo, not a cache",
         "cache_version file lifecycle"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-cache-dual/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-cache-dual/spec.md"
     },
     {
       "id": "forge-environment-discoverability",
@@ -734,14 +736,14 @@
         "Every citation names the frame it was read in, and the reader's position is derived rather than assumed",
         "local-experts agent is grounded-endpoint only"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-environment-discoverability/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-environment-discoverability/spec.md"
     },
     {
       "id": "forge-forward-compat",
       "status": "deprecated",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-forward-compat/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-forward-compat/spec.md"
     },
     {
       "id": "forge-git-identity-anonymization",
@@ -754,7 +756,7 @@
         "Agentic commits carry attribution trailers",
         "Hook installation cannot break a hostile environment"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-git-identity-anonymization/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-git-identity-anonymization/spec.md"
     },
     {
       "id": "forge-hot-cold-split",
@@ -769,7 +771,7 @@
         "Agent transparency",
         "Tmpfs-overlay lane for per-project ephemeral cache"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-hot-cold-split/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-hot-cold-split/spec.md"
     },
     {
       "id": "forge-offline",
@@ -780,7 +782,7 @@
         "Forge containers have no direct project mount",
         "Forge containers are enclave-only"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-offline/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-offline/spec.md"
     },
     {
       "id": "forge-opencode-onboarding",
@@ -791,7 +793,7 @@
         "Modularized instruction files",
         "OpenCode bootstrap seeds /startup and OpenSpec init"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-opencode-onboarding/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-opencode-onboarding/spec.md"
     },
     {
       "id": "forge-shell-tools",
@@ -802,7 +804,7 @@
         "Terminal tools installed",
         "Shell configurations"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-shell-tools/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-shell-tools/spec.md"
     },
     {
       "id": "forge-staleness",
@@ -816,7 +818,7 @@
         "Staleness detection in init command",
         "Absent cache version file means fresh start, not a staleness signal"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-staleness/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-staleness/spec.md"
     },
     {
       "id": "forge-standalone",
@@ -829,14 +831,14 @@
         "Full network access without enclave wiring",
         "Runner is fail-fast and explicit"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-standalone/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-standalone/spec.md"
     },
     {
       "id": "forge-standalone-runner",
       "status": "obsolete",
       "purpose": "This document is retained for history only. The canonical standalone forge launcher contract now lives in `openspec/specs/forge-standalone/spec.md`.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-standalone-runner/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-standalone-runner/spec.md"
     },
     {
       "id": "forge-welcome",
@@ -846,7 +848,7 @@
         "Welcome message on terminal launch",
         "Fish as default interactive shell"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/forge-welcome/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/forge-welcome/spec.md"
     },
     {
       "id": "gh-auth-script",
@@ -861,7 +863,7 @@
         "Mobile QR Code Device Flow",
         "Token Rotation and Expiration Management"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/gh-auth-script/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/gh-auth-script/spec.md"
     },
     {
       "id": "git-mirror-service",
@@ -883,7 +885,7 @@
         "Per-project transparency — no hardcoded project names",
         "Repository-local Git metadata is bidirectionally quarantined"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/git-mirror-service/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/git-mirror-service/spec.md"
     },
     {
       "id": "github-credential-health",
@@ -896,7 +898,7 @@
         "A credential that goes bad IN PLACE is observed without a presence transition",
         "The implemented vocabulary is named, and the tray-loop polling ban is scoped"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/github-credential-health/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/github-credential-health/spec.md"
     },
     {
       "id": "graceful-shutdown",
@@ -911,7 +913,7 @@
         "No stale sockets remain after shutdown",
         "No stale mounts remain after shutdown"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/graceful-shutdown/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/graceful-shutdown/spec.md"
     },
     {
       "id": "guest-crashloop-detection",
@@ -922,7 +924,7 @@
         "Slow progress is never a crash loop",
         "The detector is proven where it ships"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/guest-crashloop-detection/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/guest-crashloop-detection/spec.md"
     },
     {
       "id": "headless-mode",
@@ -935,7 +937,7 @@
         "Status-check mode for initialization verification",
         "Per-operation image ensure lists, and the Build-context vault"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/headless-mode/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/headless-mode/spec.md"
     },
     {
       "id": "host-browser-mcp",
@@ -953,16 +955,18 @@
         "browser.eval is disabled by default in v1",
         "CDP method usage is pinned to stable 1.3 and the bundled-Chromium version",
         "Per-call accountability log with redacted payloads",
-        "Per-message size cap and DoS protection"
+        "Per-message size cap and DoS protection",
+        "A successful tool call returns its payload as MCP content",
+        "Development windows bypass service workers unless the lane keeps them"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/host-browser-mcp/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/host-browser-mcp/spec.md"
     },
     {
       "id": "host-chromium",
       "status": "obsolete",
       "purpose": "Historical wrapper retained for traceability only. The live Chromium installation and detection contract now lives in `openspec/specs/host-chromium-on-demand/spec.md`.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/host-chromium/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/host-chromium/spec.md"
     },
     {
       "id": "host-chromium-on-demand",
@@ -974,7 +978,7 @@
         "Browser Detection",
         "Download Telemetry"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/host-chromium-on-demand/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/host-chromium-on-demand/spec.md"
     },
     {
       "id": "host-guest-transport",
@@ -986,7 +990,7 @@
         "One wire protocol for both primitives on every backend",
         "Cross-platform conformance"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/host-guest-transport/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/host-guest-transport/spec.md"
     },
     {
       "id": "host-shell-architecture",
@@ -999,7 +1003,7 @@
         "VM orchestration is delegated to `tillandsias-vm-layer`",
         "Host shell never holds long-lived credentials"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/host-shell-architecture/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/host-shell-architecture/spec.md"
     },
     {
       "id": "host-state-lifecycle",
@@ -1011,7 +1015,7 @@
         "Every download is recorded in one manifest under `~/.tillandsias/downloads/`",
         "`--uninstall` is the preferred removal, leaves ZERO traces, and asks before removing `~/.tillandsias/`"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/host-state-lifecycle/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/host-state-lifecycle/spec.md"
     },
     {
       "id": "inference-container",
@@ -1026,9 +1030,10 @@
         "CPU tier-S is the always-available terminal",
         "NPU tier rows are additive and engine-gated",
         "Tier classification logged once at boot",
-        "The engine behind the endpoint is a slot"
+        "The engine behind the endpoint is a slot",
+        "The WSL2 Vulkan opt-in keeps small models' decode on the CPU"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/inference-container/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/inference-container/spec.md"
     },
     {
       "id": "inference-engine-slots",
@@ -1044,14 +1049,14 @@
         "SLOT-7 — The model tier table is data consumed by every engine",
         "SLOT-8 — Slot lifecycle is idempotent, ephemeral, and soft-failing"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/inference-engine-slots/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/inference-engine-slots/spec.md"
     },
     {
       "id": "inference-host-side-pull",
       "status": "obsolete",
       "purpose": "Historical wrapper retained for traceability only. The live inference startup and model-pull contract now lives in `inference-container` and `zen-default-with-ollama-analysis-pool`, with runtime behavior owned by the inference image entrypoint.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/inference-host-side-pull/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/inference-host-side-pull/spec.md"
     },
     {
       "id": "inference-policy-router",
@@ -1071,7 +1076,7 @@
         "NEG-1 — Non-goals are binding prohibitions",
         "NEG-2 — Degraded lanes never outrank healthy ones"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/inference-policy-router/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/inference-policy-router/spec.md"
     },
     {
       "id": "init-command",
@@ -1087,7 +1092,7 @@
         "Debug mode log capture",
         "All images built"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/init-command/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/init-command/spec.md"
     },
     {
       "id": "init-incremental-builds",
@@ -1099,14 +1104,14 @@
         "Debug flag for init command",
         "Failed build log display"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/init-incremental-builds/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/init-incremental-builds/spec.md"
     },
     {
       "id": "install-progress",
       "status": "active",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/install-progress/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/install-progress/spec.md"
     },
     {
       "id": "knowledge-source-of-truth",
@@ -1127,14 +1132,14 @@
         "Provenance is mandatory for every authoritative artefact",
         "Integration with downstream observability surfaces"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/knowledge-source-of-truth/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/knowledge-source-of-truth/spec.md"
     },
     {
       "id": "layered-tools-overlay",
       "status": "obsolete",
       "purpose": "Historical overlay capability retained for traceability only. The live tool lifecycle is now owned by `default-image`, `forge-hot-cold-split`, and `tools-overlay-fast-reuse`.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/layered-tools-overlay/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/layered-tools-overlay/spec.md"
     },
     {
       "id": "linux-native-portable-executable",
@@ -1146,7 +1151,7 @@
         "Linux release artifact is the musl binary",
         "Native tray builds may use host UI libraries"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/linux-native-portable-executable/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/linux-native-portable-executable/spec.md"
     },
     {
       "id": "litmus-framework",
@@ -1155,7 +1160,7 @@
       "requirements": [
         "Litmus bindings remain falsifiable"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/litmus-framework/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/litmus-framework/spec.md"
     },
     {
       "id": "local-web-preview",
@@ -1166,9 +1171,10 @@
         "Shared source preserves the bounded HOT storage contract",
         "Allowlisted local runtime profiles",
         "Existing MCP lifecycle contract",
-        "HTTPS routing and honest trust"
+        "HTTPS routing and honest trust",
+        "Opt-in toolchain sessions"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/local-web-preview/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/local-web-preview/spec.md"
     },
     {
       "id": "log-aggregation",
@@ -1177,7 +1183,7 @@
       "requirements": [
         "Runtime logs aggregate without dropping source metadata"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/log-aggregation/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/log-aggregation/spec.md"
     },
     {
       "id": "log-schema-versioning",
@@ -1186,21 +1192,21 @@
       "requirements": [
         "Log entries carry schema version"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/log-schema-versioning/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/log-schema-versioning/spec.md"
     },
     {
       "id": "logging-accountability",
       "status": "obsolete",
       "purpose": "Historical logging-accountability umbrella retained for traceability only. The live logging contracts now live in `runtime-logging`, `logging-levels`, and the diagnostics/runtime specs.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/logging-accountability/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/logging-accountability/spec.md"
     },
     {
       "id": "logging-levels",
       "status": "obsolete",
       "purpose": "This specification is a historical tombstone for the retired embedded `external-logs.yaml` configuration model. The live behavior is now owned by:",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/logging-levels/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/logging-levels/spec.md"
     },
     {
       "id": "macos-native-tray",
@@ -1214,7 +1220,7 @@
         "GUI passthrough is explicitly deferred to v2",
         "`--diagnose` CLI mode emits a stable bundled health report"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/macos-native-tray/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/macos-native-tray/spec.md"
     },
     {
       "id": "mcp-on-demand",
@@ -1229,7 +1235,7 @@
         "MCP server communication channel",
         "Litmus test — on-demand MCP lifecycle"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/mcp-on-demand/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/mcp-on-demand/spec.md"
     },
     {
       "id": "mcp-tool-socket",
@@ -1240,9 +1246,10 @@
         "Attribution is derived from the accepting listener",
         "NDJSON framing with a bounded per-line payload",
         "One request in flight per connection",
-        "The socket carries both host-services and browser tools"
+        "The socket carries both host-services and browser tools",
+        "Read-only Cloudflare tools hold the sign-in on the host"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/mcp-tool-socket/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/mcp-tool-socket/spec.md"
     },
     {
       "id": "menu-action-error-handling",
@@ -1251,7 +1258,7 @@
       "requirements": [
         "Tray menu action failures are visible and bounded"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/menu-action-error-handling/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/menu-action-error-handling/spec.md"
     },
     {
       "id": "meta-orchestration",
@@ -1264,7 +1271,7 @@
         "Guards run before work, and fail loud",
         "Every mode names its verdict"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/meta-orchestration/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/meta-orchestration/spec.md"
     },
     {
       "id": "methodology-accountability",
@@ -1277,7 +1284,7 @@
         "Existing convergence score remains coarse",
         "Mathematical convergence claims are bounded"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/methodology-accountability/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/methodology-accountability/spec.md"
     },
     {
       "id": "native-secrets-store",
@@ -1288,7 +1295,7 @@
         "Single keyring entry for the GitHub token",
         "Host-only keyring API surface"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/native-secrets-store/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/native-secrets-store/spec.md"
     },
     {
       "id": "network-scenarios",
@@ -1298,7 +1305,7 @@
         "Every container declares a network posture",
         "S0 is not a scenario, and S4 is retired"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/network-scenarios/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/network-scenarios/spec.md"
     },
     {
       "id": "nix-builder",
@@ -1309,7 +1316,7 @@
         "Git-tracked files for flake builds",
         "dockerTools builder/attribute pairing"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/nix-builder/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/nix-builder/spec.md"
     },
     {
       "id": "nix-cache-service",
@@ -1322,14 +1329,14 @@
         "An unreachable cache degrades to silence, not to failure",
         "A running but untrusted cache is a violation, not a skip"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/nix-cache-service/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/nix-cache-service/spec.md"
     },
     {
       "id": "no-terminal-flicker",
       "status": "active",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/no-terminal-flicker/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/no-terminal-flicker/spec.md"
     },
     {
       "id": "observability-convergence",
@@ -1348,7 +1355,7 @@
         "Litmus test — observability instrumentation",
         "Test requirement"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/observability-convergence/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/observability-convergence/spec.md"
     },
     {
       "id": "observability-metrics",
@@ -1357,7 +1364,25 @@
       "requirements": [
         "Runtime metrics expose current system health"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/observability-metrics/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/observability-metrics/spec.md"
+    },
+    {
+      "id": "observatorium-dashboard",
+      "status": "active",
+      "purpose": "Provide the operator-requested public metrics dashboard at `observatorium.tillandsias.org`, implemented under `observatorium/`. CentiColon convergence describes named, verifiable implementation obligations. The legacy private trace viewer remains governed by `clickable-trace-index`.",
+      "requirements": [
+        "Flutter and Flame presentation",
+        "Cheap collection and precomputed publication",
+        "Honest measurement history",
+        "Inspectable implementation obligations",
+        "Validated grade provenance",
+        "Scope and simplification context",
+        "Cloudflare deployment and local artifact",
+        "Durable release observations",
+        "Release and current evidence remain distinct",
+        "Managed forge build and browser loading"
+      ],
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/observatorium-dashboard/spec.md"
     },
     {
       "id": "opencode-web-session",
@@ -1374,7 +1399,7 @@
         "OpenCode Web defaults to dark theme",
         "Webview close does not terminate the tray"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/opencode-web-session/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/opencode-web-session/spec.md"
     },
     {
       "id": "opencode-web-session-otp",
@@ -1388,21 +1413,21 @@
         "Secrets Management Integration",
         "Authenticated Readiness Probe"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/opencode-web-session-otp/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/opencode-web-session-otp/spec.md"
     },
     {
       "id": "overlay-mount-cache",
       "status": "obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/overlay-mount-cache/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/overlay-mount-cache/spec.md"
     },
     {
       "id": "persistent-git-service",
       "status": "obsolete",
       "purpose": "This per-project git-service lifetime contract has been retired. The live lifecycle is now described by `git-mirror-service`, which starts the git service on first attach for a project and stops it when the project's last forge exits.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/persistent-git-service/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/persistent-git-service/spec.md"
     },
     {
       "id": "podman-container-handle",
@@ -1413,7 +1438,7 @@
         "Handle creation remains unit-testable",
         "Event stream maps back to handle identity"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/podman-container-handle/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/podman-container-handle/spec.md"
     },
     {
       "id": "podman-container-spec",
@@ -1424,7 +1449,7 @@
         "Security defaults are immutable",
         "Spec layer supports launch-shape composition"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/podman-container-spec/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/podman-container-spec/spec.md"
     },
     {
       "id": "podman-idiomatic-patterns",
@@ -1441,7 +1466,7 @@
         "Observed launch helpers produce actionable failures",
         "Tillandsias-owned podman configuration is explicit on every invocation and wins over system defaults"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/podman-idiomatic-patterns/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/podman-idiomatic-patterns/spec.md"
     },
     {
       "id": "podman-image-eviction",
@@ -1450,7 +1475,7 @@
       "requirements": [
         "Image eviction is targeted and explainable"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/podman-image-eviction/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/podman-image-eviction/spec.md"
     },
     {
       "id": "podman-orchestration",
@@ -1466,7 +1491,7 @@
         "Deterministic forge-container name",
         "Launchers build argv directly"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/podman-orchestration/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/podman-orchestration/spec.md"
     },
     {
       "id": "podman-registries-config",
@@ -1475,7 +1500,7 @@
       "requirements": [
         "The user runtime reads a Tillandsias-owned registries.conf"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/podman-registries-config/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/podman-registries-config/spec.md"
     },
     {
       "id": "podman-secrets-integration",
@@ -1491,7 +1516,7 @@
         "Accountability logging for all secret operations",
         "CA certificate generation is ephemeral and per-session"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/podman-secrets-integration/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/podman-secrets-integration/spec.md"
     },
     {
       "id": "project-bootstrap-readme",
@@ -1503,9 +1528,10 @@
         "README validation ensures structure and freshness",
         "Pre-push hook auto-regenerates README",
         "Traces ledger records agent observations",
-        "Bootstrap skills guide workflow"
+        "Bootstrap skills guide workflow",
+        "A new project is onboarded with specs, a plan folder and a recommended stack"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/project-bootstrap-readme/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/project-bootstrap-readme/spec.md"
     },
     {
       "id": "project-management",
@@ -1514,7 +1540,7 @@
       "requirements": [
         "Project selection is stable across tray operations"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/project-management/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/project-management/spec.md"
     },
     {
       "id": "project-summarizers",
@@ -1526,7 +1552,7 @@
         "Summarizers MUST be embeddable as shell scripts",
         "README dispatcher orchestrates all summarizers"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/project-summarizers/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/project-summarizers/spec.md"
     },
     {
       "id": "proxy-container",
@@ -1551,7 +1577,7 @@
         "Forward proxy recognises `*.localhost` as enclave-internal",
         "NO_PROXY exemptions and the Node egress contract"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/proxy-container/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/proxy-container/spec.md"
     },
     {
       "id": "remote-projects",
@@ -1564,7 +1590,7 @@
         "Clone remote project",
         "Loading state"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/remote-projects/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/remote-projects/spec.md"
     },
     {
       "id": "resource-metric-collection",
@@ -1573,7 +1599,7 @@
       "requirements": [
         "Resource samplers collect bounded measurements"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/resource-metric-collection/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/resource-metric-collection/spec.md"
     },
     {
       "id": "reverse-proxy-internal",
@@ -1588,7 +1614,7 @@
         "Access control and authentication",
         "Litmus test — reverse-proxy-internal lifecycle"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/reverse-proxy-internal/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/reverse-proxy-internal/spec.md"
     },
     {
       "id": "runtime-diagnostics",
@@ -1602,7 +1628,7 @@
         "Ephemeral diagnostics lifecycle",
         "Litmus test — runtime diagnostics capture and lifecycle"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/runtime-diagnostics/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/runtime-diagnostics/spec.md"
     },
     {
       "id": "runtime-diagnostics-stream",
@@ -1616,7 +1642,7 @@
         "Backpressure and flow control",
         "Litmus test — diagnostic streaming activation and lifecycle"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/runtime-diagnostics-stream/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/runtime-diagnostics-stream/spec.md"
     },
     {
       "id": "runtime-logging",
@@ -1641,21 +1667,21 @@
         "Secret rotation event logging (OBS-021)",
         "Image build event logging (OBS-022)"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/runtime-logging/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/runtime-logging/spec.md"
     },
     {
       "id": "secret-rotation",
       "status": "obsolete",
       "purpose": "This spec used to describe tmpfs token files and `GIT_ASKPASS` delivery. That model has been superseded by `podman-secrets-integration`, which delivers the GitHub token as a podman secret mounted at `/run/secrets/tillandsias-github-token` inside the git service container.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/secret-rotation/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/secret-rotation/spec.md"
     },
     {
       "id": "secrets-management",
       "status": "obsolete (removed in v0.3 — see `tillandsias-vault` spec)",
       "purpose": "(This spec is obsolete. See `tillandsias-vault` for the current credential architecture.)",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/secrets-management/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/secrets-management/spec.md"
     },
     {
       "id": "security-privacy-isolation",
@@ -1668,7 +1694,7 @@
         "Zero-tolerance shell-wrapper boundary",
         "Security hardening defaults are immutable"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/security-privacy-isolation/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/security-privacy-isolation/spec.md"
     },
     {
       "id": "signal-handling",
@@ -1677,7 +1703,7 @@
       "requirements": [
         "Headless runtime shuts down on process signals"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/signal-handling/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/signal-handling/spec.md"
     },
     {
       "id": "simplified-tray-ux",
@@ -1689,10 +1715,11 @@
         "Home Menu ([<home> ~/src/ >])",
         "Cloud Menu ([<cloud> Cloud >])",
         "GitHub Login Menu ([<key> GitHub Login])",
+        "Cloudflare Login Menu ([Cloudflare Login])",
         "Single Container Per Project",
         "CLI Behavior Unchanged"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/simplified-tray-ux/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/simplified-tray-ux/spec.md"
     },
     {
       "id": "singleton-guard",
@@ -1704,7 +1731,7 @@
         "Lock file cleanup on exit",
         "Stale lock detection"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/singleton-guard/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/singleton-guard/spec.md"
     },
     {
       "id": "socket-container-orchestration",
@@ -1713,7 +1740,7 @@
       "requirements": [
         "Socket-based orchestration uses explicit readiness"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/socket-container-orchestration/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/socket-container-orchestration/spec.md"
     },
     {
       "id": "spec-trace-coverage-threshold",
@@ -1722,7 +1749,7 @@
       "requirements": [
         "Trace coverage checks report threshold status"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/spec-trace-coverage-threshold/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/spec-trace-coverage-threshold/spec.md"
     },
     {
       "id": "spec-traceability",
@@ -1737,7 +1764,7 @@
         "Litmus chain references are explicit in updated specs",
         "Rust source relevance queries gate opt-in litmus tests"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/spec-traceability/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/spec-traceability/spec.md"
     },
     {
       "id": "squid-proxy-integration",
@@ -1746,16 +1773,14 @@
       "requirements": [
         "Runtime traffic uses the Squid proxy policy"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/squid-proxy-integration/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/squid-proxy-integration/spec.md"
     },
     {
       "id": "structured-query-language",
-      "status": "active",
-      "purpose": "No purpose recorded in this spec.",
-      "requirements": [
-        "Trace queries use structured predicates"
-      ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/structured-query-language/spec.md"
+      "status": "obsolete",
+      "purpose": "This spec and its only implementation, the Loki-style log query language in `crates/tillandsias-logging/src/query.rs` (parser, executor, 16 unit tests) and the `scripts/query-traces.sh` CLI that re-implemented the same grammar in jq, were retired together under packet 781-hseq (`log-query-language-has-zero-consumers`) on 2026-10-12.",
+      "requirements": [],
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/structured-query-language/spec.md"
     },
     {
       "id": "subdomain-naming-flip",
@@ -1766,7 +1791,7 @@
         "Router configuration update",
         "Loopback resolution unchanged"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/subdomain-naming-flip/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/subdomain-naming-flip/spec.md"
     },
     {
       "id": "subdomain-routing-via-reverse-proxy",
@@ -1780,7 +1805,7 @@
         "Caddyfile reload via the in-container reload script",
         "Agent instructions for service binding"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/subdomain-routing-via-reverse-proxy/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/subdomain-routing-via-reverse-proxy/spec.md"
     },
     {
       "id": "testing",
@@ -1789,7 +1814,7 @@
       "requirements": [
         "Local CI maps checks to traceable specs"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/testing/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/testing/spec.md"
     },
     {
       "id": "tillandsias-vault",
@@ -1807,14 +1832,14 @@
         "Every harness credential document has a Vault home and is restored without a prompt",
         "Codex device sign-in offers a code-free terminal QR"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tillandsias-vault/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tillandsias-vault/spec.md"
     },
     {
       "id": "tools-overlay-fast-reuse",
       "status": "obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tools-overlay-fast-reuse/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tools-overlay-fast-reuse/spec.md"
     },
     {
       "id": "transparent-https-caching",
@@ -1826,7 +1851,7 @@
         "Runtime containers trust the Tillandsias proxy CA",
         "HTTPS interception is exact-host, step-aware, and fail-closed"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/transparent-https-caching/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/transparent-https-caching/spec.md"
     },
     {
       "id": "transparent-mode-detection",
@@ -1835,7 +1860,7 @@
       "requirements": [
         "Launcher mode is detected from invocation context"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/transparent-mode-detection/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/transparent-mode-detection/spec.md"
     },
     {
       "id": "tray-app",
@@ -1848,7 +1873,7 @@
         "Per-project Stop action for running web containers",
         "Attach Here branches on selected agent"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-app/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-app/spec.md"
     },
     {
       "id": "tray-cli-coexistence",
@@ -1860,7 +1885,7 @@
         "Tray remains running after CLI session ends",
         "Broken stdout/stderr does not terminate the process"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-cli-coexistence/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-cli-coexistence/spec.md"
     },
     {
       "id": "tray-concurrency",
@@ -1869,7 +1894,7 @@
       "requirements": [
         "Tray operations are concurrency-safe"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-concurrency/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-concurrency/spec.md"
     },
     {
       "id": "tray-host-control-socket",
@@ -1882,7 +1907,7 @@
         "Error Handling and Reliability",
         "Login completion is a notification, not a poll"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-host-control-socket/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-host-control-socket/spec.md"
     },
     {
       "id": "tray-icon-lifecycle",
@@ -1895,7 +1920,7 @@
         "TrayIconState enum variants renamed",
         "Initial tray state is Pup"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-icon-lifecycle/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-icon-lifecycle/spec.md"
     },
     {
       "id": "tray-menu",
@@ -1904,14 +1929,14 @@
       "requirements": [
         "Tray menu reflects current runtime state"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-menu/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-menu/spec.md"
     },
     {
       "id": "tray-minimal-ux",
       "status": "active",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-minimal-ux/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-minimal-ux/spec.md"
     },
     {
       "id": "tray-progress-and-icon-states",
@@ -1924,7 +1949,7 @@
         "Locale Keys for Chip",
         "Sign-In Label Rename"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-progress-and-icon-states/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-progress-and-icon-states/spec.md"
     },
     {
       "id": "tray-projects-rename",
@@ -1937,7 +1962,7 @@
         "Tombstone Annotation",
         "Documentation Update"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-projects-rename/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-projects-rename/spec.md"
     },
     {
       "id": "tray-subprocess-management",
@@ -1946,7 +1971,7 @@
       "requirements": [
         "Tray-owned subprocesses are tracked and cleaned up"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-subprocess-management/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-subprocess-management/spec.md"
     },
     {
       "id": "tray-ui-integration",
@@ -1955,7 +1980,7 @@
       "requirements": [
         "Native tray integration matches platform expectations"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-ui-integration/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-ui-integration/spec.md"
     },
     {
       "id": "tray-ux",
@@ -1969,7 +1994,7 @@
         "Per-project action buttons",
         "Stale container cleanup"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/tray-ux/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/tray-ux/spec.md"
     },
     {
       "id": "update-system",
@@ -1978,7 +2003,7 @@
       "requirements": [
         "Platform-appropriate artifact selection"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/update-system/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/update-system/spec.md"
     },
     {
       "id": "user-runtime-lifecycle",
@@ -1988,7 +2013,7 @@
         "User runtime images are reproducible release artifacts",
         "Host prerequisites are explicit"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/user-runtime-lifecycle/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/user-runtime-lifecycle/spec.md"
     },
     {
       "id": "versioning",
@@ -2004,7 +2029,7 @@
         "Rolling channel tags",
         "Automated version bump script"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/versioning/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/versioning/spec.md"
     },
     {
       "id": "vm-idiomatic-layer",
@@ -2017,7 +2042,7 @@
         "`exec` propagates stdio and exit code with TTY support",
         "`wait_ready` is event-driven, not polling"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/vm-idiomatic-layer/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/vm-idiomatic-layer/spec.md"
     },
     {
       "id": "vm-provisioning-lifecycle",
@@ -2031,14 +2056,14 @@
         "Provisioning log is captured for diagnostics",
         "Launch failures are graceful — bounded, classified, actionable"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/vm-provisioning-lifecycle/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/vm-provisioning-lifecycle/spec.md"
     },
     {
       "id": "vsock-exec-authz",
       "status": "active",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/vsock-exec-authz/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/vsock-exec-authz/spec.md"
     },
     {
       "id": "vsock-transport",
@@ -2053,7 +2078,7 @@
         "Silent guest work remains live through capability-gated heartbeats",
         "Platform transport matrix — the host side differs, the guest side does not"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/vsock-transport/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/vsock-transport/spec.md"
     },
     {
       "id": "web-image",
@@ -2067,7 +2092,7 @@
         "Graceful shutdown",
         "Document root at /var/www"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/web-image/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/web-image/spec.md"
     },
     {
       "id": "window-lifecycle-concurrency",
@@ -2076,14 +2101,14 @@
       "requirements": [
         "Window lifecycle updates are token-scoped"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/window-lifecycle-concurrency/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/window-lifecycle-concurrency/spec.md"
     },
     {
       "id": "windows-cross-build",
       "status": "status: obsolete",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/windows-cross-build/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/windows-cross-build/spec.md"
     },
     {
       "id": "windows-event-logging",
@@ -2097,7 +2122,7 @@
         "Layer Implementation",
         "Cross-Platform Cost"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/windows-event-logging/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/windows-event-logging/spec.md"
     },
     {
       "id": "windows-native-tray",
@@ -2112,21 +2137,21 @@
         "`--diagnose` CLI mode emits a stable bundled health report",
         "The taskbar approval follows the tray across executable paths"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/windows-native-tray/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/windows-native-tray/spec.md"
     },
     {
       "id": "wsl-daemon-orchestration",
       "status": "active",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/wsl-daemon-orchestration/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/wsl-daemon-orchestration/spec.md"
     },
     {
       "id": "wsl-runtime",
       "status": "active",
       "purpose": "No purpose recorded in this spec.",
       "requirements": [],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/wsl-runtime/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/wsl-runtime/spec.md"
     },
     {
       "id": "zen-default-with-ollama-analysis-pool",
@@ -2137,7 +2162,7 @@
         "Tier-tagged tool-capable model pre-pulls",
         "Squid proxy workaround for ollama manifests"
       ],
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/specs/zen-default-with-ollama-analysis-pool/spec.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/specs/zen-default-with-ollama-analysis-pool/spec.md"
     }
   ],
   "changes": [
@@ -2206,7 +2231,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-attach-here-mvp/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-attach-here-mvp/tasks.md"
     },
     {
       "id": "2026-03-22-auto-updater",
@@ -2353,7 +2378,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-auto-updater/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-auto-updater/tasks.md"
     },
     {
       "id": "2026-03-22-cli-mode",
@@ -2408,7 +2433,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-cli-mode/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-cli-mode/tasks.md"
     },
     {
       "id": "2026-03-22-cosign-signing",
@@ -2499,7 +2524,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-cosign-signing/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-cosign-signing/tasks.md"
     },
     {
       "id": "2026-03-22-dev-build-script",
@@ -2574,7 +2599,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-dev-build-script/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-dev-build-script/tasks.md"
     },
     {
       "id": "2026-03-22-fix-opencode-config",
@@ -2613,7 +2638,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-fix-opencode-config/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-fix-opencode-config/tasks.md"
     },
     {
       "id": "2026-03-22-nix-builder-toolbox",
@@ -2700,7 +2725,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-nix-builder-toolbox/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-nix-builder-toolbox/tasks.md"
     },
     {
       "id": "2026-03-22-release-pipeline",
@@ -2799,7 +2824,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-release-pipeline/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-release-pipeline/tasks.md"
     },
     {
       "id": "2026-03-22-remove-terminal-detection",
@@ -2830,7 +2855,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-remove-terminal-detection/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-remove-terminal-detection/tasks.md"
     },
     {
       "id": "2026-03-22-runtime-logging",
@@ -2885,7 +2910,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-runtime-logging/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-runtime-logging/tasks.md"
     },
     {
       "id": "2026-03-22-src-attachment-point",
@@ -2912,7 +2937,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-src-attachment-point/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-src-attachment-point/tasks.md"
     },
     {
       "id": "2026-03-22-tillandsias-bootstrap",
@@ -3199,7 +3224,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-tillandsias-bootstrap/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-tillandsias-bootstrap/tasks.md"
     },
     {
       "id": "2026-03-22-tray-app-fixes",
@@ -3250,7 +3275,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-tray-app-fixes/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-tray-app-fixes/tasks.md"
     },
     {
       "id": "2026-03-22-version-scheme",
@@ -3325,7 +3350,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-version-scheme/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-version-scheme/tasks.md"
     },
     {
       "id": "2026-03-22-web-image",
@@ -3368,7 +3393,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-22-web-image/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-22-web-image/tasks.md"
     },
     {
       "id": "2026-03-23-fix-attach-here-terminal",
@@ -3395,7 +3420,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-23-fix-attach-here-terminal/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-23-fix-attach-here-terminal/tasks.md"
     },
     {
       "id": "2026-03-23-forge-init-and-mount",
@@ -3442,7 +3467,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-23-forge-init-and-mount/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-23-forge-init-and-mount/tasks.md"
     },
     {
       "id": "2026-03-24-desktop-launchers",
@@ -3545,7 +3570,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-desktop-launchers/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-desktop-launchers/tasks.md"
     },
     {
       "id": "2026-03-24-dynamic-port-allocation",
@@ -3604,7 +3629,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-dynamic-port-allocation/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-dynamic-port-allocation/tasks.md"
     },
     {
       "id": "2026-03-24-embed-scripts-in-binary",
@@ -3671,7 +3696,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-embed-scripts-in-binary/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-embed-scripts-in-binary/tasks.md"
     },
     {
       "id": "2026-03-24-fix-versioning-and-ci",
@@ -3698,7 +3723,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-fix-versioning-and-ci/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-fix-versioning-and-ci/tasks.md"
     },
     {
       "id": "2026-03-24-forge-bash-skills",
@@ -3733,7 +3758,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-forge-bash-skills/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-forge-bash-skills/tasks.md"
     },
     {
       "id": "2026-03-24-forge-gh-auth",
@@ -3772,7 +3797,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-forge-gh-auth/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-forge-gh-auth/tasks.md"
     },
     {
       "id": "2026-03-24-forge-shell-tools",
@@ -3823,7 +3848,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-forge-shell-tools/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-forge-shell-tools/tasks.md"
     },
     {
       "id": "2026-03-24-forge-welcome-fish-default",
@@ -3914,7 +3939,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-forge-welcome-fish-default/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-forge-welcome-fish-default/tasks.md"
     },
     {
       "id": "2026-03-24-git-credential-mount",
@@ -3941,7 +3966,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-git-credential-mount/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-git-credential-mount/tasks.md"
     },
     {
       "id": "2026-03-24-icon-cleanup-menu-rename",
@@ -4036,7 +4061,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-icon-cleanup-menu-rename/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-icon-cleanup-menu-rename/tasks.md"
     },
     {
       "id": "2026-03-24-iconography-gh-auth-bash-mode",
@@ -4107,7 +4132,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-iconography-gh-auth-bash-mode/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-iconography-gh-auth-bash-mode/tasks.md"
     },
     {
       "id": "2026-03-24-init-prebuilt-images",
@@ -4178,7 +4203,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-init-prebuilt-images/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-init-prebuilt-images/tasks.md"
     },
     {
       "id": "2026-03-24-landing-readme-install",
@@ -4209,7 +4234,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-landing-readme-install/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-landing-readme-install/tasks.md"
     },
     {
       "id": "2026-03-24-local-cross-platform-builds",
@@ -4280,7 +4305,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-local-cross-platform-builds/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-local-cross-platform-builds/tasks.md"
     },
     {
       "id": "2026-03-24-move-github-login-to-settings",
@@ -4315,7 +4340,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-move-github-login-to-settings/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-move-github-login-to-settings/tasks.md"
     },
     {
       "id": "2026-03-24-remote-project-clone",
@@ -4402,7 +4427,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-remote-project-clone/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-remote-project-clone/tasks.md"
     },
     {
       "id": "2026-03-24-singleton-instance",
@@ -4453,7 +4478,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-singleton-instance/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-singleton-instance/tasks.md"
     },
     {
       "id": "2026-03-24-tray-github-login",
@@ -4492,7 +4517,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-24-tray-github-login/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-24-tray-github-login/tasks.md"
     },
     {
       "id": "2026-03-25-app-cleanup-flags",
@@ -4575,7 +4600,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-app-cleanup-flags/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-app-cleanup-flags/tasks.md"
     },
     {
       "id": "2026-03-25-appimage-desktop-integration",
@@ -4626,7 +4651,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-appimage-desktop-integration/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-appimage-desktop-integration/tasks.md"
     },
     {
       "id": "2026-03-25-appimage-update-flag",
@@ -4701,7 +4726,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-appimage-update-flag/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-appimage-update-flag/tasks.md"
     },
     {
       "id": "2026-03-25-dynamic-tray-icons",
@@ -4808,7 +4833,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-dynamic-tray-icons/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-dynamic-tray-icons/tasks.md"
     },
     {
       "id": "2026-03-25-fedora-repo-install-docs",
@@ -4831,7 +4856,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-fedora-repo-install-docs/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-fedora-repo-install-docs/tasks.md"
     },
     {
       "id": "2026-03-25-github-login-icons",
@@ -4858,7 +4883,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-github-login-icons/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-github-login-icons/tasks.md"
     },
     {
       "id": "2026-03-25-graceful-restart",
@@ -4885,7 +4910,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-graceful-restart/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-graceful-restart/tasks.md"
     },
     {
       "id": "2026-03-25-immutable-os-install",
@@ -4924,7 +4949,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-immutable-os-install/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-immutable-os-install/tasks.md"
     },
     {
       "id": "2026-03-25-linux-appimage-only",
@@ -5003,7 +5028,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-linux-appimage-only/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-linux-appimage-only/tasks.md"
     },
     {
       "id": "2026-03-25-local-appimage-build",
@@ -5046,7 +5071,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-local-appimage-build/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-local-appimage-build/tasks.md"
     },
     {
       "id": "2026-03-25-menu-progress-ux",
@@ -5153,7 +5178,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-menu-progress-ux/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-menu-progress-ux/tasks.md"
     },
     {
       "id": "2026-03-25-menu-ux-polish",
@@ -5220,7 +5245,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-menu-ux-polish/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-menu-ux-polish/tasks.md"
     },
     {
       "id": "2026-03-25-named-terminals",
@@ -5323,7 +5348,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-named-terminals/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-named-terminals/tasks.md"
     },
     {
       "id": "2026-03-25-native-secrets-store",
@@ -5394,7 +5419,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-native-secrets-store/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-native-secrets-store/tasks.md"
     },
     {
       "id": "2026-03-25-openspec-auto-init",
@@ -5417,7 +5442,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-openspec-auto-init/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-openspec-auto-init/tasks.md"
     },
     {
       "id": "2026-03-25-readme-simplify",
@@ -5460,7 +5485,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-readme-simplify/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-readme-simplify/tasks.md"
     },
     {
       "id": "2026-03-25-release-verification",
@@ -5527,7 +5552,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-release-verification/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-release-verification/tasks.md"
     },
     {
       "id": "2026-03-25-runtime-podman-only",
@@ -5594,7 +5619,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-runtime-podman-only/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-runtime-podman-only/tasks.md"
     },
     {
       "id": "2026-03-25-svg-icon-pipeline",
@@ -5645,7 +5670,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-svg-icon-pipeline/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-svg-icon-pipeline/tasks.md"
     },
     {
       "id": "2026-03-25-terminal-in-tauri",
@@ -5836,7 +5861,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-terminal-in-tauri/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-terminal-in-tauri/tasks.md"
     },
     {
       "id": "2026-03-25-terminal-lifecycle",
@@ -5967,7 +5992,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-terminal-lifecycle/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-terminal-lifecycle/tasks.md"
     },
     {
       "id": "2026-03-25-tray-version-credit",
@@ -6002,7 +6027,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-25-tray-version-credit/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-25-tray-version-credit/tasks.md"
     },
     {
       "id": "2026-03-26-agent-selection-claude",
@@ -6089,7 +6114,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-agent-selection-claude/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-agent-selection-claude/tasks.md"
     },
     {
       "id": "2026-03-26-emoji-ux-guidelines",
@@ -6188,7 +6213,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-emoji-ux-guidelines/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-emoji-ux-guidelines/tasks.md"
     },
     {
       "id": "2026-03-26-expand-genus-pool",
@@ -6251,7 +6276,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-expand-genus-pool/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-expand-genus-pool/tasks.md"
     },
     {
       "id": "2026-03-26-fix-appimage-autoupdate",
@@ -6298,7 +6323,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-fix-appimage-autoupdate/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-fix-appimage-autoupdate/tasks.md"
     },
     {
       "id": "2026-03-26-fix-build-script-init",
@@ -6329,7 +6354,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-fix-build-script-init/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-fix-build-script-init/tasks.md"
     },
     {
       "id": "2026-03-26-fix-container-death-detection",
@@ -6416,7 +6441,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-fix-container-death-detection/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-fix-container-death-detection/tasks.md"
     },
     {
       "id": "2026-03-26-fix-file-permissions",
@@ -6467,7 +6492,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-fix-file-permissions/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-fix-file-permissions/tasks.md"
     },
     {
       "id": "2026-03-26-fix-gh-auth-setup-git",
@@ -6494,7 +6519,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-fix-gh-auth-setup-git/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-fix-gh-auth-setup-git/tasks.md"
     },
     {
       "id": "2026-03-26-fix-root-mount-and-terminal",
@@ -6533,7 +6558,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-fix-root-mount-and-terminal/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-fix-root-mount-and-terminal/tasks.md"
     },
     {
       "id": "2026-03-26-fix-terminal-root-landing-ux",
@@ -6552,7 +6577,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-fix-terminal-root-landing-ux/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-fix-terminal-root-landing-ux/tasks.md"
     },
     {
       "id": "2026-03-26-fix-update-no-curl",
@@ -6603,7 +6628,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-fix-update-no-curl/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-fix-update-no-curl/tasks.md"
     },
     {
       "id": "2026-03-26-forge-build-ux-polish",
@@ -6698,7 +6723,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-forge-build-ux-polish/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-forge-build-ux-polish/tasks.md"
     },
     {
       "id": "2026-03-26-genus-named-terminals",
@@ -6789,7 +6814,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-genus-named-terminals/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-genus-named-terminals/tasks.md"
     },
     {
       "id": "2026-03-26-gh-login-no-forge",
@@ -6844,7 +6869,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-gh-login-no-forge/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-gh-login-no-forge/tasks.md"
     },
     {
       "id": "2026-03-26-menu-display-active-containers-inline",
@@ -6887,7 +6912,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-menu-display-active-containers-inline/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-menu-display-active-containers-inline/tasks.md"
     },
     {
       "id": "2026-03-26-move-entrypoint-from-home",
@@ -6922,7 +6947,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-move-entrypoint-from-home/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-move-entrypoint-from-home/tasks.md"
     },
     {
       "id": "2026-03-26-pin-nix-builder-image",
@@ -6941,7 +6966,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-pin-nix-builder-image/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-pin-nix-builder-image/tasks.md"
     },
     {
       "id": "2026-03-26-remote-project-to-launch",
@@ -6992,7 +7017,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-remote-project-to-launch/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-remote-project-to-launch/tasks.md"
     },
     {
       "id": "2026-03-26-root-terminal-launcher",
@@ -7047,7 +7072,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-root-terminal-launcher/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-root-terminal-launcher/tasks.md"
     },
     {
       "id": "2026-03-26-settings-github-submenu",
@@ -7082,7 +7107,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-settings-github-submenu/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-settings-github-submenu/tasks.md"
     },
     {
       "id": "2026-03-26-tray-menu-fanout",
@@ -7173,7 +7198,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-tray-menu-fanout/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-tray-menu-fanout/tasks.md"
     },
     {
       "id": "2026-03-26-user-friendly-errors",
@@ -7248,7 +7273,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-user-friendly-errors/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-user-friendly-errors/tasks.md"
     },
     {
       "id": "2026-03-26-versioned-forge-images",
@@ -7351,7 +7376,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-versioned-forge-images/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-versioned-forge-images/tasks.md"
     },
     {
       "id": "2026-03-26-webview-menus-exploration",
@@ -7361,7 +7386,7 @@
       "open": 0,
       "tasks": [],
       "has_tasks": false,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-26-webview-menus-exploration/proposal.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-26-webview-menus-exploration/proposal.md"
     },
     {
       "id": "2026-03-27-claude-api-key-login",
@@ -7464,7 +7489,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-claude-api-key-login/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-claude-api-key-login/tasks.md"
     },
     {
       "id": "2026-03-27-claude-login-refresh-label",
@@ -7483,7 +7508,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-claude-login-refresh-label/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-claude-login-refresh-label/tasks.md"
     },
     {
       "id": "2026-03-27-fix-dual-tray-icon",
@@ -7506,7 +7531,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-dual-tray-icon/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-dual-tray-icon/tasks.md"
     },
     {
       "id": "2026-03-27-fix-entrypoint-agent-launch",
@@ -7545,7 +7570,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-entrypoint-agent-launch/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-entrypoint-agent-launch/tasks.md"
     },
     {
       "id": "2026-03-27-fix-forge-agent-claude",
@@ -7732,7 +7757,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-forge-agent-claude/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-forge-agent-claude/tasks.md"
     },
     {
       "id": "2026-03-27-fix-forge-image-persistence",
@@ -7791,7 +7816,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-forge-image-persistence/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-forge-image-persistence/tasks.md"
     },
     {
       "id": "2026-03-27-fix-gh-auth-macos-path",
@@ -7826,7 +7851,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-gh-auth-macos-path/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-gh-auth-macos-path/tasks.md"
     },
     {
       "id": "2026-03-27-fix-github-login-permissions",
@@ -7857,7 +7882,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-github-login-permissions/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-github-login-permissions/tasks.md"
     },
     {
       "id": "2026-03-27-fix-macos-finder-launch-path",
@@ -7904,7 +7929,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-macos-finder-launch-path/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-macos-finder-launch-path/tasks.md"
     },
     {
       "id": "2026-03-27-fix-macos-os-detection",
@@ -7927,7 +7952,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-macos-os-detection/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-macos-os-detection/tasks.md"
     },
     {
       "id": "2026-03-27-fix-macos-platform-defaults",
@@ -7970,7 +7995,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-macos-platform-defaults/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-macos-platform-defaults/tasks.md"
     },
     {
       "id": "2026-03-27-fix-macos-updater-symlink",
@@ -7993,7 +8018,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-macos-updater-symlink/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-macos-updater-symlink/tasks.md"
     },
     {
       "id": "2026-03-27-fix-opencode-tar-extraction",
@@ -8012,7 +8037,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-opencode-tar-extraction/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-opencode-tar-extraction/tasks.md"
     },
     {
       "id": "2026-03-27-fix-uninstall-wipe-complete",
@@ -8051,7 +8076,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-uninstall-wipe-complete/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-uninstall-wipe-complete/tasks.md"
     },
     {
       "id": "2026-03-27-fix-update-artifacts",
@@ -8094,7 +8119,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-fix-update-artifacts/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-fix-update-artifacts/tasks.md"
     },
     {
       "id": "2026-03-27-forge-version-labeling",
@@ -8145,7 +8170,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-forge-version-labeling/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-forge-version-labeling/tasks.md"
     },
     {
       "id": "2026-03-27-macos-native-build",
@@ -8240,7 +8265,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-macos-native-build/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-macos-native-build/tasks.md"
     },
     {
       "id": "2026-03-27-osx-podman-machine-start",
@@ -8267,7 +8292,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-osx-podman-machine-start/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-osx-podman-machine-start/tasks.md"
     },
     {
       "id": "2026-03-27-podman-resilience",
@@ -8314,7 +8339,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-27-podman-resilience/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-27-podman-resilience/tasks.md"
     },
     {
       "id": "2026-03-29-config-driven-launch",
@@ -8453,7 +8478,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-29-config-driven-launch/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-29-config-driven-launch/tasks.md"
     },
     {
       "id": "2026-03-29-fix-forge-launch-regression",
@@ -8552,7 +8577,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-29-fix-forge-launch-regression/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-29-fix-forge-launch-regression/tasks.md"
     },
     {
       "id": "2026-03-29-fix-install-running-appimage",
@@ -8579,7 +8604,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-29-fix-install-running-appimage/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-29-fix-install-running-appimage/tasks.md"
     },
     {
       "id": "2026-03-29-fix-ux-string-bugs",
@@ -8686,7 +8711,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-29-fix-ux-string-bugs/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-29-fix-ux-string-bugs/tasks.md"
     },
     {
       "id": "2026-03-29-i18n-infrastructure",
@@ -8833,7 +8858,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-29-i18n-infrastructure/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-29-i18n-infrastructure/tasks.md"
     },
     {
       "id": "2026-03-29-modular-entrypoints",
@@ -8952,7 +8977,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-29-modular-entrypoints/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-29-modular-entrypoints/tasks.md"
     },
     {
       "id": "2026-03-29-web-container-support",
@@ -9063,7 +9088,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-29-web-container-support/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-29-web-container-support/tasks.md"
     },
     {
       "id": "2026-03-30-cli-welcome-help-redesign",
@@ -9130,7 +9155,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-30-cli-welcome-help-redesign/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-30-cli-welcome-help-redesign/tasks.md"
     },
     {
       "id": "2026-03-30-clickable-trace-index",
@@ -9201,7 +9226,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-30-clickable-trace-index/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-30-clickable-trace-index/tasks.md"
     },
     {
       "id": "2026-03-30-fix-entrypoint-regression",
@@ -9268,7 +9293,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-30-fix-entrypoint-regression/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-30-fix-entrypoint-regression/tasks.md"
     },
     {
       "id": "2026-03-30-logging-accountability-framework",
@@ -9383,7 +9408,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-30-logging-accountability-framework/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-30-logging-accountability-framework/tasks.md"
     },
     {
       "id": "2026-03-30-logging-cheatsheets",
@@ -9430,7 +9455,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-30-logging-cheatsheets/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-30-logging-cheatsheets/tasks.md"
     },
     {
       "id": "2026-03-30-secret-rotation-tokens",
@@ -9569,7 +9594,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-30-secret-rotation-tokens/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-30-secret-rotation-tokens/tasks.md"
     },
     {
       "id": "2026-03-30-tray-icon-lifecycle",
@@ -9620,7 +9645,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-30-tray-icon-lifecycle/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-30-tray-icon-lifecycle/tasks.md"
     },
     {
       "id": "2026-03-30-tray-icon-resize-visibility",
@@ -9707,7 +9732,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-30-tray-icon-resize-visibility/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-30-tray-icon-resize-visibility/tasks.md"
     },
     {
       "id": "2026-03-30-update-audit-logging",
@@ -9806,7 +9831,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-03-30-update-audit-logging/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-03-30-update-audit-logging/tasks.md"
     },
     {
       "id": "2026-04-01-condense-log-format",
@@ -9861,7 +9886,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-01-condense-log-format/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-01-condense-log-format/tasks.md"
     },
     {
       "id": "2026-04-03-add-german-i18n",
@@ -9871,7 +9896,7 @@
       "open": 0,
       "tasks": [],
       "has_tasks": false,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-03-add-german-i18n/.openspec.yaml"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-03-add-german-i18n/.openspec.yaml"
     },
     {
       "id": "2026-04-03-fix-nix-build-staleness-divergence",
@@ -9906,7 +9931,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-03-fix-nix-build-staleness-divergence/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-03-fix-nix-build-staleness-divergence/tasks.md"
     },
     {
       "id": "2026-04-03-fix-seccomp-spec-accuracy",
@@ -9937,7 +9962,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-03-fix-seccomp-spec-accuracy/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-03-fix-seccomp-spec-accuracy/tasks.md"
     },
     {
       "id": "2026-04-03-windows-full-support",
@@ -10048,7 +10073,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-03-windows-full-support/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-03-windows-full-support/tasks.md"
     },
     {
       "id": "2026-04-03-windows-runtime-fixes",
@@ -10135,7 +10160,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-03-windows-runtime-fixes/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-03-windows-runtime-fixes/tasks.md"
     },
     {
       "id": "2026-04-04-enclave-proxy-network",
@@ -10302,7 +10327,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-04-enclave-proxy-network/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-04-enclave-proxy-network/tasks.md"
     },
     {
       "id": "2026-04-04-enclave-telemetry-polish",
@@ -10373,7 +10398,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-04-enclave-telemetry-polish/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-04-enclave-telemetry-polish/tasks.md"
     },
     {
       "id": "2026-04-04-forge-offline-isolation",
@@ -10496,7 +10521,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-04-forge-offline-isolation/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-04-forge-offline-isolation/tasks.md"
     },
     {
       "id": "2026-04-04-git-mirror-service",
@@ -10647,7 +10672,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-04-git-mirror-service/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-04-git-mirror-service/tasks.md"
     },
     {
       "id": "2026-04-04-inference-container",
@@ -10718,7 +10743,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-04-inference-container/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-04-inference-container/tasks.md"
     },
     {
       "id": "2026-04-05-add-knowledge-source-of-truth",
@@ -10793,7 +10818,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-add-knowledge-source-of-truth/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-add-knowledge-source-of-truth/tasks.md"
     },
     {
       "id": "2026-04-05-add-spec-traceability-refs",
@@ -10960,7 +10985,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-add-spec-traceability-refs/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-add-spec-traceability-refs/tasks.md"
     },
     {
       "id": "2026-04-05-appimage-icon-polish",
@@ -11003,7 +11028,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-appimage-icon-polish/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-appimage-icon-polish/tasks.md"
     },
     {
       "id": "2026-04-05-audit-remediation",
@@ -11094,7 +11119,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-audit-remediation/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-audit-remediation/tasks.md"
     },
     {
       "id": "2026-04-05-cli-version-and-init-flags",
@@ -11161,7 +11186,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-cli-version-and-init-flags/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-cli-version-and-init-flags/tasks.md"
     },
     {
       "id": "2026-04-05-default-agent-opencode",
@@ -11176,7 +11201,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-default-agent-opencode/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-default-agent-opencode/tasks.md"
     },
     {
       "id": "2026-04-05-fedora-43-base",
@@ -11195,7 +11220,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-fedora-43-base/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-fedora-43-base/tasks.md"
     },
     {
       "id": "2026-04-05-fix-appimage-fuse-fd-leak",
@@ -11234,7 +11259,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-fix-appimage-fuse-fd-leak/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-fix-appimage-fuse-fd-leak/tasks.md"
     },
     {
       "id": "2026-04-05-fix-embedded-locales",
@@ -11269,7 +11294,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-fix-embedded-locales/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-fix-embedded-locales/tasks.md"
     },
     {
       "id": "2026-04-05-fix-macos-terminal-fallback",
@@ -11328,7 +11353,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-fix-macos-terminal-fallback/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-fix-macos-terminal-fallback/tasks.md"
     },
     {
       "id": "2026-04-05-fix-opencode-installer",
@@ -11367,7 +11392,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-fix-opencode-installer/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-fix-opencode-installer/tasks.md"
     },
     {
       "id": "2026-04-05-fix-spec-audit-warnings",
@@ -11454,7 +11479,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-fix-spec-audit-warnings/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-fix-spec-audit-warnings/tasks.md"
     },
     {
       "id": "2026-04-05-language-menu-and-locale",
@@ -11545,7 +11570,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-language-menu-and-locale/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-language-menu-and-locale/tasks.md"
     },
     {
       "id": "2026-04-05-openspec-in-terminals",
@@ -11576,7 +11601,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-openspec-in-terminals/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-openspec-in-terminals/tasks.md"
     },
     {
       "id": "2026-04-05-remove-api-key-auth-and-fix-welcome",
@@ -11691,7 +11716,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-remove-api-key-auth-and-fix-welcome/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-remove-api-key-auth-and-fix-welcome/tasks.md"
     },
     {
       "id": "2026-04-05-terminal-tooling-cheatsheet",
@@ -11726,7 +11751,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-terminal-tooling-cheatsheet/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-terminal-tooling-cheatsheet/tasks.md"
     },
     {
       "id": "2026-04-05-welcome-screen-cleanup",
@@ -11765,7 +11790,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-05-welcome-screen-cleanup/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-05-welcome-screen-cleanup/tasks.md"
     },
     {
       "id": "2026-04-07-secrets-architecture",
@@ -11844,7 +11869,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-07-secrets-architecture/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-07-secrets-architecture/tasks.md"
     },
     {
       "id": "2026-04-08-add-missing-trace-annotations",
@@ -11903,7 +11928,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-add-missing-trace-annotations/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-add-missing-trace-annotations/tasks.md"
     },
     {
       "id": "2026-04-08-config-overlay-and-inference",
@@ -11982,7 +12007,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-config-overlay-and-inference/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-config-overlay-and-inference/tasks.md"
     },
     {
       "id": "2026-04-08-container-process-hardening",
@@ -12053,7 +12078,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-container-process-hardening/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-container-process-hardening/tasks.md"
     },
     {
       "id": "2026-04-08-create-secret-management-spec",
@@ -12104,7 +12129,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-create-secret-management-spec/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-create-secret-management-spec/tasks.md"
     },
     {
       "id": "2026-04-08-dead-code-cleanup",
@@ -12139,7 +12164,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-dead-code-cleanup/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-dead-code-cleanup/tasks.md"
     },
     {
       "id": "2026-04-08-fix-forge-staleness-and-pruning",
@@ -12198,7 +12223,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-fix-forge-staleness-and-pruning/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-fix-forge-staleness-and-pruning/tasks.md"
     },
     {
       "id": "2026-04-08-fix-ghost-traces",
@@ -12265,7 +12290,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-fix-ghost-traces/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-fix-ghost-traces/tasks.md"
     },
     {
       "id": "2026-04-08-fix-proxy-spec-security-boundary",
@@ -12312,7 +12337,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-fix-proxy-spec-security-boundary/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-fix-proxy-spec-security-boundary/tasks.md"
     },
     {
       "id": "2026-04-08-fix-shell-quote-env-vars",
@@ -12347,7 +12372,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-fix-shell-quote-env-vars/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-fix-shell-quote-env-vars/tasks.md"
     },
     {
       "id": "2026-04-08-fix-tray-first-launch-ordering",
@@ -12386,7 +12411,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-fix-tray-first-launch-ordering/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-fix-tray-first-launch-ordering/tasks.md"
     },
     {
       "id": "2026-04-08-layered-tools-overlay",
@@ -12485,7 +12510,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-layered-tools-overlay/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-layered-tools-overlay/tasks.md"
     },
     {
       "id": "2026-04-08-methodology-optimization-cheatsheet",
@@ -12516,7 +12541,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-methodology-optimization-cheatsheet/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-methodology-optimization-cheatsheet/tasks.md"
     },
     {
       "id": "2026-04-08-pre-commit-trace-warnings",
@@ -12559,7 +12584,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-pre-commit-trace-warnings/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-pre-commit-trace-warnings/tasks.md"
     },
     {
       "id": "2026-04-08-scanner-graceful-degradation",
@@ -12590,7 +12615,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-08-scanner-graceful-degradation/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-08-scanner-graceful-degradation/tasks.md"
     },
     {
       "id": "2026-04-16-async-inference-launch",
@@ -12665,7 +12690,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-16-async-inference-launch/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-16-async-inference-launch/tasks.md"
     },
     {
       "id": "2026-04-16-ci-node24-audit-and-fix",
@@ -12772,7 +12797,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-16-ci-node24-audit-and-fix/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-16-ci-node24-audit-and-fix/tasks.md"
     },
     {
       "id": "2026-04-16-fix-podman-machine-host-aliases",
@@ -12847,7 +12872,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-16-fix-podman-machine-host-aliases/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-16-fix-podman-machine-host-aliases/tasks.md"
     },
     {
       "id": "2026-04-16-fix-windows-extended-path",
@@ -12946,7 +12971,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-16-fix-windows-extended-path/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-16-fix-windows-extended-path/tasks.md"
     },
     {
       "id": "2026-04-16-fix-windows-image-routing",
@@ -13029,7 +13054,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-16-fix-windows-image-routing/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-16-fix-windows-image-routing/tasks.md"
     },
     {
       "id": "2026-04-16-keyring-on-host-credential-migration",
@@ -13432,7 +13457,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-16-keyring-on-host-credential-migration/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-16-keyring-on-host-credential-migration/tasks.md"
     },
     {
       "id": "2026-04-16-overlay-mount-cache",
@@ -13467,7 +13492,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-16-overlay-mount-cache/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-16-overlay-mount-cache/tasks.md"
     },
     {
       "id": "2026-04-16-persistent-git-service",
@@ -13522,7 +13547,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-16-persistent-git-service/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-16-persistent-git-service/tasks.md"
     },
     {
       "id": "2026-04-16-tools-overlay-fast-reuse",
@@ -13617,7 +13642,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-16-tools-overlay-fast-reuse/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-16-tools-overlay-fast-reuse/tasks.md"
     },
     {
       "id": "2026-04-23-add-opencode-web-agent",
@@ -13744,7 +13769,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-23-add-opencode-web-agent/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-23-add-opencode-web-agent/tasks.md"
     },
     {
       "id": "2026-04-23-tray-aware-cli-and-webview-lifecycle",
@@ -13815,7 +13840,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-23-tray-aware-cli-and-webview-lifecycle/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-23-tray-aware-cli-and-webview-lifecycle/tasks.md"
     },
     {
       "id": "2026-04-24-deprecate-tauri-webview-for-native-browser",
@@ -13922,7 +13947,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-24-deprecate-tauri-webview-for-native-browser/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-24-deprecate-tauri-webview-for-native-browser/tasks.md"
     },
     {
       "id": "2026-04-24-fix-tray-exit-webview-lifecycle",
@@ -14017,7 +14042,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-24-fix-tray-exit-webview-lifecycle/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-24-fix-tray-exit-webview-lifecycle/tasks.md"
     },
     {
       "id": "2026-04-24-mirror-to-host-auto-sync",
@@ -14140,7 +14165,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-24-mirror-to-host-auto-sync/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-24-mirror-to-host-auto-sync/tasks.md"
     },
     {
       "id": "2026-04-24-opencode-web-config-isolation",
@@ -14215,7 +14240,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-24-opencode-web-config-isolation/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-24-opencode-web-config-isolation/tasks.md"
     },
     {
       "id": "2026-04-24-opencode-web-proxy-transparent",
@@ -14286,7 +14311,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-24-opencode-web-proxy-transparent/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-24-opencode-web-proxy-transparent/tasks.md"
     },
     {
       "id": "2026-04-25-clamp-small-model-to-baked-tiers",
@@ -14313,7 +14338,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-25-clamp-small-model-to-baked-tiers/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-25-clamp-small-model-to-baked-tiers/tasks.md"
     },
     {
       "id": "2026-04-25-simplified-tray-ux",
@@ -14480,7 +14505,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-25-simplified-tray-ux/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-25-simplified-tray-ux/tasks.md"
     },
     {
       "id": "2026-04-25-subdomain-routing-via-reverse-proxy",
@@ -14579,7 +14604,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-25-subdomain-routing-via-reverse-proxy/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-25-subdomain-routing-via-reverse-proxy/tasks.md"
     },
     {
       "id": "2026-04-25-tombstone-tools-overlay",
@@ -14662,7 +14687,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-25-tombstone-tools-overlay/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-25-tombstone-tools-overlay/tasks.md"
     },
     {
       "id": "2026-04-25-tray-responsiveness-and-startup-gating-superseded",
@@ -14789,7 +14814,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-25-tray-responsiveness-and-startup-gating-superseded/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-25-tray-responsiveness-and-startup-gating-superseded/tasks.md"
     },
     {
       "id": "2026-04-25-zen-default-with-ollama-analysis-pool",
@@ -14840,7 +14865,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-25-zen-default-with-ollama-analysis-pool/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-25-zen-default-with-ollama-analysis-pool/tasks.md"
     },
     {
       "id": "2026-04-26-appimage-builder-source-slim",
@@ -14899,7 +14924,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-26-appimage-builder-source-slim/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-26-appimage-builder-source-slim/tasks.md"
     },
     {
       "id": "2026-04-26-cheatsheet-tooling-and-mcp",
@@ -15006,7 +15031,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-26-cheatsheet-tooling-and-mcp/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-26-cheatsheet-tooling-and-mcp/tasks.md"
     },
     {
       "id": "2026-04-26-fix-router-loopback-port",
@@ -15065,7 +15090,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-26-fix-router-loopback-port/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-26-fix-router-loopback-port/tasks.md"
     },
     {
       "id": "2026-04-26-forge-cache-architecture",
@@ -15180,7 +15205,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-26-forge-cache-architecture/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-26-forge-cache-architecture/tasks.md"
     },
     {
       "id": "2026-04-26-forge-environment-discoverability",
@@ -15190,7 +15215,7 @@
       "open": 0,
       "tasks": [],
       "has_tasks": false,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-26-forge-environment-discoverability/proposal.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-26-forge-environment-discoverability/proposal.md"
     },
     {
       "id": "2026-04-26-forge-headless-browsers",
@@ -15229,7 +15254,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-26-forge-headless-browsers/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-26-forge-headless-browsers/tasks.md"
     },
     {
       "id": "2026-04-26-host-chromium-on-demand",
@@ -15392,7 +15417,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-26-host-chromium-on-demand/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-26-host-chromium-on-demand/tasks.md"
     },
     {
       "id": "2026-04-26-subdomain-naming-flip",
@@ -15451,7 +15476,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-26-subdomain-naming-flip/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-26-subdomain-naming-flip/tasks.md"
     },
     {
       "id": "2026-04-26-tray-host-control-socket",
@@ -15634,7 +15659,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-26-tray-host-control-socket/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-26-tray-host-control-socket/tasks.md"
     },
     {
       "id": "2026-04-26-tray-no-disabled-items",
@@ -15805,7 +15830,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-26-tray-no-disabled-items/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-26-tray-no-disabled-items/tasks.md"
     },
     {
       "id": "2026-04-26-tray-progress-and-icon-states",
@@ -15860,7 +15885,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-26-tray-progress-and-icon-states/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-26-tray-progress-and-icon-states/tasks.md"
     },
     {
       "id": "2026-04-27-cheatsheet-methodology-evolution",
@@ -16155,7 +16180,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-27-cheatsheet-methodology-evolution/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-27-cheatsheet-methodology-evolution/tasks.md"
     },
     {
       "id": "2026-04-27-cheatsheet-source-layer",
@@ -16270,7 +16295,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-27-cheatsheet-source-layer/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-27-cheatsheet-source-layer/tasks.md"
     },
     {
       "id": "2026-04-27-direct-podman-calls",
@@ -16517,7 +16542,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-27-direct-podman-calls/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-27-direct-podman-calls/tasks.md"
     },
     {
       "id": "2026-04-27-external-logs-layer",
@@ -16656,7 +16681,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-27-external-logs-layer/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-27-external-logs-layer/tasks.md"
     },
     {
       "id": "2026-04-27-forge-hot-cold-split",
@@ -16807,7 +16832,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-27-forge-hot-cold-split/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-27-forge-hot-cold-split/tasks.md"
     },
     {
       "id": "2026-04-27-forge-hot-cold-split-tmpfs-lane",
@@ -16846,7 +16871,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-27-forge-hot-cold-split-tmpfs-lane/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-27-forge-hot-cold-split-tmpfs-lane/tasks.md"
     },
     {
       "id": "2026-04-27-forge-opencode-methodology-overhaul",
@@ -16889,7 +16914,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-27-forge-opencode-methodology-overhaul/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-27-forge-opencode-methodology-overhaul/tasks.md"
     },
     {
       "id": "2026-04-27-opencode-web-session-otp",
@@ -17032,7 +17057,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-27-opencode-web-session-otp/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-27-opencode-web-session-otp/tasks.md"
     },
     {
       "id": "2026-04-27-tray-projects-rename",
@@ -17115,7 +17140,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-27-tray-projects-rename/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-27-tray-projects-rename/tasks.md"
     },
     {
       "id": "2026-04-28-host-browser-mcp",
@@ -17386,7 +17411,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-28-host-browser-mcp/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-28-host-browser-mcp/tasks.md"
     },
     {
       "id": "2026-04-30-init-incremental-builds",
@@ -17497,7 +17522,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-04-30-init-incremental-builds/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-04-30-init-incremental-builds/tasks.md"
     },
     {
       "id": "2026-05-03-browser-daemon-tracking",
@@ -17616,7 +17641,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-05-03-browser-daemon-tracking/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-05-03-browser-daemon-tracking/tasks.md"
     },
     {
       "id": "2026-05-04-stale-secrets-cleanup",
@@ -17703,7 +17728,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-05-04-stale-secrets-cleanup/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-05-04-stale-secrets-cleanup/tasks.md"
     },
     {
       "id": "2026-05-12-codex-tray-launcher",
@@ -17838,7 +17863,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-05-12-codex-tray-launcher/codex-tray-launcher/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-05-12-codex-tray-launcher/codex-tray-launcher/tasks.md"
     },
     {
       "id": "2026-05-12-end-to-end-diagnostics-cli",
@@ -18045,7 +18070,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-05-12-end-to-end-diagnostics-cli/end-to-end-diagnostics-cli/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-05-12-end-to-end-diagnostics-cli/end-to-end-diagnostics-cli/tasks.md"
     },
     {
       "id": "2026-05-12-tray-minimal-ux",
@@ -18164,7 +18189,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-05-12-tray-minimal-ux/tray-minimal-ux/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-05-12-tray-minimal-ux/tray-minimal-ux/tasks.md"
     },
     {
       "id": "2026-05-13-linux-native-portable-executable",
@@ -18363,7 +18388,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-05-13-linux-native-portable-executable/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-05-13-linux-native-portable-executable/tasks.md"
     },
     {
       "id": "2026-08-06-chromium-browser-isolation",
@@ -18373,7 +18398,7 @@
       "open": 0,
       "tasks": [],
       "has_tasks": false,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/2026-08-06-chromium-browser-isolation/proposal.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/2026-08-06-chromium-browser-isolation/proposal.md"
     },
     {
       "id": "agent-source-of-truth-completed-2026-04-27",
@@ -18700,7 +18725,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/agent-source-of-truth-completed-2026-04-27/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/agent-source-of-truth-completed-2026-04-27/tasks.md"
     },
     {
       "id": "cheatsheets-license-tiered",
@@ -18979,7 +19004,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/cheatsheets-license-tiered/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/cheatsheets-license-tiered/tasks.md"
     },
     {
       "id": "expert-serve-grounded-pipeline-completed-2026-09-22",
@@ -19098,7 +19123,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/expert-serve-grounded-pipeline-completed-2026-09-22/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/expert-serve-grounded-pipeline-completed-2026-09-22/tasks.md"
     },
     {
       "id": "forge-bake-nix-completed-2026-04-27",
@@ -19185,7 +19210,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/forge-bake-nix-completed-2026-04-27/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/forge-bake-nix-completed-2026-04-27/tasks.md"
     },
     {
       "id": "forge-build-observability-and-diagnostics",
@@ -19428,7 +19453,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/forge-build-observability-and-diagnostics/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/forge-build-observability-and-diagnostics/tasks.md"
     },
     {
       "id": "inference-host-side-pull-completed-2026-04-27",
@@ -19495,7 +19520,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/inference-host-side-pull-completed-2026-04-27/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/inference-host-side-pull-completed-2026-04-27/tasks.md"
     },
     {
       "id": "project-bootstrap-readme-applied-2026-04-27",
@@ -19674,7 +19699,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/project-bootstrap-readme-applied-2026-04-27/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/project-bootstrap-readme-applied-2026-04-27/tasks.md"
     },
     {
       "id": "shutdown-conmon-stragglers-completed-2026-04-27",
@@ -19761,7 +19786,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/shutdown-conmon-stragglers-completed-2026-04-27/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/shutdown-conmon-stragglers-completed-2026-04-27/tasks.md"
     },
     {
       "id": "windows-etw-logging-completed-2026-04-27",
@@ -19880,7 +19905,7 @@
         }
       ],
       "has_tasks": true,
-      "url": "https://github.com/8007342/tillandsias/blob/v56.10.9.1/openspec/changes/archive/windows-etw-logging-completed-2026-04-27/tasks.md"
+      "url": "https://github.com/8007342/tillandsias/blob/v56.10.20.1/openspec/changes/archive/windows-etw-logging-completed-2026-04-27/tasks.md"
     }
   ]
 }

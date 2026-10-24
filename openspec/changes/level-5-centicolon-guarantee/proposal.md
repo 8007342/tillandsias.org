@@ -1,6 +1,6 @@
 # Separate a measurable residual from a convergence guarantee
 
-Scoped follow-up to BigPickle's stable v56.9.27.2 audit (website b3f3091).
+Scoped follow-up to the automated stable v56.9.27.2 audit (website b3f3091).
 The operator requested a challenge to Level 5's missing metric, using the Lua
 runtime and CentiColons. Keep the stable pin and all unrelated sections.
 This proposal records website deltas, not authority to change runtime policy.
@@ -32,7 +32,7 @@ Leave it unarchived for operator review.
 5. Qualify the conclusion: CentiColons operationalize declared uncertainty,
    but trustworthy evidence, policy alignment and enforced comparison remain
    prerequisites; finite-time completion needs the extra progress premise.
-6. Clarify the paragraph added in BigPickle's audit: evidence can support
+6. Clarify the paragraph added in that audit: evidence can support
    tested behavior without a Galois connection. Absence of that connection
    withholds the abstract-interpretation transfer theorem, not all empirical
    knowledge. A configured positive-test bar is not evidence_bundled.

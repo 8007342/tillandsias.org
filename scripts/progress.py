@@ -54,11 +54,14 @@ def finding(f):
         detail += '<p><a href="%s" target="_blank" rel="noopener">Upstream issue ↗</a></p>' % esc(f["upstream"])
     elif f.get("repo") == "tillandsias":
         detail += '<p class="muted">No upstream issue filed.</p>'
+    # The page shows the finding and its current state; the dated event
+    # history (who recorded what, from which machine) is process record and
+    # stays in the ledger folder, linked here.
     if events:
-        detail += '<div class="ledger-field"><h5>History</h5><ol>%s</ol></div>' % "".join(
-            "<li><time>%s</time> · %s%s</li>" %
-            (esc(e.get("ts", "")), esc(e.get("type", "event")),
-             (" — " + esc(e.get("note"))) if e.get("note") else "") for e in events)
+        detail += ('<p class="muted">Last recorded: <time>%s</time> · %s. '
+                   '<a href="https://github.com/8007342/tillandsias.org/tree/main/issues.d" target="_blank" '
+                   'rel="noopener">Full dated record ↗</a></p>'
+                   % (esc(events[-1].get("ts", "")[:10]), esc(events[-1].get("type", "event"))))
     detail += field("Classification and release", "%s · %s · %s" %
                     (f.get("class", ""), f.get("tag", ""), f.get("commit", "")))
     return ('<details class="ledger-card finding sev-%s" data-ledger-item data-search="%s">'
@@ -94,10 +97,11 @@ def change(c, site=False):
     has_tasks = c.get("has_tasks", True)
     label = "No checklist" if not has_tasks else "Checklist complete" if complete else "Open tasks"
     tasks = c.get("tasks", [])
-    task_html = ('<div class="ledger-field"><h5>Task record</h5><ul class="task-list">%s</ul></div>' %
-                 "".join('<li><span aria-label="%s">%s</span> %s</li>' %
-                         ("checked" if t["checked"] else "open", "☑" if t["checked"] else "☐", esc(t["text"]))
-                         for t in tasks)) if tasks else ""
+    # The task record itself stays in the source repository: the site shows
+    # what a change was for and how much of its checklist is done, not the
+    # project's internal work log.
+    task_html = ('<p class="muted">%d of %d recorded tasks are checked; the full checklist is in the source record.</p>'
+                 % (c["done"], len(tasks))) if tasks else ""
     return ('<details class="ledger-card change %s" data-ledger-item data-search="%s">'
             '<summary><span class="ledger-code">%s</span><span class="ledger-title">%s</span>'
             '<span class="ledger-badge">%s</span><span class="ledger-meta">%d checked · %d open</span></summary>'

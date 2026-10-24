@@ -115,6 +115,25 @@ For `www` → apex, do **not** add `www.tillandsias.org` as a second custom doma
 **Redirect Rule** instead: match hostname `www.tillandsias.org`, redirect to
 `https://tillandsias.org${uri.path}`, status 301, preserve query string.
 
+### Sibling Workers on the same zone
+
+The runtime repository (`8007342/tillandsias`) deploys a second, unrelated
+Worker on this zone: the observatorium dashboard, from `observatorium/` in
+that repository. The two must stay disjoint, and today they are:
+
+| | this site | observatorium |
+|---|---|---|
+| Worker name | `tillandsias-org` | `tillandsias-observatorium` |
+| Hostname | `tillandsias.org` (custom domain set in the dashboard) | `observatorium.tillandsias.org` (`routes[].custom_domain` in its `wrangler.jsonc`, `workers_dev: false`) |
+| Repository / production branch | this repository, `main` | `8007342/tillandsias`, `deploy/observatorium` (moved only by its stable promotion) |
+| Content | `var/html` committed here | built from that repository at deploy time |
+
+Nothing copies content from one into the other. When editing `wrangler.jsonc`
+here, keep `name` as `tillandsias-org` and do not add a `routes` entry for a
+hostname the other Worker owns; a Workers Custom Domain is exclusive per
+hostname, so a duplicate would be refused rather than silently take over, but
+the refusal would block this site's deploy.
+
 ### Relationship to the dynamic-DNS path above
 
 These are two different ways to serve the same domain and they conflict. The

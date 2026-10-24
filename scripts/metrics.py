@@ -198,9 +198,13 @@ def verify(repo, ref):
     bad = []
     for r in live:
         f = fresh.get(row_id(r))
-        if f is None and r.get("kind") == "pin":
+        if r.get("kind") == "pin" and f is None:
             # A pin milestone belongs to the tag it names, not to today's ref.
             f = {row_id(x): x for x in extract_milestones(repo, r["key"])}.get(row_id(r))
+        if r.get("kind") == "bar" and f is not None and f["src"] != r["src"]:
+            # A bar milestone's source is the ref it was extracted at; the same
+            # approval replays from that ref, not from today's.
+            f = {row_id(x): x for x in extract_milestones(repo, r["src"]["commit"])}.get(row_id(r))
         if f is None:
             reach = subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor",
                                     r["src"]["commit"], ref], capture_output=True).returncode

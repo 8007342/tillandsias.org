@@ -1,0 +1,1148 @@
+{
+ "from": "v56.10.20.1",
+ "host": "macuahuitl",
+ "judgement": [
+  {
+   "candidates": [],
+   "level": "level-4-security",
+   "n": 118,
+   "quote": "",
+   "target": "scripts/lua/check-no-host-browser-launch.lua#L1-L12",
+   "was": "",
+   "why": "old-checkout-missing:v56.10.9.1"
+  }
+ ],
+ "kind": "run",
+ "learned": [],
+ "moved": [
+  {
+   "from": "build.sh#L2451-L2451",
+   "how": "block",
+   "n": 23,
+   "to": "build.sh#L3106-L3106",
+   "where": "level-2-phone"
+  },
+  {
+   "from": ".github/workflows/release.yml#L751-L751",
+   "how": "block",
+   "n": 26,
+   "to": ".github/workflows/release.yml#L800-L800",
+   "where": "level-2-phone"
+  },
+  {
+   "from": ".github/workflows/release.yml#L740-L740",
+   "how": "block",
+   "n": 27,
+   "to": ".github/workflows/release.yml#L789-L789",
+   "where": "level-2-phone"
+  },
+  {
+   "from": "scripts/uninstall.sh#L228-L228",
+   "how": "block",
+   "n": 30,
+   "to": "scripts/uninstall.sh#L238-L238",
+   "where": "level-2-phone"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L161-L161",
+   "how": "block",
+   "n": 34,
+   "to": "crates/tillandsias-headless/src/main.rs#L167-L167",
+   "where": "level-2-phone"
+  },
+  {
+   "from": "scripts/install-windows.ps1#L968-L968",
+   "how": "block",
+   "n": 38,
+   "to": "scripts/install-windows.ps1#L1051-L1051",
+   "where": "level-2-phone"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L10474-L10490",
+   "how": "block",
+   "n": 39,
+   "to": "crates/tillandsias-headless/src/main.rs#L11554-L11570",
+   "where": "level-2-phone"
+  },
+  {
+   "from": "scripts/install-windows.ps1#L951-L952",
+   "how": "block",
+   "n": 40,
+   "to": "scripts/install-windows.ps1#L1036-L1037",
+   "where": "level-2-phone"
+  },
+  {
+   "from": "openspec/specs/enclave-network/spec.md#L19-L75",
+   "how": "quote",
+   "n": 1,
+   "to": "openspec/specs/enclave-network/spec.md#L21-L77",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L24432-L24432",
+   "how": "block",
+   "n": 5,
+   "to": "crates/tillandsias-headless/src/main.rs#L25931-L25931",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L1706-L1706",
+   "how": "block",
+   "n": 10,
+   "to": "crates/tillandsias-headless/src/main.rs#L1830-L1830",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L4978-L5007",
+   "how": "quote",
+   "n": 16,
+   "to": "images/default/lib-common.sh#L5143-L5172",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L17589-L17589",
+   "how": "block",
+   "n": 21,
+   "to": "crates/tillandsias-headless/src/main.rs#L18710-L18710",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L18125-L18125",
+   "how": "block",
+   "n": 22,
+   "to": "crates/tillandsias-headless/src/main.rs#L19283-L19283",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L4679-L4679",
+   "how": "block",
+   "n": 24,
+   "to": "images/default/lib-common.sh#L4816-L4816",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L5079-L5084",
+   "how": "block",
+   "n": 28,
+   "to": "images/default/lib-common.sh#L5244-L5249",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L17625-L17625",
+   "how": "block",
+   "n": 30,
+   "to": "crates/tillandsias-headless/src/main.rs#L18749-L18749",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3218-L3221",
+   "how": "block",
+   "n": 31,
+   "to": "crates/tillandsias-headless/src/main.rs#L3764-L3767",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L10642-L10642",
+   "how": "block",
+   "n": 33,
+   "to": "crates/tillandsias-headless/src/main.rs#L11829-L11829",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L2015-L2015",
+   "how": "block",
+   "n": 34,
+   "to": "crates/tillandsias-headless/src/main.rs#L2140-L2140",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L24542-L24542",
+   "how": "block",
+   "n": 37,
+   "to": "crates/tillandsias-headless/src/main.rs#L26127-L26127",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L2227-L2259",
+   "how": "quote",
+   "n": 42,
+   "to": "images/default/lib-common.sh#L2283-L2315",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L17226-L17226",
+   "how": "block",
+   "n": 46,
+   "to": "crates/tillandsias-headless/src/main.rs#L18338-L18338",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/inference/entrypoint.sh#L329-L335",
+   "how": "quote",
+   "n": 48,
+   "to": "images/inference/entrypoint.sh#L322-L328",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/accel_probe.rs#L4402-L4402",
+   "how": "block",
+   "n": 49,
+   "to": "crates/tillandsias-headless/src/accel_probe.rs#L4553-L4553",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/inference/entrypoint.sh#L795-L798",
+   "how": "block",
+   "n": 51,
+   "to": "images/inference/entrypoint.sh#L954-L957",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/inference/entrypoint.sh#L371-L383",
+   "how": "quote",
+   "n": 53,
+   "to": "images/inference/entrypoint.sh#L435-L447",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L6059-L6059",
+   "how": "block",
+   "n": 54,
+   "to": "crates/tillandsias-headless/src/main.rs#L6939-L6939",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L5171-L5171",
+   "how": "block",
+   "n": 55,
+   "to": "crates/tillandsias-headless/src/main.rs#L5886-L5886",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/inference/Containerfile#L112-L121",
+   "how": "block",
+   "n": 58,
+   "to": "images/inference/Containerfile#L149-L158",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/git/pre-receive-hook.sh#L765-L765",
+   "how": "block",
+   "n": 63,
+   "to": "images/git/pre-receive-hook.sh#L783-L783",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L13186-L13186",
+   "how": "block",
+   "n": 70,
+   "to": "crates/tillandsias-headless/src/main.rs#L14008-L14008",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L18186-L18186",
+   "how": "block",
+   "n": 76,
+   "to": "crates/tillandsias-headless/src/main.rs#L19344-L19344",
+   "where": "level-3-power"
+  },
+  {
+   "from": "openspec/specs/tillandsias-vault/spec.md#L348-L353",
+   "how": "block",
+   "n": 77,
+   "to": "openspec/specs/tillandsias-vault/spec.md#L359-L364",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L5005-L5005",
+   "how": "block",
+   "n": 80,
+   "to": "images/default/lib-common.sh#L5170-L5170",
+   "where": "level-3-power"
+  },
+  {
+   "from": "openspec/specs/tillandsias-vault/spec.md#L252-L256",
+   "how": "block",
+   "n": 82,
+   "to": "openspec/specs/tillandsias-vault/spec.md#L263-L267",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/config-overlay/mcp/forge-plan.sh#L1355",
+   "how": "block",
+   "n": 86,
+   "to": "images/default/config-overlay/mcp/forge-plan.sh#L1367",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L4996-L4996",
+   "how": "block",
+   "n": 87,
+   "to": "images/default/lib-common.sh#L5161-L5161",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L1652-L1658",
+   "how": "block",
+   "n": 88,
+   "to": "images/default/lib-common.sh#L1693-L1699",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L5015-L5015",
+   "how": "block",
+   "n": 90,
+   "to": "images/default/lib-common.sh#L5180-L5180",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L7698-L7698",
+   "how": "block",
+   "n": 99,
+   "to": "crates/tillandsias-headless/src/main.rs#L8662-L8662",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L10190-L10192",
+   "how": "block",
+   "n": 101,
+   "to": "crates/tillandsias-headless/src/main.rs#L11183-L11185",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-browser-mcp/src/launcher.rs#L30-L38",
+   "how": "quote",
+   "n": 103,
+   "to": "crates/tillandsias-browser-mcp/src/launcher.rs#L39-L39",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/chromium/Containerfile.framework#L15-L35",
+   "how": "quote",
+   "n": 106,
+   "to": "images/chromium/Containerfile.framework#L27-L47",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L15944-L15944",
+   "how": "block",
+   "n": 107,
+   "to": "crates/tillandsias-headless/src/main.rs#L16935-L16935",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-browser-mcp/src/allowlist.rs#L250-L257",
+   "how": "quote",
+   "n": 113,
+   "to": "crates/tillandsias-browser-mcp/src/allowlist.rs#L283-L290",
+   "where": "level-3-power"
+  },
+  {
+   "from": "scripts/launch-chromium.sh#L93-L98",
+   "how": "block",
+   "n": 115,
+   "to": "scripts/launch-chromium.sh#L103-L108",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L6915-L6915",
+   "how": "block",
+   "n": 116,
+   "to": "crates/tillandsias-headless/src/main.rs#L7862-L7862",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L18039-L18039",
+   "how": "block",
+   "n": 123,
+   "to": "crates/tillandsias-headless/src/main.rs#L19197-L19197",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L7435-L7435",
+   "how": "block",
+   "n": 125,
+   "to": "crates/tillandsias-headless/src/main.rs#L8399-L8399",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L2851-L2851",
+   "how": "block",
+   "n": 126,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3145-L3145",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4907-L4907",
+   "how": "block",
+   "n": 127,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L5351-L5351",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L10397-L10399",
+   "how": "block",
+   "n": 128,
+   "to": "crates/tillandsias-headless/src/main.rs#L11476-L11478",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L33303-L33303",
+   "how": "block",
+   "n": 129,
+   "to": "crates/tillandsias-headless/src/main.rs#L35373-L35373",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-vm-layer/src/vz.rs#L2907-L2907",
+   "how": "block",
+   "n": 131,
+   "to": "crates/tillandsias-vm-layer/src/vz.rs#L3316-L3316",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-vm-layer/src/vz.rs#L1078-L1078",
+   "how": "block",
+   "n": 132,
+   "to": "crates/tillandsias-vm-layer/src/vz.rs#L1187-L1187",
+   "where": "level-3-power"
+  },
+  {
+   "from": "scripts/uninstall.sh#L228-L228",
+   "how": "block",
+   "n": 134,
+   "to": "scripts/uninstall.sh#L238-L238",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L9222-L9222",
+   "how": "block",
+   "n": 140,
+   "to": "crates/tillandsias-headless/src/main.rs#L10197-L10197",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L9383-L9383",
+   "how": "block",
+   "n": 141,
+   "to": "crates/tillandsias-headless/src/main.rs#L10358-L10358",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L17277-L17278",
+   "how": "block",
+   "n": 146,
+   "to": "crates/tillandsias-headless/src/main.rs#L18384-L18385",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L29042-L29042",
+   "how": "block",
+   "n": 147,
+   "to": "crates/tillandsias-headless/src/main.rs#L30798-L30798",
+   "where": "level-3-power"
+  },
+  {
+   "from": "build.sh#L2922-L2922",
+   "how": "block",
+   "n": 148,
+   "to": "build.sh#L3581-L3581",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L18051-L18062",
+   "how": "block",
+   "n": 149,
+   "to": "crates/tillandsias-headless/src/main.rs#L19209-L19220",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L4994-L5003",
+   "how": "block",
+   "n": 150,
+   "to": "images/default/lib-common.sh#L5159-L5168",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L10557-L10567",
+   "how": "block",
+   "n": 156,
+   "to": "crates/tillandsias-headless/src/main.rs#L11639-L11649",
+   "where": "level-3-power"
+  },
+  {
+   "from": "scripts/uninstall.sh#L184-L184",
+   "how": "block",
+   "n": 157,
+   "to": "scripts/uninstall.sh#L185-L185",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L5954-L5957",
+   "how": "block",
+   "n": 159,
+   "to": "crates/tillandsias-headless/src/main.rs#L6823-L6826",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/local_web_preview.rs#L544-L551",
+   "how": "quote",
+   "n": 160,
+   "to": "crates/tillandsias-headless/src/local_web_preview.rs#L1020-L1027",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/local_web_preview.rs#L1289-L1291",
+   "how": "block",
+   "n": 161,
+   "to": "crates/tillandsias-headless/src/local_web_preview.rs#L2293-L2295",
+   "where": "level-3-power"
+  },
+  {
+   "from": "openspec/specs/podman-idiomatic-patterns/spec.md#L209-L210",
+   "how": "block",
+   "n": 2,
+   "to": "openspec/specs/podman-idiomatic-patterns/spec.md#L220-L221",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-podman/src/container_spec.rs#L424-L425",
+   "how": "block",
+   "n": 6,
+   "to": "crates/tillandsias-podman/src/container_spec.rs#L478-L479",
+   "where": "level-4-security"
+  },
+  {
+   "from": "scripts/clamp-ca-material.sh#L15-L43",
+   "how": "quote",
+   "n": 11,
+   "to": "scripts/clamp-ca-material.sh#L26-L54",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3523-L3526",
+   "how": "block",
+   "n": 13,
+   "to": "crates/tillandsias-headless/src/main.rs#L4266-L4269",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L355-L355",
+   "how": "block",
+   "n": 19,
+   "to": ".github/workflows/release.yml#L376-L376",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3408-L3410",
+   "how": "block",
+   "n": 39,
+   "to": "crates/tillandsias-headless/src/main.rs#L4151-L4153",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3428-L3430",
+   "how": "block",
+   "n": 40,
+   "to": "crates/tillandsias-headless/src/main.rs#L4171-L4173",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3612-L3614",
+   "how": "block",
+   "n": 41,
+   "to": "crates/tillandsias-headless/src/main.rs#L4355-L4357",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L13186-L13188",
+   "how": "block",
+   "n": 46,
+   "to": "crates/tillandsias-headless/src/main.rs#L14008-L14010",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4091",
+   "how": "block",
+   "n": 50,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4543",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4190",
+   "how": "block",
+   "n": 52,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4642",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4407-L4410",
+   "how": "block",
+   "n": 53,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L5043-L5046",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-podman/src/container_spec.rs#L424-L425",
+   "how": "block",
+   "n": 55,
+   "to": "crates/tillandsias-podman/src/container_spec.rs#L478-L479",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L14990",
+   "how": "block",
+   "n": 56,
+   "to": "crates/tillandsias-headless/src/main.rs#L15845",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L14818",
+   "how": "block",
+   "n": 57,
+   "to": "crates/tillandsias-headless/src/main.rs#L15673",
+   "where": "level-4-security"
+  },
+  {
+   "from": "build.sh#L5330",
+   "how": "block",
+   "n": 61,
+   "to": "build.sh#L6452",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-podman/src/container_spec.rs#L134-L137",
+   "how": "block",
+   "n": 63,
+   "to": "crates/tillandsias-podman/src/container_spec.rs#L142-L145",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L15256-L15259",
+   "how": "block",
+   "n": 64,
+   "to": "crates/tillandsias-headless/src/main.rs#L16120-L16123",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L14799-L14801",
+   "how": "block",
+   "n": 65,
+   "to": "crates/tillandsias-headless/src/main.rs#L15654-L15656",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L320-L322",
+   "how": "block",
+   "n": 72,
+   "to": ".github/workflows/release.yml#L341-L343",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L562",
+   "how": "block",
+   "n": 73,
+   "to": ".github/workflows/release.yml#L597",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L863-L864",
+   "how": "block",
+   "n": 74,
+   "to": ".github/workflows/release.yml#L912-L913",
+   "where": "level-4-security"
+  },
+  {
+   "from": "scripts/install-macos.sh#L162-L162",
+   "how": "block",
+   "n": 77,
+   "to": "scripts/install-macos.sh#L166-L166",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L10559-L10559",
+   "how": "block",
+   "n": 81,
+   "to": "crates/tillandsias-headless/src/main.rs#L11641-L11641",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4907",
+   "how": "block",
+   "n": 83,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L5351",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L2873-L2874",
+   "how": "block",
+   "n": 84,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3167-L3168",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4297",
+   "how": "block",
+   "n": 86,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4928",
+   "where": "level-4-security"
+  },
+  {
+   "from": "openspec/specs/tillandsias-vault/spec.md#L132",
+   "how": "block",
+   "n": 87,
+   "to": "openspec/specs/tillandsias-vault/spec.md#L140",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-vm-layer/src/vz.rs#L1269",
+   "how": "block",
+   "n": 93,
+   "to": "crates/tillandsias-vm-layer/src/vz.rs#L1437",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L14359",
+   "how": "block",
+   "n": 95,
+   "to": "crates/tillandsias-headless/src/main.rs#L15210",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3787",
+   "how": "block",
+   "n": 96,
+   "to": "crates/tillandsias-headless/src/main.rs#L4544",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L4933",
+   "how": "block",
+   "n": 97,
+   "to": "crates/tillandsias-headless/src/main.rs#L5642",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3468-L3469",
+   "how": "block",
+   "n": 102,
+   "to": "crates/tillandsias-headless/src/main.rs#L4211-L4212",
+   "where": "level-4-security"
+  },
+  {
+   "from": "openspec/specs/tillandsias-vault/spec.md#L425-L428",
+   "how": "block",
+   "n": 109,
+   "to": "openspec/specs/tillandsias-vault/spec.md#L436-L439",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3524-L3528",
+   "how": "block",
+   "n": 110,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3778-L3782",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L10522-L10524",
+   "how": "block",
+   "n": 111,
+   "to": "crates/tillandsias-headless/src/main.rs#L11604-L11606",
+   "where": "level-4-security"
+  },
+  {
+   "from": "openspec/specs/podman-secrets-integration/spec.md#L18-L21",
+   "how": "block",
+   "n": 120,
+   "to": "openspec/specs/podman-secrets-integration/spec.md#L18-L21",
+   "where": "level-4-security"
+  },
+  {
+   "from": "scripts/local-ci.sh#L413-L418",
+   "how": "block",
+   "n": 27,
+   "to": "scripts/local-ci.sh#L422-L427",
+   "where": "level-5-phd"
+  },
+  {
+   "from": "crates/tillandsias-plan/src/fragments.rs#L3229-L3230",
+   "how": "block",
+   "n": 34,
+   "to": "crates/tillandsias-plan/src/fragments.rs#L3340-L3341",
+   "where": "level-5-phd"
+  },
+  {
+   "from": "crates/tillandsias-plan/src/fragments.rs#L386-L400",
+   "how": "block",
+   "n": 35,
+   "to": "crates/tillandsias-plan/src/fragments.rs#L459-L473",
+   "where": "level-5-phd"
+  },
+  {
+   "from": "scripts/local-ci.sh#L571-L573",
+   "how": "block",
+   "n": 43,
+   "to": "scripts/local-ci.sh#L580-L582",
+   "where": "level-5-phd"
+  },
+  {
+   "from": "scripts/local-ci.sh#L624-L624",
+   "how": "block",
+   "n": 45,
+   "to": "scripts/local-ci.sh#L633-L633",
+   "where": "level-5-phd"
+  }
+ ],
+ "next_run": [
+  "1 item(s) need a person; their levels kept their pins"
+ ],
+ "pins_after": {
+  "level-1-five": "v56.10.20.1",
+  "level-2-phone": "v56.10.20.1",
+  "level-3-power": "v56.10.20.1",
+  "level-4-security": "v56.10.9.1",
+  "level-5-phd": "v56.10.20.1"
+ },
+ "pins_before": {
+  "level-1-five": "v56.10.20.1",
+  "level-2-phone": "v56.10.9.1",
+  "level-3-power": "v56.10.9.1",
+  "level-4-security": "v56.10.9.1",
+  "level-5-phd": "v56.10.9.1"
+ },
+ "pins_moved": [
+  "level-2-phone",
+  "level-3-power",
+  "level-5-phd"
+ ],
+ "review_queue": [
+  {
+   "changed": [
+    "README.md"
+   ],
+   "excerpt": "On a Mac, the app has not yet",
+   "flag": "RED",
+   "level": "level-2-phone"
+  },
+  {
+   "changed": [
+    "README.md",
+    "scripts/build-macos-tray.sh"
+   ],
+   "excerpt": "The fix needs a paid Apple developer membership,",
+   "flag": "PATH",
+   "level": "level-2-phone"
+  },
+  {
+   "changed": [
+    ".github/workflows/release.yml"
+   ],
+   "excerpt": "The Windows downloads are not signed yet.[^27] One",
+   "flag": "RED",
+   "level": "level-2-phone"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs"
+   ],
+   "excerpt": "The Linux program shows a version number but",
+   "flag": "RED",
+   "level": "level-2-phone"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs"
+   ],
+   "excerpt": "Works out of the box. The tool cache",
+   "flag": "GREEN",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "images/default/lib-common.sh",
+    "openspec/specs/forge-hot-cold-split/spec.md"
+   ],
+   "excerpt": "The storage spec names four RAM-backed roots and",
+   "flag": "RED",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs"
+   ],
+   "excerpt": "The trust wiring is pinned by a test:",
+   "flag": "GREEN",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs",
+    "openspec/specs/inference-container/spec.md"
+   ],
+   "excerpt": "A failed model-readiness wait is non-fatal, so it",
+   "flag": "GREEN",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "images/inference/entrypoint.sh"
+   ],
+   "excerpt": "The first-run engine download now pins an Ollama",
+   "flag": "GREEN",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs",
+    "images/inference/Containerfile",
+    "openspec/specs/inference-container/spec.md"
+   ],
+   "excerpt": "Two limits remain. GPUs reach the container only",
+   "flag": "RED",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "images/inference/Containerfile"
+   ],
+   "excerpt": "For the health check, no fix is planned",
+   "flag": "PATH",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs"
+   ],
+   "excerpt": "The push path inside the enclave is anonymous:",
+   "flag": "RED",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs"
+   ],
+   "excerpt": "The token is injected at container start with",
+   "flag": "GREEN",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "images/default/lib-common.sh",
+    "openspec/specs/tillandsias-vault/spec.md"
+   ],
+   "excerpt": "The context file tells the agent the vault",
+   "flag": "RED",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "images/default/lib-common.sh"
+   ],
+   "excerpt": "The context file tells the Claude lane about",
+   "flag": "RED",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/local_web_preview.rs",
+    "crates/tillandsias-headless/src/main.rs"
+   ],
+   "excerpt": "A sibling never mounts `.git`, `.env` or the",
+   "flag": "GREEN",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-browser-mcp/src/launcher.rs",
+    "crates/tillandsias-headless/src/local_web_preview.rs",
+    "crates/tillandsias-headless/src/main.rs",
+    "openspec/litmus-tests/unbound-grandfathered.txt",
+    "openspec/specs/local-web-preview/spec.md"
+   ],
+   "excerpt": "The feature's own spec still calls itself a",
+   "flag": "RED",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-browser-mcp/src/allowlist.rs",
+    "crates/tillandsias-browser-mcp/src/server.rs",
+    "openspec/specs/host-browser-mcp/spec.md",
+    "scripts/launch-chromium.sh"
+   ],
+   "excerpt": "The browser spec still says evaluation is disabled",
+   "flag": "RED",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "build.sh",
+    "crates/tillandsias-headless/src/main.rs",
+    "openspec/specs/enclave-network/spec.md"
+   ],
+   "excerpt": "Isolation is structural — one `--internal` network, exactly",
+   "flag": "GREEN",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs",
+    "openspec/specs/enclave-network/spec.md"
+   ],
+   "excerpt": "One thing the spec asks for is missing;",
+   "flag": "RED",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs",
+    "scripts/orchestrate-enclave.sh"
+   ],
+   "excerpt": "The stack script, the tray launcher, the per-project",
+   "flag": "GREEN",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs",
+    "openspec/specs/inference-container/spec.md"
+   ],
+   "excerpt": "On Linux the reset boundary is documented per",
+   "flag": "GREEN",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-vm-layer/src/vz.rs",
+    "scripts/uninstall.sh"
+   ],
+   "excerpt": "On macOS the \"cache survives\" line is not",
+   "flag": "RED",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs"
+   ],
+   "excerpt": "A host's container engine used to carry a",
+   "flag": "RED",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs"
+   ],
+   "excerpt": "The global-config half is done: re-running initialisation fixes",
+   "flag": "PATH",
+   "level": "level-3-power"
+  },
+  {
+   "changed": [
+    "scripts/lua/check-requirement-ids.lua"
+   ],
+   "excerpt": "Requirement identifiers now exist and a gate checks",
+   "flag": "GREEN",
+   "level": "level-5-phd"
+  },
+  {
+   "changed": [
+    "scripts/lua/centicolon-grade-observed.lua"
+   ],
+   "excerpt": "CentiColons make declared residuals observable, but the stable",
+   "flag": "RED",
+   "level": "level-5-phd"
+  },
+  {
+   "changed": [
+    "scripts/local-ci.sh"
+   ],
+   "excerpt": "The scorer marks a tombstone as a broken",
+   "flag": "RED",
+   "level": "level-5-phd"
+  },
+  {
+   "changed": [
+    "methodology/philosophy.yaml"
+   ],
+   "excerpt": "The methodology explicitly withdraws the strong-law citation because",
+   "flag": "GREEN",
+   "level": "level-5-phd"
+  },
+  {
+   "changed": [
+    "scripts/local-ci.sh"
+   ],
+   "excerpt": "The shell scorer now delegates arithmetic to the",
+   "flag": "RED",
+   "level": "level-5-phd"
+  },
+  {
+   "changed": [
+    "scripts/lua/centicolon-grade-observed.lua"
+   ],
+   "excerpt": "The framework specification still names a separate scoring",
+   "flag": "PATH",
+   "level": "level-5-phd"
+  },
+  {
+   "changed": [
+    "methodology/convergence.yaml"
+   ],
+   "excerpt": "The methodology's own complexity constraint — methodology-to-codebase ratio",
+   "flag": "RED",
+   "level": "level-5-phd"
+  },
+  {
+   "changed": [
+    "methodology/convergence.yaml"
+   ],
+   "excerpt": "The rule names two measurement procedures[^30]; no enforcing",
+   "flag": "PATH",
+   "level": "level-5-phd"
+  },
+  {
+   "changed": [
+    "methodology/versioning.yaml"
+   ],
+   "excerpt": "Componentwise maximum gives version tuples a join-semilattice. The",
+   "flag": "GREEN",
+   "level": "level-5-phd"
+  },
+  {
+   "changed": [
+    "methodology/versioning.yaml"
+   ],
+   "excerpt": "That same versioning document defines its two leading",
+   "flag": "RED",
+   "level": "level-5-phd"
+  }
+ ],
+ "steps": {
+  "anchors": {
+   "secs": 1.5,
+   "verdict": "ask:anchors:1"
+  },
+  "checked_build": {
+   "secs": 1.1,
+   "verdict": "blocked:footnotes-do-not-resolve"
+  },
+  "fetch": {
+   "secs": 0,
+   "verdict": "offline:2 checkouts present"
+  },
+  "metrics": {
+   "secs": 1.2,
+   "verdict": "ok:metrics:0"
+  },
+  "metrics_verify": {
+   "secs": 1.3,
+   "verdict": "ok:metrics-verified:1387"
+  },
+  "snapshot": {
+   "secs": 0.1,
+   "verdict": "snapshot: 185 specs, 219 archived changes at v56.10.20.1"
+  }
+ },
+ "to": "v56.10.20.1",
+ "ts": "2026-10-24T01:39:05Z"
+}

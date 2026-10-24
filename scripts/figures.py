@@ -1167,8 +1167,8 @@ APPEND_FOLD = _wrap(
     <text x="420" y="26" class="s-lbl">windows host</text>
     """
     + _frag(40, 38, "linux") + _frag(40, 72, "linux")
-    + _frag(220, 38, "macneo") + _frag(220, 72, "macneo") + _frag(220, 106, "macneo")
-    + _frag(400, 38, "yoga")
+    + _frag(220, 38, "macos") + _frag(220, 72, "macos") + _frag(220, 106, "macos")
+    + _frag(400, 38, "windows")
     + """
     <g class="s-arrow" fill="none">
       <path d="M99 108 C 110 150 170 172 210 180" marker-end="url(#ah)"/>

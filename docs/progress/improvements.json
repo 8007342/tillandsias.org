@@ -1,8 +1,65 @@
 [
- {"month": "2026-09", "surfaces": ["progress"], "text": "Each problem found in the project now has its own card. The card says whether the problem is waiting, being worked on or fixed, and links to the source it rests on."},
- {"month": "2026-09", "surfaces": ["progress"], "text": "Every design document in the current release is listed, so you can see what is planned as well as what is broken."},
- {"month": "2026-10", "surfaces": ["progress"], "text": "A chart now shows the whole history of open work and updates with each release. The most recent weeks are drawn largest."},
- {"month": "2026-09", "surfaces": ["centicolons"], "text": "The page explained the scoring idea with a chess analogy and a worked example."},
- {"month": "2026-09", "surfaces": ["centicolons"], "text": "It now separates what the score measures from what the score can promise. An earlier version claimed too much."},
- {"month": "2026-10", "surfaces": ["centicolons"], "text": "Its links to the source, and the summary that closes it, now update with each release."}
+ {
+  "month": "2026-09",
+  "surfaces": [
+   "progress"
+  ],
+  "text": "Each problem found in the project now has its own card. The card says whether the problem is waiting, being worked on or fixed, and links to the source it rests on."
+ },
+ {
+  "month": "2026-09",
+  "surfaces": [
+   "progress"
+  ],
+  "text": "Every design document in the current release is listed, so you can see what is planned as well as what is broken."
+ },
+ {
+  "month": "2026-10",
+  "surfaces": [
+   "progress"
+  ],
+  "text": "A chart now shows the whole history of open work and updates with each release. The most recent weeks are drawn largest."
+ },
+ {
+  "month": "2026-09",
+  "surfaces": [
+   "centicolons"
+  ],
+  "text": "The page explained the scoring idea with a chess analogy and a worked example."
+ },
+ {
+  "month": "2026-09",
+  "surfaces": [
+   "centicolons"
+  ],
+  "text": "It now separates what the score measures from what the score can promise. An earlier version claimed too much."
+ },
+ {
+  "month": "2026-10",
+  "surfaces": [
+   "centicolons"
+  ],
+  "text": "Its links to the source, and the summary that closes it, now update with each release."
+ },
+ {
+  "month": "2026-10",
+  "surfaces": [
+   "progress"
+  ],
+  "text": "Finding cards now show what was found and whether it is fixed; the dated work log behind each card moved to the source record."
+ },
+ {
+  "month": "2026-10",
+  "surfaces": [
+   "progress"
+  ],
+  "text": "Archived change cards now say what a change was for and how much of it is done, instead of listing every internal task."
+ },
+ {
+  "month": "2026-10",
+  "surfaces": [
+   "install"
+  ],
+  "text": "The install note now says the reset keeps your vault and sign-ins on every platform, including macOS."
+ }
 ]
