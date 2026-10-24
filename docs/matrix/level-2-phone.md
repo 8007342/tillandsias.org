@@ -22,10 +22,7 @@ The internet is needed only for ordinary, visible reasons: fetching the program,
 
 Turning it off is the expected motion, not an interruption. Anything you saved is a real file on your real disk, untouched by the rebuild. Even the internal passwords the pieces use to talk to each other are replaced at every start, so yesterday's messy shutdown cannot jam today's start.[^5]
 
-Installing a new release is a bigger change than turning it off: the Linux, Mac and Windows installers all reset the program's own working state and set it up again.[^36][^37][^38] On Linux this reset is gentle: it rebuilds the program's parts but deletes none of your stored data, so your downloads survive, and so do your sign-ins as long as your keychain can still unlock them.[^39] Windows runs the same gentle reset without telling you first.[^38][^40] The Linux and Mac installers tell you before they reset; to skip the part that deletes things, set `TILLANDSIAS_DESTRUCTIVE_RESET_OK=0` before installing.[^37]
-
-> RED: On a Mac the reset is not gentle yet. It still deletes your saved vault keys and the secret store, although the project's own rules say every platform's reset must keep them.[^41][^42]
-> PATH: A fix is being written. It is not in any release yet.
+Installing a new release is a bigger change than turning it off: the Linux, Mac and Windows installers all reset the program's own working state and set it up again.[^36][^37][^38] On every platform this reset is the gentle kind: it rebuilds the program's parts but deletes none of your stored data, so your downloads survive, and so do your sign-ins as long as your keychain can still unlock them.[^39][^42] The installers do not ask first, and they keep the details in a setup log rather than on your screen.[^36][^37][^40] On a Mac the only reset that deletes the secret store is a separate, explicitly approved one that no installer runs.[^41]
 
 Publishing your work follows the same idea. Inside the sealed room you push to a copy that lives on your own machine, not to the internet. That copy passes your work on and waits: it reports success only once the copy outside has really accepted the same changes, so a success you can see is one that survives the room being thrown away.[^32] It is also the only part that holds your GitHub login — it uses it when it publishes, and never hands it to the room where your tools run.[^33]
 
@@ -78,23 +75,23 @@ None of these touch the privacy answer above.
     > **Consequence for the pending signing decision.** The unsigned MSIX (`0x800B0100`, packet 722-w7a2) blocks the **GitHub-release** channel only. It does not block the Store channel at all.
 [^13]: The signing service chosen for the Windows downloads | plan/issues/windows-signing-research-2026-08-16.md#L1-L25
     > **SignPath Foundation is the signing path for the GitHub-release channel.** Packet 722-w7a2 is reshaped, not closed: its deliverable changes from "an Azure Trusted Signing account" to the SignPath Foundation chain, with Azure **Artifact Signing** as the recorded fallback.
-[^16]: Where no keychain is available, the vault's key falls back to a local file | crates/tillandsias-headless/src/vault_bootstrap.rs#L2943-L2943
-    > Fallback: file (populated by keychain_set_blocking when keyring unavailable,
+[^16]: Where no keychain is available, the vault's key falls back to a local file | crates/tillandsias-headless/src/vault_bootstrap.rs#L4070-L4072
+    > let fallback_file = read_credential_fallback(&format!("fallback_{VAULT_SHAMIR_SHARE_V1}"))
 [^17]: Software sources — package repositories and release downloads, reached at your direction | PRIVACY.md#L51-L56
     > **Software sources** — package repositories and release downloads (for example GitHub, Linux distribution mirrors, and language package registries) to fetch the software it runs.
 [^18]: AI providers only if you configure one; language models can run entirely on your own machine | PRIVACY.md#L60-L63
     > **AI providers, only if you configure one.** Tillandsias can run language models entirely on your own machine. If you instead configure a remote provider, the content you send is transmitted to that provider under their terms.
 [^20]: The downloaded system image is cached on the host between runs | openspec/specs/vm-provisioning-lifecycle/spec.md#L48-L51
     > cached at `~/.local/share/tillandsias/rootfs-fedora-44-<sha256>.tar.xz` (on macOS: `~/Library/Application Support/tillandsias/rootfs-…`; on Windows: `%LOCALAPPDATA%\tillandsias\rootfs-…`).
-[^23]: The test verdict: a failure not already on the known-failing list is refused as new | build.sh#L2451-L2451
+[^23]: The test verdict: a failure not already on the known-failing list is refused as new | build.sh#L3106-L3106
     > THE VERDICT IS A RATCHET, NOT CARGO'S EXIT CODE.
 [^24]: The Mac build inspects and seals the app when given Apple's credentials | scripts/build-macos-tray.sh#L267-L290
     > say "notarize: submitting (this waits for Apple's verdict)"
-[^26]: That installer package is left out of a release when it is unsigned | .github/workflows/release.yml#L751-L751
+[^26]: That installer package is left out of a release when it is unsigned | .github/workflows/release.yml#L800-L800
     > ::warning::withholding unsigned MSIX from release assets: $($_.Name) (uninstallable without a signature; set TILLANDSIAS_SIGNING_ACCOUNT to publish it)
-[^27]: The other Windows downloads are published unsigned | .github/workflows/release.yml#L740-L740
+[^27]: The other Windows downloads are published unsigned | .github/workflows/release.yml#L789-L789
     > ::warning::TILLANDSIAS_SIGNING_ACCOUNT is unset — publishing UNSIGNED Windows artifacts (plan packet 722-w7a2)
-[^30]: Uninstalling removes the cached image, except on macOS where it is preserved unless you ask for a full wipe | scripts/uninstall.sh#L228-L228
+[^30]: Uninstalling removes the cached image, except on macOS where it is preserved unless you ask for a full wipe | scripts/uninstall.sh#L238-L238
     > Preserving the VM image in $DATA_DIR (use --wipe to remove it).
 [^31]: A publish that cannot reach GitHub fails instead of half-succeeding | openspec/specs/git-mirror-service/spec.md#L225-L230
     > the forge's `git push` SHALL return non-zero
@@ -105,22 +102,22 @@ None of these touch the privacy answer above.
 [^33]: The GitHub login is read by the publishing service and never enters a workspace | openspec/specs/git-mirror-service/spec.md#L15-L16
     > The git service reads the GitHub token from Vault at
     > push time via Vault CLI; the token never crosses into a forge container.
-[^34]: The version shown is the one written into the program when it was built | crates/tillandsias-headless/src/main.rs#L161-L161
+[^34]: The version shown is the one written into the program when it was built | crates/tillandsias-headless/src/main.rs#L167-L167
     > pub(crate) const VERSION: &str = include_str!("../../../VERSION");
 [^35]: The open problem: the Linux program records no build commit | plan/index.d/20260914t185710z-1188-mm9y-installed-launcher-has-no-provenance-lenovinha.yaml#L27-L43
     > the Linux launcher has no build.rs reading it.
-[^36]: The Linux installer runs the reset | scripts/install.sh#L340-L340
-    > "$INSTALL_PATH" --reset-state --debug
-[^37]: The Mac installer runs the reset, and the setting that skips its deleting part | scripts/install-macos.sh#L290-L290
-    > TILLANDSIAS_DESTRUCTIVE_RESET_OK=0 skips the destruction
-[^38]: The Windows installer runs the reset without asking | scripts/install-windows.ps1#L968-L968
+[^36]: The Linux installer runs the reset, quietly, into a setup log | scripts/install.sh#L359-L359
+    > "$INSTALL_PATH" --reset-state </dev/null >"$SETUP_LOG" 2>&1
+[^37]: The Mac installer runs only the gentle reset, which keeps the VM, the secret store, the sign-ins and the downloads | scripts/install-macos.sh#L286-L288
+    > It is the SOFT reset, always (host-state-lifecycle): it keeps the VM, the
+[^38]: The Windows installer runs the reset without asking | scripts/install-windows.ps1#L1051-L1051
     > --reset-state < NUL
-[^39]: The Linux reset rebuilds the program's parts and deletes no stored data | crates/tillandsias-headless/src/main.rs#L10474-L10490
+[^39]: The Linux reset rebuilds the program's parts and deletes no stored data | crates/tillandsias-headless/src/main.rs#L11554-L11570
     > A SOFT reset destroys DERIVED state only and deletes NO store under any
-[^40]: The Windows installer's rule: the gentle reset, with no prompt | scripts/install-windows.ps1#L951-L952
+[^40]: The Windows installer's rule: the gentle reset, with no prompt | scripts/install-windows.ps1#L1036-L1037
     > So SOFT reset is the default only and forever.
-[^41]: The Mac reset deletes the saved vault keys and the vault data | crates/tillandsias-macos-tray/src/reset_state.rs#L286-L292
-    > remove_path(&cache_root.join("vault-data"))?;
+[^41]: On a Mac only the explicitly approved hard reset destroys the secret store, and it announces that first | crates/tillandsias-macos-tray/src/reset_state.rs#L305-L324
+    > destroyed.push(cache_root.join("vault-data").display().to_string());
 [^42]: The project's rule: every platform's reset must keep your data | openspec/specs/host-state-lifecycle/spec.md#L180-L182
     > `--reset-state` on every platform SHALL be a SOFT reset: it destroys every item of derived state and SHALL NOT remove, move or rewrite any item of operator data.
 [^43]: The uninstaller asks for a typed confirmation and refuses without a terminal | scripts/uninstall.sh#L184-L185

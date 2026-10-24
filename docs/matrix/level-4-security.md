@@ -47,7 +47,7 @@ The cost of that restraint: with one host decrypted the proxy does **no payload 
 
 ## Secrets, and the channel that guards them
 
-The GitHub token never enters the agent container: the mirror holds short-lived role credentials, relays pushes on the agent's behalf, and passes the credential on stdin rather than argv, closing a process-listing leak. The relay can invoke its helper for an HTTPS origin,[^48] but the helper now checks the credential request's protocol and exact host before returning a token.[^49]
+The GitHub token never enters the agent container: the mirror holds short-lived role credentials, relays pushes on the agent's behalf, and passes the credential on stdin rather than argv, closing a process-listing leak. Credential material that crosses the host–container boundary at all — the vault's unseal key, per-container tokens — is no longer carried as a podman secret, because podman's file driver, and the copy it keeps for every container, are plaintext on durable disk; each is a file on tmpfs for the length of the launch.[^120][^121] The relay can invoke its helper for an HTTPS origin,[^48] but the helper now checks the credential request's protocol and exact host before returning a token.[^49]
 
 > GREEN: The mirror holds the upstream credential and mediates pushes; the agent-facing write path is separate from that credential-bearing relay.[^14][^48][^49]
 > REFUTED: "Exfiltrating a token requires compromising both the mirror and the proxy." The architecture says this,[^3] but the proxy forwards permitted destinations even though its permissive port now binds to loopback.[^30][^31] A compromised mirror could use an allowed destination without compromising the proxy process. Network placement restricts routes; it does not prove that an allowed request cannot carry a secret.
@@ -112,7 +112,8 @@ Ephemerality resets *compute*, not *identity*. Of what survives teardown, the se
 
 An agent's reach: its forge, every mirror on the enclave network, any allowlisted hostname with nothing inspecting the payload. Not your keychain, `$HOME`, or real checkout — unless you took the host-mount escape hatch.
 
-> GREEN: The one MCP surface that lets a contained agent drive a *host* browser ships with arbitrary JavaScript evaluation **disabled** — the tool is advertised but returns an explicit refusal, so it is visible without being live.[^24]
+> GREEN: The browser an agent can drive is a container started by the host, never a host browser; a build check refuses any code path that would hand a URL to one.[^118] Arbitrary JavaScript evaluation is refused unless the same lane opened the window in development mode.[^24]
+> RED: The browser spec still says evaluation is disabled outright in this version. The code enables it for development-mode windows, and the spec has not been updated to say what that mode may reach.[^119][^24]
 
 The project's record of what it checked is committed and candid. It is also written by its own agents and unsigned, with no commit signing in evidence; the local gate binds a one-shot pass token to the tree it checked.[^99] With nothing in the repository showing server-side validation of a push, that record's provenance rests on the honesty of the process that wrote it.
 
@@ -125,7 +126,7 @@ The convergence argument you already have is not a security argument, and the pr
 
 [^1]: Podman the only host dependency on Linux; macOS/Windows provision a VM | README.md#L52-L53
     > Podman is the only host dependency on Linux (auto-detected). macOS and Windows provision a lightweight Fedora-based utility VM; no host Podman required.
-[^2]: Escape lands as the invoking user's UID on the host, with `$HOME` only | openspec/specs/podman-idiomatic-patterns/spec.md#L209-L210
+[^2]: Escape lands as the invoking user's UID on the host, with `$HOME` only | openspec/specs/podman-idiomatic-patterns/spec.md#L220-L221
     > - **THEN** the escaped process runs as the invoking user's UID on the host, not as root - **AND** it has access only to `$HOME` and user-owned resources
 [^3]: Enclave architecture — attack scenarios and stated limits | docs/cheatsheets/enclave-architecture.md#L217-L225
     > The proxy allowlist is generous by design — a determined attacker could encode data in DNS queries or HTTP headers to an allowed domain.
@@ -133,7 +134,7 @@ The convergence argument you already have is not a security argument, and the pr
     > pub const MANDATORY_HARDENING_FLAGS: [&str; 4] = [ "--userns=keep-id", "--cap-drop=ALL", "--security-opt=no-new-privileges", "--security-opt=label=disable", ];
 [^5]: SELinux MCS labelling recorded as a planned future phase | openspec/specs/default-image/spec.md#L768-L769
     > future release will apply SELinux MCS labels to the forge domain, adding mandatory access control at the boundary layer.
-[^6]: Checked serialization refuses an invalid launch in every build profile | crates/tillandsias-podman/src/container_spec.rs#L424-L425
+[^6]: Checked serialization refuses an invalid launch in every build profile | crates/tillandsias-podman/src/container_spec.rs#L478-L479
     > crate::policy::validate_launch_argv(&argv)?; Ok(argv)
 [^7]: Historical false-pass defect and its corpus-wide guard | openspec/litmus-tests/litmus-podman-idiomatic-security-flags.yaml#L7-L13
     > Both branches printed what the harness was looking for, so the greps decided nothing
@@ -143,11 +144,11 @@ The convergence argument you already have is not a security argument, and the pr
     > ssl_bump peek ssl_bump_step1 ssl_bump bump github_release_assets ssl_bump splice all
 [^10]: Upstream verification is kept, with a written rule against disabling it | images/proxy/squid.conf#L88-L97
     > verification MUST remain enabled. Never add DONT_VERIFY_PEER or DONT_VERIFY_DOMAIN: doing so would hide an origin MITM behind a proxy-issued certificate that enclave clients trust.
-[^11]: Host-side CA re-clamp, with the reasoning for why a code fix was only half the job, and the two hosts found world-readable | scripts/clamp-ca-material.sh#L15-L43
+[^11]: Host-side CA re-clamp, and why a code fix alone did not repair key material already created | scripts/clamp-ca-material.sh#L26-L54
     > Two hosts were found with a world-readable CA private key days after the packet closed
 [^12]: Spec: per-launch EC P-256 root-and-intermediate chain on tmpfs | openspec/specs/proxy-container/spec.md#L63-L74
     > The system SHALL generate a fresh two-level CA chain on every proxy launch. The chain SHALL consist of a self-signed Root CA and an Intermediate CA signed by the root, both using EC P-256 keys. All key material SHALL be stored on tmpfs
-[^13]: Launcher generates self-signed RSA-2048 CA with a 30-day life | crates/tillandsias-headless/src/main.rs#L3523-L3526
+[^13]: Launcher generates self-signed RSA-2048 CA with a 30-day life | crates/tillandsias-headless/src/main.rs#L4266-L4269
     > "req", "-x509", "-newkey", "rsa:2048",
 [^14]: Anonymous receive-pack listener; network placement is not authentication; owners named, no date | openspec/specs/git-mirror-service/spec.md#L52-L72
     > Network placement SHALL NOT be described as client authentication: any enclave peer can still create or fast-forward refs and cause the privileged relay to carry them upstream.
@@ -159,7 +160,7 @@ The convergence argument you already have is not a security argument, and the pr
     > implement the e2e encrypted socket channel in ALL places, enable it at runtime with a flag, then advance through STABLE VERIFIABLE MATURITY GATES to secure-by-default and finally to removal of the insecure path.
 [^18]: Per-boot key hardening — approved, deferred, unimplemented | plan/issues/encrypted-channel-perboot-key-hardening-2026-07-01.md#L1-L22
     > This packet is the operator-approved **later hardening**: mix in a **per-boot secret** the host controls, so a leaked release secret alone no longer lets an attacker with a matching-release binary attach across a different VM boot.
-[^19]: Keyless signing recorded in the Rekor transparency log, and the verification identity regexp that pins the repo name only | .github/workflows/release.yml#L355-L355
+[^19]: Keyless signing recorded in the Rekor transparency log, and the verification identity regexp that pins the repo name only | .github/workflows/release.yml#L376-L376
     > --certificate-identity-regexp "https://github.com/.*/tillandsias/"
 [^20]: Base images pinned by mutable tag | images/git/Containerfile#L19-L21
     > FROM docker.io/hashicorp/vault:1.18 AS vault-agent FROM docker.io/library/alpine:3.20
@@ -169,8 +170,8 @@ The convergence argument you already have is not a security argument, and the pr
     > The unseal key (the single Shamir share generated by Vault during initialization) SHALL be stored directly in the host OS's native secure keychain (Secret Service/KWallet on Linux, Credential Manager on Windows, Keychain on macOS) under the versioned name `vault-shamir-share-v1`.
 [^23]: Linux clean-room reset clears host credentials and probes the result | scripts/e2e-step2-linux.sh#L15-L38
     > "$SCRIPT_DIR/clear-vault-host-credentials.sh" 2>&1 | tee "$LOG_DIR/02-clear-credentials.log" || true
-[^24]: Host-browser tool dispatcher refuses arbitrary JavaScript evaluation | crates/tillandsias-browser-mcp/src/server.rs#L367-L379
-    > "browser.eval" => Self::tool_error( id, "EVAL_DISABLED: browser.eval is disabled in v1; see follow-up change", ),
+[^24]: Evaluation is refused outside a development-mode window the lane opened | crates/tillandsias-browser-mcp/src/server.rs#L976-L980
+    > EVAL_DISABLED: browser.eval needs a development-mode window; open it with browser.open{url, dev: true}
 [^25]: Falsifiability and evidence-is-not-proof invariants | methodology/philosophy.yaml#L69-L71
     > - verification_claims_must_be_falsifiable: true - convergence_requires_stability: true - evidence_is_not_proof: true
 [^26]: Bounded ranking function, explicitly not a probability | methodology/math-foundations.yaml#L91-L125
@@ -197,17 +198,17 @@ The convergence argument you already have is not a security argument, and the pr
     > Send a TCP reset instead of an HTTP 403 error for strictly-denied runtime traffic.
 [^38]: The spec still promises an HTTP 403 for denied domains | openspec/specs/proxy-container/spec.md#L109-L109
     > - **AND** all other domains SHALL be denied with HTTP 403
-[^39]: The owner-only clamp on the CA key, in the stable release's source | crates/tillandsias-headless/src/main.rs#L3408-L3410
+[^39]: The owner-only clamp on the CA key, in the stable release's source | crates/tillandsias-headless/src/main.rs#L4151-L4153
     > fn enforce_ca_key_mode(key: &Path) -> std::io::Result<()> { use std::os::unix::fs::PermissionsExt; std::fs::set_permissions(key, std::fs::Permissions::from_mode(0o600))
-[^40]: On non-unix targets the clamp is a documented no-op | crates/tillandsias-headless/src/main.rs#L3428-L3430
+[^40]: On non-unix targets the clamp is a documented no-op | crates/tillandsias-headless/src/main.rs#L4171-L4173
     > This is deliberately NOT a security regression on Windows: the key is not protected by mode bits there in the first place, and the enclave's Windows path receives it as a podman secret rather than through this file.
-[^41]: Pre-fix keys are healed down to owner-only on every pass | crates/tillandsias-headless/src/main.rs#L3612-L3614
+[^41]: Pre-fix keys are healed down to owner-only on every pass | crates/tillandsias-headless/src/main.rs#L4355-L4357
     > Heal DOWN to 0600 every call so keys generated before this fix (deliberately world-readable 0644) are repaired without requiring a CA rotation.
 [^43]: State root is persistent and explicitly shared between consumers | images/default/ca-path.txt#L1-L83
     > ${HOME}/.local/state/tillandsias
 [^45]: The planned fix: make the CA directory private by construction | plan/index.yaml#L26013-L26013
     > CA material is created in a directory that is private by construction
-[^46]: The authenticated push lane is gated on an environment variable that defaults to off | crates/tillandsias-headless/src/main.rs#L13186-L13188
+[^46]: The authenticated push lane is gated on an environment variable that defaults to off | crates/tillandsias-headless/src/main.rs#L14008-L14010
     > std::env::var("TILLANDSIAS_MIRROR_SSHD") .map(|v| v == "1") .unwrap_or(false)
 [^47]: The mirror's sshd starts only behind that flag | images/git/entrypoint.sh#L524-L525
     > Behind TILLANDSIAS_MIRROR_SSHD=1 until the T11 staged migration flips the default.
@@ -215,37 +216,37 @@ The convergence argument you already have is not a security argument, and the pr
     > case "$REMOTE_URL" in https://*)
 [^49]: The helper checks exact GitHub hosts and refuses others | images/git/git-credential-tillandsias.sh#L69-L83
     > github.com|api.github.com) ;;
-[^50]: The vault container carries an embedded SELinux policy module | crates/tillandsias-headless/src/vault_bootstrap.rs#L4091
+[^50]: The vault container carries an embedded SELinux policy module | crates/tillandsias-headless/src/vault_bootstrap.rs#L4543
     > const VAULT_SELINUX_CIL: &str = include_str!("../../../images/selinux/vault_container.cil");
 [^51]: The Windows guest embeds policies for the control daemon and the vault | crates/tillandsias-windows-tray/src/wsl_lifecycle.rs#L311
     > const SELINUX_VAULT_TE: &str = include_str!("../../../images/selinux/tillandsias_vault.te");
-[^52]: On a rootless Linux host the vault too runs unconfined | crates/tillandsias-headless/src/vault_bootstrap.rs#L4190
+[^52]: On a rootless Linux host the vault too runs unconfined | crates/tillandsias-headless/src/vault_bootstrap.rs#L4642
     > `label=disable` runs the vault container unconfined on the host
-[^53]: The vault launch adds a capability back and omits `--rm` | crates/tillandsias-headless/src/vault_bootstrap.rs#L4407-L4410
+[^53]: The vault launch adds a capability back and omits `--rm` | crates/tillandsias-headless/src/vault_bootstrap.rs#L5043-L5046
     > "--cap-drop".into(), "ALL".into(), "--cap-add".into(), "IPC_LOCK".into(),
 [^54]: A test-quality check that examines only new tests | plan/index.yaml#L14455-L14455
     > the check is DIFF-SCOPED BY CONSTRUCTION (examines added steps in the outgoing change only) and is structurally incapable of flagging the existing corpus
-[^55]: Serialising a launch now refuses an argv that violates the envelope, in every build profile | crates/tillandsias-podman/src/container_spec.rs#L424-L425
+[^55]: Serialising a launch now refuses an argv that violates the envelope, in every build profile | crates/tillandsias-podman/src/container_spec.rs#L478-L479
     > crate::policy::validate_launch_argv(&argv)?; Ok(argv)
-[^56]: The attached forge launch refuses on a hardening violation | crates/tillandsias-headless/src/main.rs#L14990
+[^56]: The attached forge launch refuses on a hardening violation | crates/tillandsias-headless/src/main.rs#L15845
     > "refusing to launch {container_name}: hardening envelope violation: {err}"
-[^57]: The delegated launch path refuses too | crates/tillandsias-headless/src/main.rs#L14818
+[^57]: The delegated launch path refuses too | crates/tillandsias-headless/src/main.rs#L15673
     > [security] refusing to launch delegated {container_name}: {err}
 [^58]: The rewritten litmus derives its launch flags from the product's declared envelope | openspec/litmus-tests/litmus-podman-idiomatic-security-flags.yaml#L23-L25
     > So the launch argv is now DERIVED from the product's own declared envelope, `MANDATORY_HARDENING_FLAGS` in crates/tillandsias-podman/src/policy.rs
 [^59]: The ninth step, cleanup, still prints its token unconditionally | openspec/litmus-tests/litmus-podman-idiomatic-security-flags.yaml#L131-L134
     > expected_behavior: "CLEANED"
-[^60]: A second scanner refuses litmus steps that print the same token on both branches | scripts/check-litmus-steps-can-fail.sh#L5-L6
-    > Refuse a litmus step whose success and failure branches print the SAME token, because such a step passes whether the system works or not.
-[^61]: The build gate fails on it | build.sh#L5330
+[^60]: A second scanner refuses litmus steps that print the same token on both branches | scripts/lua/check-litmus-steps-can-fail.lua#L7-L9
+    > step whose success and failure branches print the SAME token, because such
+[^61]: The build gate fails on it | build.sh#L6452
     > a litmus step prints the same token on success and failure
-[^62]: The second scanner refuses only the identical-token shape, by design | scripts/check-litmus-steps-can-fail.sh#L26-L30
-    > Only identical tokens are refused, because only then is the branch a decoration.
-[^63]: Private flags initialized on; serialization remains conditional | crates/tillandsias-podman/src/container_spec.rs#L134-L137
+[^62]: The second scanner refuses only the identical-token shape, by design | scripts/lua/check-litmus-steps-can-fail.lua#L31-L32
+    > Only identical tokens are refused, because only then is
+[^63]: Private flags initialized on; serialization remains conditional | crates/tillandsias-podman/src/container_spec.rs#L142-L145
     > userns_keep_id: true, cap_drop_all: true, no_new_privileges: true, label_disable: true,
-[^64]: A host-browser container still launches through the unchecked serialiser | crates/tillandsias-headless/src/main.rs#L14408
-    > let args = spec.build_run_args();
-[^65]: The repo's own admission that enforcement depends on call order | crates/tillandsias-headless/src/main.rs#L14799-L14801
+[^64]: The observatory's browser container still launches through the unchecked serialiser | crates/tillandsias-headless/src/main.rs#L15250-L15253
+    > let browser_container_name = format!("tillandsias-browser-observatorium-{project_name}");
+[^65]: The repo's own admission that enforcement depends on call order | crates/tillandsias-headless/src/main.rs#L15654-L15656
     > An invariant that depends on call order is one refactor from being false, and this one decides whether a container runs unhardened.
 [^66]: The one shared reader of the flag: a blank value is refused | crates/tillandsias-control-wire/src/secure_wire_mode.rs#L85-L126
     > is set but empty. Blank does NOT mean
@@ -255,21 +256,21 @@ The convergence argument you already have is not a security argument, and the pr
     > BASELINE is 0 today: every reader was converted (972-umik commit B), so the ratchet is now effectively a refusal.
 [^69]: Test pins the encrypted default through the shared parser | crates/tillandsias-control-wire/src/secure_wire_mode.rs#L159-L165
     > parse_secure_wire_mode(Err(VarError::NotPresent)).unwrap(), SecureWireMode::On,
-[^70]: The Windows guest's service unit carries no secure-wire line | crates/tillandsias-windows-tray/src/wsl_lifecycle.rs#L1938-L1939
-    > Environment=TILLANDSIAS_VAULT_API_BASE_URL=https://vault:8200 {low_power_env}ExecStart=/usr/local/bin/tillandsias-headless --listen-vsock 42420
+[^70]: The Windows guest's service unit carries no secure-wire line | crates/tillandsias-windows-tray/src/wsl_lifecycle.rs#L1986-L1987
+    > Environment=TILLANDSIAS_VAULT_API_BASE_URL=https://vault:8200
 [^71]: The VM image's default service unit carries no environment at all | images/vm/bootstrap/20-tillandsias.sh#L92-L104
     > ExecStart=/usr/local/bin/tillandsias-headless --listen-vsock 42420
-[^72]: The Linux lane asserts transitive coverage as a property over what is staged | .github/workflows/release.yml#L320-L322
+[^72]: The Linux lane asserts transitive coverage as a property over what is staged | .github/workflows/release.yml#L341-L343
     > This asserts the PROPERTY over whatever is actually staged, so an asset added later cannot slip through unverifiable just because nobody added a line for it.
-[^73]: The macOS lane signs an allow-list of three assets, and its checksum manifest is not among them | .github/workflows/release.yml#L562
+[^73]: The macOS lane signs an allow-list of three assets, and its checksum manifest is not among them | .github/workflows/release.yml#L597
     > for artifact in tillandsias-tray-*-macos-arm64.tar.gz Tillandsias.dmg install-macos.sh; do
-[^74]: The Windows lane's coverage check, why it follows the transitive path, and the allow-list it blames for an installer shipping bare | .github/workflows/release.yml#L863-L864
+[^74]: The Windows lane's coverage check, why it follows the transitive path, and the allow-list it blames for an installer shipping bare | .github/workflows/release.yml#L912-L913
     > The check follows the TRANSITIVE path rather than counting unsigned files
 [^75]: The Linux installer fetches the manifest over the same channel and continues without it | scripts/install.sh#L264
     > say "SHA256SUMS not available; skipping checksum verification."
-[^76]: The Windows installer compares a hash from the fetched manifest only | scripts/install-windows.ps1#L746
-    > Say "Verifying SHA-256..."
-[^77]: The macOS installer likewise | scripts/install-macos.sh#L162-L162
+[^76]: The Windows installer compares a hash from the fetched manifest only | scripts/install-windows.ps1#L852-L857
+    > SHA-256 mismatch for ${ZipName}: expected $Expected, got $Actual
+[^77]: The macOS installer likewise | scripts/install-macos.sh#L166-L166
     > curl -fsSL "$SHA_URL" -o "$TMP/SHA256SUMS-macos"
 [^78]: The shipped verifier uses the same repository-name-only regexp | scripts/verify.sh#L24-L25
     > CERTIFICATE_IDENTITY_REGEXP="https://github.com/.*/tillandsias/"
@@ -277,17 +278,17 @@ The convergence argument you already have is not a security argument, and the pr
     > The updater SHALL select the correct artifact for the current platform and handle platform-specific execution constraints.
 [^80]: Sigstore/in-toto provenance studied for another channel | plan/issues/homebrew-harness-distribution-research-2026-07-11.md#L27-L31
     > every bottle built by Homebrew CI carries a **Sigstore/in-toto build-provenance attestation** (SLSA Build L2)
-[^81]: The Linux soft reset keeps the Vault store and both keyring entries | crates/tillandsias-headless/src/main.rs#L10559-L10559
+[^81]: The Linux soft reset keeps the Vault store and both keyring entries | crates/tillandsias-headless/src/main.rs#L11641-L11641
     > the keyring entries vault-shamir-share-v1 and vault-root-token-v1 — never cleared by a reset
-[^83]: Where no keyring is available the share is written to a fallback file in the cache directory | crates/tillandsias-headless/src/vault_bootstrap.rs#L4907
+[^83]: Where no keyring is available the share is written to a fallback file in the cache directory | crates/tillandsias-headless/src/vault_bootstrap.rs#L5351
     > using fallback file (expected in VM guest and headless environments)
-[^84]: Inside a VM guest both fallback writes are always attempted | crates/tillandsias-headless/src/vault_bootstrap.rs#L2873-L2874
+[^84]: Inside a VM guest both fallback writes are always attempted | crates/tillandsias-headless/src/vault_bootstrap.rs#L3167-L3168
     > BOTH writes are always ATTEMPTED — a token failure must never skip the share, because the share is the half that arms the wipe.
-[^85]: The "share present in keychain" check falls through to the file | crates/tillandsias-headless/src/vault_bootstrap.rs#L2943-L2944
-    > Fallback: file (populated by keychain_set_blocking when keyring unavailable, e.g. in a VM guest or headless environment without D-Bus)
-[^86]: The preserve guard and the log line the smoke runs observed | crates/tillandsias-headless/src/vault_bootstrap.rs#L4297
+[^85]: The "share present in keychain" check falls through to the file | crates/tillandsias-headless/src/vault_bootstrap.rs#L3329-L3330
+    > The FALLBACK half of has_shamir_share_in_keyring: the whole predicate inside
+[^86]: The preserve guard and the log line the smoke runs observed | crates/tillandsias-headless/src/vault_bootstrap.rs#L4928
     > [tillandsias-vault] preserving existing data volume (Shamir share present in keychain)
-[^87]: Spec: every persistent on-disk copy of the share is deleted immediately | openspec/specs/tillandsias-vault/spec.md#L132
+[^87]: Spec: every persistent on-disk copy of the share is deleted immediately | openspec/specs/tillandsias-vault/spec.md#L140
     > delete all persistent on-disk copies immediately
 [^90]: The Podman client runs whatever argv it is handed, with no policy call | crates/tillandsias-podman/src/client.rs#L1011-L1013
     > let mut full_args = vec!["run".to_string()]; full_args.extend_from_slice(args); match self.execute(OperationKind::Container, &full_args).await {
@@ -295,15 +296,15 @@ The convergence argument you already have is not a security argument, and the pr
     > /tmp works everywhere and is the bug — volatile by design, cleared on reboot and swept by systemd-tmpfiles
 [^92]: Why label=disable: no `:z`/`:Z` relabelling, so bind mounts work under SELinux hosts | openspec/specs/podman-orchestration/spec.md#L110-L110
     > no `:z` or `:Z` suffix is needed because `--security-opt=label=disable` disables SELinux confinement for the container process
-[^93]: The macOS host writes the secure-wire flag into the guest's service unit | crates/tillandsias-vm-layer/src/vz.rs#L1269
+[^93]: The macOS host writes the secure-wire flag into the guest's service unit | crates/tillandsias-vm-layer/src/vz.rs#L1437
     > Environment=TILLANDSIAS_SECURE_CONTROL_WIRE=__SECURE_CONTROL_WIRE__
 [^94]: Why the flag is applied — SELinux relabelling would otherwise break the bind mount | docs/audits/browser-isolation-audit-2026-04-30.md#L58
     > | `--security-opt=label=disable` | ✅ | Required for Silverblue bind mounts |
-[^95]: The observatorium web launch serialises without the policy call | crates/tillandsias-headless/src/main.rs#L14359
+[^95]: The observatorium web launch serialises without the policy call | crates/tillandsias-headless/src/main.rs#L15210
     > .build_run_args()
-[^96]: The proxy launch is assembled as a raw argv the checker never sees | crates/tillandsias-headless/src/main.rs#L3787
+[^96]: The proxy launch is assembled as a raw argv the checker never sees | crates/tillandsias-headless/src/main.rs#L4544
     > fn build_proxy_run_args(certs_dir: &Path, image: &str) -> Vec<String> {
-[^97]: The mirror launch is assembled the same way | crates/tillandsias-headless/src/main.rs#L4933
+[^97]: The mirror launch is assembled the same way | crates/tillandsias-headless/src/main.rs#L5642
     > fn build_git_run_args(
 [^98]: What the checker refuses beside a missing flag | crates/tillandsias-podman/src/policy.rs#L189-L193
     > if arg == "--privileged" || arg.starts_with("--privileged=") || flag_value(arg, next, "--userns").is_some_and(|value| value != "keep-id") || flag_value(arg, next, "--cap-add").is_some_and(|value| value == "ALL")
@@ -316,7 +317,7 @@ The convergence argument you already have is not a security argument, and the pr
 [^101]: Capability probe ignores command exit status before declaring success | openspec/litmus-tests/litmus-podman-idiomatic-security-flags.yaml#L111-L114
     > expected_behavior: "CAPABILITIES_DROPPED"
 
-[^102]: CA directory creation uses ordinary create_dir_all, followed by refresh decision | crates/tillandsias-headless/src/main.rs#L3468-L3469
+[^102]: CA directory creation uses ordinary create_dir_all, followed by refresh decision | crates/tillandsias-headless/src/main.rs#L4211-L4212
     > std::fs::create_dir_all(&certs_dir) .map_err(|e| format!("Failed to create CA directory: {e}"))?;
 
 [^103]: Host derives the control key from the build-time guest digest | crates/tillandsias-secure-channel/src/lib.rs#L157-L182
@@ -335,11 +336,11 @@ The convergence argument you already have is not a security argument, and the pr
     > Validates ledger YAML, then synchronously relays the proposed ref transaction
     > upstream before accepting it locally. A client success therefore means the
     > configured upstream has durably accepted the same atomic ref set.
-[^109]: Spec: the share lives only in an unlocking keyring, with no persisted fallback share file | openspec/specs/tillandsias-vault/spec.md#L425-L428
+[^109]: Spec: the share lives only in an unlocking keyring, with no persisted fallback share file | openspec/specs/tillandsias-vault/spec.md#L436-L439
     > There is NO persisted fallback share file: where the keyring is unavailable the share stays in process memory or on tmpfs for the life of the process and is gone with it
-[^110]: The credential clearer is uninstall-only and has no caller yet | crates/tillandsias-headless/src/vault_bootstrap.rs#L3524-L3528
+[^110]: The credential clearer is uninstall-only and has no caller yet | crates/tillandsias-headless/src/vault_bootstrap.rs#L3778-L3782
     > UNINSTALL-ONLY (order 1437-qza3, operator directive 2026-09-27). No reset may call this: the store and the unseal material are operator data that survive every destructive reset
-[^111]: The Linux soft reset runs no credential clearer and deletes no store | crates/tillandsias-headless/src/main.rs#L10522-L10524
+[^111]: The Linux soft reset runs no credential clearer and deletes no store | crates/tillandsias-headless/src/main.rs#L11604-L11606
     > No credential clearer and no store deletion: the store is a host directory the podman reset cannot reach.
 [^115]: Open defect: the Windows installer never verifies a cosign signature | plan/index.d/20261008t234534z-1562-leaked-test-creds-and-installer-cosign-yolanda-windows.yaml#L66-L66
     > install-windows.ps1 checks the downloaded zip against SHA256SUMS-windows but never verifies a cosign signature
@@ -347,3 +348,11 @@ The convergence argument you already have is not a security argument, and the pr
     > (a) the install path verifies its own published cosign bundle before executing, or
 [^117]: The mirror hook can refuse pushes by a seed read from the integration branch, when the seed enforces | images/git/pre-receive-hook.sh#L169-L177
     > enforced the push is rejected BEFORE the relay, so nothing reaches upstream
+[^118]: A build check refuses any code path that hands a URL to a host browser | scripts/lua/check-no-host-browser-launch.lua#L4-L6
+    > host browser. Refuse any call in crates/ that can hand a URL to the host's
+[^119]: The spec: evaluation is disabled in this version | openspec/specs/host-browser-mcp/spec.md#L407-L412
+    > ### Requirement: browser.eval is disabled by default in v1
+[^120]: The secrets spec: podman's secret store is no longer the transport, because it is plaintext on durable disk | openspec/specs/podman-secrets-integration/spec.md#L24-L27
+    > secret store is no longer the transport: its file driver, and the copy podman
+[^121]: The unseal key is handed to the vault as a file on tmpfs, never as a podman secret | crates/tillandsias-headless/src/vault_bootstrap.rs#L4149-L4153
+    > 1118-fqfk: the unseal key is handed to the vault container as a file on

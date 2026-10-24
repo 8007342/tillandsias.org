@@ -49,7 +49,7 @@ Less broken every time does **not** mean perfect one day. It only means creeping
     > the container is removed, project-specific cache data is deleted, but the project source directory in `~/src` is never touched
 [^14]: The licence: anyone may have it, read it and change it | LICENSE#L1-L16
     > the GNU General Public License is intended to guarantee your freedom to share and change all versions of a program
-[^15]: The key is locked so only its owner can read it | crates/tillandsias-headless/src/main.rs#L3400-L3400
+[^15]: The key is locked so only its owner can read it | crates/tillandsias-headless/src/main.rs#L4143-L4143
     > Clamp the CA private key to owner-only access (0600) — 755-qcxh.
 [^17]: The key's folder sits inside the program's own folder | crates/tillandsias-core/src/ca_path.rs#L36-L50
     > format!("{}/ca", ca_template())
@@ -57,11 +57,11 @@ Less broken every time does **not** mean perfect one day. It only means creeping
     > deliverable: CA material is created in a directory that is private by construction (XDG_RUNTIME_DIR, or DirBuilder::mode(0o700) before any key is written), and scripts/clamp-ca-material.sh gains a retirement condition or is deleted
 [^20]: The program's own folder is inside your home folder | images/default/ca-path.txt#L83-L83
     > ${HOME}/.local/state/tillandsias
-[^23]: After every fix, a test that used to pass may not start failing | build.sh#L2454-L2456
+[^23]: After every fix, a test that used to pass may not start failing | build.sh#L3109-L3111
     > a failure not named in scripts/test-known-red.txt is a new regression, and a listed test that PASSED is a stale entry that must be deleted
 [^24]: A service you choose receives what you send it | PRIVACY.md#L60-L63
     > If you instead configure a remote provider, the content you send is transmitted to that provider under their terms.
-[^25]: The key's folder is made the ordinary way, with no private setting | crates/tillandsias-headless/src/main.rs#L3468-L3468
+[^25]: The key's folder is made the ordinary way, with no private setting | crates/tillandsias-headless/src/main.rs#L4211-L4211
     > std::fs::create_dir_all(&certs_dir)
 [^26]: The post box says done only once the faraway copy really has the work | images/git/pre-receive-hook.sh#L6-L8
     > Validates ledger YAML, then synchronously relays the proposed ref transaction

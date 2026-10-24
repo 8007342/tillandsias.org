@@ -1,6 +1,6 @@
 # Tasks
 
-- [x] Inspect BigPickle's b3f3091 update and affected stable source spans.
+- [x] Inspect the b3f3091 update and affected stable source spans.
 - [x] Record the six Level 5 deltas before editing; retain the stable pin.
 - [x] Obtain an independent skeptical source review and address its findings.
 - [x] Correct the scoped Level 5 and CentiColon copy, preserving examples and navigation.

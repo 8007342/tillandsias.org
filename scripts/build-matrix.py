@@ -51,33 +51,33 @@ PIN_OVERRIDE = os.environ.get("TILLANDSIAS_PIN_OVERRIDE", "").strip() or None
 LEVELS = [
     ("level-1-five",     "Like I'm 5",
      "The simplest way of putting it that is still true.", "",
-     "v56.10.9.1",
+     "v56.10.20.1",
      ("ionantha",
       "A real tillandsia needs no soil and no pot — it drinks from the air, and borrows nothing.")),
     ("level-2-phone",    "I barely understand my phone",
      "Straight answers to what you are actually wondering: privacy, cost, and what breaks.",
      "Picks up where “like I’m 5” left off.",
-     "v56.10.9.1",
+     "v56.10.20.1",
      ("bulbosa",
       "A tillandsia is an epiphyte, not a parasite: it rests on its tree and takes nothing from it.")),
     ("level-3-power",    "I'm a power user",
      "The anatomy: what runs where, what survives a teardown, and where the sharp edges are.",
      "Assumes the two levels before it.",
-     "v56.10.9.1",
+     "v56.10.20.1",
      ("xerographica",
       "Its roots only grip; the leaves do the drinking — a plant that runs rootless.")),
     ("level-4-security", "I'm a Cyber Security expert",
      "The architecture interrogated rather than described — boundaries, egress, provenance, "
      "and what the tests do not actually test.",
      "Assumes the three levels before it.",
-     "v56.10.9.1",
+     "v56.10.20.1",
      ("usneoides",
       "Silvery leaf scales open to take water in, then trap air to keep it: every exchange "
       "across one surface.")),
     ("level-5-phd",      "I'm a MathWiz / Hacker",
      "And you would like me to be condescending about it. Very well.",
      "Assumes everything before it. Mathematics from here down.",
-     "v56.10.9.1",
+     "v56.10.20.1",
      ("caput-medusae",
       "A monocot bromeliad flowers once and dies, leaving offsets behind — the pup is never "
       "the parent.")),
@@ -593,11 +593,9 @@ resolves the <strong>latest stable release</strong> on GitHub and runs that
 release&#8217;s own installer. Stable moves only when a daily build is
 promoted, so it normally trails the newest code. The scripts here are not
 rebuilt when the app releases; they look the release up every time they
-run. Current installers reset local application state and reprovision by
-default; set <code>TILLANDSIAS_DESTRUCTIVE_RESET_OK=0</code> before running
-one to skip the destructive reset. On Linux and Windows that reset keeps your
-local vault and sign-ins; on macOS the stable release&#8217;s reset still
-clears them, and a fix is pending."""
+run. Each installer resets the application&#8217;s own derived state and sets
+it up again, quietly, keeping its details in a setup log. On every platform
+that reset keeps your downloads, your local vault and your sign-ins."""
 
 
 def quickstart_steps():
@@ -682,10 +680,10 @@ tested. A green test file alone is not enough. Under a fixed scope and scoring p
 not that every possible defect is absent.</p>
 
 <p><b>At stable @@SITE_REF@@:</b> Lua extracts scenario/requirement obligations and grades recorded
-positive-test results. The rcite("scripts/lua/centicolon-grade-observed.lua#L38-L105", "grader")
+positive-test results. The rcite("scripts/lua/centicolon-grade-observed.lua#L36-L105@v56.10.20.1", "grader")
 still has assertion, implementation-provenance and platform-attribution gaps; its residual is a raw count,
 not the full weighted policy below. The
-rcite("scripts/lua/check-centicolon-ratchet.lua#L4-L138", "regression check is advisory"),
+rcite("scripts/lua/check-centicolon-ratchet.lua#L4-L138@v56.10.20.1", "regression check is advisory"),
 not enforced. Lua makes the metric executable; it does not by itself complete the methodology&rsquo;s guarantee.</p>
 
 <h3>What a CentiColon counts</h3>
@@ -769,7 +767,7 @@ or be omitted from the evidence contract. Internal invariants can live in specif
 The proposed common model treats a scenario, invariant and platform precondition as a named obligation
 with applicable evidence and a bar, without counting the same obligation twice.
 The <code>./plan</code> ledger links a transient fix to the durable obligation and test that prevent recurrence;
-closing a packet is not itself correctness credit. Stable Lua extraction lists invariants separately,
+closing a work item is not itself correctness credit. Stable Lua extraction lists invariants separately,
 but the grading path does not yet consume them. Cacheable predicates restrict observation capabilities;
 observing predicates acquire external evidence. Neither label proves an assertion adequate or its cost negligible.</p>
 
@@ -894,8 +892,7 @@ come from how you use it.</p>
 <p>Tillandsias runs many AI agents on many computers: Linux, macOS and Windows hosts, some of them
 disposable containers that exist for an hour. They all need to read and write one shared plan: what
 is being worked on, what was found, what was proved, what was retracted. If that plan were one big
-file that everyone edited, every hour would end in the three-notebooks problem. For a while it was,
-and it did.</p>
+file that everyone edited, every hour would end in the three-notebooks problem.</p>
 
 <p>So the project applies the notebook rule to its own plan. Shared state is written as
 <b>append-only evidence</b>: a host that wants to record something writes a <i>new file</i>, in a
@@ -908,7 +905,7 @@ hosts ever touch the same file.</p>
 
 <p>Seen this way, the whole GitHub apparatus stops being a source of friction and becomes a set of
 conveyor belts. A work branch is a host&rsquo;s private stack of fragments. A pull request is that
-stack arriving at the shared pile. A landing queue takes the stacks one at a time, checks each
+stack arriving at the shared pile. A merge queue takes the stacks one at a time, checks each
 against the pile as it stands at that moment, and adds it or sends it back; the tree that gets
 checked is the tree that lands, never a slightly different one. Hooks refuse the few things that
 would break the rule, such as editing the compacted base in place. None of these parts needs to know
@@ -960,7 +957,7 @@ does not depend on which copy of the notebook you happen to be holding.</p>
 
 <ul>
 <li><b>It does not deliver.</b> Copies that hold the same fragments agree; nothing makes a fragment
-arrive. Pushing, fetching and the landing queue are separate machinery.</li>
+arrive. Pushing, fetching and the merge queue are separate machinery.</li>
 <li><b>It does not make a claim true.</b> Three hosts agreeing on a pile of evidence agree about what
 was <i>recorded</i>. Whether a recorded test actually proves anything is a question for the
 <a href="#centicolons">CentiColon</a> accounting, not for the merge rule.</li>
@@ -1124,7 +1121,7 @@ the facts.</li>
 
 <p>The methodology also describes Lamport-style counters for ordering an agent&rsquo;s iterations
 across merges: tick locally, take the maximum on fetch, break ties by agent name. Where it matters
-most, though, the project does not reach for a clock at all. The landing queue checks a candidate
+most, though, the project does not reach for a clock at all. The merge queue checks a candidate
 against the shared branch at a particular commit, and just before pushing it reads the branch again:
 if the commit has changed, the green result described a tree nobody is shipping, and the candidate
 goes back in the queue. That is a happens-before check, done with git&rsquo;s own graph, and it is
