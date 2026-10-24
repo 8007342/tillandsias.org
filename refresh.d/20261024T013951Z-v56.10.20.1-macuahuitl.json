@@ -1,0 +1,512 @@
+{
+ "from": "v56.10.20.1",
+ "host": "macuahuitl",
+ "judgement": [],
+ "kind": "run",
+ "learned": [],
+ "moved": [
+  {
+   "from": "openspec/specs/podman-idiomatic-patterns/spec.md#L209-L210",
+   "how": "block",
+   "n": 2,
+   "to": "openspec/specs/podman-idiomatic-patterns/spec.md#L220-L221",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-podman/src/container_spec.rs#L424-L425",
+   "how": "block",
+   "n": 6,
+   "to": "crates/tillandsias-podman/src/container_spec.rs#L478-L479",
+   "where": "level-4-security"
+  },
+  {
+   "from": "scripts/clamp-ca-material.sh#L15-L43",
+   "how": "quote",
+   "n": 11,
+   "to": "scripts/clamp-ca-material.sh#L26-L54",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3523-L3526",
+   "how": "block",
+   "n": 13,
+   "to": "crates/tillandsias-headless/src/main.rs#L4266-L4269",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L355-L355",
+   "how": "block",
+   "n": 19,
+   "to": ".github/workflows/release.yml#L376-L376",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3408-L3410",
+   "how": "block",
+   "n": 39,
+   "to": "crates/tillandsias-headless/src/main.rs#L4151-L4153",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3428-L3430",
+   "how": "block",
+   "n": 40,
+   "to": "crates/tillandsias-headless/src/main.rs#L4171-L4173",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3612-L3614",
+   "how": "block",
+   "n": 41,
+   "to": "crates/tillandsias-headless/src/main.rs#L4355-L4357",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L13186-L13188",
+   "how": "block",
+   "n": 46,
+   "to": "crates/tillandsias-headless/src/main.rs#L14008-L14010",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4091",
+   "how": "block",
+   "n": 50,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4543",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4190",
+   "how": "block",
+   "n": 52,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4642",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4407-L4410",
+   "how": "block",
+   "n": 53,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L5043-L5046",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-podman/src/container_spec.rs#L424-L425",
+   "how": "block",
+   "n": 55,
+   "to": "crates/tillandsias-podman/src/container_spec.rs#L478-L479",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L14990",
+   "how": "block",
+   "n": 56,
+   "to": "crates/tillandsias-headless/src/main.rs#L15845",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L14818",
+   "how": "block",
+   "n": 57,
+   "to": "crates/tillandsias-headless/src/main.rs#L15673",
+   "where": "level-4-security"
+  },
+  {
+   "from": "build.sh#L5330",
+   "how": "block",
+   "n": 61,
+   "to": "build.sh#L6452",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-podman/src/container_spec.rs#L134-L137",
+   "how": "block",
+   "n": 63,
+   "to": "crates/tillandsias-podman/src/container_spec.rs#L142-L145",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L15256-L15259",
+   "how": "block",
+   "n": 64,
+   "to": "crates/tillandsias-headless/src/main.rs#L16120-L16123",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L14799-L14801",
+   "how": "block",
+   "n": 65,
+   "to": "crates/tillandsias-headless/src/main.rs#L15654-L15656",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L320-L322",
+   "how": "block",
+   "n": 72,
+   "to": ".github/workflows/release.yml#L341-L343",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L562",
+   "how": "block",
+   "n": 73,
+   "to": ".github/workflows/release.yml#L597",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L863-L864",
+   "how": "block",
+   "n": 74,
+   "to": ".github/workflows/release.yml#L912-L913",
+   "where": "level-4-security"
+  },
+  {
+   "from": "scripts/install-macos.sh#L162-L162",
+   "how": "block",
+   "n": 77,
+   "to": "scripts/install-macos.sh#L166-L166",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L10559-L10559",
+   "how": "block",
+   "n": 81,
+   "to": "crates/tillandsias-headless/src/main.rs#L11641-L11641",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4907",
+   "how": "block",
+   "n": 83,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L5351",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L2873-L2874",
+   "how": "block",
+   "n": 84,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3167-L3168",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4297",
+   "how": "block",
+   "n": 86,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4928",
+   "where": "level-4-security"
+  },
+  {
+   "from": "openspec/specs/tillandsias-vault/spec.md#L132",
+   "how": "block",
+   "n": 87,
+   "to": "openspec/specs/tillandsias-vault/spec.md#L140",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-vm-layer/src/vz.rs#L1269",
+   "how": "block",
+   "n": 93,
+   "to": "crates/tillandsias-vm-layer/src/vz.rs#L1437",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L14359",
+   "how": "block",
+   "n": 95,
+   "to": "crates/tillandsias-headless/src/main.rs#L15210",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3787",
+   "how": "block",
+   "n": 96,
+   "to": "crates/tillandsias-headless/src/main.rs#L4544",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L4933",
+   "how": "block",
+   "n": 97,
+   "to": "crates/tillandsias-headless/src/main.rs#L5642",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3468-L3469",
+   "how": "block",
+   "n": 102,
+   "to": "crates/tillandsias-headless/src/main.rs#L4211-L4212",
+   "where": "level-4-security"
+  },
+  {
+   "from": "openspec/specs/tillandsias-vault/spec.md#L425-L428",
+   "how": "block",
+   "n": 109,
+   "to": "openspec/specs/tillandsias-vault/spec.md#L436-L439",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3524-L3528",
+   "how": "block",
+   "n": 110,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3778-L3782",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L10522-L10524",
+   "how": "block",
+   "n": 111,
+   "to": "crates/tillandsias-headless/src/main.rs#L11604-L11606",
+   "where": "level-4-security"
+  },
+  {
+   "from": "openspec/specs/podman-secrets-integration/spec.md#L18-L21",
+   "how": "block",
+   "n": 120,
+   "to": "openspec/specs/podman-secrets-integration/spec.md#L18-L21",
+   "where": "level-4-security"
+  }
+ ],
+ "next_run": [],
+ "pins_after": {
+  "level-1-five": "v56.10.20.1",
+  "level-2-phone": "v56.10.20.1",
+  "level-3-power": "v56.10.20.1",
+  "level-4-security": "v56.10.20.1",
+  "level-5-phd": "v56.10.20.1"
+ },
+ "pins_before": {
+  "level-1-five": "v56.10.20.1",
+  "level-2-phone": "v56.10.20.1",
+  "level-3-power": "v56.10.20.1",
+  "level-4-security": "v56.10.9.1",
+  "level-5-phd": "v56.10.20.1"
+ },
+ "pins_moved": [
+  "level-4-security"
+ ],
+ "review_queue": [
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs",
+    "crates/tillandsias-podman/src/container_spec.rs",
+    "openspec/litmus-tests/litmus-podman-idiomatic-security-flags.yaml"
+   ],
+   "excerpt": "Production hardening checks now survive release compilation: the",
+   "flag": "GREEN",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs",
+    "crates/tillandsias-podman/src/client.rs",
+    "crates/tillandsias-podman/src/container_spec.rs",
+    "openspec/litmus-tests/litmus-podman-idiomatic-security-flags.yaml"
+   ],
+   "excerpt": "Enforcement is still incomplete across launch paths: proxy,",
+   "flag": "RED",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "build.sh",
+    "crates/tillandsias-headless/src/main.rs",
+    "crates/tillandsias-podman/src/container_spec.rs",
+    "scripts/lua/check-litmus-steps-can-fail.lua"
+   ],
+   "excerpt": "The checked serializer and forge callers are the",
+   "flag": "PATH",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/vault_bootstrap.rs",
+    "crates/tillandsias-windows-tray/src/wsl_lifecycle.rs"
+   ],
+   "excerpt": "SELinux confinement is disabled on every forge, so",
+   "flag": "RED",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "openspec/specs/podman-idiomatic-patterns/spec.md"
+   ],
+   "excerpt": "MCS labelling of the forge is recorded as",
+   "flag": "PATH",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "images/proxy/squid.conf"
+   ],
+   "excerpt": "This is **not** a blanket MITM. The proxy",
+   "flag": "GREEN",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "images/proxy/squid.conf"
+   ],
+   "excerpt": "Where it does terminate TLS it still verifies",
+   "flag": "GREEN",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "images/proxy/squid.conf"
+   ],
+   "excerpt": "The permissive port now binds to loopback inside",
+   "flag": "GREEN",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-core/src/ca_path.rs",
+    "crates/tillandsias-headless/src/main.rs",
+    "scripts/clamp-ca-material.sh"
+   ],
+   "excerpt": "The stable release now puts the CA bundle",
+   "flag": "GREEN",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs"
+   ],
+   "excerpt": "Moving the directory does not make its permissions",
+   "flag": "RED",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-core/src/ca_path.rs",
+    "crates/tillandsias-headless/src/main.rs"
+   ],
+   "excerpt": "The published proxy spec describes something the code",
+   "flag": "RED",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs",
+    "images/git/pre-receive-hook.sh"
+   ],
+   "excerpt": "The spec labels it *interim* and constrains what",
+   "flag": "PATH",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-vm-layer/src/vz.rs",
+    "crates/tillandsias-windows-tray/src/wsl_lifecycle.rs"
+   ],
+   "excerpt": "An absent secure-wire setting now selects encryption, blank",
+   "flag": "GREEN",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    ".github/workflows/release.yml"
+   ],
+   "excerpt": "Release artifacts are signed with Sigstore cosign keyless",
+   "flag": "GREEN",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    ".github/workflows/release.yml"
+   ],
+   "excerpt": "The signature proves less than it looks like.",
+   "flag": "RED",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    ".github/workflows/release.yml"
+   ],
+   "excerpt": "The macOS lane is the exception: it signs",
+   "flag": "RED",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "scripts/install-macos.sh",
+    "scripts/install-windows.ps1",
+    "scripts/install.sh"
+   ],
+   "excerpt": "Nothing a user runs by default checks a",
+   "flag": "RED",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/main.rs",
+    "crates/tillandsias-headless/src/vault_bootstrap.rs"
+   ],
+   "excerpt": "The application's Linux `--reset-state` no longer clears host-held",
+   "flag": "RED",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/vault_bootstrap.rs"
+   ],
+   "excerpt": "The clearer's own documentation names the uninstall command",
+   "flag": "PATH",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-headless/src/vault_bootstrap.rs",
+    "openspec/specs/tillandsias-vault/spec.md"
+   ],
+   "excerpt": "The keychain is not the only copy. The",
+   "flag": "RED",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-browser-mcp/src/server.rs",
+    "scripts/lua/check-no-host-browser-launch.lua"
+   ],
+   "excerpt": "The browser an agent can drive is a",
+   "flag": "GREEN",
+   "level": "level-4-security"
+  },
+  {
+   "changed": [
+    "crates/tillandsias-browser-mcp/src/server.rs",
+    "openspec/specs/host-browser-mcp/spec.md"
+   ],
+   "excerpt": "The browser spec still says evaluation is disabled",
+   "flag": "RED",
+   "level": "level-4-security"
+  }
+ ],
+ "steps": {
+  "anchors": {
+   "secs": 1.0,
+   "verdict": "ok:anchors:37"
+  },
+  "checked_build": {
+   "secs": 1.1,
+   "verdict": "blocked:footnotes-do-not-resolve"
+  },
+  "fetch": {
+   "secs": 0,
+   "verdict": "offline:2 checkouts present"
+  },
+  "metrics": {
+   "secs": 1.2,
+   "verdict": "ok:metrics:0"
+  },
+  "metrics_verify": {
+   "secs": 1.4,
+   "verdict": "ok:metrics-verified:1387"
+  },
+  "snapshot": {
+   "secs": 0.1,
+   "verdict": "snapshot: 185 specs, 219 archived changes at v56.10.20.1"
+  }
+ },
+ "to": "v56.10.20.1",
+ "ts": "2026-10-24T01:39:51Z"
+}
