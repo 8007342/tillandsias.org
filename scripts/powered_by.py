@@ -37,6 +37,8 @@ LINKS = {
     "runtime-download": "downloaded on first use, after you accept its terms",
     "bundled-file": "a file copied into our tree with its upstream licence",
     "service": "an external service we contact",
+    "build-stage-only": "a build tool used while making an image; not shipped",
+    "unknown": "how it is joined is not declared by any file we read",
 }
 
 
@@ -58,8 +60,10 @@ def _rings(nodes, x0, y0, width, r=6, gap=16):
         cx, cy = x0 + r + col * gap, y0 + r + row * gap
         colour = FAMILY_COLOUR.get(n["license_family"], FAMILY_COLOUR["unknown"])
         dash = ' stroke-dasharray="3 2"' if n.get("optional") else ""
+        if n.get("link") == "build-stage-only":
+            dash = ' stroke-dasharray="1.5 2.5" opacity=".6"'
         label = "%s %s — %s%s — %s" % (n["name"], n.get("version") or "", n.get("license") or "unknown",
-                                      " (optional)" if n.get("optional") else "", LINKS.get(n["link"], n["link"]))
+                                      " (optional)" if n.get("optional") else "", LINKS.get(n["link"], n["link"]) + (" — not shipped" if n.get("link") == "build-stage-only" else ""))
         circle = ('<circle cx="%d" cy="%d" r="%d" fill="var(--bg-2)" stroke="%s" stroke-width="2.2"%s>'
                   '<title>%s</title></circle>' % (cx, cy, r, colour, dash, html.escape(label)))
         if n.get("homepage"):
@@ -162,7 +166,7 @@ def render():
                     '<td>%s</td><td>%s</td><td>%s</td></tr>' % (
                         n["license_family"], name, html.escape(str(n.get("version") or "")), html.escape(str(n.get("license") or "unknown")),
                         FAMILY_COLOUR[n["license_family"]], html.escape(n["license_family"].replace("-", " ")),
-                        html.escape(LINKS.get(n["link"], n["link"])), "optional" if n.get("optional") else "required", html.escape(pulled)))
+                        html.escape(LINKS.get(n["link"], n["link"])), ("not shipped" if n["link"] == "build-stage-only" else "optional" if n.get("optional") else "required"), html.escape(pulled)))
 
     source_link = html.escape(snap.get("source") or "https://github.com/8007342/tillandsias/blob/linux-next/docs/credits/stack.v1.json", quote=True)
     return (
@@ -184,7 +188,7 @@ def render():
         'If we got something wrong, the fix is a pull request against it, not against this page.</li>'
         '</ul></div>'
         '<div class="pb-legend"><p><b>Reading the graph.</b> Tillandsias at the top; one edge to each cluster, dashed when the whole cluster is optional. '
-        'Inside, one ring per dependency, coloured by licence family, dashed when that dependency is optional. Containment is the depends-on edge. '
+        'Inside, one ring per dependency, coloured by licence family, dashed when that dependency is optional; a hollow dotted ring is a build tool that is not shipped. Containment is the depends-on edge. '
         'Hover or focus a ring for its name; select it to open its homepage. %d nodes: %s.</p><ul>%s</ul></div>'
         '<div class="pb-svg-wrap"><svg viewBox="0 0 %d %d" class="pb-svg" role="img" aria-label="Tillandsias and the clusters of software it depends on">%s</svg></div>'
         '<details class="pb-trans"><summary>Show the %d Rust crates pulled in transitively</summary>%s</details>'
