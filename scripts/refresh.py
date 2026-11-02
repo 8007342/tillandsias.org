@@ -17,6 +17,8 @@ Steps, each recorded in the run's fragment under refresh.d/:
               each level whose citations all re-anchored (anchors.py apply);
               list what needs a person
   4. snapshot regenerate the Progress spec inventory at the site pin
+              and copy the stack ledger behind Powered By (snapshot-stack.py;
+              a pin older than the ledger keeps the committed copy)
   5. metrics  append new residual-obligation history from runtime git and
               prove every stored row replays (metrics.py extract + verify)
   6. build    the checked build, which re-checks every quote at its release
@@ -321,6 +323,17 @@ def mechanical(tag, offline, history, learned, reader, started):
     if rc != 0:
         print(out)
         print("blocked:snapshot")
+        return 2, []
+
+    # 4b. the stack ledger behind Powered By (order 1958-jyfk): copied from the
+    # pinned runtime checkout when that tag carries docs/credits/stack.v1.json;
+    # an older pin keeps the committed copy and the step says skip:, not blocked.
+    rc, out, last, secs = run([sys.executable, "scripts/snapshot-stack.py", str(CLONE_DIR / site_ref)])
+    steps["snapshot-stack"] = {"verdict": last, "secs": secs}
+    say("snapshot-stack", last, secs)
+    if rc != 0:
+        print(out)
+        print("blocked:snapshot-stack")
         return 2, []
 
     # 5. metrics

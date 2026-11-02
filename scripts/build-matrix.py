@@ -22,6 +22,7 @@ import issues  # noqa: E402
 import slides  # noqa: E402
 import progress  # noqa: E402
 import big_graph  # noqa: E402
+import powered_by  # noqa: E402
 import metrics  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -1331,6 +1332,9 @@ def build():
            .replace("__BIG_GRAPH__", big_graph.render(SITE_REF))
            .replace("__BIG_GRAPH_CSS__", big_graph.CSS + metrics.CSS)
            .replace("__BIG_GRAPH_JS__", big_graph.JS)
+           .replace("__POWERED_BY__", powered_by.render())
+           .replace("__POWERED_BY_CSS__", powered_by.CSS)
+           .replace("__POWERED_BY_JS__", powered_by.JS)
            .replace("__SLIDES__", slides_view())
            .replace("__TABS__", "\n".join(tabs))
            .replace("__PANELS__", "\n".join(panels))
@@ -1941,6 +1945,7 @@ body.is-accessible .graph-node{background:#0c0e10;box-shadow:none}
 body.is-accessible #graph-lines path{stroke:#8fa8bd}
 body.is-accessible .graph-inspector{background:#0b0d10fa}
 __BIG_GRAPH_CSS__
+__POWERED_BY_CSS__
 </style>
 </head>
 <body>
@@ -1959,6 +1964,7 @@ __DEFS__
   <button class="nav" id="nav-lamport" data-go="view-lamport"><span class="nav-i">&#9201;</span>Lamport Clocks</button>
   <button class="nav" id="nav-slides" data-go="view-slides"><span class="nav-i">&#9654;</span>Slides</button>
   <button class="nav" id="nav-big-graph" data-go="view-big-graph"><span class="nav-i">&#9638;</span>Big Graph</button>
+  <button class="nav" id="nav-powered-by" data-go="view-powered-by"><span class="nav-i">&#9881;</span>Powered By</button>
   <p class="drawer-f">Checked against release <code>__SITE_REF__</code>.</p>
   <button type="button" class="acc" id="acc-toggle" role="switch" aria-checked="false">
     <span class="acc-label">Accessible</span>
@@ -2006,6 +2012,7 @@ __CRDT__
 __LAMPORT__
 
 __BIG_GRAPH__
+__POWERED_BY__
 
 __SLIDES__
 
@@ -2162,11 +2169,11 @@ __SLIDES__
     if (lines.length) out.textContent = lines[Math.floor(Math.random() * lines.length)].textContent;
   }
 
-  // A deep link opens its view: #home, #what, #install, #progress, #centicolons, #crdt, #lamport, #slides, #big-graph, or a level.
+  // A deep link opens its view: #home, #what, #install, #progress, #centicolons, #crdt, #lamport, #slides, #big-graph, #powered-by, or a level.
   function fromHash(){
     var h = location.hash.slice(1);
     if (!h) return go('view-home', false);
-    if (h === 'home' || h === 'what' || h === 'install' || h === 'progress' || h === 'slides' || h === 'centicolons' || h === 'crdt' || h === 'lamport' || h === 'big-graph') return go('view-' + h, false);
+    if (h === 'home' || h === 'what' || h === 'install' || h === 'progress' || h === 'slides' || h === 'centicolons' || h === 'crdt' || h === 'lamport' || h === 'big-graph' || h === 'powered-by') return go('view-' + h, false);
     if (document.getElementById('panel-' + h)) go('view-what', false);
   }
   window.addEventListener('hashchange', fromHash);
@@ -2300,6 +2307,7 @@ function fromDeckHash(){
   input.addEventListener('input',filter);filter();
 })();
 __BIG_GRAPH_JS__
+__POWERED_BY_JS__
 </script>
 </body>
 </html>
