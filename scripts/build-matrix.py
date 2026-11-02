@@ -1359,6 +1359,10 @@ def build():
         return 1
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(doc)
+    # Powered By data, fetched only when that view opens (kept out of index.html so
+    # every visitor does not download the credits).
+    data_bytes = powered_by.write_data(OUT.parent / powered_by.DATA_PATH)
+    print("wrote %s (%d bytes)" % (OUT.parent / powered_by.DATA_PATH, data_bytes))
     print("wrote %s (%d bytes)" % (OUT, len(doc.encode("utf-8"))))
     return 0
 
