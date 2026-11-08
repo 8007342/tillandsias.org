@@ -52,7 +52,7 @@ PIN_OVERRIDE = os.environ.get("TILLANDSIAS_PIN_OVERRIDE", "").strip() or None
 LEVELS = [
     ("level-1-five",     "Like I'm 5",
      "The simplest way of putting it that is still true.", "",
-     "v56.10.20.1",
+     "v56.11.7.1",
      ("ionantha",
       "A real tillandsia needs no soil and no pot — it drinks from the air, and borrows nothing.")),
     ("level-2-phone",    "I barely understand my phone",
@@ -78,7 +78,7 @@ LEVELS = [
     ("level-5-phd",      "I'm a MathWiz / Hacker",
      "And you would like me to be condescending about it. Very well.",
      "Assumes everything before it. Mathematics from here down.",
-     "v56.10.20.1",
+     "v56.11.7.1",
      ("caput-medusae",
       "A monocot bromeliad flowers once and dies, leaving offsets behind — the pup is never "
       "the parent.")),
@@ -684,10 +684,10 @@ tested. A green test file alone is not enough. Under a fixed scope and scoring p
 not that every possible defect is absent.</p>
 
 <p><b>At stable @@SITE_REF@@:</b> Lua extracts scenario/requirement obligations and grades recorded
-positive-test results. The rcite("scripts/lua/centicolon-grade-observed.lua#L36-L105@v56.10.20.1", "grader")
+positive-test results. The rcite("scripts/lua/centicolon-grade-observed.lua#L36-L105", "grader")
 still has assertion, implementation-provenance and platform-attribution gaps; its residual is a raw count,
 not the full weighted policy below. The
-rcite("scripts/lua/check-centicolon-ratchet.lua#L4-L138@v56.10.20.1", "regression check is advisory"),
+rcite("scripts/lua/check-centicolon-ratchet.lua#L4-L138", "regression check is advisory"),
 not enforced. Lua makes the metric executable; it does not by itself complete the methodology&rsquo;s guarantee.</p>
 
 <h3>What a CentiColon counts</h3>

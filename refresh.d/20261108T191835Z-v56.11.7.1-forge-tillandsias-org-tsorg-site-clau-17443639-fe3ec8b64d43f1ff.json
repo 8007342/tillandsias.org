@@ -1,0 +1,880 @@
+{
+ "from": "v56.11.7.1",
+ "host": "forge-tillandsias-org-tsorg-site-clau-17443639-fe3ec8b64d43f1ff",
+ "judgement": [
+  {
+   "candidates": [],
+   "level": "level-2-phone",
+   "n": 10,
+   "quote": "Tillandsias is signed but not yet notarized (Apple Developer enrollment is pending), and macOS tags anything a *browser* downloads with `com.apple.quarantine` — so the .dmg route hits a Gatekeeper block on first launch, while `curl` does not tag at all and the app opens normally.",
+   "target": "README.md#L27-L45",
+   "was": "",
+   "why": "quote-gone"
+  },
+  {
+   "candidates": [],
+   "level": "level-2-phone",
+   "n": 16,
+   "quote": "let fallback_file = read_credential_fallback(&format!(\"fallback_{VAULT_SHAMIR_SHARE_V1}\"))",
+   "target": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4070-L4072",
+   "was": "",
+   "why": "quote-gone"
+  },
+  {
+   "candidates": [],
+   "level": "level-3-power",
+   "n": 37,
+   "quote": "typed forge launcher must mount the single runtime CA input",
+   "target": "crates/tillandsias-headless/src/main.rs#L26127-L26127",
+   "was": "",
+   "why": "quote-gone"
+  },
+  {
+   "candidates": [],
+   "level": "level-3-power",
+   "n": 126,
+   "quote": "Inside the VM there is no OS keychain, so these files are the only durable",
+   "target": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3145-L3145",
+   "was": "",
+   "why": "quote-gone"
+  },
+  {
+   "candidates": [],
+   "level": "level-3-power",
+   "n": 127,
+   "quote": "using fallback file (expected in VM guest and headless environments)",
+   "target": "crates/tillandsias-headless/src/vault_bootstrap.rs#L5351-L5351",
+   "was": "",
+   "why": "quote-gone"
+  },
+  {
+   "candidates": [],
+   "level": "level-4-security",
+   "n": 1,
+   "quote": "Podman is the only host dependency on Linux (auto-detected). macOS and Windows provision a lightweight Fedora-based utility VM; no host Podman required.",
+   "target": "README.md#L52-L53",
+   "was": "",
+   "why": "quote-gone"
+  },
+  {
+   "candidates": [],
+   "level": "level-4-security",
+   "n": 83,
+   "quote": "using fallback file (expected in VM guest and headless environments)",
+   "target": "crates/tillandsias-headless/src/vault_bootstrap.rs#L5351",
+   "was": "",
+   "why": "quote-gone"
+  },
+  {
+   "candidates": [],
+   "level": "level-4-security",
+   "n": 84,
+   "quote": "BOTH writes are always ATTEMPTED — a token failure must never skip the share, because the share is the half that arms the wipe.",
+   "target": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3167-L3168",
+   "was": "",
+   "why": "quote-gone"
+  },
+  {
+   "candidates": [],
+   "level": "level-4-security",
+   "n": 85,
+   "quote": "The FALLBACK half of has_shamir_share_in_keyring: the whole predicate inside",
+   "target": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3329-L3330",
+   "was": "",
+   "why": "quote-gone"
+  },
+  {
+   "candidates": [],
+   "level": "level-4-security",
+   "n": 98,
+   "quote": "if arg == \"--privileged\" || arg.starts_with(\"--privileged=\") || flag_value(arg, next, \"--userns\").is_some_and(|value| value != \"keep-id\") || flag_value(arg, next, \"--cap-add\").is_some_and(|value| value == \"ALL\")",
+   "target": "crates/tillandsias-podman/src/policy.rs#L189-L193",
+   "was": "",
+   "why": "quote-gone"
+  }
+ ],
+ "kind": "run",
+ "learned": [
+  {
+   "note": "a held level checks its footnotes at its own pin, so a re-cite to the new tag is refused by the build; record it as a ready re-cite in the issues file and apply when the level moves",
+   "surfaces": [
+    "anchors"
+   ],
+   "ts": "2026-11-08T19:18:35Z"
+  }
+ ],
+ "moved": [
+  {
+   "from": "build.sh#L3106-L3106",
+   "how": "block",
+   "n": 23,
+   "to": "build.sh#L3465-L3465",
+   "where": "level-2-phone"
+  },
+  {
+   "from": ".github/workflows/release.yml#L800-L800",
+   "how": "block",
+   "n": 26,
+   "to": ".github/workflows/release.yml#L864-L864",
+   "where": "level-2-phone"
+  },
+  {
+   "from": ".github/workflows/release.yml#L789-L789",
+   "how": "block",
+   "n": 27,
+   "to": ".github/workflows/release.yml#L853-L853",
+   "where": "level-2-phone"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L167-L167",
+   "how": "block",
+   "n": 34,
+   "to": "crates/tillandsias-headless/src/main.rs#L230-L230",
+   "where": "level-2-phone"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L11554-L11570",
+   "how": "block",
+   "n": 39,
+   "to": "crates/tillandsias-headless/src/main.rs#L13519-L13535",
+   "where": "level-2-phone"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L25931-L25931",
+   "how": "block",
+   "n": 5,
+   "to": "crates/tillandsias-headless/src/main.rs#L29279-L29279",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L1830-L1830",
+   "how": "block",
+   "n": 10,
+   "to": "crates/tillandsias-headless/src/main.rs#L2063-L2063",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L5143-L5172",
+   "how": "quote",
+   "n": 16,
+   "to": "images/default/lib-common.sh#L5400-L5429",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L18710-L18710",
+   "how": "block",
+   "n": 21,
+   "to": "crates/tillandsias-headless/src/main.rs#L21102-L21102",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L19283-L19283",
+   "how": "block",
+   "n": 22,
+   "to": "crates/tillandsias-headless/src/main.rs#L21939-L21939",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L4816-L4816",
+   "how": "block",
+   "n": 24,
+   "to": "images/default/lib-common.sh#L5068-L5068",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L5244-L5249",
+   "how": "block",
+   "n": 28,
+   "to": "images/default/lib-common.sh#L5506-L5511",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L18749-L18749",
+   "how": "block",
+   "n": 30,
+   "to": "crates/tillandsias-headless/src/main.rs#L21145-L21145",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L3764-L3767",
+   "how": "block",
+   "n": 31,
+   "to": "crates/tillandsias-headless/src/main.rs#L4222-L4225",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L11829-L11829",
+   "how": "block",
+   "n": 33,
+   "to": "crates/tillandsias-headless/src/main.rs#L13794-L13794",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L2140-L2140",
+   "how": "block",
+   "n": 34,
+   "to": "crates/tillandsias-headless/src/main.rs#L2387-L2387",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/proxy/squid.conf#L133-L139",
+   "how": "block",
+   "n": 40,
+   "to": "images/proxy/squid.conf#L143-L149",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L2283-L2315",
+   "how": "block",
+   "n": 42,
+   "to": "images/default/lib-common.sh#L2371-L2403",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/proxy/squid.conf#L151-L156",
+   "how": "block",
+   "n": 43,
+   "to": "images/proxy/squid.conf#L161-L166",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L18338-L18338",
+   "how": "block",
+   "n": 46,
+   "to": "crates/tillandsias-headless/src/main.rs#L20660-L20660",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/accel_probe.rs#L4553-L4553",
+   "how": "block",
+   "n": 49,
+   "to": "crates/tillandsias-headless/src/accel_probe.rs#L4690-L4690",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L6939-L6939",
+   "how": "block",
+   "n": 54,
+   "to": "crates/tillandsias-headless/src/main.rs#L8430-L8430",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L5886-L5886",
+   "how": "block",
+   "n": 55,
+   "to": "crates/tillandsias-headless/src/main.rs#L7363-L7363",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/git/pre-receive-hook.sh#L783-L783",
+   "how": "block",
+   "n": 63,
+   "to": "images/git/pre-receive-hook.sh#L788-L788",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/git/entrypoint.sh#L504-L504",
+   "how": "block",
+   "n": 69,
+   "to": "images/git/entrypoint.sh#L604-L604",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L14008-L14008",
+   "how": "block",
+   "n": 70,
+   "to": "crates/tillandsias-headless/src/main.rs#L16028-L16028",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L19344-L19344",
+   "how": "block",
+   "n": 76,
+   "to": "crates/tillandsias-headless/src/main.rs#L22000-L22000",
+   "where": "level-3-power"
+  },
+  {
+   "from": "openspec/specs/tillandsias-vault/spec.md#L359-L364",
+   "how": "block",
+   "n": 77,
+   "to": "openspec/specs/tillandsias-vault/spec.md#L375-L380",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L5170-L5170",
+   "how": "block",
+   "n": 80,
+   "to": "images/default/lib-common.sh#L5427-L5427",
+   "where": "level-3-power"
+  },
+  {
+   "from": "openspec/specs/tillandsias-vault/spec.md#L263-L267",
+   "how": "block",
+   "n": 82,
+   "to": "openspec/specs/tillandsias-vault/spec.md#L279-L283",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/config-overlay/mcp/forge-plan.sh#L1367",
+   "how": "block",
+   "n": 86,
+   "to": "images/default/config-overlay/mcp/forge-plan.sh#L1388",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L5161-L5161",
+   "how": "block",
+   "n": 87,
+   "to": "images/default/lib-common.sh#L5418-L5418",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L1693-L1699",
+   "how": "block",
+   "n": 88,
+   "to": "images/default/lib-common.sh#L1753-L1759",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L5180-L5180",
+   "how": "block",
+   "n": 90,
+   "to": "images/default/lib-common.sh#L5437-L5437",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/local_web_preview.rs#L1194-L1200",
+   "how": "block",
+   "n": 96,
+   "to": "crates/tillandsias-headless/src/local_web_preview.rs#L1203-L1209",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/proxy/squid.conf#L183-L188",
+   "how": "block",
+   "n": 97,
+   "to": "images/proxy/squid.conf#L193-L198",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L8662-L8662",
+   "how": "block",
+   "n": 99,
+   "to": "crates/tillandsias-headless/src/main.rs#L10325-L10325",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L11183-L11185",
+   "how": "block",
+   "n": 101,
+   "to": "crates/tillandsias-headless/src/main.rs#L13116-L13118",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L33257-L33259",
+   "how": "block",
+   "n": 102,
+   "to": "crates/tillandsias-headless/src/main.rs#L37302-L37304",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L16935-L16935",
+   "how": "block",
+   "n": 107,
+   "to": "crates/tillandsias-headless/src/main.rs#L19227-L19227",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L16759-L16761",
+   "how": "block",
+   "n": 108,
+   "to": "crates/tillandsias-headless/src/main.rs#L19051-L19053",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-browser-mcp/src/server.rs#L845-L849",
+   "how": "block",
+   "n": 110,
+   "to": "crates/tillandsias-browser-mcp/src/server.rs#L849-L853",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L7862-L7862",
+   "how": "block",
+   "n": 116,
+   "to": "crates/tillandsias-headless/src/main.rs#L9525-L9525",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L19197-L19197",
+   "how": "block",
+   "n": 123,
+   "to": "crates/tillandsias-headless/src/main.rs#L21853-L21853",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L8399-L8399",
+   "how": "block",
+   "n": 125,
+   "to": "crates/tillandsias-headless/src/main.rs#L10046-L10046",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L11476-L11478",
+   "how": "block",
+   "n": 128,
+   "to": "crates/tillandsias-headless/src/main.rs#L13441-L13443",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L35373-L35373",
+   "how": "block",
+   "n": 129,
+   "to": "crates/tillandsias-headless/src/main.rs#L39652-L39652",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-vm-layer/src/vz.rs#L3316-L3316",
+   "how": "block",
+   "n": 131,
+   "to": "crates/tillandsias-vm-layer/src/vz.rs#L3636-L3636",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-vm-layer/src/vz.rs#L1187-L1187",
+   "how": "block",
+   "n": 132,
+   "to": "crates/tillandsias-vm-layer/src/vz.rs#L1410-L1410",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L10197-L10197",
+   "how": "block",
+   "n": 140,
+   "to": "crates/tillandsias-headless/src/main.rs#L12123-L12123",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L10358-L10358",
+   "how": "block",
+   "n": 141,
+   "to": "crates/tillandsias-headless/src/main.rs#L12284-L12284",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L18384-L18385",
+   "how": "block",
+   "n": 146,
+   "to": "crates/tillandsias-headless/src/main.rs#L20772-L20773",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L30798-L30798",
+   "how": "block",
+   "n": 147,
+   "to": "crates/tillandsias-headless/src/main.rs#L34582-L34582",
+   "where": "level-3-power"
+  },
+  {
+   "from": "build.sh#L3581-L3581",
+   "how": "block",
+   "n": 148,
+   "to": "build.sh#L3963-L3963",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L19209-L19220",
+   "how": "block",
+   "n": 149,
+   "to": "crates/tillandsias-headless/src/main.rs#L21865-L21876",
+   "where": "level-3-power"
+  },
+  {
+   "from": "images/default/lib-common.sh#L5159-L5168",
+   "how": "block",
+   "n": 150,
+   "to": "images/default/lib-common.sh#L5416-L5425",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L11639-L11649",
+   "how": "block",
+   "n": 156,
+   "to": "crates/tillandsias-headless/src/main.rs#L13604-L13614",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L6823-L6826",
+   "how": "block",
+   "n": 159,
+   "to": "crates/tillandsias-headless/src/main.rs#L8314-L8317",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/local_web_preview.rs#L1020-L1027",
+   "how": "block",
+   "n": 160,
+   "to": "crates/tillandsias-headless/src/local_web_preview.rs#L1029-L1036",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/local_web_preview.rs#L2293-L2295",
+   "how": "block",
+   "n": 161,
+   "to": "crates/tillandsias-headless/src/local_web_preview.rs#L2414-L2416",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/local_web_preview.rs#L3204-L3211",
+   "how": "block",
+   "n": 164,
+   "to": "crates/tillandsias-headless/src/local_web_preview.rs#L3380-L3387",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-browser-mcp/src/server.rs#L769-L769",
+   "how": "block",
+   "n": 165,
+   "to": "crates/tillandsias-browser-mcp/src/server.rs#L773-L773",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-browser-mcp/src/server.rs#L976-L980",
+   "how": "block",
+   "n": 167,
+   "to": "crates/tillandsias-browser-mcp/src/server.rs#L980-L984",
+   "where": "level-3-power"
+  },
+  {
+   "from": "crates/tillandsias-podman/src/container_spec.rs#L478-L479",
+   "how": "block",
+   "n": 6,
+   "to": "crates/tillandsias-podman/src/container_spec.rs#L503-L504",
+   "where": "level-4-security"
+  },
+  {
+   "from": "images/proxy/squid.conf#L122-L139",
+   "how": "block",
+   "n": 9,
+   "to": "images/proxy/squid.conf#L132-L149",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L4266-L4269",
+   "how": "block",
+   "n": 13,
+   "to": "crates/tillandsias-headless/src/main.rs#L5653-L5656",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L376-L376",
+   "how": "block",
+   "n": 19,
+   "to": ".github/workflows/release.yml#L432-L432",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-browser-mcp/src/server.rs#L976-L980",
+   "how": "block",
+   "n": 24,
+   "to": "crates/tillandsias-browser-mcp/src/server.rs#L980-L984",
+   "where": "level-4-security"
+  },
+  {
+   "from": "images/proxy/squid.conf#L146-L149",
+   "how": "block",
+   "n": 32,
+   "to": "images/proxy/squid.conf#L156-L159",
+   "where": "level-4-security"
+  },
+  {
+   "from": "images/proxy/squid.conf#L148-L153",
+   "how": "block",
+   "n": 37,
+   "to": "images/proxy/squid.conf#L158-L163",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L4151-L4153",
+   "how": "block",
+   "n": 39,
+   "to": "crates/tillandsias-headless/src/main.rs#L5399-L5401",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L4171-L4173",
+   "how": "block",
+   "n": 40,
+   "to": "crates/tillandsias-headless/src/main.rs#L5419-L5421",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L4355-L4357",
+   "how": "block",
+   "n": 41,
+   "to": "crates/tillandsias-headless/src/main.rs#L5751-L5753",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L14008-L14010",
+   "how": "block",
+   "n": 46,
+   "to": "crates/tillandsias-headless/src/main.rs#L16028-L16030",
+   "where": "level-4-security"
+  },
+  {
+   "from": "images/git/entrypoint.sh#L524-L525",
+   "how": "block",
+   "n": 47,
+   "to": "images/git/entrypoint.sh#L624-L625",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4543",
+   "how": "block",
+   "n": 50,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4804",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4642",
+   "how": "block",
+   "n": 52,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4903",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L5043-L5046",
+   "how": "block",
+   "n": 53,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L5335-L5338",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-podman/src/container_spec.rs#L478-L479",
+   "how": "block",
+   "n": 55,
+   "to": "crates/tillandsias-podman/src/container_spec.rs#L503-L504",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L15845",
+   "how": "block",
+   "n": 56,
+   "to": "crates/tillandsias-headless/src/main.rs#L17935",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L15673",
+   "how": "block",
+   "n": 57,
+   "to": "crates/tillandsias-headless/src/main.rs#L17743",
+   "where": "level-4-security"
+  },
+  {
+   "from": "build.sh#L6452",
+   "how": "block",
+   "n": 61,
+   "to": "build.sh#L6928",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-podman/src/container_spec.rs#L142-L145",
+   "how": "block",
+   "n": 63,
+   "to": "crates/tillandsias-podman/src/container_spec.rs#L146-L149",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L15250-L15253",
+   "how": "block",
+   "n": 64,
+   "to": "crates/tillandsias-headless/src/main.rs#L17314-L17317",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L15654-L15656",
+   "how": "block",
+   "n": 65,
+   "to": "crates/tillandsias-headless/src/main.rs#L17724-L17726",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-windows-tray/src/wsl_lifecycle.rs#L1986-L1987",
+   "how": "block",
+   "n": 70,
+   "to": "crates/tillandsias-windows-tray/src/wsl_lifecycle.rs#L2002-L2003",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L341-L343",
+   "how": "block",
+   "n": 72,
+   "to": ".github/workflows/release.yml#L397-L399",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L597",
+   "how": "block",
+   "n": 73,
+   "to": ".github/workflows/release.yml#L659",
+   "where": "level-4-security"
+  },
+  {
+   "from": ".github/workflows/release.yml#L912-L913",
+   "how": "block",
+   "n": 74,
+   "to": ".github/workflows/release.yml#L976-L977",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L11641-L11641",
+   "how": "block",
+   "n": 81,
+   "to": "crates/tillandsias-headless/src/main.rs#L13606-L13606",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4928",
+   "how": "block",
+   "n": 86,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L5220",
+   "where": "level-4-security"
+  },
+  {
+   "from": "openspec/specs/tillandsias-vault/spec.md#L140",
+   "how": "block",
+   "n": 87,
+   "to": "openspec/specs/tillandsias-vault/spec.md#L156",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-podman/src/client.rs#L1011-L1013",
+   "how": "block",
+   "n": 90,
+   "to": "crates/tillandsias-podman/src/client.rs#L1045-L1047",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-vm-layer/src/vz.rs#L1437",
+   "how": "block",
+   "n": 93,
+   "to": "crates/tillandsias-vm-layer/src/vz.rs#L1660",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L15210",
+   "how": "block",
+   "n": 95,
+   "to": "crates/tillandsias-headless/src/main.rs#L17274",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L4544",
+   "how": "block",
+   "n": 96,
+   "to": "crates/tillandsias-headless/src/main.rs#L5969",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L5642",
+   "how": "block",
+   "n": 97,
+   "to": "crates/tillandsias-headless/src/main.rs#L7095",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L4211-L4212",
+   "how": "block",
+   "n": 102,
+   "to": "crates/tillandsias-headless/src/main.rs#L5565-L5566",
+   "where": "level-4-security"
+  },
+  {
+   "from": "openspec/specs/tillandsias-vault/spec.md#L436-L439",
+   "how": "block",
+   "n": 109,
+   "to": "openspec/specs/tillandsias-vault/spec.md#L452-L455",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3778-L3782",
+   "how": "block",
+   "n": 110,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L3966-L3970",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/main.rs#L11604-L11606",
+   "how": "block",
+   "n": 111,
+   "to": "crates/tillandsias-headless/src/main.rs#L13569-L13571",
+   "where": "level-4-security"
+  },
+  {
+   "from": "images/git/pre-receive-hook.sh#L169-L177",
+   "how": "block",
+   "n": 117,
+   "to": "images/git/pre-receive-hook.sh#L174-L182",
+   "where": "level-4-security"
+  },
+  {
+   "from": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4149-L4153",
+   "how": "block",
+   "n": 121,
+   "to": "crates/tillandsias-headless/src/vault_bootstrap.rs#L4411-L4415",
+   "where": "level-4-security"
+  }
+ ],
+ "next_run": [
+  "10 item(s) need a person; their levels kept their pins"
+ ],
+ "pins_after": {
+  "level-1-five": "v56.11.7.1",
+  "level-2-phone": "v56.10.20.1",
+  "level-3-power": "v56.10.20.1",
+  "level-4-security": "v56.10.20.1",
+  "level-5-phd": "v56.11.7.1"
+ },
+ "pins_before": {
+  "level-1-five": "v56.11.7.1",
+  "level-2-phone": "v56.10.20.1",
+  "level-3-power": "v56.10.20.1",
+  "level-4-security": "v56.10.20.1",
+  "level-5-phd": "v56.11.7.1"
+ },
+ "pins_moved": [],
+ "review_queue": [],
+ "steps": {
+  "anchors": {
+   "secs": 1.6,
+   "verdict": "ask:anchors:10"
+  },
+  "checked_build": {
+   "secs": 1.0,
+   "verdict": "ok:checked-build"
+  },
+  "fetch": {
+   "secs": 1.0,
+   "verdict": "ok:checkouts:/home/forge/src/wt/tsorg-v56.11.7.1/var/unattended/clones"
+  },
+  "metrics": {
+   "secs": 1.3,
+   "verdict": "ok:metrics:0"
+  },
+  "metrics_verify": {
+   "secs": 1.7,
+   "verdict": "ok:metrics-verified:1401"
+  },
+  "snapshot": {
+   "secs": 0.1,
+   "verdict": "snapshot: 186 specs, 219 archived changes at v56.11.7.1"
+  },
+  "snapshot-stack": {
+   "secs": 0.0,
+   "verdict": "skip:stack-ledger:absent-at:v56.11.7.1"
+  }
+ },
+ "to": "v56.11.7.1",
+ "ts": "2026-11-08T19:18:35Z"
+}
