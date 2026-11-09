@@ -5,6 +5,11 @@ re-anchored every citation but ten. Levels 1 and 5 moved to `v56.11.7.1`.
 Levels 2, 3 and 4 stay at `v56.10.20.1` until all ten are settled, because a
 level moves only when all of its citations do.
 
+**Rulings (2026-11-09).** The refresh merges with Levels 2, 3 and 4 held at
+`v56.10.20.1`. The CentiColon score charts are retired
+(`openspec/changes/retire-centicolon-dashboards/`). The restart note below is
+kept. The seven items below stay open for the next pass.
+
 Seven of the ten need a person: the evidence behind each claim changed, and
 the claim itself may now be false (the last two sections). The other three
 are plain moves. The claim still holds, and the new target and quote are ready
@@ -89,8 +94,12 @@ true at `v56.11.7.1`, and the suggested decision.
 
 One thing the RED might still honestly say: the purge runs when a guest
 starts, so a guest upgraded but never restarted could still hold an old
-plaintext file until its next start. Whether that is worth a flag is the
-operator's call.
+plaintext file until its next start.
+
+**Decided 2026-11-09: keep that note.** When the vault claims on Levels 2, 3
+and 4 are rewritten, the Level 4 RED narrows to it instead of being retired.
+The site is merged with these levels held at `v56.10.20.1`, where every vault
+statement is still true, so nothing on the site changes until that rewrite.
 
 **Why it matters.** Three levels tell readers a weakness exists that the
 stable release appears to have fixed. A security RED that is no longer true
