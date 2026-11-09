@@ -67,13 +67,13 @@
   "surfaces": [
    "progress"
   ],
-  "text": "The chart no longer redraws the CentiColon score, whose source stopped updating in August; the project now publishes that score on its own observatorium, and this page links to it."
+  "text": "The chart no longer redraws the CentiColon score, whose source stopped updating in August. The score now belongs to the project's own observatorium, which is offline for now; a note here says so until it is back."
  },
  {
   "month": "2026-11",
   "surfaces": [
    "centicolons"
   ],
-  "text": "The current score now lives on the project's own observatorium, linked from this page; the explanation of what the score means stays here."
+  "text": "The current score now belongs to the project's own observatorium, which is offline for now; the explanation of what the score means stays here."
  }
 ]

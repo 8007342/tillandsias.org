@@ -27,8 +27,13 @@ with better provenance:
   revision, epoch, definitions and named gaps. The latest records a residual of
   1,571 of 1,571 with the gap "CentiColon population has unregistered, missing
   or unkeyed entries".
-- It deploys as its own Worker at `observatorium.tillandsias.org` (this
-  repo's `docs/cloudflare-dev.md`, "Sibling Workers on the same zone").
+- Its configuration names its own Worker at `observatorium.tillandsias.org`
+  (this repo's `docs/cloudflare-dev.md`, "Sibling Workers on the same zone").
+  **Correction, 2026-11-09:** no such Worker exists in the account. The
+  observatorium is published by hand from a deploy branch after releases, and
+  nothing deploys it automatically. Until its address is confirmed live, the
+  site shows an on-site "coming back" note instead of linking to it
+  (`OBSERVATORIUM` in `scripts/metrics.py`).
 
 **Restoring was considered and rejected.** The old source is frozen, so the
 only way to restore the chart is to switch it to `snapshots.jsonl`. That would

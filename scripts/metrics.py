@@ -50,10 +50,19 @@ FLOORS = ("shell-decider", "pipe-site", "jq-callsite")
 # runtime stopped regenerating the dashboard file on 2026-08-08 and publishes
 # the score on its own observatorium (openspec/changes/retire-centicolon-dashboards).
 RETIRED = ("cc_residual",)
-OBSERVATORIUM = "https://observatorium.tillandsias.org/"
-OBSERVATORIUM_NOTE = ('<p class="ledger-note">The CentiColon score itself, release by release, is published by '
-                      'the project on its own <a href="%s" target="_blank" rel="noopener">observatorium</a>. '
-                      'This site no longer redraws it.</p>' % OBSERVATORIUM)
+# The observatorium is published by hand from a deploy branch after releases;
+# nothing deploys it automatically. Until its address is confirmed live, leave
+# this None: the pages then show an on-site "coming back" note and link nowhere.
+OBSERVATORIUM = None
+if OBSERVATORIUM:
+    OBSERVATORIUM_NOTE = ('<p class="ledger-note observatorium-note">The CentiColon score itself, release by '
+                          'release, is published by the project on its own <a href="%s" target="_blank" '
+                          'rel="noopener">observatorium</a>. This site no longer redraws it.</p>' % OBSERVATORIUM)
+else:
+    OBSERVATORIUM_NOTE = ('<p class="ledger-note observatorium-note"><b>The observatorium is coming back.</b> '
+                          'The CentiColon score, release by release, now lives on the project\'s own observatorium, '
+                          'and this site no longer redraws it. The observatorium is offline for now; it is published '
+                          'again by hand after a release, and this note will link to it then.</p>')
 
 
 # --- extraction ---------------------------------------------------------------
