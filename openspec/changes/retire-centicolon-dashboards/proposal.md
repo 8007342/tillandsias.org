@@ -1,7 +1,8 @@
 # Retire the site's CentiColon score charts
 
-Status: proposed 2026-11-08, during the refresh to stable `v56.11.7.1`. Not
-applied. A person decides.
+Status: proposed 2026-11-08, during the refresh to stable `v56.11.7.1`.
+Approved 2026-11-09 as proposed; the floor panels stay (the open question
+below was not taken up). Applied in the same refresh.
 
 ## Why
 

@@ -46,6 +46,14 @@ REFRESH = ROOT / "refresh.d"
 REPO_SLUG = "8007342/tillandsias"
 DASHBOARD = "docs/convergence/centicolon-dashboard.json"
 FLOORS = ("shell-decider", "pipe-site", "jq-callsite")
+# Still extracted and verified (the store is append-only), no longer drawn: the
+# runtime stopped regenerating the dashboard file on 2026-08-08 and publishes
+# the score on its own observatorium (openspec/changes/retire-centicolon-dashboards).
+RETIRED = ("cc_residual",)
+OBSERVATORIUM = "https://observatorium.tillandsias.org/"
+OBSERVATORIUM_NOTE = ('<p class="ledger-note">The CentiColon score itself, release by release, is published by '
+                      'the project on its own <a href="%s" target="_blank" rel="noopener">observatorium</a>. '
+                      'This site no longer redraws it.</p>' % OBSERVATORIUM)
 
 
 # --- extraction ---------------------------------------------------------------
@@ -227,45 +235,6 @@ def series():
     return out
 
 
-def regimes(rows):
-    """The accepted-baseline view of cc_residual, derived and labelled as such.
-
-    The dashboard interleaves runs over different scopes (a budget of 120 is a
-    single gate, 750 the whole suite), and a residual is comparable only under
-    one scope. Per calendar week the scope with the most runs is the dominant
-    one; its runs, in order, form one regime until the dominant budget changes.
-    Within a regime the line is the best residual reached so far: monotone by
-    construction, which is exactly why the raw runs are drawn beside it."""
-    weeks = {}
-    for r in rows:
-        wk = datetime.strptime(r["t"][:10], "%Y-%m-%d").isocalendar()[:2]
-        weeks.setdefault(wk, {}).setdefault(r["budget"], 0)
-        weeks[wk][r["budget"]] += 1
-    dom = {wk: max(c.items(), key=lambda kv: (kv[1], kv[0]))[0] for wk, c in weeks.items()}
-    segs = []
-    for r in rows:
-        wk = datetime.strptime(r["t"][:10], "%Y-%m-%d").isocalendar()[:2]
-        if r["budget"] != dom[wk]:
-            continue
-        if not segs or segs[-1][0]["budget"] != r["budget"]:
-            segs.append([])
-        best = min(r["v"], segs[-1][-1]["v"]) if segs[-1] else r["v"]
-        segs[-1].append(dict(r, v=best, raw=r["v"]))
-    return segs
-
-
-def raw_rises(rows):
-    """Rises between consecutive runs of the same budget: regressions the raw
-    record shows, before any baseline is taken."""
-    last, n = {}, 0
-    for r in rows:
-        b = r["budget"]
-        if b in last and r["v"] > last[b]:
-            n += 1
-        last[b] = r["v"]
-    return n
-
-
 def rises(rows):
     return sum(1 for a, b in zip(rows, rows[1:]) if b["v"] > a["v"])
 
@@ -371,7 +340,7 @@ def _path(points):
     return " ".join(d)
 
 
-def _panel(i, title, note, axis, lines, vmax, dots=(), vmin=0, shown=None):
+def _panel(i, title, note, axis, lines, vmax, vmin=0, shown=None):
     y0 = TOP + i * (PANEL_H + GAP)
     shown = shown or (lambda r: r["v"])
 
@@ -387,9 +356,6 @@ def _panel(i, title, note, axis, lines, vmax, dots=(), vmin=0, shown=None):
                    '<text class="mx-yl" x="%d" y="%.1f" text-anchor="end">%s</text>'
                    % (PAD_L, W - PAD_R, y(v), y(v), PAD_L - 8, y(v) + 4,
                       ("%+d" % round(v) if vmin < 0 else "{:,}".format(int(round(v)))) if v else "0"))
-    for r in dots:
-        out.append('<circle class="mx-dot" cx="%.1f" cy="%.1f" r="1.6"><title>%s: %s still open out of %s</title></circle>'
-                   % (axis.x(ts(r["t"])), y(r["v"]), r["t"][:10], r["v"], r.get("budget")))
     labels = []
     for name, segs, color, dash, label in lines:
         last = None
@@ -397,10 +363,10 @@ def _panel(i, title, note, axis, lines, vmax, dots=(), vmin=0, shown=None):
             pts = [(axis.x(ts(r["t"])), y(r["v"])) for r in seg]
             if not pts:
                 continue
-            pts.append((axis.x(axis.t_ref) if seg is segs[-1] and name != "cc_residual" else pts[-1][0], pts[-1][1]))
+            pts.append((axis.x(axis.t_ref) if seg is segs[-1] else pts[-1][0], pts[-1][1]))
             out.append('<path class="mx-line" d="%s" stroke="%s"%s/>'
                        % (_path(pts), color, ' stroke-dasharray="%s"' % dash if dash else ""))
-            for r in (seg if name != "cc_residual" else ()):
+            for r in seg:
                 out.append('<circle class="mx-hit" cx="%.1f" cy="%.1f" r="6"><title>%s · %s: %s%s</title></circle>'
                            % (axis.x(ts(r["t"])), y(r["v"]), html.escape(label), r["t"][:16].replace("T", " "),
                               "{:,}".format(shown(r)),
@@ -408,8 +374,7 @@ def _panel(i, title, note, axis, lines, vmax, dots=(), vmin=0, shown=None):
             last = pts[-1]
         if last:
             tail = segs[-1][-1]
-            when = "" if name != "cc_residual" else datetime.strptime(tail["t"][:10], "%Y-%m-%d").strftime(" (%b %-d)")
-            labels.append([last[1] + 4, "%s %s%s" % ("{:,}".format(shown(tail)), label, when)])
+            labels.append([last[1] + 4, "%s %s" % ("{:,}".format(shown(tail)), label)])
     # Direct labels never overlap: push each one below the one above it.
     labels.sort()
     for k in range(1, len(labels)):
@@ -424,14 +389,6 @@ def render_chart(data, t_ref, milestones):
     firsts = [ts(rows[0]["t"]) for rows in data.values() if rows]
     axis = Axis(t_ref, min(firsts))
     panels, tops = [], []
-    cc = data.get("cc_residual", [])
-    segs = regimes(cc)
-    vmax = max([r["v"] for r in cc] + [1])
-    p, y0 = _panel(0, "Open obligations, as measured by each test run (CentiColons)",
-                   "dots: each run · line: lowest reached", axis,
-                   [("cc_residual", segs, "var(--violet)", "", "lowest")], vmax, dots=cc)
-    panels.append(p)
-    tops.append(y0)
     # Indexed to each floor's first entry: three counts of different size on
     # one axis, as change since the floor was set (one y-scale, no dual axis).
     floors = []
@@ -441,13 +398,13 @@ def render_chart(data, t_ref, milestones):
             floors.append((n, [[dict(r, v=r["v"] - base, abs=r["v"]) for r in data[n]]],
                            COLORS[n][0], COLORS[n][1], LABELS[n]))
     deltas = [r["v"] for _, s, *_ in floors for r in s[0]] + [0]
-    p, y0 = _panel(1, "Clean-up work the build will not let grow: change since tracking began",
+    p, y0 = _panel(0, "Clean-up work the build will not let grow: change since tracking began",
                    "lower is better", axis, floors, max(deltas + [1]), vmin=min(deltas + [-1]),
                    shown=lambda r: r.get("abs", r["v"]))
     panels.append(p)
     tops.append(y0)
     op = data.get("openspec_open", [])
-    p, y0 = _panel(2, "Planned work still open in the design documents",
+    p, y0 = _panel(1, "Planned work still open in the design documents",
                    "rises when new work is planned", axis, [("openspec_open", [op], "var(--ink-dim)", "", "open tasks")],
                    max([r["v"] for r in op] + [1]))
     panels.append(p)
@@ -484,16 +441,11 @@ def render_chart(data, t_ref, milestones):
 
 def summary_rows(data):
     rows = []
-    for name, label in [("cc_residual", "Open obligations per test run")] + \
-            [(n, NAMES[n]) for n in COLORS] + [("openspec_open", "Planned work still open")]:
+    for name, label in [(n, NAMES[n]) for n in COLORS] + [("openspec_open", "Planned work still open")]:
         s = data.get(name)
         if not s:
             continue
-        if name == "cc_residual":
-            segs = regimes(s)
-            verdict = ("went up %d times from one run to the next; the lowest-reached line only goes down"
-                       % raw_rises(s))
-        elif name.startswith("floor:"):
+        if name.startswith("floor:"):
             k = rises(s)
             verdict = "never went up" if k == 0 else "went up %s" % ("once" if k == 1 else "%d times" % k)
         else:
@@ -516,21 +468,15 @@ def render(site_ref):
         raise ValueError("metrics: no pin milestone for %s; run metrics.py extract --ref %s" % (site_ref, site_ref))
     t_ref = ts(pins[0]["t"])
     shown = [m for m in ms if m["kind"] != "pin" or m["key"] == site_ref]
-    cc = data.get("cc_residual", [])
-    gap = ""
-    if cc:
-        stale = (t_ref - ts(cc[-1]["t"])) / 86400
-        gap = ('<p class="ledger-note">The test runs stopped publishing this measure on %s, %d days before '
-               'this release. The chart leaves that stretch empty rather than guess. The clean-up counts are '
-               'the only measures that continue past it.</p>'
-               % (datetime.strptime(cc[-1]["t"][:10], "%Y-%m-%d").strftime("%-d %B %Y"), stale))
+    for name in RETIRED:
+        data.pop(name, None)
+    gap = OBSERVATORIUM_NOTE
     return ('<section class="metrics" id="metrics" aria-labelledby="metrics-h">'
             '<h3 id="metrics-h">How much work is still open</h3>'
             '<p class="view-lede" id="mx-cap">The whole history of the project up to release <code>%s</code>, '
             'from its first day. Time is squeezed toward the past: recent weeks get the most room, and older '
             'months are drawn narrower but never cut off. Dotted lines mark releases. Point at any mark to '
-            'read its value. In the top chart, each grey dot is one test run. The line is the lowest '
-            'value reached so far: it can only go down, while the runs themselves went up and down.</p>'
+            'read its value.</p>'
             '<div class="mx-wrap">%s</div>%s'
             '<details class="mx-table"><summary>The numbers behind the chart</summary>'
             '<table><thead><tr><th>Measure</th><th>From</th><th>To</th><th>First</th><th>Last</th><th>Points</th>'
@@ -544,23 +490,16 @@ def centicolon_status(site_ref):
     """The generated part of the CentiColons page: what the history says at the
     pin, then how the page itself has improved."""
     data = series()
-    cc = data.get("cc_residual", [])
     floors = data.get("floor:shell-decider", [])
-    if not cc and not floors:
-        return improvements_html("centicolons")
+    if not floors:
+        return OBSERVATORIUM_NOTE + improvements_html("centicolons")
     parts = []
-    if cc:
-        last = cc[-1]
-        parts.append('<b>%s of %s</b> obligations were still open at the last test run that reported a score, on %s. '
-                     'Between runs the score went up as well as down, and no run has reported one since'
-                     % ("{:,}".format(last["v"]), "{:,}".format(last["budget"] or 0),
-                        datetime.strptime(last["t"][:10], "%Y-%m-%d").strftime("%-d %B %Y")))
     if floors:
         parts.append('<b>%s</b> shell scripts are still to be rewritten in Lua, down from %s when the count began'
                      % ("{:,}".format(floors[-1]["v"]), "{:,}".format(floors[0]["v"])))
-    return ('<h3>Where the score stands at %s</h3><p>%s.</p><p><button type="button" class="gobtn" '
+    return ('<h3>Where the score stands at %s</h3><p>%s.</p>%s<p><button type="button" class="gobtn" '
             'data-go="view-progress">See the whole history →</button></p>%s'
-            % (html.escape(site_ref), ". ".join(parts), improvements_html("centicolons")))
+            % (html.escape(site_ref), ". ".join(parts), OBSERVATORIUM_NOTE, improvements_html("centicolons")))
 
 CSS = r"""
 .metrics{margin:26px 0 40px}.metrics h3{font-size:19px;margin:0 0 6px}
@@ -569,7 +508,7 @@ CSS = r"""
 .mx-title{fill:var(--ink);font:600 12px var(--sans)}.mx-note,.mx-yl,.mx-xl{fill:var(--ink-faint);font-size:10px}
 .mx-grid{stroke:var(--line);stroke-width:1}.mx-tick{stroke:var(--line-2);stroke-width:1;stroke-dasharray:1 3}
 .mx-line{fill:none;stroke-width:2;stroke-linejoin:round}
-.mx-dot{fill:var(--ink-faint);opacity:.55}.mx-hit{fill:transparent;stroke:none}.mx-hit:hover{fill:var(--ink);opacity:.5}
+.mx-hit{fill:transparent;stroke:none}.mx-hit:hover{fill:var(--ink);opacity:.5}
 .mx-dl{fill:var(--ink-dim);font-size:10.5px}
 .mx-ms{stroke:var(--ink-faint);stroke-width:1;stroke-dasharray:2 3;opacity:.7}
 .mx-ms-bar{stroke:var(--amber)}.mx-ms-pin{stroke:var(--leaf);opacity:1}
