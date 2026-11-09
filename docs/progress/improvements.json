@@ -61,5 +61,19 @@
    "install"
   ],
   "text": "The install note now says the reset keeps your vault and sign-ins on every platform, including macOS."
+ },
+ {
+  "month": "2026-11",
+  "surfaces": [
+   "progress"
+  ],
+  "text": "The chart no longer redraws the CentiColon score, whose source stopped updating in August; the project now publishes that score on its own observatorium, and this page links to it."
+ },
+ {
+  "month": "2026-11",
+  "surfaces": [
+   "centicolons"
+  ],
+  "text": "The current score now lives on the project's own observatorium, linked from this page; the explanation of what the score means stays here."
  }
 ]
