@@ -67,6 +67,31 @@ at every start", called at `vault_bootstrap.rs#L4672`. The change landed as
 for the host instead"). The non-vault stub of `has_shamir_share_in_keyring`
 now simply returns `false` (`#L3566`).
 
+**What replaced it** (`53dc5be4f`). The guest holds the unlock share and the
+vault token only in memory, as the host delivers them from its own secure
+storage. The host's keychain writer refuses on every platform rather than
+writing a fallback file. With no delivery yet, the guest keeps the store and
+waits ("waiting for the host to unlock the vault"). Every guest start and
+every bootstrap zero-fills and deletes the old files without reading them.
+A guest that had them needs one re-login.
+
+**Item by item.** Each row gives the site's footnote, what it says, what is
+true at `v56.11.7.1`, and the suggested decision.
+
+| level, note | the site says | at v56.11.7.1 | suggested |
+|---|---|---|---|
+| 2 `[^16]` | where no keychain is available, the vault's key falls back to a local file (prose: "or on some computers in a local file") | no local file is written or read; without a host keychain the guest waits for the host | drop "or on some computers in a local file"; re-cite `[^16]` to the purge, `vault_bootstrap.rs#L100-L103` |
+| 3 `[^126]` | inside a VM guest the share is written to a fallback file on every initialisation | nothing writes the file; each start deletes any old copy | remove the clause "and inside a VM guest that file is written on every initialisation"; drop `[^126]` |
+| 3 `[^127]` | where no OS keyring is reachable, the share falls back to a file in the cache directory | the cache directory is now only scrubbed, never written | replace the "fallback copy" clause with "an older build's copy is wiped at the next start"; re-cite `[^127]` to `vault_bootstrap.rs#L125-L129` |
+| 4 `[^83]` | the launcher still writes the share to a plaintext file in its cache directory | no writer remains | the core of the RED is gone: retire the RED, or turn it into a note that the fix landed in this release |
+| 4 `[^84]` | inside a VM guest both fallback writes are always attempted | the double write was removed with the fallback | drop with `[^83]` |
+| 4 `[^85]` | the "share present in keychain" check falls through to the file | the file branch is gone; the guest asks the host's delivery instead | drop; the sentence about the hand-run clean-up script (`[^23]`) should also be re-read, because the purge now runs by itself |
+
+One thing the RED might still honestly say: the purge runs when a guest
+starts, so a guest upgraded but never restarted could still hold an old
+plaintext file until its next start. Whether that is worth a flag is the
+operator's call.
+
 **Why it matters.** Three levels tell readers a weakness exists that the
 stable release appears to have fixed. A security RED that is no longer true
 misleads the reader as much as a missing one.
