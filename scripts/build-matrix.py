@@ -497,7 +497,7 @@ def home_view():
             '<ul class="factpool" id="factpool" hidden>%s</ul>'
             '<p class="homelead">A small private cloud on your own computer. Its workspaces are '
             'thrown away and rebuilt; the work you push out of them is kept.</p>'
-            '<p class="homego"><button class="gobtn" data-go="view-what">What is it?</button></p>'
+            '<p class="homego"><button class="gobtn" data-go="view-methodology" data-msec="levels">What is it?</button></p>'
             '</div></section>'
             % (art, html.escape(facts.FACTS[0]), pool))
 
@@ -1154,6 +1154,152 @@ crowd of agents on a crowd of machines needs in order to agree.
             '</div></section>')
 
 
+def methodology_overview():
+    """Methodology, section one: how the project is built, in five rules.
+
+    Every rule links to the lines of the methodology that state it, at the
+    release the site was last checked against. The page describes the rules;
+    it does not claim how well they work. That is the research note's job,
+    and the note publishes no number until the number has been checked.
+    """
+    body = """
+<p>Tillandsias is developed by one person directing software agents that work in parallel on
+several machines. That only works if nobody, human or agent, has to be believed on their word.
+The methodology is the set of rules that makes this possible. It is kept as plain files in the
+project&rsquo;s repository, next to the code, and it changes the way code changes: through a
+recorded, reviewable commit.</p>
+
+<h3>Five rules the rest follows from</h3>
+
+<ol>
+<li><b>The spec comes first.</b> A written spec states what the software must do. Code implements
+it, tests mark where behaviour is right or wrong, and the spec is the source of truth when the two
+disagree. rcite("methodology/philosophy.yaml#L61-L64", "The system model") and its
+rcite("methodology/philosophy.yaml#L66-L80", "invariants") say so in a few lines.</li>
+<li><b>One shared plan, only ever added to.</b> Every agent writes what it did and what it found to
+one plan. Entries are appended and never edited, so two agents cannot overwrite each other, and a
+wrong entry is corrected by a later entry that says so.
+<button type="button" class="gobtn gobtn-in" data-go="view-crdt">How that works &#8594;</button></li>
+<li><b>Every finding says how it is known.</b> A finding passed from one agent to another is marked
+as measured, reported or inferred.
+rcite("methodology/distributed-work.yaml#L1479-L1485", "Passing a finding on is never counted as confirming it").</li>
+<li><b>&ldquo;Done&rdquo; is a ladder, and the only way down is a disproof.</b> A piece of work
+climbs from claimed to verified as evidence arrives. A weaker claim never overwrites a stronger
+one, and a claim is taken back only by a recorded entry that names the observation that
+contradicts it. rcite("methodology/distributed-work.yaml#L428-L433", "The rule").</li>
+<li><b>Changes land through checks that refuse when unsure.</b> A change joins the shared code
+only after automated checks pass, and a fix is accepted only when its own test was seen to
+rcite("methodology/multi-host-development.yaml#L647-L655", "fail before the fix and pass after").
+<button type="button" class="gobtn gobtn-in" data-go="view-centicolons">How progress is scored &#8594;</button></li>
+</ol>
+
+<h3>What is on this page</h3>
+
+<ul>
+<li><b>What it is, five ways.</b> The product itself, explained at five levels of detail, from
+&ldquo;like I&rsquo;m 5&rdquo; to the mathematics. Every sentence there links to the source that
+backs it.
+<button type="button" class="gobtn gobtn-in" data-go="view-methodology" data-msec="levels">Read it &#8594;</button></li>
+<li><b>Research note (in progress).</b> Three ideas from this methodology, being written up with
+numbers.
+<button type="button" class="gobtn gobtn-in" data-go="view-methodology" data-msec="note">See the outline &#8594;</button></li>
+</ul>
+
+<p class="m-fine">The rules above are quoted as they stand in release <code>@@SITE_REF@@</code>.
+This section says what the rules are. It makes no claim about how often they are followed or how
+well they work.</p>
+"""
+    body = body.replace("@@SITE_REF@@", SITE_REF)
+    return RCITE.sub(lambda m: rcite(m.group(1), m.group(2), "methodology"), body)
+
+
+# The research note. Each idea: (anchor, heading, thesis, [(label, target)], [evidence to gather]).
+# The rules are written as literal rcite("target", "label") text so that the
+# release refresh (scripts/anchors.py) re-anchors them like any other citation.
+# A thesis is a claim to be argued, not a result. No count, date, machine or
+# person appears here: the evidence is tracked in plan/research-note-evidence.md
+# and reaches this page only after the "numbers verified" milestone in
+# plan/research-note.md.
+RESEARCH_NOTE = [
+    ("peer-falsification", "Peer falsification",
+     "When one agent doubts another&rsquo;s claim, a counter-claim only adds a second opinion. "
+     "A test with its possible outcomes listed in advance, each outcome pointing to a different "
+     "next step, turns the disagreement into something a third party can run. The idea to be "
+     "argued: a group of agents settles on true statements when a claim travels with the test "
+     "that would disprove it, and when an agent&rsquo;s own report that it checked something is "
+     "counted as one piece of evidence and never as the check itself.",
+     ['rcite("methodology/distributed-work.yaml#L1479-L1485", "Passing a finding on is not confirming it")',
+      'rcite("methodology/distributed-work.yaml#L1509-L1516", "Agreement is not evidence")',
+      'rcite("methodology/verification.yaml#L277-L285", "State what would disprove a result before the numbers arrive")'],
+     ["How many recorded claims of &ldquo;done&rdquo; were later taken back, and at which step of the ladder.",
+      "How many of those were withdrawn by the claim&rsquo;s own author, and how many by a peer&rsquo;s test.",
+      "Cases where several agents agreed and a single measurement was underneath the agreement.",
+      "Cases where a report said &ldquo;verified&rdquo; and the recorded numbers said otherwise.",
+      "What the method costs: the extra time or messages per claim.",
+      "A fair comparison: what happened to similar claims before these rules existed."]),
+    ("fail-closed-gates", "Fail-closed gates",
+     "A check that cannot decide should refuse. The idea to be argued is that three habits are "
+     "one rule seen from three sides. A guard that could not run must not report what it would "
+     "have found. A gate in front of credentials is not relaxed so that a test can pass; the "
+     "test is changed instead. And a test for &ldquo;fixed&rdquo; counts only if it was seen to "
+     "fail on the code as it was before the fix.",
+     ['rcite("methodology/verification.yaml#L287-L295", "A zero counts only if the check ran")',
+      'rcite("methodology/verification.yaml#L309-L319", "Finding nothing counts only if the method can find something")',
+      'rcite("methodology/multi-host-development.yaml#L647-L655", "Fail before the fix, pass after")'],
+     ["How many refusals stopped a real defect, with the defect each one stopped.",
+      "How many refusals were wrong, and what each wrong refusal cost.",
+      "Cases where a test asked for a gate to be loosened, and what was done instead.",
+      "The share of recorded fixes that carry a failure before the fix and a pass after it.",
+      "Cases where a test for &ldquo;fixed&rdquo; already passed on the unfixed code and had to be replaced.",
+      "Cases where a deliberate fault planted to prove a test did not actually change anything."]),
+    ("refusals-as-interfaces", "Refusal strings treated as interfaces",
+     "When the reader of an error message is another program or another agent, the wording of "
+     "a refusal is an interface. Tillandsias&rsquo; checks answer with a short verdict of the "
+     "form <code>refused:&lt;name&gt;:&lt;detail&gt;</code>, then one line saying why and one "
+     "line saying what would clear it. The idea to be argued has two halves: a refusal with no "
+     "remedy leaves an agent to stop or to guess, and renaming a verdict is a breaking change "
+     "that needs a search for everything that reads the old name.",
+     ['rcite("openspec/specs/command-policies/spec.md#L97-L105", "Every refusal names why and what would clear it")',
+      'rcite("scripts/check-refusal-affordance-added.sh#L4-L12", "The check that keeps new refusals from arriving bare")'],
+     ["How many refusal messages carry a reason and a remedy, and how that share moved from release to release.",
+      "Each time a verdict was renamed: how many readers the search found, and any it missed.",
+      "Cases where a bare refusal sent an agent to a wrong next step.",
+      "Cases where an exit code alone could not tell &ldquo;refused&rdquo; from &ldquo;could not run&rdquo;.",
+      "A measurement, still to be designed, of whether a stated remedy shortens recovery."]),
+]
+
+
+def methodology_note():
+    """Methodology, section three: the research note's outline, as headed stubs."""
+    out = ['<div class="callout flag-plausible"><span class="callout-icon">&sim;</span><div>'
+           '<p><span class="callout-k">in progress</span> This is an outline, with a target of '
+           '31 December 2026. The argument will be written by the project&rsquo;s author. The '
+           'numbers are still being collected and checked, and none is published here until it '
+           'has been.</p></div></div>',
+           '<p>The note takes three ideas from the methodology and asks of each: what is the '
+           'claim, what would show it to be wrong, and what does the project&rsquo;s own record '
+           'say. Each idea below has the claim in one paragraph, the rules it comes from, and '
+           'the list of evidence still to gather.</p>']
+    for n, (anchor, head, thesis, rules, todo) in enumerate(RESEARCH_NOTE, 1):
+        links = "".join('<li>%s</li>' % r for r in rules)
+        items = "".join('<li>%s</li>' % t for t in todo)
+        out.append('<h3 id="note-%s"><span class="m-n">%d</span>%s</h3>'
+                   '<p>%s</p>'
+                   '<p class="m-k">The rules it comes from</p><ul class="m-rules">%s</ul>'
+                   '<p class="m-k">Evidence to gather</p><ul class="m-todo">%s</ul>'
+                   % (anchor, n, head, thesis, links, items))
+    out.append('<h3>How the note gets written</h3>'
+               '<ol><li><b>Outline.</b> The three claims and what would count against each.</li>'
+               '<li><b>Draft.</b> The argument, in the author&rsquo;s words.</li>'
+               '<li><b>Numbers verified.</b> Every figure re-counted from the public repository by '
+               'a command a reader can run.</li>'
+               '<li><b>Voice pass.</b> The author reads it through and makes it theirs.</li>'
+               '<li><b>Published.</b> The finished note replaces this outline.</li></ol>'
+               '<p class="m-fine">Agents gather evidence, outline and edit. They do not write the '
+               'argument.</p>')
+    return RCITE.sub(lambda m: rcite(m.group(1), m.group(2), "methodology"), "\n".join(out))
+
+
 def slides_view():
     """The deck behind the menu, one visible at a time.
 
@@ -1336,6 +1482,8 @@ def build():
            .replace("__POWERED_BY_CSS__", powered_by.CSS)
            .replace("__POWERED_BY_JS__", powered_by.JS)
            .replace("__SLIDES__", slides_view())
+           .replace("__METHODOLOGY_OVERVIEW__", methodology_overview())
+           .replace("__METHODOLOGY_NOTE__", methodology_note())
            .replace("__TABS__", "\n".join(tabs))
            .replace("__PANELS__", "\n".join(panels))
            .replace("__SITE_REF__", SITE_REF)
@@ -1695,6 +1843,27 @@ footer a:hover{color:var(--leaf)}
 .gobtn{cursor:pointer;background:transparent;border:1px solid var(--line-2);border-radius:9px;
   color:var(--ink-dim);font:500 14px/1 var(--sans);padding:11px 18px;transition:.15s}
 .gobtn:hover{color:var(--ink);border-color:var(--leaf-dim);background:rgba(95,214,164,.05)}
+/* --- methodology: one page, three sections; only one is shown at a time --- */
+.msecs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
+.msec-b{appearance:none;cursor:pointer;background:transparent;border:1px solid var(--line-2);
+  border-radius:999px;color:var(--ink-dim);font:500 13.5px/1 var(--sans);padding:10px 15px;transition:.15s}
+.msec-b:hover{color:var(--ink);border-color:var(--leaf-dim)}
+.msec-b.is-on{color:var(--bg);background:var(--leaf);border-color:var(--leaf)}
+.msec{display:none}
+.msec.is-on{display:block;animation:fade .28s ease both}
+.msec>.wrap>.prose{margin:14px 0 72px}
+.msec header.hero{padding:26px 0 30px}
+.gobtn-in{display:inline-block;padding:6px 11px;font-size:13px;margin:4px 0 0 4px;vertical-align:baseline}
+.m-fine{font-size:13.5px;color:var(--ink-faint);max-width:74ch}
+.m-k{margin:18px 0 8px;font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint)}
+.m-n{display:inline-block;font:600 12px/1 var(--mono);color:var(--bg);background:var(--leaf);
+  border-radius:5px;padding:5px 7px;margin-right:11px;vertical-align:3px}
+.prose ul.m-todo>li{padding-left:28px}
+.prose ul.m-todo>li::before{left:2px;top:.36em;width:12px;height:12px;border-radius:3px;
+  background:transparent;border:1.5px solid var(--line-2)}
+.prose ul.m-rules>li{font-size:14.5px}
+.msec>.wrap>.prose a{color:var(--sky);text-underline-offset:3px}
+.msec>.wrap>.prose a:hover{color:var(--leaf)}
 /* --- live progress --- */
 .view-h{margin:76px 0 10px;font-size:clamp(28px,4vw,40px);letter-spacing:-.026em;font-weight:650}
 .view-lede{max-width:74ch;margin:0 0 22px;color:var(--ink-dim);font-size:15.5px}
@@ -1956,7 +2125,7 @@ __DEFS__
 <nav class="drawer" id="drawer" aria-label="Site">
   <p class="drawer-h">tillandsias.org</p>
   <button class="nav is-on" id="nav-home" data-go="view-home"><span class="nav-i">&#127968;</span>Home</button>
-  <button class="nav" id="nav-what" data-go="view-what"><span class="nav-i">&#63;</span>What is it?</button>
+  <button class="nav" id="nav-methodology" data-go="view-methodology"><span class="nav-i">&#167;</span>Methodology</button>
   <button class="nav" id="nav-install" data-go="view-install"><span class="nav-i">&#8595;</span>I want it!</button>
   <button class="nav" id="nav-progress" data-go="view-progress"><span class="nav-i">&#9673;</span>Live progress</button>
   <button class="nav" id="nav-centicolons" data-go="view-centicolons"><span class="nav-i">&#9823;</span>CentiColons</button>
@@ -1975,7 +2144,25 @@ __DEFS__
 
 __HOME__
 
-<section class="view" id="view-what" role="tabpanel" aria-labelledby="nav-what">
+<section class="view" id="view-methodology" role="tabpanel" aria-labelledby="nav-methodology">
+<div class="wrap">
+  <h2 class="view-h">Methodology</h2>
+  <p class="view-lede">What Tillandsias is, how it is built, and a research note in progress on
+    three ideas the work keeps coming back to.</p>
+  <div class="msecs" role="tablist" aria-label="Methodology sections">
+    <button type="button" class="msec-b is-on" role="tab" aria-selected="true" aria-controls="msec-overview" id="msecb-overview" data-msec="overview">How it is built</button>
+    <button type="button" class="msec-b" role="tab" aria-selected="false" aria-controls="msec-levels" id="msecb-levels" data-msec="levels">What it is, five ways</button>
+    <button type="button" class="msec-b" role="tab" aria-selected="false" aria-controls="msec-note" id="msecb-note" data-msec="note">Research note (in progress)</button>
+  </div>
+</div>
+
+<div class="msec is-on" id="msec-overview" role="tabpanel" aria-labelledby="msecb-overview">
+<div class="wrap"><div class="prose">
+__METHODOLOGY_OVERVIEW__
+</div></div>
+</div>
+
+<div class="msec" id="msec-levels" role="tabpanel" aria-labelledby="msecb-levels">
 <header class="hero">
   <div class="wrap">
     <p class="eyebrow"><span class="leaf-ico" aria-hidden="true">__LEAF__</span>tillandsias.org <span class="ver" title="The release of the source repository this page was last checked against">&middot; __SITE_REF__</span> <span class="updated">&middot; website last updated __BUILD_STAMP__</span></p>
@@ -1999,6 +2186,13 @@ __TABS__
 __PANELS__
   </div>
 </main>
+</div>
+
+<div class="msec" id="msec-note" role="tabpanel" aria-labelledby="msecb-note">
+<div class="wrap"><div class="prose">
+__METHODOLOGY_NOTE__
+</div></div>
+</div>
 </section>
 
 __INSTALL_VIEW__
@@ -2157,8 +2351,30 @@ __SLIDES__
     if (push) history.replaceState(null, '', id === 'view-home' ? location.pathname + location.search : '#' + id.slice(5));
     window.scrollTo(0, 0);
   }
+  // Methodology is one page in three sections. Each section keeps an address:
+  // #methodology, #what (the address the five levels have always had) and
+  // #research-note, so links made before the sections existed still open.
+  var MSEC = {overview: 'methodology', levels: 'what', note: 'research-note'},
+      msecs = [].slice.call(document.querySelectorAll('.msec')),
+      msecBs = [].slice.call(document.querySelectorAll('.msec-b'));
+  function setSec(name, push){
+    if (!MSEC[name]) name = 'overview';
+    msecs.forEach(function(m){ m.classList.toggle('is-on', m.id === 'msec-' + name); });
+    msecBs.forEach(function(b){
+      var on = b.dataset.msec === name;
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    if (push) history.replaceState(null, '', '#' + MSEC[name]);
+  }
+  msecBs.forEach(function(b){
+    b.addEventListener('click', function(){ setSec(b.dataset.msec, true); });
+  });
   [].slice.call(document.querySelectorAll('[data-go]')).forEach(function(b){
-    b.addEventListener('click', function(){ go(b.dataset.go, true); });
+    b.addEventListener('click', function(){
+      go(b.dataset.go, true);
+      if (b.dataset.go === 'view-methodology') setSec(b.dataset.msec || 'overview', true);
+    });
   });
 
   // One fact per visit, drawn in the browser so the page is a little different
@@ -2169,12 +2385,27 @@ __SLIDES__
     if (lines.length) out.textContent = lines[Math.floor(Math.random() * lines.length)].textContent;
   }
 
-  // A deep link opens its view: #home, #what, #install, #progress, #centicolons, #crdt, #lamport, #slides, #big-graph, #powered-by, or a level.
+  // A deep link opens its view: #home, #methodology, #what, #research-note, #install, #progress, #centicolons, #crdt, #lamport, #slides, #big-graph, #powered-by, a level, or a footnote of a level.
   function fromHash(){
     var h = location.hash.slice(1);
     if (!h) return go('view-home', false);
-    if (h === 'home' || h === 'what' || h === 'install' || h === 'progress' || h === 'slides' || h === 'centicolons' || h === 'crdt' || h === 'lamport' || h === 'big-graph' || h === 'powered-by') return go('view-' + h, false);
-    if (document.getElementById('panel-' + h)) go('view-what', false);
+    if (h === 'methodology' || h === 'what' || h === 'research-note' || /^note-/.test(h)) {
+      go('view-methodology', false);
+      setSec(h === 'what' ? 'levels' : h === 'methodology' ? 'overview' : 'note', false);
+      if (/^note-/.test(h)) { var t = document.getElementById(h); if (t) t.scrollIntoView(); }
+      return;
+    }
+    if (h === 'home' || h === 'install' || h === 'progress' || h === 'slides' || h === 'centicolons' || h === 'crdt' || h === 'lamport' || h === 'big-graph' || h === 'powered-by') return go('view-' + h, false);
+    var foot = /^[rf](level-[a-z0-9-]+)-\\d+$/.exec(h);
+    if (document.getElementById('panel-' + (foot ? foot[1] : h))) {
+      var shown = document.getElementById('view-methodology').classList.contains('is-active')
+               && document.getElementById('msec-levels').classList.contains('is-on');
+      // A footnote link inside the level already on screen keeps the browser's own jump.
+      if (foot && shown) return;
+      go('view-methodology', false);
+      setSec('levels', false);
+      if (foot) setTimeout(function(){ var t = document.getElementById(h); if (t) t.scrollIntoView(); }, 0);
+    }
   }
   window.addEventListener('hashchange', fromHash);
   fromHash();
@@ -2276,7 +2507,8 @@ function fromDeckHash(){
   }
   tabs.forEach(function(t){ t.addEventListener('click', function(){ show(t.dataset.target); }); });
   document.addEventListener('keydown', function(e){
-    var onWhat = document.getElementById('view-what').classList.contains('is-active');
+    var onWhat = document.getElementById('view-methodology').classList.contains('is-active')
+              && document.getElementById('msec-levels').classList.contains('is-on');
     if (onWhat && e.key >= '1' && e.key <= '5' && !/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) {
       var t = tabs[+e.key - 1]; if (t) show(t.dataset.target);
     }

@@ -31,6 +31,15 @@ Two kinds of reader are expected, and the documents here are written for both:
   placeholders). Designed in `openspec/changes/i-want-it-quickstart/`; open
   questions and the screenshot checklist the owner needs to capture.
 
+- **[`research-note.md`](research-note.md)** — the research note on the
+  Methodology page (peer falsification, fail-closed gates, refusal strings as
+  interfaces): milestones with exit criteria, target **2026-12-31**, outline,
+  open questions for the operator. The operator writes the argument; agents
+  gather evidence and edit.
+- **[`research-note-evidence.md`](research-note-evidence.md)** — the evidence
+  gathered for that note, with the command and source for each figure, its
+  verification status, and what to scrub before anything is published.
+
 ## Conventions
 
 - **Facts carry evidence.** Every claim states how it was verified, or is
